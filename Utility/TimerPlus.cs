@@ -400,6 +400,15 @@ namespace Expanse
         }
 
         /// <summary>
+        /// Changes the min and max length in a randomized timer.
+        /// </summary>
+        public void ModifyLength(float newMinLength, float newMaxLength)
+        {
+            MinLength = newMinLength;
+            MaxLength = newMaxLength;
+        }
+
+        /// <summary>
         /// Changes the timers current value regardless of play state.
         /// </summary>
         /// <param name="valueModification">How much is added onto the current value.</param>

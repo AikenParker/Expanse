@@ -37,11 +37,11 @@ namespace Expanse
         // Subscribe to this through code
         public event System.Action<GameObject> OnTriggered;
         // Override this if you have custom trigger conditions to specify in child class
-        protected virtual bool canBeTriggered { get { return true; } }
+        protected virtual bool CanBeTriggered { get { return true; } }
         // Determines if this trigger can be triggered
-        public bool triggerable
+        public bool Triggerable
         {
-            get { return enabled && gameObject.activeInHierarchy && (!hasBeenTriggered && canBeTriggered || isMultiTrigger && canBeTriggered); }
+            get { return enabled && gameObject.activeInHierarchy && CanBeTriggered && (!hasBeenTriggered || isMultiTrigger); }
         }
 
         void Start()
@@ -51,17 +51,26 @@ namespace Expanse
                 CreateProximityTimer();
         }
 
+        /// <summary>
+        /// Be sure to call "base.OnCollisionEnter(collision)" for when a collision may activate this trigger.
+        /// </summary>
         protected virtual void OnCollisionEnter(Collision collision)
         {
             CallTrigger(collision.collider.gameObject);
         }
 
+        /// <summary>
+        /// Be sure to call "base.OnTriggerEnter(other)" for when a collider may activate this trigger.
+        /// </summary>
         protected virtual void OnTriggerEnter(Collider other)
         {
             CallTrigger(other.gameObject);
         }
 
-        private void CheckProximity()
+        /// <summary>
+        /// Call "base.CheckProximity()" for default overlap sphere behaviour.
+        /// </summary>
+        protected virtual void CheckProximity()
         {
             List<Collider> colliders = new List<Collider>(Physics.OverlapSphere(transform.position, proximityDistance, targetLayer).Where(x => x.gameObject != this.gameObject));
 
@@ -74,7 +83,7 @@ namespace Expanse
         {
             if (triggerType == TriggerType.ProximityBased)
             {
-                Gizmos.color = triggerable ? Color.green : Color.red;
+                Gizmos.color = Triggerable ? Color.green : Color.red;
                 Gizmos.DrawSphere(transform.position, proximityDistance);
             }
         }
@@ -94,7 +103,7 @@ namespace Expanse
         public void CallTrigger(GameObject triggerObject)
         {
             // Check if this object is even active or that the triggering object is in the correct layer
-            if (triggerable && targetLayer != (targetLayer | (1 << triggerObject.layer)))
+            if (Triggerable && targetLayer != (targetLayer | (1 << triggerObject.layer)) && IsTriggerObject(triggerObject))
             {
                 hasBeenTriggered = true;
 
@@ -122,6 +131,15 @@ namespace Expanse
 
             if (triggerType == TriggerType.ProximityBased && proximityTimer == null)
                 CreateProximityTimer();
+        }
+
+        /// <summary>
+        /// Gets called for every potential triggering object.
+        /// Return true if you want the param gameObject to activate this trigger.
+        /// </summary>
+        protected virtual bool IsTriggerObject(GameObject triggerObject)
+        {
+            return triggerObject;
         }
 
         /// <summary>
