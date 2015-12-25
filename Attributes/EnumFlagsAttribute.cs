@@ -12,6 +12,9 @@ namespace Expanse
     [AttributeUsage(AttributeTargets.Field)]
     public class EnumFlagsAttribute : PropertyAttribute
     {
-        public EnumFlagsAttribute() { }
+        public EnumFlagsAttribute()
+        {
+            order = 15;
+        }
     }
 }

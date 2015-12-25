@@ -12,7 +12,12 @@ namespace Expanse
     [AttributeUsage(AttributeTargets.Field)]
     public class HideAttribute : PropertyAttribute
     {
-        public bool showInPlayMode { get; set; }
-        public bool showInEditor { get; set; }
+        public bool ShowInPlayMode { get; set; }
+        public bool ShowInEditor { get; set; }
+
+        public HideAttribute()
+        {
+            order = 20;
+        }
     }
 }

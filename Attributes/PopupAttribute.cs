@@ -22,5 +22,10 @@ namespace Expanse
 
             displayedOptions = options;
         }
+
+        public PopupAttribute()
+        {
+            order = 15;
+        }
     }
 }

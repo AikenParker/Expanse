@@ -273,6 +273,21 @@ namespace Expanse
                 }
                 return result;
             }
+
+            /// <summary>
+            /// Checks if a field info is defined with a specific attribute and then attempts to retrieve it.
+            /// </summary>
+            public static bool GetAttribute<T>(this FieldInfo fieldInfo, out T attribute, bool inherit = false) where T: Attribute
+            {
+                if (fieldInfo.IsDefined(typeof(T), inherit))
+                {
+                    attribute = (T)fieldInfo.GetCustomAttributes(typeof(T), inherit)[0];
+                    return true;
+                }
+
+                attribute = null;
+                return false;
+            }
         }
     }
 }

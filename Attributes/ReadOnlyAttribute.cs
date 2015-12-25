@@ -12,7 +12,12 @@ namespace Expanse
     [AttributeUsage(AttributeTargets.Field)]
     public class ReadOnlyAttribute : PropertyAttribute
     {
-        public bool editableWhilePlaying { get; set; }
-        public bool editableInEditor { get; set; }
+        public bool EditableInPlayMode { get; set; }
+        public bool EditableInEditor { get; set; }
+
+        public ReadOnlyAttribute()
+        {
+            order = 10;
+        }
     }
 }

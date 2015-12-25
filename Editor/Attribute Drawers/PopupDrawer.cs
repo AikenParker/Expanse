@@ -8,6 +8,8 @@ namespace Expanse
     {
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
+            ReadOnlyDrawer.BeginReadOnlyCheck(fieldInfo);
+
             GUIContent displayPrefix = label;
             string[] displayedOptions = (attribute as PopupAttribute).displayedOptions;
 
@@ -30,6 +32,8 @@ namespace Expanse
                     break;
             }
             EditorGUI.EndProperty();
+
+            ReadOnlyDrawer.EndReadOnlyCheck();
         }
     }
 }
