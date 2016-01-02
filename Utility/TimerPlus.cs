@@ -17,6 +17,7 @@ namespace Expanse
     {
         // Static reference to all timers (Timers not in here do not function)
         protected static List<TimerPlus> AllTimers = new List<TimerPlus>(50);
+        private static bool IsSubscribed { get; set; }      // Has a callback relay subscription been made?
 
         // Timer properties
         public float Length { get; private set; }           // How long will the timer take. (Seconds)
@@ -50,6 +51,7 @@ namespace Expanse
 
         // Events
         public event Action Elapsed;
+        public event Action<float> Updated;
 
         #region Constructors
 
@@ -148,11 +150,11 @@ namespace Expanse
             // Add to all timer list
             AllTimers.Add(this);
 
-            // Ensure a TimerPlusManager exists.
-            if (!TimerPlusManager.instance)
+            // Subscribe to update events etc.
+            if (!IsSubscribed)
             {
-                TimerPlusManager timerPlusManager = new GameObject("TimerPlusManager", typeof(TimerPlusManager)).GetComponent<TimerPlusManager>();
-                timerPlusManager.Initialize(UpdateAll, FixedUpdateAll, DisposeAllOnLoad, DisposeAll);
+                CallBackRelay.SubscribeAll(UpdateAll, FixedUpdateAll, null, DisposeAllOnLoad, DisposeAll);
+                IsSubscribed = true;
             }
 
             // Apply settings from int
@@ -440,7 +442,12 @@ namespace Expanse
         private void Update(float delta)
         {
             if (IsPlaying)
+            {
                 Value -= delta;
+
+                if (Updated != null)
+                    Updated(Percentage);
+            }
             else
                 return;
 
@@ -610,6 +617,8 @@ namespace Expanse
                 if (Handle != null)
                     Handle.Dispose();
                 Elapsed = null;
+                Updated = null;
+                OnDisposed = null;
             }
 
             // Free unmanaged objects
