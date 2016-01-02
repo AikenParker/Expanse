@@ -18,5 +18,10 @@ namespace Expanse
         /// The game object this component is attached to. A component is always attached to a game object.
         /// </summary>
         GameObject gameObject { get; }
+
+        /// <summary>
+        /// This component type this interface is attached to.
+        /// </summary>
+        MonoBehaviour component { get; }
     }
 }

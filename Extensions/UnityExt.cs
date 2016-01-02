@@ -219,6 +219,18 @@ namespace Expanse
                     source.transform.localPosition -= Offset;
                 }
             }
+
+            /// <summary>
+            /// Stops a navigation mesh agent.
+            /// </summary>
+            public static void Pause(this NavMeshAgent source)
+            {
+                if (source.isOnNavMesh || source.isOnOffMeshLink)
+                {
+                    source.velocity = Vector3.zero;
+                    source.ResetPath();
+                }
+            }
         }
     }
 }

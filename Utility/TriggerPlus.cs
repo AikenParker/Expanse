@@ -103,7 +103,7 @@ namespace Expanse
         public void CallTrigger(GameObject triggerObject)
         {
             // Check if this object is even active or that the triggering object is in the correct layer
-            if (Triggerable && targetLayer != (targetLayer | (1 << triggerObject.layer)) && IsTriggerObject(triggerObject))
+            if (Triggerable && targetLayer == (targetLayer | (1 << triggerObject.layer)) && IsTriggerObject(triggerObject))
             {
                 hasBeenTriggered = true;
 
