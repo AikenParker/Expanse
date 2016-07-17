@@ -16,6 +16,7 @@ namespace Expanse
         public readonly bool isButton, isAxis, isKey;
         public readonly float axisThreshold;
 
+        public bool Active { get; set; }
         public bool Down { get; private set; }
         public bool Hold { get; private set; }
         public bool Up { get; private set; }
@@ -35,6 +36,7 @@ namespace Expanse
         {
             input = inputVal;
             isButton = true;
+            SubscribeToUpdates();
         }
 
         /// <summary>
@@ -46,6 +48,7 @@ namespace Expanse
             isAxis = true;
             axisThreshold = axisThresholdVal;
             isButton = checkButton;
+            SubscribeToUpdates();
         }
 
         /// <summary>
@@ -55,6 +58,7 @@ namespace Expanse
         {
             inputKeys = new KeyCode[] { inputKeyCode };
             isKey = true;
+            SubscribeToUpdates();
         }
 
         /// <summary>
@@ -64,12 +68,21 @@ namespace Expanse
         {
             inputKeys = inputKeyCodes;
             isKey = true;
+            SubscribeToUpdates();
+        }
+
+        private void SubscribeToUpdates()
+        {
+            CallBackRelay.SubscribeAll(Update, null, null, null, Dispose);
+            Active = true;
         }
 
         #endregion
 
         public void Update()
         {
+            if (!Active) return;
+
             if (isKey && inputKeys.Any())
             {
                 // Check for key input
@@ -120,6 +133,11 @@ namespace Expanse
             // Add to hold time
             if (Hold) HoldTime += Time.unscaledDeltaTime;
             else HoldTime = 0;
+        }
+
+        public void Dispose()
+        {
+            CallBackRelay.UnsubscribeAll(Update, null, null, null, Dispose);
         }
 
         // Retrieve flag and lower it.

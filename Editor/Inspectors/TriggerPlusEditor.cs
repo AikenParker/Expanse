@@ -111,7 +111,7 @@ namespace Expanse
             do
             {
                 EditorGUI.indentLevel = property.depth;
-                if (property.name.StartsWith("m_") || property.name.EqualToAny(baseProperties.Keys.ToArray())) continue; // Ignore Unity and base properties
+                if (property.name.StartsWith("m_") || property.name.EqualsAny(baseProperties.Keys.ToArray())) continue; // Ignore Unity and base properties
                 showChildren = EditorGUILayout.PropertyField(property); // Draw property
 
             }

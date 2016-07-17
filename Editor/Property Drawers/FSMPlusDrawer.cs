@@ -68,9 +68,9 @@ namespace Expanse
                 IteratorProps.NextVisible(true);
                 do
                 {
-                    EditorGUI.indentLevel = IteratorProps.depth;
+                    if (IteratorProps.depth == 0) break;
+                    EditorGUI.indentLevel = IteratorProps.depth - 1;
                     showChildren = EditorGUILayout.PropertyField(IteratorProps);
-
                 }
                 while (IteratorProps.NextVisible(showChildren));
                 EditorGUI.indentLevel = 0;

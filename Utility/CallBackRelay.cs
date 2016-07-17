@@ -15,12 +15,15 @@ namespace Expanse
     {
         [SerializeField]
         private bool hideGameObject = true;
+        private static bool isDestroyed = false;
 
         private static CallBackRelay instance;
         private static Action OnUpdate, OnFixedUpdate, OnLateUpdate, OnLoad, OnDisposal;
 
         public static void SubscribeAll(Action onUpdate, Action onFixedUpdate, Action onLateUpdate, Action onLoad, Action onDisposal)
         {
+            if (isDestroyed) return;
+
             // Ensure an instance exists
             if (instance == null)
                 CreateSingleton();
@@ -38,8 +41,10 @@ namespace Expanse
                 OnDisposal += onDisposal;
         }
 
-        public static void UnSubscribeAll(Action onUpdate, Action onFixedUpdate, Action onLateUpdate, Action onLoad, Action onDisposal)
+        public static void UnsubscribeAll(Action onUpdate, Action onFixedUpdate, Action onLateUpdate, Action onLoad, Action onDisposal)
         {
+            if (isDestroyed) return;
+
             // Ensure an instance exists
             if (instance == null)
                 CreateSingleton();
@@ -106,7 +111,10 @@ namespace Expanse
         void OnDestroy()
         {
             if (OnDisposal != null && instance == this)
+            {
                 OnDisposal();
+                isDestroyed = true;
+            }
         }
     }
 }

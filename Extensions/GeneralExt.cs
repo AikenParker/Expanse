@@ -16,6 +16,15 @@ namespace Expanse
         /// </summary>
         public static class GeneralExt
         {
+            private static void ExitApplication()
+            {
+#if (UNITY_EDITOR)
+                UnityEditor.EditorApplication.isPlaying = false;
+#else
+                Application.Quit();
+#endif
+            }
+
             /// <summary>
             /// Determines if target object is null OR empty (as an ICollection)
             /// </summary>
@@ -157,7 +166,7 @@ namespace Expanse
             /// <summary>
             /// Returns true if the source object equals any of the objects given.
             /// </summary>
-            public static bool EqualToAny<T>(this T source, params T[] comparisons)
+            public static bool EqualsAny<T>(this T source, params T[] comparisons)
             {
                 foreach (T item in comparisons)
                     if (source.Equals(item))

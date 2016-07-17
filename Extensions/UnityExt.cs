@@ -16,6 +16,21 @@ namespace Expanse
         /// </summary>
         public static class UnityExt
         {
+            public static void SetEnabled<T>(this T source, bool enabled) where T: Component
+            {
+                if (source is MonoBehaviour)
+                    (source as MonoBehaviour).enabled = enabled;
+                else if (source is Collider)
+                    (source as Collider).enabled = enabled;
+                else if (source is Rigidbody)
+                {
+                    (source as Rigidbody).detectCollisions = enabled;
+                    (source as Rigidbody).isKinematic = !enabled;
+                }
+                else
+                    UnityEngine.Debug.Log("Type " + typeof(T) + " is not supported. Add here.");
+            }
+
             /// <summary>
             /// Copies over field and property values from one component to another (WARNING: uses reflection)
             /// </summary>
