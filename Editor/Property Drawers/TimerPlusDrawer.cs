@@ -2,16 +2,16 @@
 using UnityEditor;
 using System.Collections;
 using System.Collections.Generic;
-using Expanse.Ext;
+
 
 namespace Expanse
 {
-    [CustomPropertyDrawer(typeof(TimerPlus), true)]
+    [CustomPropertyDrawer(typeof(Timer), true)]
     public class TimerPlusDrawer : PropertyDrawer
     {
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
-            TimerPlus target = (TimerPlus)fieldInfo.GetValue(property.serializedObject.targetObject);
+            Timer target = (Timer)fieldInfo.GetValue(property.serializedObject.targetObject);
 
             if (Application.isPlaying)
             {

@@ -1,0 +1,9 @@
+mklink /D "TARGET" "G:\Unity3D\Unity 5.3\Projects\Expanse\Assets\Expanse\Attributes\"
+mklink /D "TARGET" "G:\Unity3D\Unity 5.3\Projects\Expanse\Assets\Expanse\Editor"
+mklink /D "TARGET" "G:\Unity3D\Unity 5.3\Projects\Expanse\Assets\Expanse\Extensions"
+mklink /D "TARGET" "G:\Unity3D\Unity 5.3\Projects\Expanse\Assets\Expanse\Utility"
+
+mklink /D "E:\Projects\Bleak Shard 2D\Project\Bleak Shard 2D\Assets\Expanse\Attributes" "G:\Unity3D\Unity 5.3\Projects\Expanse\Assets\Expanse\Attributes"
+mklink /D "E:\Projects\Bleak Shard 2D\Project\Bleak Shard 2D\Assets\Expanse\Editor" "G:\Unity3D\Unity 5.3\Projects\Expanse\Assets\Expanse\Editor"
+mklink /D "E:\Projects\Bleak Shard 2D\Project\Bleak Shard 2D\Assets\Expanse\Extensions" "G:\Unity3D\Unity 5.3\Projects\Expanse\Assets\Expanse\Extensions"
+mklink /D "E:\Projects\Bleak Shard 2D\Project\Bleak Shard 2D\Assets\Expanse\Utility" "G:\Unity3D\Unity 5.3\Projects\Expanse\Assets\Expanse\Utility"

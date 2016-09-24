@@ -52,19 +52,9 @@ namespace Expanse
         }
 
         /// <summary>
-        /// Single input key code.
+        /// Key codes.
         /// </summary>
-        public InputData(KeyCode inputKeyCode)
-        {
-            inputKeys = new KeyCode[] { inputKeyCode };
-            isKey = true;
-            SubscribeToUpdates();
-        }
-
-        /// <summary>
-        /// Multiple key codes.
-        /// </summary>
-        public InputData(KeyCode[] inputKeyCodes)
+        public InputData(params KeyCode[] inputKeyCodes)
         {
             inputKeys = inputKeyCodes;
             isKey = true;

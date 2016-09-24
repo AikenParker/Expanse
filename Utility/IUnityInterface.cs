@@ -20,8 +20,8 @@ namespace Expanse
         GameObject gameObject { get; }
 
         /// <summary>
-        /// This component type this interface is attached to.
+        /// The mono behavior this interface is attached to. This interface is always attached to a mono behavior.
         /// </summary>
-        MonoBehaviour component { get; }
+        MonoBehaviour MonoBehaviour { get; }
     }
 }

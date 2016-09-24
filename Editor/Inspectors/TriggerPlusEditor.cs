@@ -1,16 +1,19 @@
-﻿using UnityEngine;using System.Collections;using System.Collections.Generic;using System.Linq;
+﻿using UnityEngine;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEditor;
-using Expanse.Ext;
+
 
 namespace Expanse
 {
-    [CustomEditor(typeof(TriggerPlus), true)]
+    [CustomEditor(typeof(TriggerZone), true)]
     public class TriggerPlusEditor : Editor
     {
-        TriggerPlus Target { get; set; }
+        TriggerZone Target { get; set; }
         Dictionary<string, SerializedProperty> baseProperties = new Dictionary<string, SerializedProperty>();
-        TriggerPlus.TriggerType triggerType;
-        TriggerPlus.VolumeType volumeType;
+        TriggerZone.TriggerType triggerType;
+        TriggerZone.VolumeType volumeType;
         Collider triggerCollider
         {
             get
@@ -30,7 +33,7 @@ namespace Expanse
 
         void OnEnable()
         {
-            Target = (TriggerPlus)target;
+            Target = (TriggerZone)target;
 
             // Get base TriggerPlus properties
             baseProperties.Add("triggerType", serializedObject.FindProperty("triggerType"));
@@ -46,7 +49,7 @@ namespace Expanse
             property = serializedObject.GetIterator();
 
             // Initializer
-            if (!triggerCollider && Target.triggerType != TriggerPlus.TriggerType.ProximityBased)
+            if (!triggerCollider && Target.triggerType != TriggerZone.TriggerType.ProximityBased)
                 ApplyTriggerChanges(Target.triggerType, Target.volumeType);
         }
 
@@ -60,8 +63,8 @@ namespace Expanse
             EditorGUILayout.ObjectField("Editor Script", MonoScript.FromScriptableObject(this), this.GetType(), false);
 
             // Reset trigger fields (Change flags)
-            triggerType = (TriggerPlus.TriggerType)baseProperties["triggerType"].enumValueIndex;
-            volumeType = (TriggerPlus.VolumeType)baseProperties["volumeType"].enumValueIndex;
+            triggerType = (TriggerZone.TriggerType)baseProperties["triggerType"].enumValueIndex;
+            volumeType = (TriggerZone.VolumeType)baseProperties["volumeType"].enumValueIndex;
 
             // Draw Header
             EditorGUILayout.Separator();
@@ -69,13 +72,13 @@ namespace Expanse
 
             // Draw trigger type enum fields
             EditorGUILayout.PropertyField(baseProperties["triggerType"]);
-            if (triggerType != TriggerPlus.TriggerType.ProximityBased)
+            if (triggerType != TriggerZone.TriggerType.ProximityBased)
             {
                 EditorGUI.indentLevel++;
                 EditorGUILayout.PropertyField(baseProperties["volumeType"]);
                 EditorGUI.indentLevel--;
             }
-            if (triggerType == TriggerPlus.TriggerType.ProximityBased)
+            if (triggerType == TriggerZone.TriggerType.ProximityBased)
             {
                 EditorGUI.indentLevel++;
                 EditorGUILayout.PropertyField(baseProperties["proximityDistance"]);
@@ -98,7 +101,7 @@ namespace Expanse
             // Apply type changes
             if ((int)triggerType != baseProperties["triggerType"].enumValueIndex || (int)volumeType != baseProperties["volumeType"].enumValueIndex)
             {
-                ApplyTriggerChanges((TriggerPlus.TriggerType)baseProperties["triggerType"].enumValueIndex, (TriggerPlus.VolumeType)baseProperties["volumeType"].enumValueIndex);
+                ApplyTriggerChanges((TriggerZone.TriggerType)baseProperties["triggerType"].enumValueIndex, (TriggerZone.VolumeType)baseProperties["volumeType"].enumValueIndex);
             }
 
             // Draw child fields
@@ -123,7 +126,7 @@ namespace Expanse
             serializedObject.UpdateIfDirtyOrScript();
         }
 
-        public void ApplyTriggerChanges(TriggerPlus.TriggerType newTriggerType, TriggerPlus.VolumeType newVolumeType)
+        public void ApplyTriggerChanges(TriggerZone.TriggerType newTriggerType, TriggerZone.VolumeType newVolumeType)
         {
             if (triggerCollider)
             {
@@ -131,22 +134,22 @@ namespace Expanse
                 triggerCollider = null;
             }
 
-            if (newTriggerType != TriggerPlus.TriggerType.ProximityBased)
+            if (newTriggerType != TriggerZone.TriggerType.ProximityBased)
             {
                 triggerCollider = AddNewCollider(newVolumeType);
-                if (newVolumeType == TriggerPlus.VolumeType.Mesh)
+                if (newVolumeType == TriggerZone.VolumeType.Mesh)
                     (triggerCollider as MeshCollider).convex = true;
-                triggerCollider.isTrigger = newTriggerType == TriggerPlus.TriggerType.TriggerVolume;
+                triggerCollider.isTrigger = newTriggerType == TriggerZone.TriggerType.TriggerVolume;
             }
         }
 
-        private Collider AddNewCollider(TriggerPlus.VolumeType type)
+        private Collider AddNewCollider(TriggerZone.VolumeType type)
         {
-            if (type == TriggerPlus.VolumeType.Box)
+            if (type == TriggerZone.VolumeType.Box)
                 return Target.gameObject.AddComponent<BoxCollider>();
-            else if (type == TriggerPlus.VolumeType.Sphere)
+            else if (type == TriggerZone.VolumeType.Sphere)
                 return Target.gameObject.AddComponent<SphereCollider>();
-            else if (type == TriggerPlus.VolumeType.Capsule)
+            else if (type == TriggerZone.VolumeType.Capsule)
                 return Target.gameObject.AddComponent<CapsuleCollider>();
             else
                 return Target.gameObject.AddComponent<MeshCollider>();

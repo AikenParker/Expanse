@@ -5,7 +5,7 @@ using System.Linq;
 using System;
 using System.Runtime.InteropServices;
 using Microsoft.Win32.SafeHandles;
-using Expanse.Ext;
+
 
 namespace Expanse
 {
@@ -13,10 +13,10 @@ namespace Expanse
     /// Time related utility class.
     /// </summary>
     [System.Serializable]
-    public class TimerPlus : IDisposable
+    public class Timer : IDisposable
     {
         // Static reference to all timers (Timers not in here do not function)
-        protected static List<TimerPlus> AllTimers = new List<TimerPlus>(50);
+        protected static List<Timer> AllTimers = new List<Timer>(50);
         private static bool IsSubscribed { get; set; }      // Has a callback relay subscription been made?
 
         // Timer properties
@@ -56,12 +56,12 @@ namespace Expanse
         #region Constructors
 
         // Do not use parameterless constructor.
-        protected TimerPlus() { }
+        protected Timer() { }
 
         /// <summary>
         /// Creates a simple one-time use timer.
         /// </summary>
-        public TimerPlus(float length, Action action = null)
+        protected Timer(float length, Action action = null)
         {
             Length = length;
             Value = Length;
@@ -72,7 +72,7 @@ namespace Expanse
         /// <summary>
         /// Creates a simple specified preset timer.
         /// </summary>
-        public TimerPlus(float length, Presets preset, Action action = null)
+        protected Timer(float length, Presets preset, Action action = null)
         {
             Length = length;
             Value = Length;
@@ -83,7 +83,7 @@ namespace Expanse
         /// <summary>
         /// Creates a timer with specified custom settings.
         /// </summary>
-        public TimerPlus(float length, bool startPlaying, bool autoRestart, bool disposeOnCompletion, bool disposeOnLoad, UpdateModes updateMode, Action action = null)
+        protected Timer(float length, bool startPlaying, bool autoRestart, bool disposeOnCompletion, bool disposeOnLoad, UpdateModes updateMode, Action action = null)
         {
             Length = length;
             Value = Length;
@@ -101,7 +101,7 @@ namespace Expanse
         /// <summary>
         /// Creates a randomized simple one-time use timer.
         /// </summary>
-        public TimerPlus(float minLength, float maxLength, Action action = null)
+        protected Timer(float minLength, float maxLength, Action action = null)
         {
             MinLength = minLength;
             MaxLength = maxLength;
@@ -114,7 +114,7 @@ namespace Expanse
         /// <summary>
         /// Creates a randomized simple specified preset timer.
         /// </summary>
-        public TimerPlus(float minLength, float maxLength, Presets preset, Action action = null)
+        protected Timer(float minLength, float maxLength, Presets preset, Action action = null)
         {
             MinLength = minLength;
             MaxLength = maxLength;
@@ -127,7 +127,7 @@ namespace Expanse
         /// <summary>
         /// Creates a randomized timer with all customized settings.
         /// </summary>
-        public TimerPlus(float minLength, float maxLength, bool startPlaying, bool autoRestart, bool disposeOnCompletion, bool disposeOnLoad, UpdateModes updateMode, Action action = null)
+        protected Timer(float minLength, float maxLength, bool startPlaying, bool autoRestart, bool disposeOnCompletion, bool disposeOnLoad, UpdateModes updateMode, Action action = null)
         {
             MinLength = minLength;
             MaxLength = maxLength;
@@ -177,49 +177,49 @@ namespace Expanse
         /// <summary>
         /// Creates a simple one-time use timer.
         /// </summary>
-        public static TimerPlus Create(float length, Action action = null)
+        public static Timer Create(float length, Action action = null)
         {
-            return new TimerPlus(length, action);
+            return new Timer(length, action);
         }
 
         /// <summary>
         /// Creates a simple specified preset timer.
         /// </summary>
-        public static TimerPlus Create(float length, Presets preset, Action action = null)
+        public static Timer Create(float length, Presets preset, Action action = null)
         {
-            return new TimerPlus(length, preset, action);
+            return new Timer(length, preset, action);
         }
 
         /// <summary>
         /// Creates a timer with all customized settings.
         /// </summary>
-        public static TimerPlus Create(float length, bool startPlaying, bool autoRestart, bool disposeOnCompletion, bool disposeOnLoad, UpdateModes updateMode, Action action = null)
+        public static Timer Create(float length, bool startPlaying, bool autoRestart, bool disposeOnCompletion, bool disposeOnLoad, UpdateModes updateMode, Action action = null)
         {
-            return new TimerPlus(length, startPlaying, autoRestart, disposeOnCompletion, disposeOnLoad, updateMode, action);
+            return new Timer(length, startPlaying, autoRestart, disposeOnCompletion, disposeOnLoad, updateMode, action);
         }
 
         /// <summary>
         /// Creates a randomized simple one-time use timer.
         /// </summary>
-        public static TimerPlus CreateRandom(float minLength, float maxLength, Action action = null)
+        public static Timer CreateRandom(float minLength, float maxLength, Action action = null)
         {
-            return new TimerPlus(minLength, maxLength, action);
+            return new Timer(minLength, maxLength, action);
         }
 
         /// <summary>
         /// Creates a randomized simple specified preset timer.
         /// </summary>
-        public static TimerPlus CreateRandom(float minLength, float maxLength, Presets mode, Action action = null)
+        public static Timer CreateRandom(float minLength, float maxLength, Presets mode, Action action = null)
         {
-            return new TimerPlus(minLength, maxLength, mode, action);
+            return new Timer(minLength, maxLength, mode, action);
         }
 
         /// <summary>
         /// Creates a randomized timer with all customized settings.
         /// </summary>
-        public static TimerPlus CreateRandom(float minLength, float maxLength, bool startPlaying, bool autoRestart, bool disposeOnCompletion, bool disposeOnLoad, UpdateModes updateMode, Action action = null)
+        public static Timer CreateRandom(float minLength, float maxLength, bool startPlaying, bool autoRestart, bool disposeOnCompletion, bool disposeOnLoad, UpdateModes updateMode, Action action = null)
         {
-            return new TimerPlus(minLength, maxLength, startPlaying, autoRestart, disposeOnCompletion, disposeOnLoad, updateMode, action);
+            return new Timer(minLength, maxLength, startPlaying, autoRestart, disposeOnCompletion, disposeOnLoad, updateMode, action);
         }
 
         #endregion
@@ -278,7 +278,7 @@ namespace Expanse
         /// <summary>
         /// Removes a timer from the list permanently. Causing it to stop running.
         /// </summary>
-        private static void Remove(TimerPlus TimerInstance)
+        private static void Remove(Timer TimerInstance)
         {
             if (AllTimers.Contains(TimerInstance))
             {
@@ -297,7 +297,7 @@ namespace Expanse
         /// <summary>
         /// Returns the count of all currently working timers that meet the specified predicate.
         /// </summary>
-        public static int TimerCount(Predicate<TimerPlus> match)
+        public static int TimerCount(Predicate<Timer> match)
         {
             return AllTimers.FindAll(match).Count;
         }
@@ -628,185 +628,9 @@ namespace Expanse
             IsDisposed = true;
         }
 
-        ~TimerPlus()
+        ~Timer()
         {
             Dispose(false);
-        }
-
-        #endregion
-    }
-
-    /// <summary>
-    /// Generic time related utility class.
-    /// </summary>
-    public class TimerPlus<T> : TimerPlus
-    {
-        new public event Action<T> Elapsed;
-
-        // The object that gets passed into the generic action
-        public T ActionParam;
-
-        #region Constructors
-
-        // Do not use parameterless constructor.
-        protected TimerPlus() : base() { }
-
-        /// <summary>
-        /// Creates a timer simple one-time use timer.
-        /// </summary>
-        public TimerPlus(float length, T parameter, Action<T> action = null)
-            : base(length, null)
-        {
-            ActionParam = parameter;
-
-            if (!action.IsNullOrEmpty())
-                Elapsed += action;
-        }
-
-        /// <summary>
-        /// Creates a timer specified preset timer.
-        /// </summary>
-        public TimerPlus(float length, Presets preset, T parameter, Action<T> action)
-            : base(length, preset, null)
-        {
-            ActionParam = parameter;
-
-            if (!action.IsNullOrEmpty())
-                Elapsed += action;
-        }
-
-        /// <summary>
-        /// Creates a timer with all customized settings.
-        /// </summary>
-        public TimerPlus(float length, bool startPlaying, bool autoRestart, bool disposeOnCompletion, bool disposeOnLoad, UpdateModes updateMode, T parameter, Action<T> action)
-            : base(length, startPlaying, autoRestart, disposeOnCompletion, disposeOnLoad, updateMode, null)
-        {
-            ActionParam = parameter;
-
-            if (!action.IsNullOrEmpty())
-                Elapsed += action;
-        }
-
-        /// <summary>
-        /// Creates a randomized timer simple one-time use timer.
-        /// </summary>
-        public TimerPlus(float minLength, float maxLength, T parameter, Action<T> action = null)
-            : base(minLength, maxLength, null)
-        {
-            ActionParam = parameter;
-
-            if (!action.IsNullOrEmpty())
-                Elapsed += action;
-        }
-
-        /// <summary>
-        /// Creates a randomized timer specified preset timer.
-        /// </summary>
-        public TimerPlus(float minLength, float maxLength, Presets preset, T parameter, Action<T> action)
-            : base(minLength, maxLength, preset, null)
-        {
-            ActionParam = parameter;
-
-            if (!action.IsNullOrEmpty())
-                Elapsed += action;
-        }
-
-        /// <summary>
-        /// Creates a randomized timer with all customized settings.
-        /// </summary>
-        public TimerPlus(float minLength, float maxLength, bool startPlaying, bool autoRestart, bool disposeOnCompletion, bool disposeOnLoad, UpdateModes updateMode, T parameter, Action<T> action)
-            : base(minLength, maxLength, startPlaying, autoRestart, disposeOnCompletion, disposeOnLoad, updateMode, null)
-        {
-            ActionParam = parameter;
-
-            if (!action.IsNullOrEmpty())
-                Elapsed += action;
-        }
-
-        #endregion
-
-        #region Static Constructors
-
-        /// <summary>
-        /// Creates a timer simple one-time use timer.
-        /// </summary>
-        public static TimerPlus<T> Create(float length, T parameter, Action<T> action = null)
-        {
-            return new TimerPlus<T>(length, parameter, action);
-        }
-
-        /// <summary>
-        /// Creates a timer specified preset timer.
-        /// </summary>
-        public static TimerPlus<T> Create(float length, Presets preset, T parameter, Action<T> action = null)
-        {
-            return new TimerPlus<T>(length, preset, parameter, action);
-        }
-
-        /// <summary>
-        /// Creates a timer with all customized settings.
-        /// </summary>
-        public static TimerPlus<T> Create(float length, bool startPlaying, bool autoRestart, bool disposeOnCompletion, bool disposeOnLoad, UpdateModes updateMode, T parameter, Action<T> action = null)
-        {
-            return new TimerPlus<T>(length, startPlaying, autoRestart, disposeOnCompletion, disposeOnLoad, updateMode, parameter, action);
-        }
-
-        /// <summary>
-        /// Creates a randomized timer simple one-time use timer.
-        /// </summary>
-        public static TimerPlus<T> CreateRandom(float minLength, float maxLength, T parameter, Action<T> action = null)
-        {
-            return new TimerPlus<T>(minLength, maxLength, parameter, action);
-        }
-
-        /// <summary>
-        /// Creates a randomized timer specified preset timer.
-        /// </summary>
-        public static TimerPlus<T> CreateRandom(float minLength, float maxLength, Presets preset, T parameter, Action<T> action = null)
-        {
-            return new TimerPlus<T>(minLength, maxLength, preset, parameter, action);
-        }
-
-        /// <summary>
-        /// Creates a randomized timer with all customized settings.
-        /// </summary>
-        public static TimerPlus<T> CreateRandom(float minLength, float maxLength, bool startPlaying, bool autoRestart, bool disposeOnCompletion, bool disposeOnLoad, UpdateModes updateMode, T parameter, Action<T> action = null)
-        {
-            return new TimerPlus<T>(minLength, maxLength, startPlaying, autoRestart, disposeOnCompletion, disposeOnLoad, updateMode, parameter, action);
-        }
-
-        #endregion
-
-        #region Non-public
-
-        protected override void OnTimerElapsed(float LeftOver)
-        {
-            // Overridden to allow for the generic action invocation
-            if (Elapsed != null)
-                Elapsed.Invoke(ActionParam);
-
-            base.OnTimerElapsed(LeftOver);
-        }
-
-        #endregion
-
-        #region Disposal
-
-        new public bool IsDisposed { get; private set; }
-        private SafeHandle Handle = new SafeFileHandle(IntPtr.Zero, true);
-
-        protected override void Dispose(bool Disposing)
-        {
-            if (IsDisposed)
-                return;
-
-            if (Disposing)
-            {
-                Handle.Dispose();
-                Elapsed = null;
-            }
-
-            base.Dispose(Disposing);
         }
 
         #endregion

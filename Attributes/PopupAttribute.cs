@@ -3,7 +3,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using Expanse.Ext;
+
 
 namespace Expanse
 {
@@ -13,8 +13,6 @@ namespace Expanse
     [AttributeUsage(AttributeTargets.Field)]
     public class PopupAttribute : PropertyAttribute
     {
-        public const string STATEPLUS_TYPE_KEY = "STATEPLUS_TYPE_KEY";
-
         public string[] displayedOptions { get; set; }
 
         public PopupAttribute(string[] options)
@@ -29,4 +27,4 @@ namespace Expanse
 
         protected PopupAttribute() { }
     }
-}
+}

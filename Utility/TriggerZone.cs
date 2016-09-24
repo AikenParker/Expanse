@@ -10,7 +10,7 @@ namespace Expanse
     /// <summary>
     /// Base class for anything that gets triggered by another object(s) either coming in contact or by simply getting too close.
     /// </summary>
-    public abstract class TriggerPlus : MonoBehaviour
+    public abstract class TriggerZone : MonoBehaviour
     {
         // NESTED TYPES
         public enum TriggerType { TriggerVolume = 0, CollisionVolume = 1, ProximityBased = 2 };
@@ -20,7 +20,7 @@ namespace Expanse
         [HideInInspector]
         public Collider colliderComp;
         [HideInInspector]
-        public TimerPlus proximityTimer;
+        public Timer proximityTimer;
 
         // INSPECTOR
         public TriggerType triggerType;
@@ -94,7 +94,7 @@ namespace Expanse
             if (proximityTimer != null)
                 proximityTimer.Dispose();
 
-            proximityTimer = TimerPlus.Create(proximityCheckFrequency, TimerPlus.Presets.Repeater, CheckProximity);
+            proximityTimer = Timer.Create(proximityCheckFrequency, Timer.Presets.Repeater, CheckProximity);
             proximityTimer.OnDisposed += () => proximityTimer = null;
             proximityTimer.Start();
         }
@@ -149,7 +149,7 @@ namespace Expanse
 
 #if (UNITY_EDITOR)
 
-        void Update()
+        void OnValidate()
         {
             // Updates changes made to settings only necessary in editor
 
