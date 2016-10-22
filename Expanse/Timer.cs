@@ -744,6 +744,8 @@ namespace Expanse
         {
             TimerSettings settings = GetDefault(duration);
             settings.autoPlay = true;
+            settings.alwaysPlay = true;
+            settings.deactivateOnLoad = false;
             settings.updateMode = Timer.UpdateModes.UNSCALED_UPDATE;
             return settings;
         }
@@ -751,6 +753,8 @@ namespace Expanse
         public static TimerSettings GetBackgroundStandard(float duration)
         {
             TimerSettings settings = GetDefault(duration);
+            settings.alwaysPlay = true;
+            settings.deactivateOnLoad = false;
             settings.completionMode = Timer.CompletionModes.STOP;
             settings.updateMode = Timer.UpdateModes.UNSCALED_UPDATE;
             return settings;
@@ -760,6 +764,8 @@ namespace Expanse
         {
             TimerSettings settings = GetDefault(duration);
             settings.autoPlay = true;
+            settings.alwaysPlay = true;
+            settings.deactivateOnLoad = false;
             settings.completionMode = Timer.CompletionModes.RESTART;
             settings.updateMode = Timer.UpdateModes.UNSCALED_UPDATE;
             return settings;
@@ -769,6 +775,8 @@ namespace Expanse
         {
             TimerSettings settings = GetDefault(duration);
             settings.autoPlay = true;
+            settings.alwaysPlay = true;
+            settings.deactivateOnLoad = false;
             settings.completionMode = Timer.CompletionModes.REVERSE;
             settings.updateMode = Timer.UpdateModes.UNSCALED_UPDATE;
             return settings;

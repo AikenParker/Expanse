@@ -128,6 +128,7 @@ namespace Expanse
 
         #endregion
 
+        // TODO: Make an IUpdate wrapper that stores shit like last update time etc.
         public ExtList<IUpdate> UpdateList = new ExtList<IUpdate>(INITIAL_UPDATE_CAPACITY);
         public ExtList<IUpdate> FixedUpdateList = new ExtList<IUpdate>(INITIAL_FIXEDUPDATE_CAPACITY);
         public ExtList<IUpdate> LateUpdateList = new ExtList<IUpdate>(INITIAL_LATEUPDATE_CAPACITY);
@@ -264,7 +265,7 @@ namespace Expanse
             UpdateExt.UpdateResult updateResult;
             int updateCount;
 
-            for (updateCount = 0; updateCount < settings.spreadCount; updateCount++)
+            for (updateCount = 0; updateCount < settings.spreadCount; )
             {
                 do
                 {
@@ -419,8 +420,11 @@ namespace Expanse
                         case SkipTypes.TIME:
                             return DeltaTime < skipTime;
 
-                        default:
+                        case SkipTypes.NONE:
                             return false;
+
+                        default:
+                            throw new UnexpectedException();
                     }
                 }
             }
