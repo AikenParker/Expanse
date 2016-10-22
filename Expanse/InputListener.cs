@@ -10,7 +10,7 @@ namespace Expanse
     /// <summary>
     /// InputData sequel.
     /// </summary>
-    public class InputListener : IDisposable
+    public class InputListener : IDisposable, IComplexUpdate
     {
         public InputTypes InputType { get; private set; }
         public string InputName { get; private set; }
@@ -35,11 +35,13 @@ namespace Expanse
             this.AxisMin = -1f;
             this.AxisMax = 1f;
 
-            CallBackRelay.SubscribeAll(Update, null, null, null, Dispose);
+            CallBackRelay.SubscribeToGlobalUpdate(this);
+            CallBackRelay.GlobalCBR.Destroyed += Dispose;
+
             this.Active = true;
         }
 
-        void Update()
+        void IUpdate.OnUpdate(float deltaTime)
         {
             if (!Active || InputType == InputTypes.NONE)
             {
@@ -97,7 +99,56 @@ namespace Expanse
 
         public void Dispose()
         {
-            CallBackRelay.UnsubscribeAll(Update, null, null, null, Dispose);
+            CallBackRelay.UnsubscribeFromGlobalUpdate(this);
+        }
+
+        bool IComplexUpdate.UnsafeUpdates
+        {
+            get
+            {
+                // TODO: Make attachable
+                return true;
+            }
+        }
+
+        bool IComplexUpdate.AlwaysUpdate
+        {
+            get
+            {
+                return false;
+            }
+        }
+
+        bool IComplexUpdate.UnscaledDelta
+        {
+            get
+            {
+                return false;
+            }
+        }
+
+        int IPriority.Priority
+        {
+            get
+            {
+                return 1;
+            }
+        }
+
+        GameObject IUnityInterface.gameObject
+        {
+            get
+            {
+                return null;
+            }
+        }
+
+        MonoBehaviour IUnityInterface.MonoBehaviour
+        {
+            get
+            {
+                return null;
+            }
         }
 
         public enum InputTypes

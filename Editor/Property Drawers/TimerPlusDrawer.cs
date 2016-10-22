@@ -17,7 +17,7 @@ namespace Expanse
             {
                 EditorGUI.LabelField(new Rect(position.x, position.y, position.width - EditorStyles.textField.fixedWidth, position.height), label);
                 GUI.enabled = false;
-                EditorGUI.Slider(new Rect(position.x + (position.width * .37f), position.y, position.width * .63f, position.height), target.Value, 0, target.Length);
+                EditorGUI.Slider(new Rect(position.x + (position.width * .37f), position.y, position.width * .63f, position.height), target.CurrentTime, 0, target.Duration);
                 GUI.enabled = true;
 
                 EditorUtility.SetDirty(property.serializedObject.targetObject);

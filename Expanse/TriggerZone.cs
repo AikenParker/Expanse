@@ -94,9 +94,7 @@ namespace Expanse
             if (proximityTimer != null)
                 proximityTimer.Dispose();
 
-            proximityTimer = Timer.Create(proximityCheckFrequency, Timer.Presets.Repeater, CheckProximity);
-            proximityTimer.OnDisposed += () => proximityTimer = null;
-            proximityTimer.Start();
+            proximityTimer = Timer.Create(this, TimerSettings.GetGameRepeater(proximityCheckFrequency), CheckProximity);
         }
 
         // Call trigger events if able.
@@ -163,7 +161,7 @@ namespace Expanse
                 proximityTimer.Dispose();
 
             if (proximityTimer != null)
-                proximityTimer.ModifyLength(proximityCheckFrequency);
+                proximityTimer.Duration = proximityCheckFrequency;
         }
 
 #endif

@@ -3,636 +3,775 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System;
-using System.Runtime.InteropServices;
-using Microsoft.Win32.SafeHandles;
-
 
 namespace Expanse
 {
     /// <summary>
     /// Time related utility class.
     /// </summary>
-    [System.Serializable]
-    public class Timer : IDisposable
+    //[Serializable]
+    public class Timer : IComplexUpdate, IDisposable
     {
-        // Static reference to all timers (Timers not in here do not function)
-        protected static List<Timer> AllTimers = new List<Timer>(50);
-        private static bool IsSubscribed { get; set; }      // Has a callback relay subscription been made?
-
-        // Timer properties
-        public float Length { get; private set; }           // How long will the timer take. (Seconds)
-        public float Value { get; private set; }            // Current time value of this timer. (Seconds)
-        public bool IsPlaying { get; set; }                 // Is the timer currently ticking down and playing?
-        public bool AutoRestart { get; set; }               // Will the timer reset automatically once finished?
-        public bool DisposeOnCompletion { get; set; }       // Will the timer automatically dispose itself after completion?
-        public bool DisposeOnLoad { get; set; }             // Will the timer automatically dispose itself on load?
-        public UpdateModes UpdateMode { get; set; }         // Determines which delta value to affect the timer.
-        public int MaxRepeats { get; set; }                 // Maximum amount of times the timer can end before self disposing. (Default(0) = Infinite)
-        public bool IsRandomized { get; private set; }      // Does this timer have a randomized length?
-        public float MinLength { get; set; }                // Maximum length while randomized. (Seconds)
-        public float MaxLength { get; set; }                // Minimum length while randomized. (Seconds)
-        private float GetNewLength
+        private Timer(MonoBehaviour attachedMonoBahviour, CallBackRelay CBR)
         {
-            get
+            if (CBR == null)
+                throw new ArgumentNullException("CBR");
+
+            this.callBackRelay = CBR;
+            this.callBackRelay.Destroyed += this.Deactivcate;
+
+            if (attachedMonoBahviour != null)
             {
-                Length = IsRandomized ? UnityEngine.Random.Range(MinLength, MaxLength) : Length;
-                return Length;
+                this.AttachedGameObject = attachedMonoBahviour.gameObject;
+                this.AttachedMonoBehaviour = attachedMonoBahviour;
             }
-        }                       // Returns new length value. Where the new randomized length is calculated.
+            else this.IsUnsafe = true;
 
-        // Quick-Info properties
-        public float Percentage                             // Returns value between 0 and 1 showing how much of the timer has elapsed.
-        { get { return Value / Length; } }
-        public float TimeRemaining                          // Returns the time left in seconds before the timer completes.
-        { get { return Value; } }
-        public float TimeElapsed                            // Returns the time in seconds that have elapsed since the start of the timer.
-        { get { return Length - Value; } }
-        public uint ElapsedCount { get; private set; }      // Amount of times this timer has elapsed (Calling Elapsed action)
+            this.Subscribe(callBackRelay, UpdateMode);
+            this.isActive = true;
+        }
 
-        // Events
-        public event Action Elapsed;
-        public event Action<float> Updated;
-
-        #region Constructors
-
-        // Do not use parameterless constructor.
-        protected Timer() { }
+        #region STATIC CONSTRUCTORS
 
         /// <summary>
-        /// Creates a simple one-time use timer.
+        /// Creates an unsafe, global, one-shot timer.
         /// </summary>
-        protected Timer(float length, Action action = null)
+        public static Timer Create(float duration, Action onComplete = null)
         {
-            Length = length;
-            Value = Length;
+            Timer newTimer = new Timer(null, CallBackRelay.GlobalCBR);
 
-            TimerPlusSetup((int)Presets.OneTimeUse, action);
+            newTimer.ApplySettings(TimerSettings.GetGameOneShot(duration));
+            newTimer.Completed += onComplete;
+
+            return newTimer;
         }
 
         /// <summary>
-        /// Creates a simple specified preset timer.
+        /// Creates an unsafe, global timer.
         /// </summary>
-        protected Timer(float length, Presets preset, Action action = null)
+        public static Timer Create(TimerSettings settings, Action onComplete = null)
         {
-            Length = length;
-            Value = Length;
+            Timer newTimer = new Timer(null, CallBackRelay.GlobalCBR);
 
-            TimerPlusSetup((int)preset, action);
+            newTimer.ApplySettings(settings);
+            if (settings.completionMode != CompletionModes.REVERSE)
+                newTimer.Completed += onComplete;
+            else
+                newTimer.CompletedOrReturned += onComplete;
+
+            return newTimer;
         }
 
         /// <summary>
-        /// Creates a timer with specified custom settings.
+        /// Creates a global, one-shot timer.
         /// </summary>
-        protected Timer(float length, bool startPlaying, bool autoRestart, bool disposeOnCompletion, bool disposeOnLoad, UpdateModes updateMode, Action action = null)
+        public static Timer Create(MonoBehaviour monoBehaviour, float duration, Action onComplete = null)
         {
-            Length = length;
-            Value = Length;
+            Timer newTimer = new Timer(monoBehaviour, CallBackRelay.GlobalCBR);
 
-            int preset = 0;
-            preset += startPlaying ? 1 : 0;
-            preset += autoRestart ? 10 : 0;
-            preset += disposeOnCompletion ? 100 : 0;
-            preset += disposeOnLoad ? 1000 : 0;
-            preset += (int)updateMode * 10000;
+            newTimer.ApplySettings(TimerSettings.GetGameOneShot(duration));
+            newTimer.Completed += onComplete;
 
-            TimerPlusSetup((int)preset, action);
+            return newTimer;
         }
 
         /// <summary>
-        /// Creates a randomized simple one-time use timer.
+        /// Creates a global timer.
         /// </summary>
-        protected Timer(float minLength, float maxLength, Action action = null)
+        public static Timer Create(MonoBehaviour monoBehaviour, TimerSettings settings, Action onComplete = null)
         {
-            MinLength = minLength;
-            MaxLength = maxLength;
-            IsRandomized = true;
-            Value = GetNewLength;
+            Timer newTimer = new Timer(monoBehaviour, CallBackRelay.GlobalCBR);
 
-            TimerPlusSetup((int)Presets.OneTimeUse, action);
+            newTimer.ApplySettings(settings);
+            if (settings.completionMode != CompletionModes.REVERSE)
+                newTimer.Completed += onComplete;
+            else
+                newTimer.CompletedOrReturned += onComplete;
+
+            return newTimer;
         }
 
         /// <summary>
-        /// Creates a randomized simple specified preset timer.
+        /// Creates a one-shot timer.
         /// </summary>
-        protected Timer(float minLength, float maxLength, Presets preset, Action action = null)
+        public static Timer Create(MonoBehaviour monoBehaviour, CallBackRelay CBR, float duration, Action onComplete = null)
         {
-            MinLength = minLength;
-            MaxLength = maxLength;
-            IsRandomized = true;
-            Value = GetNewLength;
+            Timer newTimer = new Timer(monoBehaviour, CBR);
 
-            TimerPlusSetup((int)preset, action);
+            newTimer.ApplySettings(TimerSettings.GetGameOneShot(duration));
+            newTimer.Completed += onComplete;
+
+            return newTimer;
         }
 
         /// <summary>
-        /// Creates a randomized timer with all customized settings.
+        /// Creates a timer.
         /// </summary>
-        protected Timer(float minLength, float maxLength, bool startPlaying, bool autoRestart, bool disposeOnCompletion, bool disposeOnLoad, UpdateModes updateMode, Action action = null)
+        public static Timer Create(MonoBehaviour monoBehaviour, CallBackRelay CBR, TimerSettings settings, Action onComplete = null)
         {
-            MinLength = minLength;
-            MaxLength = maxLength;
-            IsRandomized = true;
-            Value = GetNewLength;
+            Timer newTimer = new Timer(monoBehaviour, CBR);
 
-            int preset = 0;
-            preset += startPlaying ? 1 : 0;
-            preset += autoRestart ? 10 : 0;
-            preset += disposeOnCompletion ? 100 : 0;
-            preset += disposeOnLoad ? 1000 : 0;
-            preset += (int)updateMode * 10000;
+            newTimer.ApplySettings(settings);
+            if (settings.completionMode != CompletionModes.REVERSE)
+                newTimer.Completed += onComplete;
+            else
+                newTimer.CompletedOrReturned += onComplete;
 
-            TimerPlusSetup((int)preset, action);
-        }
-
-        // Applies the initial timer settings.
-        protected void TimerPlusSetup(int settings, Action action)
-        {
-            // Add to all timer list
-            AllTimers.Add(this);
-
-            // Subscribe to update events etc.
-            if (!IsSubscribed)
-            {
-                CallBackRelay.SubscribeAll(UpdateAll, FixedUpdateAll, null, DisposeAllOnLoad, DisposeAll);
-                IsSubscribed = true;
-            }
-
-            // Apply settings from int
-            string str = settings.ToString();
-            IsPlaying = str.SafeGet(str.Length - 1, '0') == '1';
-            AutoRestart = str.SafeGet(str.Length - 2, '0') == '1';
-            DisposeOnCompletion = str.SafeGet(str.Length - 3, '0') == '1';
-            DisposeOnLoad = str.SafeGet(str.Length - 4, '0') == '1';
-            UpdateMode = (UpdateModes)int.Parse(str.SafeGet(str.Length - 5, '0').ToString());
-
-            // Add to elapsed action
-            if (!action.IsNullOrEmpty())
-                Elapsed += action;
+            return newTimer;
         }
 
         #endregion
 
-        #region Static Constructors
+        private bool isActive;
+        private UpdateModes updateMode;
+        private CallBackRelay callBackRelay;
+        private bool deactivateOnLoad;
 
-        /// <summary>
-        /// Creates a simple one-time use timer.
-        /// </summary>
-        public static Timer Create(float length, Action action = null)
+        public float Duration { get; set; }
+        public float CurrentTime { get; private set; }
+        public float TotalPassedTime { get; private set; }
+        public bool IsRandomized { get; set; }
+        public float MinDuration { get; set; }
+        public float MaxDuration { get; set; }
+        public bool IsPlaying { get; set; }
+        public float PlaybackRate { get; set; }
+        public CompletionModes CompletionMode { get; set; }
+        public int Repeats { get; set; }
+        public int Priority { get; set; }
+        public bool IsUnsafe { get; private set; }
+        public bool AlwaysPlay { get; set; }
+
+        public GameObject AttachedGameObject { get; set; }
+        public MonoBehaviour AttachedMonoBehaviour { get; set; }
+
+        public event Action Deactivated;
+        public event Action CompletedOrReturned;
+        public event Action Completed;
+        public event Action Returned;
+
+        public int CompleteOrReturnCount { get; private set; }
+        public int CompleteCount { get; private set; }
+        public int ReturnCount { get; private set; }
+
+        void IUpdate.OnUpdate(float deltaTime)
         {
-            return new Timer(length, action);
-        }
+            ThrowIfInactive();
 
-        /// <summary>
-        /// Creates a simple specified preset timer.
-        /// </summary>
-        public static Timer Create(float length, Presets preset, Action action = null)
-        {
-            return new Timer(length, preset, action);
-        }
-
-        /// <summary>
-        /// Creates a timer with all customized settings.
-        /// </summary>
-        public static Timer Create(float length, bool startPlaying, bool autoRestart, bool disposeOnCompletion, bool disposeOnLoad, UpdateModes updateMode, Action action = null)
-        {
-            return new Timer(length, startPlaying, autoRestart, disposeOnCompletion, disposeOnLoad, updateMode, action);
-        }
-
-        /// <summary>
-        /// Creates a randomized simple one-time use timer.
-        /// </summary>
-        public static Timer CreateRandom(float minLength, float maxLength, Action action = null)
-        {
-            return new Timer(minLength, maxLength, action);
-        }
-
-        /// <summary>
-        /// Creates a randomized simple specified preset timer.
-        /// </summary>
-        public static Timer CreateRandom(float minLength, float maxLength, Presets mode, Action action = null)
-        {
-            return new Timer(minLength, maxLength, mode, action);
-        }
-
-        /// <summary>
-        /// Creates a randomized timer with all customized settings.
-        /// </summary>
-        public static Timer CreateRandom(float minLength, float maxLength, bool startPlaying, bool autoRestart, bool disposeOnCompletion, bool disposeOnLoad, UpdateModes updateMode, Action action = null)
-        {
-            return new Timer(minLength, maxLength, startPlaying, autoRestart, disposeOnCompletion, disposeOnLoad, updateMode, action);
-        }
-
-        #endregion
-
-        #region Static Methods
-
-        /// <summary>
-        /// Updates all non-fixed scaled or unscaled update timers.
-        /// </summary>
-        private static void UpdateAll()
-        {
-            for (int i = AllTimers.Count - 1; i >= 0; --i)
-            {
-                if (AllTimers[i].UpdateMode == UpdateModes.ScaledUpdate)
-                    AllTimers[i].Update(Time.deltaTime);
-                else if (AllTimers[i].UpdateMode == UpdateModes.UnscaledUpdate)
-                    AllTimers[i].Update(Time.unscaledDeltaTime);
-            }
-        }
-
-        /// <summary>
-        /// Updates all fixed update timers.
-        /// </summary>
-        private static void FixedUpdateAll()
-        {
-            for (int i = AllTimers.Count - 1; i >= 0; --i)
-            {
-                if (AllTimers[i].UpdateMode == UpdateModes.FixedUpdate)
-                    AllTimers[i].Update(Time.fixedDeltaTime);
-            }
-        }
-
-        /// <summary>
-        /// Dispose all timers that should be disabled on load.
-        /// </summary>
-        private static void DisposeAllOnLoad()
-        {
-            for (int i = AllTimers.Count - 1; i >= 0; --i)
-            {
-                if (AllTimers[i].DisposeOnLoad)
-                    AllTimers[i].Dispose();
-            }
-        }
-
-        /// <summary>
-        /// Disposes all currently active timers.
-        /// </summary>
-        private static void DisposeAll()
-        {
-            for (int i = AllTimers.Count - 1; i >= 0; --i)
-            {
-                AllTimers[i].Dispose();
-            }
-        }
-
-        /// <summary>
-        /// Removes a timer from the list permanently. Causing it to stop running.
-        /// </summary>
-        private static void Remove(Timer TimerInstance)
-        {
-            if (AllTimers.Contains(TimerInstance))
-            {
-                AllTimers.Remove(TimerInstance);
-            }
-        }
-
-        /// <summary>
-        /// Returns the count of all currently working timers.
-        /// </summary>
-        public static int TimerCount()
-        {
-            return AllTimers.Count;
-        }
-
-        /// <summary>
-        /// Returns the count of all currently working timers that meet the specified predicate.
-        /// </summary>
-        public static int TimerCount(Predicate<Timer> match)
-        {
-            return AllTimers.FindAll(match).Count;
-        }
-
-        #endregion
-
-        #region Public Instance Methods
-
-        /// <summary>
-        /// Stops the timer and sets the timer value back.
-        /// </summary>
-        public void Reset()
-        {
-            IsPlaying = false;
-            Value = GetNewLength;
-        }
-
-        /// <summary>
-        /// Resets the timer's value and starts the timer up.
-        /// </summary>
-        public void Restart()
-        {
-            Value = GetNewLength;
-            IsPlaying = true;
-        }
-
-        /// <summary>
-        /// Toggles the playing state of this timer.
-        /// </summary>
-        public void Toggle()
-        {
-            IsPlaying = !IsPlaying;
-        }
-
-        /// <summary>
-        /// Sets the IsPlaying value to true.
-        /// </summary>
-        public void Start()
-        {
-            IsPlaying = true;
-        }
-
-        /// <summary>
-        /// Sets the IsPlaying value to false.
-        /// </summary>
-        public void Stop()
-        {
-            IsPlaying = false;
-        }
-
-        /// <summary>
-        /// Sets to timer value to zero.
-        /// </summary>
-        public void End()
-        {
-            Value = 0;
-        }
-
-        /// <summary>
-        /// Converts this timer into a randomized timer. (Reset recommended after this)
-        /// </summary>
-        public void Randomize(float minLength, float maxLength)
-        {
-            MinLength = minLength;
-            MaxLength = maxLength;
-            IsRandomized = true;
-        }
-
-        /// <summary>
-        /// Converts this timer to a non-randomized one. (Reset recommended after this)
-        /// </summary>
-        public void UnRandomize(float length)
-        {
-            Length = length;
-            IsRandomized = false;
-        }
-
-        /// <summary>
-        /// Changes the length of the timer and also adjusts the value if it is currently above the new length.
-        /// </summary>
-        public void ModifyLength(float newLength)
-        {
-            Length = newLength;
-        }
-
-        /// <summary>
-        /// Changes the length of the timer and also adjusts the value if it is currently above the new length with the option to scale it.
-        /// </summary>
-        /// <param name="newLength">New length of this timer.</param>
-        /// <param name="scaleValue">Scale the current value to the new length?</param>
-        public void ModifyLength(float newLength, bool scaleValue)
-        {
-            float NewValue;
-
-            if (scaleValue)
-                NewValue = newLength * Percentage;
-            else
-                NewValue = Mathf.Min(Value, Length);
-
-            Length = newLength;
-            Value = NewValue;
-        }
-
-        /// <summary>
-        /// Changes the min and max length in a randomized timer.
-        /// </summary>
-        public void ModifyLength(float newMinLength, float newMaxLength)
-        {
-            MinLength = newMinLength;
-            MaxLength = newMaxLength;
-        }
-
-        /// <summary>
-        /// Changes the timers current value regardless of play state.
-        /// </summary>
-        /// <param name="valueModification">How much is added onto the current value.</param>
-        /// <param name="allowOverload">If the new value should be allowed to surpass max length.</param>
-        public void ModifyValue(float valueModification, bool allowOverload = false)
-        {
-            if (allowOverload)
-                Value = Mathf.Max(0, Value + valueModification);
-            else
-                Value = Mathf.Clamp(Value + valueModification, 0, Length);
-        }
-
-        /// <summary>
-        /// Directly manipulates the timer value.
-        /// </summary>
-        public void SetValue(float newValue, bool allowOverload = false)
-        {
-            if (allowOverload)
-                Value = Mathf.Max(0, newValue);
-            else
-                Value = Mathf.Clamp(newValue, 0, Length);
-        }
-
-        #endregion
-
-        #region Non-public
-
-        // Updates a timer's value.
-        private void Update(float delta)
-        {
-            if (IsPlaying)
-            {
-                Value -= delta;
-
-                if (Updated != null)
-                    Updated(Percentage);
-            }
-            else
+            if (!IsPlaying)
                 return;
 
-            if (Value <= 0)
+            float processedDeltaTime = deltaTime * PlaybackRate;
+
+            this.TotalPassedTime += Mathf.Abs(processedDeltaTime);
+
+            float rawNewTime = this.CurrentTime + processedDeltaTime;
+
+            float leftOverTime;
+
+            if (!this.IsReversing)
+                leftOverTime = rawNewTime - this.Duration;
+            else
+                leftOverTime = rawNewTime * -1;
+
+            if (leftOverTime < 0)
             {
-                OnTimerElapsed(Mathf.Abs(Value));
+                this.CurrentTime = rawNewTime;
+            }
+            else
+            {
+                if (rawNewTime >= Duration)
+                {
+                    OnCompleted();
+                    HandleEnd(leftOverTime);
+                }
+                else if (rawNewTime <= 0)
+                {
+                    OnReturned();
+                    HandleEnd(leftOverTime);
+                }
+                else throw new UnexpectedException("Timer value errors");
             }
         }
 
-        // Called privately. Handles event invocation and reseting.
-        protected virtual void OnTimerElapsed(float leftOver)
+        public void Play()
         {
-            ElapsedCount++;
-            if (Elapsed != null)
-                Elapsed.Invoke();
+            ThrowIfInactive();
 
-            if (MaxRepeats > 0 && ElapsedCount >= MaxRepeats) // Check if max repeats is met
-            {
-                IsPlaying = false;
-                Value = 0;
-                this.Dispose();
-            }
-            else if (AutoRestart) // Begin automatic restart
-            {
-                Value = GetNewLength - leftOver;
-            }
-            else // End timer
-            {
-                IsPlaying = false;
-                Value = 0;
+            IsPlaying = true;
+        }
 
-                if (DisposeOnCompletion)
+        public void Stop()
+        {
+            ThrowIfInactive();
+
+            IsPlaying = false;
+        }
+
+        public void Reverse()
+        {
+            ThrowIfInactive();
+
+            PlaybackRate *= -1;
+        }
+
+        public void Reset()
+        {
+            ThrowIfInactive();
+
+            IsPlaying = false;
+            IsReversing = false;
+            CurrentTime = 0f;
+        }
+
+        public void Restart()
+        {
+            ThrowIfInactive();
+
+            IsPlaying = true;
+            IsReversing = false;
+            CurrentTime = 0f;
+        }
+
+        public void End()
+        {
+            ThrowIfInactive();
+
+            CurrentTime = CurrentEndTime;
+        }
+
+        public void ApplySettings(TimerSettings settings)
+        {
+            ThrowIfInactive();
+
+            this.Duration = settings.duration;
+            this.IsRandomized = settings.isRandomized;
+            this.MinDuration = settings.minDuration;
+            this.MaxDuration = settings.maxDuration;
+            this.IsPlaying = settings.autoPlay;
+            this.PlaybackRate = settings.playBackRate;
+            this.CompletionMode = settings.completionMode;
+            this.Repeats = settings.repeats;
+            this.Priority = settings.priority;
+            this.AlwaysPlay = settings.alwaysPlay;
+            this.UpdateMode = settings.updateMode;
+            this.DeactivateOnLoad = settings.deactivateOnLoad;
+
+            if (this.IsRandomized)
+                this.Duration = NextDuration;
+        }
+
+        public void Reactivate()
+        {
+            if (IsActive)
+            {
+                Debug.LogWarning("Timer is already active", AttachedMonoBehaviour);
+                return;
+            }
+
+            this.Subscribe(CallBackRelay, UpdateMode);
+
+            CallBackRelay.Destroyed += Deactivcate;
+            if (this.DeactivateOnLoad)
+                CallBackRelay.LevelLoaded += Deactivcate;
+
+            this.isActive = true;
+        }
+
+        public void Deactivcate()
+        {
+            ThrowIfInactive();
+
+            this.Stop();
+            this.isActive = false;
+
+            this.Unsubscribe(CallBackRelay, UpdateMode);
+
+            CallBackRelay.Destroyed -= Deactivcate;
+            if (this.DeactivateOnLoad)
+                CallBackRelay.LevelLoaded -= Deactivcate;
+
+            if (Deactivated != null)
+                Deactivated();
+        }
+
+        private void ThrowIfInactive()
+        {
+            if (!IsActive)
+                throw new InactiveException("Timer is inactive");
+        }
+
+        private void OnUpdateModeChanged(UpdateModes prevMode, UpdateModes newMode)
+        {
+            this.Unsubscribe(CallBackRelay, prevMode);
+            this.Subscribe(CallBackRelay, newMode);
+        }
+
+        private void OnCallBackRelayChanged(CallBackRelay prevCBR, CallBackRelay newCBR)
+        {
+            if (prevCBR != null)
+            {
+                prevCBR.Destroyed -= this.Deactivcate;
+
+                if (DeactivateOnLoad)
+                    prevCBR.LevelLoaded -= this.Deactivcate;
+
+                this.Unsubscribe(prevCBR, UpdateMode);
+            }
+
+            newCBR.Destroyed += this.Deactivcate;
+
+            if (DeactivateOnLoad)
+                newCBR.LevelLoaded += this.Deactivcate;
+
+            this.Subscribe(newCBR, UpdateMode);
+        }
+
+        private void OnDeactivateOnLoadChanged()
+        {
+            if (DeactivateOnLoad)
+                CallBackRelay.LevelLoaded += this.Deactivcate;
+            else
+                CallBackRelay.LevelLoaded -= this.Deactivcate;
+        }
+
+        private void Unsubscribe(CallBackRelay CBR, UpdateModes mode)
+        {
+            switch (mode)
+            {
+                case UpdateModes.UPDATE:
+                case UpdateModes.UNSCALED_UPDATE:
+                    CBR.UnsubscribeToUpdate(this);
+                    break;
+
+                case UpdateModes.LATE_UPDATE:
+                case UpdateModes.UNSCALED_LATE_UPDATE:
+                    CBR.UnsubscribeToLateUpdate(this);
+                    break;
+
+                case UpdateModes.FIXED_UPDATE:
+                    CBR.UnsubscribeToFixedUpdate(this);
+                    break;
+            }
+        }
+
+        private void Subscribe(CallBackRelay CBR, UpdateModes mode)
+        {
+            switch (mode)
+            {
+                case UpdateModes.UPDATE:
+                case UpdateModes.UNSCALED_UPDATE:
+                    CBR.SubscribeToUpdate(this);
+                    break;
+
+                case UpdateModes.LATE_UPDATE:
+                case UpdateModes.UNSCALED_LATE_UPDATE:
+                    CBR.SubscribeToLateUpdate(this);
+                    break;
+
+                case UpdateModes.FIXED_UPDATE:
+                    CBR.SubscribeToFixedUpdate(this);
+                    break;
+            }
+        }
+
+        private void OnCompleted()
+        {
+            CompleteOrReturnCount++;
+            CompleteCount++;
+
+            if (CompletedOrReturned != null)
+                CompletedOrReturned();
+
+            if (Completed != null)
+                Completed();
+
+            if (Repeats > 0)
+                Repeats--;
+        }
+
+        private void OnReturned()
+        {
+            CompleteOrReturnCount++;
+            ReturnCount++;
+
+            if (CompletedOrReturned != null)
+                CompletedOrReturned();
+
+            if (Returned != null)
+                Returned();
+        }
+
+        private void HandleEnd(float leftOverTime)
+        {
+            this.Duration = NextDuration;
+
+            switch (CompletionMode)
+            {
+                case CompletionModes.DEACTIVATE:
+                    this.CurrentTime = CurrentEndTime;
+                    this.Deactivcate();
+                    break;
+
+                case CompletionModes.STOP:
+                    this.CurrentTime = CurrentEndTime;
+                    this.Stop();
+                    break;
+
+                case CompletionModes.RESTART:
+                    if (Repeats == 0)
+                    {
+                        this.CurrentTime = CurrentEndTime;
+                        this.Deactivcate();
+                    }
+                    else
+                    {
+                        this.CurrentTime = leftOverTime;
+                        this.Restart();
+                    }
+                    break;
+
+                case CompletionModes.REVERSE:
+                    if (Repeats == 0 && !IsReversing)
+                    {
+                        this.CurrentTime = CurrentEndTime;
+                        this.Deactivcate();
+                    }
+                    else
+                    {
+                        this.CurrentTime = !IsReversing ? Duration - leftOverTime : leftOverTime;
+                        this.Reverse();
+                    }
+                    break;
+            }
+        }
+
+        public bool IsActive
+        {
+            get { return isActive; }
+        }
+
+        public UpdateModes UpdateMode
+        {
+            get { return updateMode; }
+            set
+            {
+                ThrowIfInactive();
+
+                if (value != updateMode)
                 {
-                    this.Dispose();
+                    UpdateModes prevUpdateMode = updateMode;
+                    updateMode = value;
+                    OnUpdateModeChanged(prevUpdateMode, updateMode);
                 }
             }
         }
 
-        #endregion
-
-        #region Nested
-
-        // Defines how this timer will be used
-        public enum Presets
+        public CallBackRelay CallBackRelay
         {
-            /// <summary>
-            /// IsPlaying = false,
-            /// AutoRestart = false,
-            /// DisposeOnCompletion = false,
-            /// DisposeOnLoad = true,
-            /// UpdateMode = Scaled delta.
-            /// </summary>
-            Standard = 01000,
+            get { return callBackRelay; }
+            set
+            {
+                ThrowIfInactive();
 
-            /// <summary>
-            /// IsPlaying = true,
-            /// AutoRestart = false,
-            /// DisposeOnCompletion = true,
-            /// DisposeOnLoad = true,
-            /// UpdateMode = Scaled delta.
-            /// </summary>
-            OneTimeUse = 01101,
+                if (value != callBackRelay)
+                {
+                    CallBackRelay prevCallBackRelay = callBackRelay;
+                    callBackRelay = value;
+                    OnCallBackRelayChanged(prevCallBackRelay, callBackRelay);
+                }
+            }
+        }
 
-            /// <summary>
-            /// IsPlaying = false;
-            /// AutoRestart = true;
-            /// DisposeOnCompletion = false;
-            /// DisposeOnLoad = true;
-            /// UpdateMode = Scaled delta;
-            /// </summary>
-            Repeater = 01010,
+        public bool DeactivateOnLoad
+        {
+            get { return deactivateOnLoad; }
+            set
+            {
+                ThrowIfInactive();
 
-            /// <summary>
-            /// IsPlaying = false,
-            /// AutoRestart = false,
-            /// DisposeOnCompletion = false,
-            /// DisposeOnLoad = false,
-            /// UpdateMode = Unscaled delta.
-            /// </summary>
-            BackgroundStandard = 10000,
+                if (deactivateOnLoad != value)
+                {
+                    deactivateOnLoad = value;
+                    OnDeactivateOnLoadChanged();
+                }
+            }
+        }
 
-            /// <summary>
-            /// IsPlaying = true,
-            /// AutoRestart = false,
-            /// DisposeOnCompletion = true,
-            /// DisposeOnLoad = false,
-            /// UpdateMode = Unscaled delta.
-            /// </summary>
-            BackgroundOneTimeUse = 10101,
+        public float TrueDuration
+        {
+            get
+            {
+                return Duration / (Mathf.Abs(PlaybackRate) * (UnscaledDelta ? 1f : Time.timeScale));
+            }
+        }
 
-            /// <summary>
-            /// IsPlaying = false;
-            /// AutoRestart = true;
-            /// DisposeOnCompletion = false;
-            /// DisposeOnLoad = false;
-            /// UpdateMode = Unscaled delta;
-            /// </summary>
-            BackgroundRepeater = 10010,
+        public float Percentage
+        {
+            get { return CurrentTime / Duration; }
+        }
 
-            /// <summary>
-            /// IsPlaying = false,
-            /// AutoRestart = false,
-            /// DisposeOnCompletion = false,
-            /// DisposeOnLoad = true,
-            /// UpdateMode = Fixed delta.
-            /// </summary>
-            PhysicsStandard = 21000,
+        public bool IsReversing
+        {
+            get { return PlaybackRate < 0f; }
+            set
+            {
+                if (value != IsReversing)
+                    this.Reverse();
+            }
+        }
 
-            /// <summary>
-            /// IsPlaying = true,
-            /// AutoRestart = false,
-            /// DisposeOnCompletion = true,
-            /// DisposeOnLoad = true,
-            /// UpdateMode = Fixed delta.
-            /// </summary>
-            PhysicsOneTimeUse = 21101,
+        public float CurrentEndTime
+        {
+            get { return !IsReversing ? Duration : 0f; }
+        }
 
-            /// <summary>
-            /// IsPlaying = false;
-            /// AutoRestart = true;
-            /// DisposeOnCompletion = false;
-            /// DisposeOnLoad = true;
-            /// UpdateMode = Fixed delta;
-            /// </summary>
-            PhysicsRepeater = 21010
-        };
+        public float RemainingTime
+        {
+            get { return !IsReversing ? Duration - CurrentTime : CurrentTime; }
+        }
 
-        // Defines valid delta values.
-        public enum UpdateModes { ScaledUpdate = 0, UnscaledUpdate = 1, FixedUpdate = 2 };
+        public float TotalRemainingTime
+        {
+            get
+            {
+                switch (CompletionMode)
+                {
+                    case CompletionModes.RESTART:
+                    case CompletionModes.REVERSE:
+                        if (Repeats < 0)
+                            return float.PositiveInfinity;
+                        else
+                            return ((Repeats - 1) * Duration) + RemainingTime;
 
-        #endregion
+                    case CompletionModes.STOP:
+                    case CompletionModes.DEACTIVATE:
+                    default:
+                        return RemainingTime;
+                }
+            }
+        }
 
-        #region Disposal
+        private float NextDuration
+        {
+            get
+            {
+                if (IsRandomized)
+                    Duration = UnityEngine.Random.Range(MinDuration, MaxDuration);
 
-        public bool IsDisposed { get; private set; }
-        private SafeHandle Handle = new SafeFileHandle(IntPtr.Zero, true);
+                return Duration;
+            }
+        }
 
-        /// <summary>
-        /// Not usually necessary but is often used to null reference a timer.
-        /// E.g. OnDisposed += () timer = null;
-        /// </summary>
-        public event Action OnDisposed;
-
-        /// <summary>
-        /// Call to free resources if this timer will not be needed again.
-        /// </summary>
         public void Dispose()
         {
-            Dispose(true);
-
-            // Prevent costly deconstructor
-            //GC.SuppressFinalize(this);
+            if (this.IsActive)
+                this.Deactivcate();
         }
 
-        protected virtual void Dispose(bool Disposing)
+        GameObject IUnityInterface.gameObject
         {
-            if (IsDisposed)
-                return;
-
-            // Allow host reference cleanup
-            if (OnDisposed != null)
-                OnDisposed();
-
-            // Free managed objects
-            if (Disposing)
+            get
             {
-                if (Handle != null)
-                    Handle.Dispose();
-                Elapsed = null;
-                Updated = null;
-                OnDisposed = null;
+                return this.AttachedGameObject;
             }
-
-            // Free unmanaged objects
-            Stop();
-            Remove(this);
-
-            IsDisposed = true;
         }
 
-        ~Timer()
+        MonoBehaviour IUnityInterface.MonoBehaviour
         {
-            Dispose(false);
+            get
+            {
+                return this.AttachedMonoBehaviour;
+            }
         }
 
-        #endregion
+        bool IComplexUpdate.UnsafeUpdates
+        {
+            get
+            {
+                return this.IsUnsafe;
+            }
+        }
+
+        bool IComplexUpdate.AlwaysUpdate
+        {
+            get
+            {
+                return this.AlwaysPlay;
+            }
+        }
+
+        int IPriority.Priority
+        {
+            get
+            {
+                return this.Priority;
+            }
+        }
+
+        public bool UnscaledDelta
+        {
+            get
+            {
+                return this.UpdateMode.EqualsAny(UpdateModes.UNSCALED_UPDATE, UpdateModes.UNSCALED_LATE_UPDATE);
+            }
+        }
+
+        public enum CompletionModes
+        {
+            DEACTIVATE = 0,
+            STOP = 1,
+            RESTART = 2,
+            REVERSE = 3
+        }
+
+        public enum UpdateModes
+        {
+            UPDATE = 0,
+            UNSCALED_UPDATE = 1,
+            FIXED_UPDATE = 2,
+            LATE_UPDATE = 3,
+            UNSCALED_LATE_UPDATE = 4,
+        }
+    }
+
+    [Serializable]
+    public struct TimerSettings
+    {
+        public float duration;
+        public bool isRandomized;
+        public float minDuration;
+        public float maxDuration;
+        public bool autoPlay;
+        public float playBackRate;
+        public Timer.CompletionModes completionMode;
+        public Timer.UpdateModes updateMode;
+        public int repeats;
+        public bool deactivateOnLoad;
+        public int priority;
+        public bool alwaysPlay;
+
+        public TimerSettings Randomize(float minDuration, float maxDuration)
+        {
+            this.isRandomized = true;
+            this.minDuration = minDuration;
+            this.maxDuration = maxDuration;
+            return this;
+        }
+
+        public static TimerSettings GetDefault(float duration)
+        {
+            TimerSettings settings = new TimerSettings();
+            settings.duration = duration;
+            settings.isRandomized = false;
+            settings.minDuration = duration;
+            settings.maxDuration = duration;
+            settings.autoPlay = false;
+            settings.playBackRate = 1.0f;
+            settings.completionMode = Timer.CompletionModes.DEACTIVATE;
+            settings.updateMode = Timer.UpdateModes.UPDATE;
+            settings.repeats = -1;
+            settings.deactivateOnLoad = true;
+            settings.priority = 0;
+            settings.alwaysPlay = false;
+            return settings;
+        }
+
+        public static TimerSettings GetGameOneShot(float duration)
+        {
+            TimerSettings settings = GetDefault(duration);
+            settings.autoPlay = true;
+            return settings;
+        }
+
+        public static TimerSettings GetGameStandard(float duration)
+        {
+            TimerSettings settings = GetDefault(duration);
+            settings.completionMode = Timer.CompletionModes.STOP;
+            return settings;
+        }
+
+        public static TimerSettings GetGameRepeater(float duration)
+        {
+            TimerSettings settings = GetDefault(duration);
+            settings.autoPlay = true;
+            settings.completionMode = Timer.CompletionModes.RESTART;
+            return settings;
+        }
+
+        public static TimerSettings GetGameReverser(float duration)
+        {
+            TimerSettings settings = GetDefault(duration);
+            settings.autoPlay = true;
+            settings.completionMode = Timer.CompletionModes.REVERSE;
+            return settings;
+        }
+
+        public static TimerSettings GetPhysicsOneShot(float duration)
+        {
+            TimerSettings settings = GetDefault(duration);
+            settings.autoPlay = true;
+            settings.updateMode = Timer.UpdateModes.FIXED_UPDATE;
+            return settings;
+        }
+
+        public static TimerSettings GetPhysicsStandard(float duration)
+        {
+            TimerSettings settings = GetDefault(duration);
+            settings.completionMode = Timer.CompletionModes.STOP;
+            settings.updateMode = Timer.UpdateModes.FIXED_UPDATE;
+            return settings;
+        }
+
+        public static TimerSettings GetPhysicsRepeater(float duration)
+        {
+            TimerSettings settings = GetDefault(duration);
+            settings.autoPlay = true;
+            settings.completionMode = Timer.CompletionModes.RESTART;
+            settings.updateMode = Timer.UpdateModes.FIXED_UPDATE;
+            return settings;
+        }
+
+        public static TimerSettings GetPhysicsReverser(float duration)
+        {
+            TimerSettings settings = GetDefault(duration);
+            settings.autoPlay = true;
+            settings.completionMode = Timer.CompletionModes.REVERSE;
+            settings.updateMode = Timer.UpdateModes.FIXED_UPDATE;
+            return settings;
+        }
+
+        public static TimerSettings GetBackgroundOneShot(float duration)
+        {
+            TimerSettings settings = GetDefault(duration);
+            settings.autoPlay = true;
+            settings.updateMode = Timer.UpdateModes.UNSCALED_UPDATE;
+            return settings;
+        }
+
+        public static TimerSettings GetBackgroundStandard(float duration)
+        {
+            TimerSettings settings = GetDefault(duration);
+            settings.completionMode = Timer.CompletionModes.STOP;
+            settings.updateMode = Timer.UpdateModes.UNSCALED_UPDATE;
+            return settings;
+        }
+
+        public static TimerSettings GetBackgroundRepeater(float duration)
+        {
+            TimerSettings settings = GetDefault(duration);
+            settings.autoPlay = true;
+            settings.completionMode = Timer.CompletionModes.RESTART;
+            settings.updateMode = Timer.UpdateModes.UNSCALED_UPDATE;
+            return settings;
+        }
+
+        public static TimerSettings GetBackgroundReverser(float duration)
+        {
+            TimerSettings settings = GetDefault(duration);
+            settings.autoPlay = true;
+            settings.completionMode = Timer.CompletionModes.REVERSE;
+            settings.updateMode = Timer.UpdateModes.UNSCALED_UPDATE;
+            return settings;
+        }
     }
 }

@@ -4,13 +4,16 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-
+using System;
 
 namespace Expanse
 {
     [CustomPropertyDrawer(typeof(ReadOnlyAttribute))]
     public class ReadOnlyDrawer : PropertyDrawer
     {
+        const float DEFAULT_HEIGHT = 16;
+        const float VECTOR2_HEIGHT = DEFAULT_HEIGHT + 14;
+
         RangeAttribute rangeAttribute;
 
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
@@ -21,10 +24,18 @@ namespace Expanse
             // Check if a Range attribute is also defined on the field
             if (fieldInfo.GetAttribute<RangeAttribute>(out rangeAttribute))
                 RangeOnGUI(position, property, label);
+            else if (property.propertyType == SerializedPropertyType.Vector2)
+                Vector2GUI(position, property, label);
             else
-                EditorGUI.PropertyField(position, property, label, true);
+                EditorGUI.PropertyField(position, property, label, property.hasVisibleChildren);
 
             GUI.enabled = true;
+        }
+
+        private void Vector2GUI(Rect position, SerializedProperty property, GUIContent label)
+        {
+            Rect extRect = position.SetSize(position.width, VECTOR2_HEIGHT);
+            EditorGUI.PropertyField(extRect, property, label, property.hasVisibleChildren);
         }
 
         private void RangeOnGUI(Rect position, SerializedProperty property, GUIContent label)
@@ -44,6 +55,13 @@ namespace Expanse
                     EditorGUI.LabelField(position, label.text, "Use Range with float or int.");
                 }
             }
+        }
+
+        public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
+        {
+            if (property.propertyType == SerializedPropertyType.Vector2)
+                return VECTOR2_HEIGHT;
+            return base.GetPropertyHeight(property, label);
         }
 
         // Given a readonly attribute determine if it should currently be readonly
