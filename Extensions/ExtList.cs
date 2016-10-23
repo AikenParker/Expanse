@@ -56,6 +56,31 @@ namespace Expanse
             this.Enqeue(obj);
         }
 
+        public bool Contains<U>(U obj, Func<T, U> selector)
+        {
+            var selected = this.Select(selector);
+
+            return selected.Contains(obj);
+        }
+
+        public bool RemoveFirst<U>(U obj, Func<T, U> selector)
+        {
+            object matchElem = null;
+
+            foreach (T elem in this)
+            {
+                if (selector(elem).Equals(obj))
+                {
+                    matchElem = elem;
+                    break;
+                }
+            }
+
+            if (matchElem != null)
+                return this.Remove((T)matchElem);
+            else return false;
+        }
+
         public bool HasAny
         {
             get
