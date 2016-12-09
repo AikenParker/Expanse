@@ -7,14 +7,14 @@ using Expanse;
 
 public static class VectorUtil
 {
-    public static Vector3 Create(float value, Vector3Dim dims = Vector3Dim.XYZ)
+    public static Vector3 Create(float value, DimensionFlags dims = DimensionFlags.XYZ)
     {
         Vector3 vec = Vector3.zero;
-        if (dims.IsFlagSet(Vector3Dim.X))
+        if (dims.IsFlagSet(DimensionFlags.X))
             vec.x = value;
-        if (dims.IsFlagSet(Vector3Dim.Y))
+        if (dims.IsFlagSet(DimensionFlags.Y))
             vec.y = value;
-        if (dims.IsFlagSet(Vector3Dim.Z))
+        if (dims.IsFlagSet(DimensionFlags.Z))
             vec.z = value;
         return vec;
     }
@@ -67,8 +67,15 @@ public static class VectorUtil
     }
 }
 
+public enum DimensionTypes
+{
+    X = 1,
+    Y = 2,
+    Z = 3
+}
+
 [Flags]
-public enum Vector3Dim
+public enum DimensionFlags
 {
     NONE = 0,
     X = 1 << 0,

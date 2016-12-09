@@ -9,14 +9,23 @@ namespace Expanse
 {
     public static class TransformExt
     {
-        public static void DestroyAllChildren(this Transform source)
+        /// <summary>
+        /// Destroys all game objects parented to a transform.
+        /// </summary>
+        public static void DestroyAllChildren(this Transform source, bool immediate = false)
         {
-            for (int i = 0; i < source.childCount; i++)
+            for (int i = source.childCount - 1; i >= 0; i--)
             {
-                GameObject.Destroy(source.GetChild(i).gameObject);
+                if (immediate)
+                    UnityEngine.Object.DestroyImmediate(source.GetChild(i).gameObject);
+                else
+                    UnityEngine.Object.Destroy(source.GetChild(i).gameObject);
             }
         }
 
+        /// <summary>
+        /// Resets the position, rotation and scale to default values.
+        /// </summary>
         public static void Reset(this Transform source)
         {
             source.localPosition = Vector3.zero;

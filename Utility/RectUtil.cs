@@ -58,10 +58,5 @@ namespace Expanse
 
             return newRect;
         }
-
-        //public Rect SplitWidth(this Rect source, int index, float[] definitions, float spacing = 0f)
-        //{
-
-        //}
     }
 }

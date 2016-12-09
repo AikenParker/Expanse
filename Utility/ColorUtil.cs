@@ -9,17 +9,18 @@ namespace Expanse
 {
     public static class ColorUtil
     {
-        public static string ColorToHex(Color32 color)
+        /// <summary>
+        /// Returns a color from a string hex value.
+        /// </summary>
+        public static Color HexToColor(string colorHex)
         {
-            string hex = color.r.ToString("X2") + color.g.ToString("X2") + color.b.ToString("X2");
-            return hex;
-        }
+            if (colorHex[0] == '#')
+                colorHex = colorHex.Remove(0, 1);
 
-        public static Color HexToColor(string hex)
-        {
-            byte r = byte.Parse(hex.Substring(0, 2), System.Globalization.NumberStyles.HexNumber);
-            byte g = byte.Parse(hex.Substring(2, 2), System.Globalization.NumberStyles.HexNumber);
-            byte b = byte.Parse(hex.Substring(4, 2), System.Globalization.NumberStyles.HexNumber);
+            byte r = byte.Parse(colorHex.Substring(0, 2), System.Globalization.NumberStyles.HexNumber);
+            byte g = byte.Parse(colorHex.Substring(2, 2), System.Globalization.NumberStyles.HexNumber);
+            byte b = byte.Parse(colorHex.Substring(4, 2), System.Globalization.NumberStyles.HexNumber);
+
             return new Color32(r, g, b, 255);
         }
     }
