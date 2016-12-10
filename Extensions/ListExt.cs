@@ -221,5 +221,16 @@ namespace Expanse
 
             else return false;
         }
+
+        /// <summary>
+        /// Suffles the order of elements in the list.
+        /// </summary>
+        public static void Shuffle<T>(this IList<T> list, RandomUtil rng = null)
+        {
+            if (rng != null)
+                rng.Shuffle(list);
+            else
+                RandomUtil.ApplyShuffle(list);
+        }
     }
 }

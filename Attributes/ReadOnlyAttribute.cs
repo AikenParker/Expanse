@@ -17,7 +17,16 @@ namespace Expanse
 
         public ReadOnlyAttribute()
         {
-            order = 10;
+            order = AttributeConstants.Order.READ_ONLY;
+        }
+
+        public bool IsReadOnly
+        {
+            get
+            {
+                return (Application.isPlaying && !EditableInPlayMode) ||
+                  (!Application.isPlaying && !EditableInEditor);
+            }
         }
     }
 }

@@ -13,16 +13,16 @@ namespace Expanse
     [AttributeUsage(AttributeTargets.Field)]
     public class PopupAttribute : PropertyAttribute
     {
-        public string[] displayedOptions { get; set; }
+        public string[] DisplayedOptions { get; set; }
 
         public PopupAttribute(string[] options)
         {
             if (options.IsNullOrEmpty())
                 throw new NullReferenceException();
 
-            displayedOptions = options;
+            this.DisplayedOptions = options;
 
-            order = 15;
+            order = AttributeConstants.Order.POPUP;
         }
 
         protected PopupAttribute() { }

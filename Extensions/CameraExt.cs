@@ -40,25 +40,24 @@ namespace Expanse
         /// <summary>
         /// Shakes the camera in a basic way changing its local position every frame.
         /// </summary>
-        public static IEnumerator Co_BasicShake(this Camera camera, float strength, float duration, float frequency)
+        public static IEnumerator Co_BasicShake(this Camera camera, float strength, float duration, float frequency, RandomUtil rng = null)
         {
+            rng = rng ?? RandomUtil.Instance;
+
             float StartTime = Time.time;
 
             while (Time.time < StartTime + duration)
             {
-                Vector3 Offset = new Vector3(
-                    UnityEngine.Random.Range(-strength, strength),
-                    UnityEngine.Random.Range(-strength, strength),
-                    UnityEngine.Random.Range(-strength, strength));
+                Vector3 offset = rng.Vector3(strength);
 
-                camera.transform.localPosition += Offset;
+                camera.transform.localPosition += offset;
 
-                if (frequency < Time.deltaTime)
-                    yield return new WaitForEndOfFrame();
-                else
+                if (frequency > 0f)
                     yield return new WaitForSeconds(frequency);
+                else
+                    yield return new WaitForEndOfFrame();
 
-                camera.transform.localPosition -= Offset;
+                camera.transform.localPosition -= offset;
             }
         }
     }

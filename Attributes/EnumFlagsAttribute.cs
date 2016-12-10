@@ -14,7 +14,7 @@ namespace Expanse
     {
         public EnumFlagsAttribute()
         {
-            order = 15;
+            order = AttributeConstants.Order.ENUM_FLAGS;
         }
     }
 }

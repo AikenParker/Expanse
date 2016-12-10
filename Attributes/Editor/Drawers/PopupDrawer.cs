@@ -10,38 +10,44 @@ namespace Expanse
     [CustomPropertyDrawer(typeof(PopupAttribute), true)]
     public class PopupDrawer : PropertyDrawer
     {
-        public string[] displayedOptions
+        public string[] DisplayedOptions
         {
-            get { return (attribute as PopupAttribute).displayedOptions; }
-            set { (attribute as PopupAttribute).displayedOptions = value; }
+            get { return (attribute as PopupAttribute).DisplayedOptions; }
+            set { (attribute as PopupAttribute).DisplayedOptions = value; }
         }
 
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
-            ReadOnlyDrawer.BeginReadOnlyCheck(fieldInfo);
+            ReadOnlyDrawer.ApplyReadOnly(fieldInfo);
 
             EditorGUI.BeginProperty(position, label, property);
+
             int selectedIndex = 0;
+
             switch (property.propertyType)
             {
                 case SerializedPropertyType.Boolean:
-                    property.boolValue = EditorGUI.Popup(position, label.text, property.boolValue ? 0 : 1, displayedOptions) == 0;
+                    property.boolValue = EditorGUI.Popup(position, label.text, property.boolValue ? 0 : 1, DisplayedOptions) == 0;
                     break;
+
                 case SerializedPropertyType.String:
-                    selectedIndex = displayedOptions.Contains(property.stringValue) ? displayedOptions.ToList().IndexOf(property.stringValue) : 0;
-                    property.stringValue = displayedOptions[EditorGUI.Popup(position, label.text, selectedIndex, displayedOptions)];
+                    selectedIndex = DisplayedOptions.Contains(property.stringValue) ? DisplayedOptions.ToList().IndexOf(property.stringValue) : 0;
+                    property.stringValue = DisplayedOptions[EditorGUI.Popup(position, label.text, selectedIndex, DisplayedOptions)];
                     break;
+
                 case SerializedPropertyType.Integer:
-                    selectedIndex = displayedOptions.Contains(property.intValue.ToString()) ? displayedOptions.ToList().IndexOf(property.intValue.ToString()) : 0;
-                    property.intValue = System.Convert.ToInt32(displayedOptions[EditorGUI.Popup(position, label.text, selectedIndex, displayedOptions)]);
+                    selectedIndex = DisplayedOptions.Contains(property.intValue.ToString()) ? DisplayedOptions.ToList().IndexOf(property.intValue.ToString()) : 0;
+                    property.intValue = System.Convert.ToInt32(DisplayedOptions[EditorGUI.Popup(position, label.text, selectedIndex, DisplayedOptions)]);
                     break;
+
                 default:
                     Debug.LogWarning("Unsupported popup type.");
                     break;
             }
+
             EditorGUI.EndProperty();
 
-            ReadOnlyDrawer.EndReadOnlyCheck();
+            ReadOnlyDrawer.RevertReadOnly();
         }
     }
 }

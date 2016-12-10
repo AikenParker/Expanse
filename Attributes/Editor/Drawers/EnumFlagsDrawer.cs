@@ -8,12 +8,16 @@ namespace Expanse
     {
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
-            ReadOnlyDrawer.BeginReadOnlyCheck(fieldInfo);
+            ReadOnlyDrawer.ApplyReadOnly(fieldInfo);
+
+            EditorGUI.BeginProperty(position, label, property);
 
             if (property.propertyType == SerializedPropertyType.Enum)
                 property.intValue = EditorGUI.MaskField(position, label, property.intValue, property.enumNames);
 
-            ReadOnlyDrawer.EndReadOnlyCheck();
+            EditorGUI.EndProperty();
+
+            ReadOnlyDrawer.RevertReadOnly();
         }
     }
 }
