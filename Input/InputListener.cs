@@ -8,7 +8,7 @@ using Expanse;
 namespace Expanse
 {
     /// <summary>
-    /// InputData sequel.
+    /// Automatically managed input listener.
     /// </summary>
     public class InputListener : IDisposable, IComplexUpdate
     {
@@ -156,57 +156,6 @@ namespace Expanse
             NONE = 0,
             BUTTON = 1,
             AXIS = 2
-        }
-    }
-
-    public class InputListenerDualAxis : IDisposable
-    {
-        public InputListener InputX { get; private set; }
-        public InputListener InputY { get; private set; }
-
-        public InputListenerDualAxis(InputListener AxisX, InputListener AxisY)
-        {
-            this.InputX = AxisX;
-            this.InputY = AxisY;
-        }
-
-        public Vector2 AxisRaw
-        {
-            get
-            {
-                return new Vector2(InputX.Axis, InputY.Axis);
-            }
-        }
-
-        public Vector2 Axis
-        {
-            get
-            {
-                Vector2 rawAxis = AxisRaw;
-                return rawAxis != Vector2.zero ? rawAxis.normalized : Vector2.zero;
-            }
-        }
-
-        public float AxisX
-        {
-            get
-            {
-                return InputX.Axis;
-            }
-        }
-
-        public float AxisY
-        {
-            get
-            {
-                return InputY.Axis;
-            }
-        }
-
-        public void Dispose()
-        {
-            InputX.Dispose();
-            InputY.Dispose();
         }
     }
 }
