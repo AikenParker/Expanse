@@ -18,6 +18,8 @@ namespace Expanse
 
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
+            EditorUtil.ApplyTooltip(fieldInfo, label);
+
             ReadOnlyDrawer.ApplyReadOnly(fieldInfo);
 
             EditorGUI.BeginProperty(position, label, property);

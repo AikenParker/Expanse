@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using UnityEditor;
 using UnityEngine;
@@ -20,6 +21,13 @@ namespace Expanse
         public static void RevertGUIEnabled()
         {
             GUI.enabled = prevGUIEnabled;
+        }
+
+        public static void ApplyTooltip(FieldInfo fieldInfo, GUIContent label)
+        {
+            TooltipAttribute tooltipAttribute = fieldInfo.GetAttribute<TooltipAttribute>();
+
+            label.tooltip = (tooltipAttribute != null) ? tooltipAttribute.tooltip : string.Empty;
         }
     }
 }

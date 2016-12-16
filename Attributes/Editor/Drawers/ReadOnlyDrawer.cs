@@ -13,6 +13,8 @@ namespace Expanse
     {
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
+            EditorUtil.ApplyTooltip(fieldInfo, label);
+
             ApplyReadOnly(fieldInfo);
 
             EditorGUI.BeginProperty(position, label, property);
@@ -23,13 +25,13 @@ namespace Expanse
             {
                 RangeAttribute rangeAttribute = fieldInfo.GetAttribute<RangeAttribute>();
 
-                EditorGUI.Slider(position, label, property.floatValue, rangeAttribute.min, rangeAttribute.max);
+                property.floatValue = EditorGUI.Slider(position, label, property.floatValue, rangeAttribute.min, rangeAttribute.max);
             }
             else if (fieldInfo.HasAttribute<RangeAttribute>() && property.propertyType == SerializedPropertyType.Integer)
             {
                 RangeAttribute rangeAttribute = fieldInfo.GetAttribute<RangeAttribute>();
 
-                EditorGUI.IntSlider(position, label, property.intValue, Mathf.FloorToInt(rangeAttribute.min), Mathf.RoundToInt(rangeAttribute.max));
+                property.intValue = EditorGUI.IntSlider(position, label, property.intValue, Mathf.FloorToInt(rangeAttribute.min), Mathf.RoundToInt(rangeAttribute.max));
             }
             else
             {

@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Text;
+using System.Globalization;
 
 namespace Expanse
 {
@@ -29,6 +30,14 @@ namespace Expanse
             }
 
             return newText.ToString();
+        }
+
+        /// <summary>
+        /// Returns the given string in title case format.
+        /// </summary>
+        public static string ToTitleCase(this string source)
+        {
+            return CultureInfo.CurrentCulture.TextInfo.ToTitleCase(source.ToLower());
         }
     }
 }

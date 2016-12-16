@@ -12,6 +12,7 @@ namespace Expanse
             public const int READ_ONLY = 1;
             public const int ENUM_FLAGS = 3;
             public const int POPUP = 2;
+            public const int REORDERABLE = 4;
         }
     }
 }
