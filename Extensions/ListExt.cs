@@ -1,9 +1,7 @@
-﻿using UnityEngine;
-using UnityEngine.UI;
+﻿using Expanse;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System;
-using Expanse;
 
 namespace Expanse
 {
@@ -225,12 +223,12 @@ namespace Expanse
         /// <summary>
         /// Suffles the order of elements in the list.
         /// </summary>
-        public static void Shuffle<T>(this IList<T> list, RandomUtil rng = null)
+        public static void Shuffle<T>(this IList<T> list, Random rng = null)
         {
             if (rng != null)
                 rng.Shuffle(list);
             else
-                RandomUtil.ApplyShuffle(list);
+                RandomUtil.Shuffle(list);
         }
     }
 }

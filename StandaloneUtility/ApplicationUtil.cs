@@ -1,7 +1,4 @@
-﻿using UnityEngine;
-using System.Collections;
-
-namespace Expanse
+﻿namespace Expanse
 {
     public static class ApplicationUtil
     {

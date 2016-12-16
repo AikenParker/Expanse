@@ -1,8 +1,5 @@
-﻿using UnityEngine;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System;
+﻿using System;
+using UnityEngine;
 
 namespace Expanse
 {
@@ -135,7 +132,7 @@ namespace Expanse
         public float CurrentTime { get; private set; }
         public float TotalPassedTime { get; private set; }
         public bool IsRandomized { get; set; }
-        public RandomUtil Randomizer { get; set; }
+        public Random Randomizer { get; set; }
         public float MinDuration { get; set; }
         public float MaxDuration { get; set; }
         public bool IsPlaying { get; set; }

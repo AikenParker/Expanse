@@ -1,10 +1,5 @@
-﻿using UnityEngine;
-using UnityEngine.UI;
-using System.Collections.Generic;
-using System.Linq;
-using System;
-using Expanse;
-using System.Collections;
+﻿using System.Collections;
+using UnityEngine;
 
 namespace Expanse
 {
@@ -40,7 +35,7 @@ namespace Expanse
         /// <summary>
         /// Shakes the camera in a basic way changing its local position every frame.
         /// </summary>
-        public static IEnumerator Co_BasicShake(this Camera camera, float strength, float duration, float frequency, RandomUtil rng = null)
+        public static IEnumerator Co_BasicShake(this Camera camera, float strength, float duration, float frequency, Random rng = null)
         {
             rng = rng ?? RandomUtil.Instance;
 
