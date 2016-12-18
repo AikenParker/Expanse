@@ -7,6 +7,6 @@ namespace Expanse
 {
     public interface IEase
     {
-        float Update(float t, float b, float c, float d, float a, float p);
+        float Update(float time, float start, float end, float duration, float param1, float param2);
     }
 }

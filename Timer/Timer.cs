@@ -55,7 +55,7 @@ namespace Expanse
             Timer newTimer = new Timer(null, CallBackRelay.GlobalCBR);
 
             newTimer.ApplySettings(settings);
-            if (settings.completionMode != CompletionModes.REVERSE)
+            if (settings.completionMode != TimerCompletionModes.REVERSE)
                 newTimer.Completed += onComplete;
             else
                 newTimer.CompletedOrReturned += onComplete;
@@ -84,7 +84,7 @@ namespace Expanse
             Timer newTimer = new Timer(monoBehaviour, CallBackRelay.GlobalCBR);
 
             newTimer.ApplySettings(settings);
-            if (settings.completionMode != CompletionModes.REVERSE)
+            if (settings.completionMode != TimerCompletionModes.REVERSE)
                 newTimer.Completed += onComplete;
             else
                 newTimer.CompletedOrReturned += onComplete;
@@ -113,7 +113,7 @@ namespace Expanse
             Timer newTimer = new Timer(monoBehaviour, CBR);
 
             newTimer.ApplySettings(settings);
-            if (settings.completionMode != CompletionModes.REVERSE)
+            if (settings.completionMode != TimerCompletionModes.REVERSE)
                 newTimer.Completed += onComplete;
             else
                 newTimer.CompletedOrReturned += onComplete;
@@ -137,7 +137,7 @@ namespace Expanse
         public float MaxDuration { get; set; }
         public bool IsPlaying { get; set; }
         public float PlaybackRate { get; set; }
-        public CompletionModes CompletionMode { get; set; }
+        public TimerCompletionModes CompletionMode { get; set; }
         public int Repeats { get; set; }
         public int Priority { get; set; }
         public bool IsUnsafe { get; private set; }
@@ -409,17 +409,17 @@ namespace Expanse
 
             switch (CompletionMode)
             {
-                case CompletionModes.DEACTIVATE:
+                case TimerCompletionModes.DEACTIVATE:
                     this.CurrentTime = CurrentEndTime;
                     this.Deactivcate();
                     break;
 
-                case CompletionModes.STOP:
+                case TimerCompletionModes.STOP:
                     this.CurrentTime = CurrentEndTime;
                     this.Stop();
                     break;
 
-                case CompletionModes.RESTART:
+                case TimerCompletionModes.RESTART:
                     if (Repeats == 0)
                     {
                         this.CurrentTime = CurrentEndTime;
@@ -432,7 +432,7 @@ namespace Expanse
                     }
                     break;
 
-                case CompletionModes.REVERSE:
+                case TimerCompletionModes.REVERSE:
                     if (Repeats == 0 && !IsReversing)
                     {
                         this.CurrentTime = CurrentEndTime;
@@ -538,15 +538,15 @@ namespace Expanse
             {
                 switch (CompletionMode)
                 {
-                    case CompletionModes.RESTART:
-                    case CompletionModes.REVERSE:
+                    case TimerCompletionModes.RESTART:
+                    case TimerCompletionModes.REVERSE:
                         if (Repeats < 0)
                             return float.PositiveInfinity;
                         else
                             return ((Repeats - 1) * Duration) + RemainingTime;
 
-                    case CompletionModes.STOP:
-                    case CompletionModes.DEACTIVATE:
+                    case TimerCompletionModes.STOP:
+                    case TimerCompletionModes.DEACTIVATE:
                     default:
                         return RemainingTime;
                 }
@@ -618,7 +618,7 @@ namespace Expanse
             }
         }
 
-        public enum CompletionModes
+        public enum TimerCompletionModes
         {
             DEACTIVATE = 0,
             STOP = 1,

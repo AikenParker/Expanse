@@ -1,14 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace Expanse
+﻿namespace Expanse
 {
     public class FloatMotion : Motion<float>
     {
-        public FloatMotion(float startValue, float targetValue)
-            : base(startValue, targetValue)
+        public FloatMotion(CallBackRelay callBackRelay, bool autoStart) : base(callBackRelay, autoStart)
+        {
+
+        }
+
+        protected override void ApplyValue(float value)
         {
 
         }

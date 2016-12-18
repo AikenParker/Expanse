@@ -11,7 +11,7 @@ namespace Expanse
         public float maxDuration;
         public bool autoPlay;
         public float playBackRate;
-        public Timer.CompletionModes completionMode;
+        public Timer.TimerCompletionModes completionMode;
         public UpdateModes updateMode;
         public int repeats;
         public bool deactivateOnLoad;
@@ -35,7 +35,7 @@ namespace Expanse
             settings.maxDuration = duration;
             settings.autoPlay = false;
             settings.playBackRate = 1.0f;
-            settings.completionMode = Timer.CompletionModes.DEACTIVATE;
+            settings.completionMode = Timer.TimerCompletionModes.DEACTIVATE;
             settings.updateMode = UpdateModes.UPDATE;
             settings.repeats = -1;
             settings.deactivateOnLoad = true;
@@ -54,7 +54,7 @@ namespace Expanse
         public static TimerSettings GetGameStandard(float duration)
         {
             TimerSettings settings = GetDefault(duration);
-            settings.completionMode = Timer.CompletionModes.STOP;
+            settings.completionMode = Timer.TimerCompletionModes.STOP;
             return settings;
         }
 
@@ -62,7 +62,7 @@ namespace Expanse
         {
             TimerSettings settings = GetDefault(duration);
             settings.autoPlay = true;
-            settings.completionMode = Timer.CompletionModes.RESTART;
+            settings.completionMode = Timer.TimerCompletionModes.RESTART;
             return settings;
         }
 
@@ -70,7 +70,7 @@ namespace Expanse
         {
             TimerSettings settings = GetDefault(duration);
             settings.autoPlay = true;
-            settings.completionMode = Timer.CompletionModes.REVERSE;
+            settings.completionMode = Timer.TimerCompletionModes.REVERSE;
             return settings;
         }
 
@@ -85,7 +85,7 @@ namespace Expanse
         public static TimerSettings GetPhysicsStandard(float duration)
         {
             TimerSettings settings = GetDefault(duration);
-            settings.completionMode = Timer.CompletionModes.STOP;
+            settings.completionMode = Timer.TimerCompletionModes.STOP;
             settings.updateMode = UpdateModes.FIXED_UPDATE;
             return settings;
         }
@@ -94,7 +94,7 @@ namespace Expanse
         {
             TimerSettings settings = GetDefault(duration);
             settings.autoPlay = true;
-            settings.completionMode = Timer.CompletionModes.RESTART;
+            settings.completionMode = Timer.TimerCompletionModes.RESTART;
             settings.updateMode = UpdateModes.FIXED_UPDATE;
             return settings;
         }
@@ -103,7 +103,7 @@ namespace Expanse
         {
             TimerSettings settings = GetDefault(duration);
             settings.autoPlay = true;
-            settings.completionMode = Timer.CompletionModes.REVERSE;
+            settings.completionMode = Timer.TimerCompletionModes.REVERSE;
             settings.updateMode = UpdateModes.FIXED_UPDATE;
             return settings;
         }
@@ -123,7 +123,7 @@ namespace Expanse
             TimerSettings settings = GetDefault(duration);
             settings.alwaysPlay = true;
             settings.deactivateOnLoad = false;
-            settings.completionMode = Timer.CompletionModes.STOP;
+            settings.completionMode = Timer.TimerCompletionModes.STOP;
             settings.updateMode = UpdateModes.UNSCALED_UPDATE;
             return settings;
         }
@@ -134,7 +134,7 @@ namespace Expanse
             settings.autoPlay = true;
             settings.alwaysPlay = true;
             settings.deactivateOnLoad = false;
-            settings.completionMode = Timer.CompletionModes.RESTART;
+            settings.completionMode = Timer.TimerCompletionModes.RESTART;
             settings.updateMode = UpdateModes.UNSCALED_UPDATE;
             return settings;
         }
@@ -145,7 +145,7 @@ namespace Expanse
             settings.autoPlay = true;
             settings.alwaysPlay = true;
             settings.deactivateOnLoad = false;
-            settings.completionMode = Timer.CompletionModes.REVERSE;
+            settings.completionMode = Timer.TimerCompletionModes.REVERSE;
             settings.updateMode = UpdateModes.UNSCALED_UPDATE;
             return settings;
         }

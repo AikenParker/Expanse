@@ -1,17 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace Expanse
+﻿namespace Expanse
 {
     public static class Linear
     {
         public class EaseNone : IEase
         {
-            public float Update(float t, float b, float c, float d, float a, float p)
+            public float Update(float time, float start, float end, float duration, float param1, float param2)
             {
-                return c * t / d + b;
+                return end * time / duration + start;
             }
         }
     }

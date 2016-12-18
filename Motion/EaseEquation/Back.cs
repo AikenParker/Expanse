@@ -1,45 +1,40 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace Expanse
+﻿namespace Expanse
 {
     public static class Back
     {
         public class EaseIn : IEase
         {
-            public float Update(float t, float b, float c, float d, float a, float p)
+            public float Update(float time, float start, float end, float duration, float param1, float param2)
             {
-                if (a == 0.0f)
-                    a = 1.70158f;
+                if (param1 == 0.0f)
+                    param1 = 1.70158f;
 
-                return c * (t /= d) * t * ((a + 1) * t - a) + b;
+                return end * (time /= duration) * time * ((param1 + 1) * time - param1) + start;
             }
         }
 
         public class EaseInOut : IEase
         {
-            public float Update(float t, float b, float c, float d, float a, float p)
+            public float Update(float time, float start, float end, float duration, float param1, float param2)
             {
-                if (a == 0.0f)
-                    a = 1.70158f;
+                if (param1 == 0.0f)
+                    param1 = 1.70158f;
 
-                if ((t /= d / 2f) < 1f)
-                    return c / 2f * (t * t * (((a *= (1.525f)) + 1f) * t - a)) + b;
+                if ((time /= duration / 2f) < 1f)
+                    return end / 2f * (time * time * (((param1 *= (1.525f)) + 1f) * time - param1)) + start;
 
-                return c / 2f * ((t -= 2f) * t * (((a *= (1.525f)) + 1f) * t + a) + 2f) + b;
+                return end / 2f * ((time -= 2f) * time * (((param1 *= (1.525f)) + 1f) * time + param1) + 2f) + start;
             }
         }
 
         public class EaseOut : IEase
         {
-            public float Update(float t, float b, float c, float d, float a, float p)
+            public float Update(float time, float start, float end, float duration, float param1, float param2)
             {
-                if (a == 0.0f)
-                    a = 1.70158f;
+                if (param1 == 0.0f)
+                    param1 = 1.70158f;
 
-                return c * ((t = t / d - 1f) * t * ((a + 1f) * t + a) + 1f) + b;
+                return end * ((time = time / duration - 1f) * time * ((param1 + 1f) * time + param1) + 1f) + start;
             }
         }
     }

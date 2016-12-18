@@ -1,20 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace Expanse
+﻿namespace Expanse
 {
     /// <summary>
-    /// INCOMPLETE
+    /// Implemented by all Expanse Motions
     /// </summary>
     public interface IMotion : IComplexUpdate
     {
-        float StartDelay { get; set; }
-        float EndDelay { get; set; }
         float Duration { get; set; }
 
-        Action Completed { get; set; }
-        Action Started { get; set; }
+        void Play();
+        void Stop();
+        void Reset();
+        void Restart();
+        void Reverse();
     }
 }

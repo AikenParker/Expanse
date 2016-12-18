@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace Expanse
 {
@@ -10,90 +6,90 @@ namespace Expanse
     {
         public class EaseIn : IEase
         {
-            public float Update(float t, float b, float c, float d, float a, float p)
+            public float Update(float time, float start, float end, float duration, float param1, float param2)
             {
-                if (t == 0f)
-                    return b;
+                if (time == 0f)
+                    return start;
 
-                if ((t /= d) == 1f)
-                    return b + c;
+                if ((time /= duration) == 1f)
+                    return start + end;
 
-                if (p == 0f)
-                    p = d * 0.3f;
+                if (param2 == 0f)
+                    param2 = duration * 0.3f;
 
                 float s;
-                if (a == 0f || a < Mathf.Abs(c))
+                if (param1 == 0f || param1 < Mathf.Abs(end))
                 {
-                    a = c;
-                    s = p / 4f;
+                    param1 = end;
+                    s = param2 / 4f;
                 }
                 else
                 {
-                    s = p / (2f * Mathf.PI) * Mathf.Asin(c / a);
+                    s = param2 / (2f * Mathf.PI) * Mathf.Asin(end / param1);
                 }
 
-                return -(a * Mathf.Pow(2f, 10f * (t -= 1f)) * Mathf.Sin((t * d - s) * (2f * Mathf.PI) / p)) + b;
+                return -(param1 * Mathf.Pow(2f, 10f * (time -= 1f)) * Mathf.Sin((time * duration - s) * (2f * Mathf.PI) / param2)) + start;
             }
         }
 
         public class EaseInOut : IEase
         {
-            public float Update(float t, float b, float c, float d, float a, float p)
+            public float Update(float time, float start, float end, float duration, float param1, float param2)
             {
-                if (t == 0f)
-                    return b;
+                if (time == 0f)
+                    return start;
 
-                if ((t /= d / 2f) == 2f)
-                    return b + c;
+                if ((time /= duration / 2f) == 2f)
+                    return start + end;
 
-                if (p == 0f)
-                    p = d * (0.3f * 1.5f);
+                if (param2 == 0f)
+                    param2 = duration * (0.3f * 1.5f);
 
                 float s;
-                if (a == 0f || a < Mathf.Abs(c))
+                if (param1 == 0f || param1 < Mathf.Abs(end))
                 {
-                    a = c;
-                    s = p / 4f;
+                    param1 = end;
+                    s = param2 / 4f;
                 }
                 else
                 {
-                    s = p / (2f * Mathf.PI) * Mathf.Asin(c / a);
+                    s = param2 / (2f * Mathf.PI) * Mathf.Asin(end / param1);
                 }
 
-                if (t < 1f)
+                if (time < 1f)
                 {
-                    return -0.5f * (a * Mathf.Pow(2f, 10f * (t -= 1f)) * Mathf.Sin((t * d - s) * (2f * Mathf.PI) / p)) + b;
+                    return -0.5f * (param1 * Mathf.Pow(2f, 10f * (time -= 1f)) * Mathf.Sin((time * duration - s) * (2f * Mathf.PI) / param2)) + start;
                 }
 
-                return a * Mathf.Pow(2f, -10f * (t -= 1f)) * Mathf.Sin((t * d - s) * (2f * Mathf.PI) / p) * 0.5f + c + b;
+                return param1 * Mathf.Pow(2f, -10f * (time -= 1f)) * Mathf.Sin((time * duration - s) * (2f * Mathf.PI) / param2) * 0.5f + end + start;
             }
         }
 
         public class EaseOut : IEase
         {
-            public float Update(float t, float b, float c, float d, float a, float p)
+            public float Update(float time, float start, float end, float duration, float param1, float param2)
             {
-                if (t == 0f)
-                    return b;
+                if (time == 0f)
+                    return start;
 
-                if ((t /= d) == 1f)
-                    return b + c;
+                if ((time /= duration) == 1f)
+                    return start + end;
 
-                if (p == 0f)
-                    p = d * 0.3f;
+                if (param2 == 0f)
+                    param2 = duration * 0.3f;
 
                 float s;
-                if (a == 0f || a < Mathf.Abs(c))
+                if (param1 == 0f || param1 < Mathf.Abs(end))
                 {
-                    a = c;
-                    s = p / 4f;
+                    param1 = end;
+                    s = param2 / 4f;
                 }
                 else
                 {
-                    s = p / (2f * Mathf.PI) * Mathf.Asin(c / a);
+                    s = param2 / (2f * Mathf.PI) * Mathf.Asin(end / param1);
                 }
 
-                return a * Mathf.Pow(2f, -10f * t) * Mathf.Sin((t * d - s) * (2f * Mathf.PI) / p) + c + b;
+                return param1 * Mathf.Pow(2f, -10f * time) * Mathf.Sin((time * duration - s) * (2f * Mathf.PI) / param2) + end + start;
             }
         }
     }
