@@ -20,23 +20,11 @@ namespace Expanse
 
             rng.GetBytes(bytes);
 
-            System.Collections.BitArray bitArray = new System.Collections.BitArray(bytes);
+            ulong @ulong = BitConverter.ToUInt64(bytes, 0) / (1 << 11);
 
-            // Set all exponent bits to 0
-            for (int i = 52; i < 62; i++)
-                bitArray.Set(i, false);
+            double value = @ulong / (double)(1UL << 53);
 
-            // Except for the 1's
-            bitArray.Set(62, true);
-
-            // Set sign bit to positive
-            bitArray.Set(63, false);
-
-            bitArray.CopyTo(bytes, 0);
-
-            double value = BitConverter.ToDouble(bytes, 0);
-
-            return value - (int)value;
+            return value;
         }
 
         int IRandomNumberGenerator.NextInt(int min, int max)

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 
 namespace Expanse
 {
@@ -26,10 +25,7 @@ namespace Expanse
             UnityEngine.Random.State prevState = UnityEngine.Random.state;
             UnityEngine.Random.state = rngState;
 
-            // Convert to string first because implicit float to double conversion
-            // introduces some unexpected inaccuracies (e.g 0.1f + 0.1f = 0.20000000123f)
-            // TODO: Create a bit util to zero the specific bits when need off
-            double value = Convert.ToDouble(UnityEngine.Random.value.ToString());
+            double value = (double)(decimal)UnityEngine.Random.value;
 
             rngState = UnityEngine.Random.state;
             UnityEngine.Random.state = prevState;
@@ -55,15 +51,10 @@ namespace Expanse
             UnityEngine.Random.State prevState = UnityEngine.Random.state;
             UnityEngine.Random.state = rngState;
 
-            BitArray bitArray = new BitArray(data);
-
-            // TODO: Benchmark this. Consider cloning the bits from UnityEngine.Random.value
-            for (int i = 0; i < bitArray.Count; i++)
+            for (int i = 0; i < data.Length * 8; i++)
             {
-                bitArray.Set(i, UnityEngine.Random.value < 0.5f ? false : true);
+                data.SetBit(i, UnityEngine.Random.value < 0.5f ? false : true);
             }
-
-            bitArray.CopyTo(data, 0);
 
             rngState = UnityEngine.Random.state;
             UnityEngine.Random.state = prevState;
