@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -12,32 +9,81 @@ namespace Expanse
     {
         protected Timer timer;
 
-        public CallBackRelay callBackRelay;
-        public MonoBehaviour attachedMonoBehaviour;
-        public TimerSettings timerSettings;
+        [SerializeField]
+        private bool useGlobalCBR = true;
 
-        public UnityEvent completed = new UnityEvent();
-        public UnityEvent returned = new UnityEvent();
-        public UnityEvent completedOrReturned = new UnityEvent();
+        [SerializeField]
+        private CallBackRelay callBackRelay;
+        [SerializeField]
+        private MonoBehaviour attachedMonoBehaviour;
+        [SerializeField]
+        private TimerSettings timerSettings;
+
+        [SerializeField]
+        private UnityEvent completed = new UnityEvent();
+        [SerializeField]
+        private UnityEvent returned = new UnityEvent();
+        [SerializeField]
+        private UnityEvent completedOrReturned = new UnityEvent();
+
+        [SerializeField, HideInInspector]
+        private bool enableCompletedEvent = true;
+        [SerializeField, HideInInspector]
+        private bool enableReturnedEvent = false;
+        [SerializeField, HideInInspector]
+        private bool enableCompletedOrReturnedEvent = false;
 
         void Reset()
         {
             attachedMonoBehaviour = this;
 
             timerSettings = TimerSettings.GetDefault(1f);
+            timerSettings.autoPlay = true;
         }
 
         void Awake()
         {
-            callBackRelay = callBackRelay ?? CallBackRelay.GlobalCBR;
+            if (!this.enabled)
+                return;
 
-            timer = Timer.Create(this, callBackRelay, timerSettings);
+            callBackRelay = useGlobalCBR ? CallBackRelay.GlobalCBR : callBackRelay;
 
-            timer.Completed += completed.Invoke;
-            timer.Returned += returned.Invoke;
-            timer.CompletedOrReturned += completedOrReturned.Invoke;
+            if (callBackRelay != null)
+            {
+                timer = Timer.Create(this, callBackRelay, timerSettings);
+            }
+            else
+            {
+                timer = Timer.Create(this, timerSettings);
+            }
+
+            if (enableCompletedEvent)
+                timer.Completed += completed.Invoke;
+
+            if (enableReturnedEvent)
+                timer.Returned += returned.Invoke;
+
+            if (enableCompletedOrReturnedEvent)
+                timer.CompletedOrReturned += completedOrReturned.Invoke;
 
             timer.Deactivated += OnDeactivated;
+        }
+
+        void Start() { }
+
+        public void Play()
+        {
+            timer.Play();
+        }
+
+        public void Stop()
+        {
+            timer.Stop();
+        }
+
+        public void Deactivate()
+        {
+            timer.Deactivate();
         }
 
         private void OnDeactivated()

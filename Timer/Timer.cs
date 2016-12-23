@@ -19,7 +19,7 @@ namespace Expanse
                 throw new ArgumentNullException("CBR");
 
             this.callBackRelay = CBR;
-            this.callBackRelay.Destroyed += this.Deactivcate;
+            this.callBackRelay.Destroyed += this.Deactivate;
 
             if (attachedMonoBahviour != null)
             {
@@ -184,7 +184,11 @@ namespace Expanse
                 if (rawNewTime >= Duration)
                 {
                     OnCompleted();
+
                     HandleEnd(leftOverTime);
+
+                    if (Repeats > 0)
+                        Repeats--;
                 }
                 else if (rawNewTime <= 0)
                 {
@@ -272,14 +276,14 @@ namespace Expanse
 
             this.Subscribe(CallBackRelay, UpdateMode);
 
-            CallBackRelay.Destroyed += Deactivcate;
+            CallBackRelay.Destroyed += Deactivate;
             if (this.DeactivateOnLevelChange)
-                CallBackRelay.LevelChanged += Deactivcate;
+                CallBackRelay.LevelChanged += Deactivate;
 
             this.isActive = true;
         }
 
-        public void Deactivcate()
+        public void Deactivate()
         {
             ThrowIfInactive();
 
@@ -288,9 +292,9 @@ namespace Expanse
 
             this.Unsubscribe(CallBackRelay, UpdateMode);
 
-            CallBackRelay.Destroyed -= Deactivcate;
+            CallBackRelay.Destroyed -= Deactivate;
             if (this.DeactivateOnLevelChange)
-                CallBackRelay.LevelChanged -= Deactivcate;
+                CallBackRelay.LevelChanged -= Deactivate;
 
             if (Deactivated != null)
                 Deactivated();
@@ -312,18 +316,18 @@ namespace Expanse
         {
             if (prevCBR != null)
             {
-                prevCBR.Destroyed -= this.Deactivcate;
+                prevCBR.Destroyed -= this.Deactivate;
 
                 if (DeactivateOnLevelChange)
-                    prevCBR.LevelChanged -= this.Deactivcate;
+                    prevCBR.LevelChanged -= this.Deactivate;
 
                 this.Unsubscribe(prevCBR, UpdateMode);
             }
 
-            newCBR.Destroyed += this.Deactivcate;
+            newCBR.Destroyed += this.Deactivate;
 
             if (DeactivateOnLevelChange)
-                newCBR.LevelChanged += this.Deactivcate;
+                newCBR.LevelChanged += this.Deactivate;
 
             this.Subscribe(newCBR, UpdateMode);
         }
@@ -331,9 +335,9 @@ namespace Expanse
         private void OnDeactivateOnLoadChanged()
         {
             if (DeactivateOnLevelChange)
-                CallBackRelay.LevelChanged += this.Deactivcate;
+                CallBackRelay.LevelChanged += this.Deactivate;
             else
-                CallBackRelay.LevelChanged -= this.Deactivcate;
+                CallBackRelay.LevelChanged -= this.Deactivate;
         }
 
         private void Unsubscribe(CallBackRelay CBR, UpdateModes mode)
@@ -386,9 +390,6 @@ namespace Expanse
 
             if (Completed != null)
                 Completed();
-
-            if (Repeats > 0)
-                Repeats--;
         }
 
         private void OnReturned()
@@ -411,7 +412,7 @@ namespace Expanse
             {
                 case TimerCompletionModes.DEACTIVATE:
                     this.CurrentTime = CurrentEndTime;
-                    this.Deactivcate();
+                    this.Deactivate();
                     break;
 
                 case TimerCompletionModes.STOP:
@@ -423,7 +424,7 @@ namespace Expanse
                     if (Repeats == 0)
                     {
                         this.CurrentTime = CurrentEndTime;
-                        this.Deactivcate();
+                        this.Deactivate();
                     }
                     else
                     {
@@ -436,7 +437,7 @@ namespace Expanse
                     if (Repeats == 0 && !IsReversing)
                     {
                         this.CurrentTime = CurrentEndTime;
-                        this.Deactivcate();
+                        this.Deactivate();
                     }
                     else
                     {
@@ -567,7 +568,7 @@ namespace Expanse
         public void Dispose()
         {
             if (this.IsActive)
-                this.Deactivcate();
+                this.Deactivate();
         }
 
         GameObject IUnity.gameObject
