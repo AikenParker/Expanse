@@ -39,7 +39,7 @@ namespace Expanse
         {
             attachedMonoBehaviour = this;
 
-            timerSettings = TimerSettings.GetDefault(1f);
+            timerSettings = TimerSettings.Default.WithDuration(1f);
             timerSettings.autoPlay = true;
         }
 

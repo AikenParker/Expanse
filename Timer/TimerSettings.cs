@@ -18,7 +18,14 @@ namespace Expanse
         public int priority;
         public bool alwaysPlay;
 
-        public TimerSettings Randomize(float minDuration, float maxDuration)
+        public TimerSettings WithDuration(float duration)
+        {
+            this.isRandomized = false;
+            this.duration = duration;
+            return this;
+        }
+
+        public TimerSettings WithDuration(float minDuration, float maxDuration)
         {
             this.isRandomized = true;
             this.minDuration = minDuration;
@@ -26,128 +33,167 @@ namespace Expanse
             return this;
         }
 
-        public static TimerSettings GetDefault(float duration)
+        public static TimerSettings Default
         {
-            TimerSettings settings = new TimerSettings();
-            settings.duration = duration;
-            settings.isRandomized = false;
-            settings.minDuration = duration;
-            settings.maxDuration = duration;
-            settings.autoPlay = false;
-            settings.playBackRate = 1.0f;
-            settings.completionMode = Timer.TimerCompletionModes.DEACTIVATE;
-            settings.updateMode = UpdateModes.UPDATE;
-            settings.repeats = -1;
-            settings.deactivateOnLoad = true;
-            settings.priority = 0;
-            settings.alwaysPlay = false;
-            return settings;
+            get
+            {
+                TimerSettings settings = new TimerSettings();
+                settings.duration = 1f;
+                settings.isRandomized = false;
+                settings.minDuration = 1f;
+                settings.maxDuration = 1f;
+                settings.autoPlay = false;
+                settings.playBackRate = 1.0f;
+                settings.completionMode = Timer.TimerCompletionModes.DEACTIVATE;
+                settings.updateMode = UpdateModes.UPDATE;
+                settings.repeats = -1;
+                settings.deactivateOnLoad = true;
+                settings.priority = 0;
+                settings.alwaysPlay = false;
+                return settings;
+            }
         }
 
-        public static TimerSettings GetGameOneShot(float duration)
+        public static TimerSettings GameOneShot
         {
-            TimerSettings settings = GetDefault(duration);
-            settings.autoPlay = true;
-            return settings;
+            get
+            {
+                TimerSettings settings = TimerSettings.Default;
+                settings.autoPlay = true;
+                return settings;
+            }
         }
 
-        public static TimerSettings GetGameStandard(float duration)
+        public static TimerSettings GameStandard
         {
-            TimerSettings settings = GetDefault(duration);
-            settings.completionMode = Timer.TimerCompletionModes.STOP;
-            return settings;
+            get
+            {
+                TimerSettings settings = TimerSettings.Default;
+                settings.completionMode = Timer.TimerCompletionModes.STOP;
+                return settings;
+            }
         }
 
-        public static TimerSettings GetGameRepeater(float duration)
+        public static TimerSettings GameRepeater
         {
-            TimerSettings settings = GetDefault(duration);
-            settings.autoPlay = true;
-            settings.completionMode = Timer.TimerCompletionModes.RESTART;
-            return settings;
+            get
+            {
+                TimerSettings settings = TimerSettings.Default;
+                settings.autoPlay = true;
+                settings.completionMode = Timer.TimerCompletionModes.RESTART;
+                return settings;
+            }
         }
 
-        public static TimerSettings GetGameReverser(float duration)
+        public static TimerSettings GameReverser
         {
-            TimerSettings settings = GetDefault(duration);
-            settings.autoPlay = true;
-            settings.completionMode = Timer.TimerCompletionModes.REVERSE;
-            return settings;
+            get
+            {
+                TimerSettings settings = TimerSettings.Default;
+                settings.autoPlay = true;
+                settings.completionMode = Timer.TimerCompletionModes.REVERSE;
+                return settings;
+            }
         }
 
-        public static TimerSettings GetPhysicsOneShot(float duration)
+        public static TimerSettings PhysicsOneShot
         {
-            TimerSettings settings = GetDefault(duration);
-            settings.autoPlay = true;
-            settings.updateMode = UpdateModes.FIXED_UPDATE;
-            return settings;
+            get
+            {
+                TimerSettings settings = TimerSettings.Default;
+                settings.autoPlay = true;
+                settings.updateMode = UpdateModes.FIXED_UPDATE;
+                return settings;
+            }
         }
 
-        public static TimerSettings GetPhysicsStandard(float duration)
+        public static TimerSettings PhysicsStandard
         {
-            TimerSettings settings = GetDefault(duration);
-            settings.completionMode = Timer.TimerCompletionModes.STOP;
-            settings.updateMode = UpdateModes.FIXED_UPDATE;
-            return settings;
+            get
+            {
+                TimerSettings settings = TimerSettings.Default;
+                settings.completionMode = Timer.TimerCompletionModes.STOP;
+                settings.updateMode = UpdateModes.FIXED_UPDATE;
+                return settings;
+            }
         }
 
-        public static TimerSettings GetPhysicsRepeater(float duration)
+        public static TimerSettings PhysicsRepeater
         {
-            TimerSettings settings = GetDefault(duration);
-            settings.autoPlay = true;
-            settings.completionMode = Timer.TimerCompletionModes.RESTART;
-            settings.updateMode = UpdateModes.FIXED_UPDATE;
-            return settings;
+            get
+            {
+                TimerSettings settings = TimerSettings.Default;
+                settings.autoPlay = true;
+                settings.completionMode = Timer.TimerCompletionModes.RESTART;
+                settings.updateMode = UpdateModes.FIXED_UPDATE;
+                return settings;
+            }
         }
 
-        public static TimerSettings GetPhysicsReverser(float duration)
+        public static TimerSettings PhysicsReverser
         {
-            TimerSettings settings = GetDefault(duration);
-            settings.autoPlay = true;
-            settings.completionMode = Timer.TimerCompletionModes.REVERSE;
-            settings.updateMode = UpdateModes.FIXED_UPDATE;
-            return settings;
+            get
+            {
+                TimerSettings settings = TimerSettings.Default;
+                settings.autoPlay = true;
+                settings.completionMode = Timer.TimerCompletionModes.REVERSE;
+                settings.updateMode = UpdateModes.FIXED_UPDATE;
+                return settings;
+            }
         }
 
-        public static TimerSettings GetBackgroundOneShot(float duration)
+        public static TimerSettings BackgroundOneShot
         {
-            TimerSettings settings = GetDefault(duration);
-            settings.autoPlay = true;
-            settings.alwaysPlay = true;
-            settings.deactivateOnLoad = false;
-            settings.updateMode = UpdateModes.UNSCALED_UPDATE;
-            return settings;
+            get
+            {
+                TimerSettings settings = TimerSettings.Default;
+                settings.autoPlay = true;
+                settings.alwaysPlay = true;
+                settings.deactivateOnLoad = false;
+                settings.updateMode = UpdateModes.UNSCALED_UPDATE;
+                return settings;
+            }
         }
 
-        public static TimerSettings GetBackgroundStandard(float duration)
+        public static TimerSettings BackgroundStandard
         {
-            TimerSettings settings = GetDefault(duration);
-            settings.alwaysPlay = true;
-            settings.deactivateOnLoad = false;
-            settings.completionMode = Timer.TimerCompletionModes.STOP;
-            settings.updateMode = UpdateModes.UNSCALED_UPDATE;
-            return settings;
+            get
+            {
+                TimerSettings settings = TimerSettings.Default;
+                settings.alwaysPlay = true;
+                settings.deactivateOnLoad = false;
+                settings.completionMode = Timer.TimerCompletionModes.STOP;
+                settings.updateMode = UpdateModes.UNSCALED_UPDATE;
+                return settings;
+            }
         }
 
-        public static TimerSettings GetBackgroundRepeater(float duration)
+        public static TimerSettings BackgroundRepeater
         {
-            TimerSettings settings = GetDefault(duration);
-            settings.autoPlay = true;
-            settings.alwaysPlay = true;
-            settings.deactivateOnLoad = false;
-            settings.completionMode = Timer.TimerCompletionModes.RESTART;
-            settings.updateMode = UpdateModes.UNSCALED_UPDATE;
-            return settings;
+            get
+            {
+                TimerSettings settings = TimerSettings.Default;
+                settings.autoPlay = true;
+                settings.alwaysPlay = true;
+                settings.deactivateOnLoad = false;
+                settings.completionMode = Timer.TimerCompletionModes.RESTART;
+                settings.updateMode = UpdateModes.UNSCALED_UPDATE;
+                return settings;
+            }
         }
 
-        public static TimerSettings GetBackgroundReverser(float duration)
+        public static TimerSettings BackgroundReverser
         {
-            TimerSettings settings = GetDefault(duration);
-            settings.autoPlay = true;
-            settings.alwaysPlay = true;
-            settings.deactivateOnLoad = false;
-            settings.completionMode = Timer.TimerCompletionModes.REVERSE;
-            settings.updateMode = UpdateModes.UNSCALED_UPDATE;
-            return settings;
+            get
+            {
+                TimerSettings settings = TimerSettings.Default;
+                settings.autoPlay = true;
+                settings.alwaysPlay = true;
+                settings.deactivateOnLoad = false;
+                settings.completionMode = Timer.TimerCompletionModes.REVERSE;
+                settings.updateMode = UpdateModes.UNSCALED_UPDATE;
+                return settings;
+            }
         }
     }
 }

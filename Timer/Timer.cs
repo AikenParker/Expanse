@@ -41,7 +41,7 @@ namespace Expanse
         {
             Timer newTimer = new Timer(null, CallBackRelay.GlobalCBR);
 
-            newTimer.ApplySettings(TimerSettings.GetGameOneShot(duration));
+            newTimer.ApplySettings(TimerSettings.GameOneShot.WithDuration(duration));
             newTimer.Completed += onComplete;
 
             return newTimer;
@@ -70,7 +70,7 @@ namespace Expanse
         {
             Timer newTimer = new Timer(monoBehaviour, CallBackRelay.GlobalCBR);
 
-            newTimer.ApplySettings(TimerSettings.GetGameOneShot(duration));
+            newTimer.ApplySettings(TimerSettings.GameOneShot.WithDuration(duration));
             newTimer.Completed += onComplete;
 
             return newTimer;
@@ -99,7 +99,7 @@ namespace Expanse
         {
             Timer newTimer = new Timer(monoBehaviour, CBR);
 
-            newTimer.ApplySettings(TimerSettings.GetGameOneShot(duration));
+            newTimer.ApplySettings(TimerSettings.GameOneShot.WithDuration(duration));
             newTimer.Completed += onComplete;
 
             return newTimer;
@@ -428,8 +428,8 @@ namespace Expanse
                     }
                     else
                     {
-                        this.CurrentTime = leftOverTime;
                         this.Restart();
+                        this.CurrentTime = leftOverTime;
                     }
                     break;
 
@@ -441,8 +441,8 @@ namespace Expanse
                     }
                     else
                     {
-                        this.CurrentTime = !IsReversing ? Duration - leftOverTime : leftOverTime;
                         this.Reverse();
+                        this.CurrentTime = !IsReversing ? Duration - leftOverTime : leftOverTime;
                     }
                     break;
             }
