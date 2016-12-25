@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using System.Collections;
 
 namespace Expanse
 {
@@ -27,8 +26,6 @@ namespace Expanse
         /// <summary>
         /// Determines if a float value is not infinity or NaN.
         /// </summary>
-        /// <param name="source"></param>
-        /// <returns></returns>
         public static bool IsReal(this float source)
         {
             return float.IsNaN(source) == false && float.IsInfinity(source) == false;
@@ -67,6 +64,27 @@ namespace Expanse
         public static float PositiveMod(this float value, float mod)
         {
             return (value % mod + mod) % mod;
+        }
+
+        /// <summary>
+        /// Returns a float rounded to the nearest factor of a value.
+        /// </summary>
+        public static float RoundToNearest(this float source, float nearest)
+        {
+            float inverse = Mathf.Pow(nearest, -1);
+
+            return (float)(System.Math.Round(source * inverse, System.MidpointRounding.AwayFromZero) / inverse);
+        }
+
+        /// <summary>
+        /// Returns a float rounded to the nearest factor of a value with an offset.
+        /// </summary>
+        public static float RoundToNearest(this float source, float nearest, float zeroOffset)
+        {
+            float roundedSouce = RoundToNearest(source, nearest);
+            float offset = zeroOffset % nearest;
+
+            return roundedSouce + offset;
         }
     }
 }
