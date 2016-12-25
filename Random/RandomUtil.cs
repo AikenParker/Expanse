@@ -8,9 +8,9 @@ namespace Expanse
     /// </summary>
     public static class RandomUtil
     {
-        static Random instance = new Random();
+        private static Random instance = new Random();
 
-        static object @lock = new object();
+        private readonly static object @lock = new object();
 
         /// <summary>
         /// Global static instance of Random.

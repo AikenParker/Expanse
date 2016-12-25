@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using UnityEditor;
+﻿using UnityEditor;
 using UnityEngine;
 
 namespace Expanse
@@ -9,12 +7,10 @@ namespace Expanse
     public class SerializedTimerInspector : Editor
     {
         SerializedTimer Target;
-        List<SerializedTimer> Targets;
 
         void OnEnable()
         {
             this.Target = target as SerializedTimer;
-            this.Targets = targets.Cast<SerializedTimer>().ToList();
         }
 
         public override void OnInspectorGUI()

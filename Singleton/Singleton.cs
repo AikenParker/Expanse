@@ -1,79 +1,90 @@
-﻿using UnityEngine;
-using UnityEngine.UI;
-using System.Collections.Generic;
-using System.Linq;
-using Expanse;
-using System;
-using UnityEngine.Networking;
+﻿using System;
+using UnityEngine;
 
 namespace Expanse
 {
-    public abstract class Singleton<T> : MonoBehaviour where T : Singleton<T>
+    /// <summary>
+    /// Singleton non-generic base class. Inherit from Singleton<T> instead.
+    /// </summary>
+    public abstract class Singleton : MonoBehaviour
+    {
+
+    }
+
+    /// <summary>
+    /// Singleton base class.
+    /// </summary>
+    public abstract class Singleton<T> : Singleton where T : Singleton<T>
     {
         private static T instance;
-        private static object lockObj = new object();
+        private readonly static object @lock = new object();
+
         public static T Instance
         {
             get
             {
-                if (IsDestroyed)
+                if (isDestroyed)
                 {
-                    Debug.LogWarning("Attempted to get destroyed singleton instance");
+                    Debug.LogWarning("Attempted to get a destroyed singleton instance");
                     return null;
                 }
 
-                lock (lockObj)
+                lock (@lock)
                 {
                     if (!instance)
                     {
-                        T[] allT = FindObjectsOfType<T>();
-                        instance = allT.FirstOrDefault();
+                        SingletonManager singletonManager = SingletonManager.SafeInstance;
 
-                        if (allT.Length > 1)
-                            allT.Where(x => x != instance).ToList().DestroyGameObjects(true);
-                    }
-
-                    if (!instance)
-                    {
-                        GameObject tempInstance = new GameObject("TEMP", typeof(T));
-                        instance = tempInstance.GetComponent<T>().OnCreate();
-                        DestroyImmediate(tempInstance);
+                        instance = singletonManager.GetSingletonInstance<T>();
                     }
                 }
 
                 return instance ? (T)instance : null;
             }
-            protected set
+        }
+
+        protected static T SafeInstance
+        {
+            get
             {
-                instance = value;
+                if (instance == null)
+                    instance = FindObjectOfType<T>();
+
+                if (instance == null)
+                {
+                    Type singletonType = typeof(T);
+                    GameObject singletonGameObject = new GameObject(singletonType.Name, singletonType);
+                    singletonGameObject.hideFlags = HideFlags.HideInHierarchy;
+                    instance = singletonGameObject.GetComponent<T>();
+                }
+
+                return instance;
             }
         }
 
 #pragma warning disable 67
-        public static event Action Destroying;
+        public static event Action Destroyed;
 #pragma warning restore
 
-        public static bool IsDestroyed { get; private set; }
+        private static bool isDestroyed;
+
+        public static bool IsAvailable
+        {
+            get { return !isDestroyed; }
+        }
 
         protected virtual void OnDestroy()
         {
             if (this == instance)
             {
-                if (Destroying != null)
+                if (Destroyed != null)
                 {
-                    Destroying();
-                    Destroying = null;
+                    Destroyed();
+                    Destroyed = null;
                 }
 
-                IsDestroyed = true;
+                isDestroyed = true;
             }
-        }
-
-        protected virtual T OnCreate()
-        {
-            Type singletonType = typeof(T);
-            GameObject newGameObject = new GameObject(singletonType.Name, singletonType);
-            return newGameObject.GetComponent<T>();
         }
     }
 }

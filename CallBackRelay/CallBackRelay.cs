@@ -1,9 +1,8 @@
-﻿using UnityEngine;
-using System;
-using System.Collections;
+﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Diagnostics;
+using System.Linq;
+using UnityEngine;
 using UnityEngine.SceneManagement;
 
 namespace Expanse
@@ -12,12 +11,8 @@ namespace Expanse
     /// Allows for subscriptions to Unity update functions.
     /// With in-built optimization options.
     /// </summary>
-    public class CallBackRelay : MonoBehaviour
+    public partial class CallBackRelay : MonoBehaviour
     {
-        private const int INITIAL_UPDATE_CAPACITY = 100;
-        private const int INITIAL_FIXEDUPDATE_CAPACITY = 10;
-        private const int INITIAL_LATEUPDATE_CAPACITY = 4;
-
         private static CallBackRelay globalCBR;
         public static CallBackRelay GlobalCBR
         {
@@ -57,7 +52,7 @@ namespace Expanse
             CallBackRelay instance = GlobalCBR;
 
             if (!instance.UpdateList.Contains(updateObj, x => x.updateObj))
-                instance.UpdateList.Add(new UpdateWrapper(updateObj));
+                instance.UpdateList.Add(new CallBackRelayUpdateContainer(updateObj));
         }
 
         public static bool UnsubscribeFromGlobalUpdate(IUpdate updateObj)
@@ -83,7 +78,7 @@ namespace Expanse
             CallBackRelay instance = GlobalCBR;
 
             if (!instance.FixedUpdateList.Contains(updateObj, x => x.updateObj))
-                instance.FixedUpdateList.Add(new UpdateWrapper(updateObj));
+                instance.FixedUpdateList.Add(new CallBackRelayUpdateContainer(updateObj));
         }
 
         public static bool UnsubscribeFromGlobalFixedUpdate(IUpdate updateObj)
@@ -109,7 +104,7 @@ namespace Expanse
             CallBackRelay instance = GlobalCBR;
 
             if (!instance.LateUpdateList.Contains(updateObj, x => x.updateObj))
-                instance.LateUpdateList.Add(new UpdateWrapper(updateObj));
+                instance.LateUpdateList.Add(new CallBackRelayUpdateContainer(updateObj));
         }
 
         public static bool UnsubscribeFromGlobalLateUpdate(IUpdate updateObj)
@@ -129,9 +124,9 @@ namespace Expanse
 
         #endregion
 
-        public List<UpdateWrapper> UpdateList = new List<UpdateWrapper>(INITIAL_UPDATE_CAPACITY);
-        public List<UpdateWrapper> FixedUpdateList = new List<UpdateWrapper>(INITIAL_FIXEDUPDATE_CAPACITY);
-        public List<UpdateWrapper> LateUpdateList = new List<UpdateWrapper>(INITIAL_LATEUPDATE_CAPACITY);
+        public List<CallBackRelayUpdateContainer> UpdateList = new List<CallBackRelayUpdateContainer>();
+        public List<CallBackRelayUpdateContainer> FixedUpdateList = new List<CallBackRelayUpdateContainer>();
+        public List<CallBackRelayUpdateContainer> LateUpdateList = new List<CallBackRelayUpdateContainer>();
 
         public event Action Destroyed;
         public event Action LevelChanged;
@@ -139,9 +134,7 @@ namespace Expanse
         [ReadOnly(EditableInEditor = true)]
         public bool destroyOnLoad = true;
 
-        public UpdateSettings updateSettings = new UpdateSettings();
-        public UpdateSettings fixedUpdateSettings = new UpdateSettings();
-        public UpdateSettings lateUpdateSettings = new UpdateSettings();
+        public CallBackRelaySettings updateSettings = new CallBackRelaySettings();
 
         Stopwatch budgetStopwatch = new Stopwatch();
 
@@ -158,7 +151,7 @@ namespace Expanse
         public void SubscribeToUpdate(IUpdate updateObj)
         {
             if (!UpdateList.Contains(updateObj, x => x.updateObj))
-                UpdateList.Add(new UpdateWrapper(updateObj));
+                UpdateList.Add(new CallBackRelayUpdateContainer(updateObj));
         }
 
         public bool UnsubscribeToUpdate(IUpdate updateObj)
@@ -174,7 +167,7 @@ namespace Expanse
         public void SubscribeToFixedUpdate(IUpdate updateObj)
         {
             if (!FixedUpdateList.Contains(updateObj, x => x.updateObj))
-                FixedUpdateList.Add(new UpdateWrapper(updateObj));
+                FixedUpdateList.Add(new CallBackRelayUpdateContainer(updateObj));
         }
 
         public bool UnsubscribeToFixedUpdate(IUpdate updateObj)
@@ -190,7 +183,7 @@ namespace Expanse
         public void SubscribeToLateUpdate(IUpdate updateObj)
         {
             if (!LateUpdateList.Contains(updateObj, x => x.updateObj))
-                LateUpdateList.Add(new UpdateWrapper(updateObj));
+                LateUpdateList.Add(new CallBackRelayUpdateContainer(updateObj));
         }
 
         public bool UnsubscribeToLateUpdate(IUpdate updateObj)
@@ -207,48 +200,48 @@ namespace Expanse
 
         void Update()
         {
-            this.ExecuteUpdates(UpdateList, updateSettings);
+            this.ExecuteUpdates(UpdateList);
         }
 
         void FixedUpdate()
         {
-            this.ExecuteUpdates(FixedUpdateList, fixedUpdateSettings);
+            this.ExecuteUpdates(FixedUpdateList);
         }
 
         void LateUpdate()
         {
-            this.ExecuteUpdates(LateUpdateList, lateUpdateSettings);
+            this.ExecuteUpdates(LateUpdateList);
         }
 
-        private void ExecuteUpdates(List<UpdateWrapper> updateList, UpdateSettings settings)
+        private void ExecuteUpdates(List<CallBackRelayUpdateContainer> updateList)
         {
             if (updateList.Any())
             {
-                switch (settings.updateType)
+                switch (updateSettings.updateType)
                 {
-                    case UpdateSettings.UpdateTypes.ALL:
-                        ImplUpdateAll(updateList, settings);
+                    case CallBackRelaySettings.UpdateTypes.ALL:
+                        ImplUpdateAll(updateList);
                         break;
 
-                    case UpdateSettings.UpdateTypes.SPREAD:
-                        ImplUpdateSpread(updateList, settings);
+                    case CallBackRelaySettings.UpdateTypes.SPREAD:
+                        ImplUpdateSpread(updateList);
                         break;
 
-                    case UpdateSettings.UpdateTypes.BUDGET:
-                        ImplUpdateBudget(updateList, settings);
+                    case CallBackRelaySettings.UpdateTypes.BUDGET:
+                        ImplUpdateBudget(updateList);
                         break;
                 }
             }
 
-            settings.frameIndex++;
+            updateSettings.frameIndex++;
         }
 
-        private void ImplUpdateAll(List<UpdateWrapper> updateList, UpdateSettings settings)
+        private void ImplUpdateAll(List<CallBackRelayUpdateContainer> updateList)
         {
-            UpdateWrapper updateWrapper;
-            UpdateWrapper.UpdateResult updateResult;
+            CallBackRelayUpdateContainer updateWrapper;
+            CallBackRelayUpdateContainer.UpdateResult updateResult;
 
-            updateList.RemoveAll(x => x.GetUpdateResult() == UpdateWrapper.UpdateResult.REMOVE);
+            updateList.RemoveAll(x => x.GetUpdateResult() == CallBackRelayUpdateContainer.UpdateResult.REMOVE);
 
             for (int i = 0; i < updateList.Count; i++)
             {
@@ -256,18 +249,18 @@ namespace Expanse
 
                 updateResult = updateWrapper.GetUpdateResult();
 
-                if (updateResult == UpdateWrapper.UpdateResult.SUCCESS)
-                    updateWrapper.TryUpdate(settings);
+                if (updateResult == CallBackRelayUpdateContainer.UpdateResult.SUCCESS)
+                    updateWrapper.TryUpdate(updateSettings);
             }
         }
 
-        private void ImplUpdateSpread(List<UpdateWrapper> updateList, UpdateSettings settings)
+        private void ImplUpdateSpread(List<CallBackRelayUpdateContainer> updateList)
         {
-            UpdateWrapper updateWrapper, firstWrapper = null;
-            UpdateWrapper.UpdateResult updateResult;
+            CallBackRelayUpdateContainer updateWrapper, firstWrapper = null;
+            CallBackRelayUpdateContainer.UpdateResult updateResult;
             int updateCount;
 
-            for (updateCount = 0; updateCount < settings.spreadCount; )
+            for (updateCount = 0; updateCount < updateSettings.spreadCount; )
             {
                 do
                 {
@@ -275,12 +268,12 @@ namespace Expanse
 
                     updateResult = updateWrapper.GetUpdateResult();
 
-                    if (updateResult != UpdateWrapper.UpdateResult.SUCCESS && !updateList.Any())
+                    if (updateResult != CallBackRelayUpdateContainer.UpdateResult.SUCCESS && !updateList.Any())
                         break;
                 }
-                while (updateResult != UpdateWrapper.UpdateResult.SUCCESS);
+                while (updateResult != CallBackRelayUpdateContainer.UpdateResult.SUCCESS);
 
-                if (updateResult == UpdateWrapper.UpdateResult.REMOVE)
+                if (updateResult == CallBackRelayUpdateContainer.UpdateResult.REMOVE)
                     break;
 
                 if (updateWrapper == firstWrapper)
@@ -289,17 +282,17 @@ namespace Expanse
                     break;
                 }
 
-                if (updateResult == UpdateWrapper.UpdateResult.SUCCESS)
+                if (updateResult == CallBackRelayUpdateContainer.UpdateResult.SUCCESS)
                 {
                     if (firstWrapper == null)
                         firstWrapper = updateWrapper;
 
-                    if (updateWrapper.TryUpdate(settings))
+                    if (updateWrapper.TryUpdate(updateSettings))
                         updateCount++;
 
                     updateList.Enqueue(updateWrapper);
                 }
-                else if (updateResult == UpdateWrapper.UpdateResult.FAIL)
+                else if (updateResult == CallBackRelayUpdateContainer.UpdateResult.FAIL)
                 {
                     updateList.Enqueue(updateWrapper);
                 }
@@ -307,10 +300,10 @@ namespace Expanse
             }
         }
 
-        private void ImplUpdateBudget(List<UpdateWrapper> updateList, UpdateSettings settings)
+        private void ImplUpdateBudget(List<CallBackRelayUpdateContainer> updateList)
         {
-            UpdateWrapper updateWrapper, firstWrapper = null;
-            UpdateWrapper.UpdateResult updateResult;
+            CallBackRelayUpdateContainer updateWrapper, firstWrapper = null;
+            CallBackRelayUpdateContainer.UpdateResult updateResult;
 
             budgetStopwatch.Reset();
             budgetStopwatch.Start();
@@ -323,12 +316,12 @@ namespace Expanse
 
                     updateResult = updateWrapper.GetUpdateResult();
 
-                    if (updateResult != UpdateWrapper.UpdateResult.SUCCESS && !updateList.Any())
+                    if (updateResult != CallBackRelayUpdateContainer.UpdateResult.SUCCESS && !updateList.Any())
                         break;
                 }
-                while (updateResult != UpdateWrapper.UpdateResult.SUCCESS);
+                while (updateResult != CallBackRelayUpdateContainer.UpdateResult.SUCCESS);
 
-                if (updateResult == UpdateWrapper.UpdateResult.REMOVE)
+                if (updateResult == CallBackRelayUpdateContainer.UpdateResult.REMOVE)
                     break;
 
                 if (updateWrapper == firstWrapper)
@@ -337,22 +330,22 @@ namespace Expanse
                     break;
                 }
 
-                if (updateResult == UpdateWrapper.UpdateResult.SUCCESS)
+                if (updateResult == CallBackRelayUpdateContainer.UpdateResult.SUCCESS)
                 {
                     if (firstWrapper == null)
                         firstWrapper = updateWrapper;
 
-                    updateWrapper.TryUpdate(settings);
+                    updateWrapper.TryUpdate(updateSettings);
 
                     updateList.Enqueue(updateWrapper);
                 }
-                else if (updateResult == UpdateWrapper.UpdateResult.FAIL)
+                else if (updateResult == CallBackRelayUpdateContainer.UpdateResult.FAIL)
                 {
                     updateList.Enqueue(updateWrapper);
                 }
                 else throw new UnexpectedException();
             }
-            while (budgetStopwatch.Elapsed.TotalMilliseconds < settings.frameBudget);
+            while (budgetStopwatch.Elapsed.TotalMilliseconds < updateSettings.frameBudget);
 
             budgetStopwatch.Stop();
         }
@@ -372,161 +365,6 @@ namespace Expanse
 
             if (this == GlobalCBR)
                 GlobalCBRDestroyed = true;
-        }
-
-        [Serializable]
-        public class UpdateSettings
-        {
-            public UpdateTypes updateType = UpdateTypes.ALL;
-            public SkipTypes skipType = SkipTypes.NONE;
-            [ReadOnly]
-            public int frameIndex;
-
-            public int skipFrames;
-            public float skipTime;
-
-            public int spreadCount = 1;
-
-            public float frameBudget;
-
-            public enum UpdateTypes
-            {
-                NONE = 0,
-                ALL,
-                SPREAD,
-                BUDGET
-            }
-
-            public enum SkipTypes
-            {
-                NONE = 0,
-                TIME,
-                COUNT
-            }
-        }
-
-        [Serializable]
-        public class UpdateWrapper
-        {
-            public readonly IUpdate updateObj;
-
-            public float LastFrameTime { get; private set; }
-            public float LastUnscaledFrameTime { get; private set; }
-
-            public UpdateWrapper(IUpdate updateObj)
-            {
-                this.updateObj = updateObj;
-            }
-
-            public float DeltaTime
-            {
-                get
-                {
-                    return Time.time - LastFrameTime;
-                }
-            }
-
-            public float UnscaledDeltaTime
-            {
-                get
-                {
-                    return Time.unscaledTime - LastUnscaledFrameTime;
-                }
-            }
-
-            public float TrueDeltaTime
-            {
-                get
-                {
-                    return this.GetIsUnscaled() ? this.UnscaledDeltaTime : this.DeltaTime;
-                }
-            }
-
-            public bool TryUpdate(UpdateSettings settings)
-            {
-                bool isSkipFrame = GetIsSkipFrame(settings);
-
-                if (!isSkipFrame)
-                {
-                    updateObj.OnUpdate(TrueDeltaTime);
-
-                    LastFrameTime = Time.time;
-                    LastUnscaledFrameTime = Time.unscaledTime;
-                }
-
-                return !isSkipFrame;
-            }
-
-            private bool GetIsSkipFrame(UpdateSettings settings)
-            {
-                switch (settings.skipType)
-                {
-                    case UpdateSettings.SkipTypes.COUNT:
-                        return (settings.frameIndex % (settings.skipFrames + 1)) != 0;
-
-                    case UpdateSettings.SkipTypes.TIME:
-                        return TrueDeltaTime < settings.skipTime;
-
-                    case UpdateSettings.SkipTypes.NONE:
-                        return false;
-
-                    default:
-                        throw new UnexpectedException();
-                }
-            }
-
-            public bool GetIsUnscaled()
-            {
-                if (updateObj == null)
-                    throw new ArgumentNullException("updateObj");
-
-                IComplexUpdate complexUpdateObj = updateObj as IComplexUpdate;
-
-                if (complexUpdateObj != null)
-                    return complexUpdateObj.UnscaledDelta;
-                else return false;
-            }
-
-            public UpdateResult GetUpdateResult()
-            {
-                if (updateObj == null)
-                    return UpdateResult.REMOVE;
-
-                IComplexUpdate complexUpdateObj = updateObj as IComplexUpdate;
-
-                if (complexUpdateObj != null)
-                {
-                    bool unsafeUpdates = complexUpdateObj.UnsafeUpdates;
-
-                    if (unsafeUpdates)
-                        return UpdateResult.SUCCESS;
-                }
-
-                if (!updateObj.MonoBehaviour)
-                    return UpdateResult.REMOVE;
-
-                bool activeOrEnabled = updateObj.MonoBehaviour.isActiveAndEnabled;
-
-                if (complexUpdateObj != null)
-                {
-                    if (!complexUpdateObj.AlwaysUpdate && !activeOrEnabled)
-                        return UpdateResult.FAIL;
-                }
-                else
-                {
-                    if (!activeOrEnabled)
-                        return UpdateResult.FAIL;
-                }
-
-                return UpdateResult.SUCCESS;
-            }
-
-            public enum UpdateResult
-            {
-                SUCCESS = 0,
-                FAIL = 1,
-                REMOVE = 2
-            }
         }
     }
 }

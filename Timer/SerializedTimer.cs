@@ -33,6 +33,8 @@ namespace Expanse
         [SerializeField, HideInInspector]
         private bool enableCompletedOrReturnedEvent = false;
 
+        private bool isInitialized;
+
         void Reset()
         {
             attachedMonoBehaviour = this;
@@ -41,20 +43,29 @@ namespace Expanse
             timerSettings.autoPlay = true;
         }
 
-        void Awake()
+        void Start()
         {
-            if (!this.enabled)
+            Initialize();
+        }
+
+        protected void Initialize()
+        {
+            if (isInitialized)
                 return;
+
+            isInitialized = true;
+
+            //
 
             callBackRelay = useGlobalCBR ? CallBackRelay.GlobalCBR : callBackRelay;
 
             if (callBackRelay != null)
             {
-                timer = Timer.Create(this, callBackRelay, timerSettings);
+                timer = Timer.Create(attachedMonoBehaviour, callBackRelay, timerSettings);
             }
             else
             {
-                timer = Timer.Create(this, timerSettings);
+                timer = Timer.Create(attachedMonoBehaviour, timerSettings);
             }
 
             if (enableCompletedEvent)
@@ -69,21 +80,15 @@ namespace Expanse
             timer.Deactivated += OnDeactivated;
         }
 
-        void Start() { }
-
-        public void Play()
+        public Timer Timer
         {
-            timer.Play();
-        }
+            get
+            {
+                if (!isInitialized)
+                    Initialize();
 
-        public void Stop()
-        {
-            timer.Stop();
-        }
-
-        public void Deactivate()
-        {
-            timer.Deactivate();
+                return this.timer;
+            }
         }
 
         private void OnDeactivated()
