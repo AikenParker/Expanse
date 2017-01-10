@@ -11,184 +11,134 @@ namespace Expanse
     : Add max repeats
     : Add statistical data
     : Add more events 
-
-    KNOWN ISSUES:
-    : IsComplete is invalid if the motion is reset after completion
-    : Reset and Restart completion modes do not carry over leftover time
+    : Add reverse functionality
     */
 
     /// <summary>
     /// Core Expanse Motion class.
     /// </summary>
-    public abstract class Motion<T> : IMotion
+    public abstract class Motion : IMotion
     {
-        public bool isActive;
-
-        public CallBackRelay CBR { get; private set; }
-
-        public UpdateModes UpdateMode { get; protected set; }
+        public CallBackRelay CBR { get; set; }
+        public UpdateModes UpdateMode { get; set; }
         public int Priority { get; set; }
 
-        GameObject attachedGameObject;
-        MonoBehaviour attachedMonoBehaviour;
+        public bool IsActive { get; set; }
+        public float CurrentTime { get; protected set; }
 
         public float Duration { get; set; }
+        public float StartDelay { get; set; }
+        public float EndDelay { get; set; }
         public float PlaybackRate { get; set; }
-        public MotionCompletionModes CompletionMode { get; set; }
 
-        public bool IsPlaying { get; set; }
-        public float CurrentTime { get; private set; }
-        public bool IsComplete { get; private set; }
+        public bool IsStarted { get; protected set; }
+        public bool IsMotionStarted { get; protected set; }
+        public bool IsMotionCompleted { get; protected set; }
+        public bool IsCompleted { get; protected set; }
 
+        public event Action Started;
+        public event Action MotionStarted;
+        public event Action MotionCompleted;
         public event Action Completed;
 
-        protected IEase easeEquation;
-
-        public float EaseParam1 { get; set; }
-        public float EaseParam2 { get; set; }
-
-        protected Motion(CallBackRelay callBackRelay, bool autoStart)
+        public Motion()
         {
+            this.CBR = CallBackRelay.GlobalCBR;
+            this.UpdateMode = UpdateModes.UPDATE;
             this.Duration = 1f;
-            this.CurrentTime = 0f;
-
             this.PlaybackRate = 1f;
-            this.IsPlaying = autoStart;
+            this.IsActive = true;
+        }
 
-            SetEaseEquation<Linear.EaseNone>();
+        public virtual void OnStart()
+        {
+            RaiseStarted();
 
-            if (callBackRelay != null)
+            switch (UpdateMode)
             {
-                this.CBR = callBackRelay;
-                this.CBR.SubscribeToUpdate(this);
-                this.isActive = true;
+                case UpdateModes.UPDATE:
+                case UpdateModes.UNSCALED_UPDATE:
+                    CBR.SubscribeToUpdate(this);
+                    break;
+
+                case UpdateModes.LATE_UPDATE:
+                case UpdateModes.UNSCALED_LATE_UPDATE:
+                    CBR.SubscribeToLateUpdate(this);
+                    break;
+
+                case UpdateModes.FIXED_UPDATE:
+                    CBR.SubscribeToFixedUpdate(this);
+                    break;
             }
         }
 
-        public void SetEaseEquation<U>()where U : IEase, new()
-        {
-            ThrowIfInactive();
-
-            easeEquation = new U();
-        }
-
-        public void OnUpdate(float deltaTime)
-        {
-            ThrowIfInactive();
-
-            if (!IsPlaying)
-                return;
-
-            float processedDelta = deltaTime * PlaybackRate;
-
-            float rawCurrentTime = CurrentTime + processedDelta;
-
-            CurrentTime = Mathf.Clamp(rawCurrentTime, 0f, Duration);
-
-            float value = easeEquation.Update(CurrentTime, 0f, 1f, Duration, EaseParam1, EaseParam2);
-
-            ApplyValue(value);
-
-            bool hasCompleted = (PlaybackRate > 0 && rawCurrentTime >= Duration)
-                || (PlaybackRate < 0 && rawCurrentTime <= 0f);
-
-            if (hasCompleted)
-            {
-                if (Completed != null)
-                    Completed.Invoke();
-
-                switch (CompletionMode)
-                {
-                    case MotionCompletionModes.STOP:
-                        Stop();
-                        IsComplete = true;
-                        break;
-
-                    case MotionCompletionModes.RESTART:
-                        Restart();
-                        break;
-
-                    case MotionCompletionModes.REVERSE:
-                        Reverse();
-                        break;
-
-                    case MotionCompletionModes.DEACTIVATE:
-                        Stop();
-                        IsComplete = true;
-                        isActive = false;
-                        CBR.UnsubscribeToUpdate(this);
-                        break;
-                }
-            }
-        }
-
-        protected abstract void ApplyValue(float value);
+        public abstract void OnUpdate(float deltaTime);
 
         /// <summary>
         /// Resumes motion playback from a stop.
         /// </summary>
-        public void Play()
+        public void Resume()
         {
-            ThrowIfInactive();
-
-            IsPlaying = true;
+            IsActive = true;
         }
 
         /// <summary>
         /// Pauses motion playback.
         /// </summary>
-        public void Stop()
+        public void Pause()
         {
-            ThrowIfInactive();
-
-            IsPlaying = false;
+            IsActive = false;
         }
 
-        /// <summary>
-        /// Resets current time and stops playback.
-        /// </summary>
-        public void Reset()
+        protected void RaiseStarted()
         {
-            ThrowIfInactive();
+            if (!IsStarted)
+            {
+                IsStarted = true;
 
-            CurrentTime = 0f;
-            IsPlaying = false;
+                if (Started != null)
+                    Started.Invoke();
+            }
         }
 
-        /// <summary>
-        /// Resets current time and resumes playback.
-        /// </summary>
-        public void Restart()
+        protected void RaiseMotionStarted()
         {
-            ThrowIfInactive();
+            if (!IsMotionStarted)
+            {
+                IsMotionStarted = true;
 
-            CurrentTime = 0f;
-            IsPlaying = true;
+                if (MotionStarted != null)
+                    MotionStarted.Invoke();
+            }
         }
 
-        /// <summary>
-        /// Reverses the playback rate.
-        /// </summary>
-        public void Reverse()
+        protected void RaiseMotionCompleted()
         {
-            PlaybackRate *= -1;
+            if (!IsMotionCompleted)
+            {
+                IsMotionCompleted = true;
+
+                if (MotionCompleted != null)
+                    MotionCompleted.Invoke();
+            }
+        }
+
+        protected void RaiseCompleted()
+        {
+            if (!IsCompleted)
+            {
+                IsCompleted = true;
+
+                if (Completed != null)
+                    Completed.Invoke();
+            }
         }
 
         /// <summary>
         /// The MonoBehaviour attached to this motion. (Usually the initiator)
         /// Note: This is not the TargetObject.
         /// </summary>
-        public MonoBehaviour AttachedMonoBehaviour
-        {
-            get { return attachedMonoBehaviour; }
-            protected set
-            {
-                ThrowIfInactive();
-
-                attachedMonoBehaviour = value;
-                attachedGameObject = value.gameObject;
-            }
-        }
+        public MonoBehaviour AttachedMonoBehaviour { get; set; }
 
         /// <summary>
         /// Returns the normalized current time between 0 and 1.
@@ -198,11 +148,6 @@ namespace Expanse
             get { return CurrentTime.Normalize(Duration, true); }
         }
 
-        public bool IsActive
-        {
-            get { return isActive; }
-        }
-
         bool IComplexUpdate.AlwaysUpdate
         {
             get { return false; }
@@ -210,12 +155,12 @@ namespace Expanse
 
         GameObject IUnity.gameObject
         {
-            get { return this.attachedGameObject; }
+            get { return this.AttachedMonoBehaviour.gameObject; }
         }
 
         MonoBehaviour IUnity.MonoBehaviour
         {
-            get { return this.attachedMonoBehaviour; }
+            get { return this.AttachedMonoBehaviour; }
         }
 
         bool IComplexUpdate.UnsafeUpdates
@@ -226,20 +171,6 @@ namespace Expanse
         bool IComplexUpdate.UnscaledDelta
         {
             get { return this.UpdateMode.EqualsAny(UpdateModes.UNSCALED_UPDATE, UpdateModes.UNSCALED_LATE_UPDATE); }
-        }
-
-        protected void ThrowIfInactive()
-        {
-            if (!IsActive)
-                throw new InactiveException("Motion is inactive");
-        }
-
-        public enum MotionCompletionModes
-        {
-            DEACTIVATE = 0,
-            STOP = 1,
-            RESTART = 2,
-            REVERSE = 3
         }
     }
 }

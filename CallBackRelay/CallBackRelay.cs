@@ -30,6 +30,9 @@ namespace Expanse
 
         public static bool GlobalCBRDestroyed { get; private set; }
 
+        /// <summary>
+        /// Creates a new CallBackRelay game object.
+        /// </summary>
         private static CallBackRelay CreateGlobalCBR()
         {
             GameObject globalCBRObj = new GameObject("Global CallBackRelay");
@@ -44,6 +47,9 @@ namespace Expanse
 
         #region STATIC SUBSCRIPTIONS
 
+        /// <summary>
+        /// Subscribe an update object to the Global CBR update list.
+        /// </summary>
         public static void SubscribeToGlobalUpdate(IUpdate updateObj)
         {
             if (GlobalCBRDestroyed)
@@ -55,6 +61,9 @@ namespace Expanse
                 instance.UpdateList.Add(new CallBackRelayUpdateContainer(updateObj));
         }
 
+        /// <summary>
+        /// Unubscribe an update object from the Global CBR update list.
+        /// </summary>
         public static bool UnsubscribeFromGlobalUpdate(IUpdate updateObj)
         {
             if (GlobalCBRDestroyed)
@@ -62,14 +71,12 @@ namespace Expanse
 
             CallBackRelay instance = GlobalCBR;
 
-            bool containsObj = instance.UpdateList.Contains(updateObj, x => x.updateObj);
-
-            if (containsObj)
-                instance.UpdateList.RemoveFirst(updateObj, x => x.updateObj);
-
-            return containsObj;
+            return instance.UnsubscribeToUpdate(updateObj);
         }
 
+        /// <summary>
+        /// Subscribe an update object to the Global CBR fixed update list.
+        /// </summary>
         public static void SubscribeToGlobalFixedUpdate(IUpdate updateObj)
         {
             if (GlobalCBRDestroyed)
@@ -81,6 +88,9 @@ namespace Expanse
                 instance.FixedUpdateList.Add(new CallBackRelayUpdateContainer(updateObj));
         }
 
+        /// <summary>
+        /// Unubscribe an update object from the Global CBR fixed update list.
+        /// </summary>
         public static bool UnsubscribeFromGlobalFixedUpdate(IUpdate updateObj)
         {
             if (GlobalCBRDestroyed)
@@ -88,14 +98,12 @@ namespace Expanse
 
             CallBackRelay instance = GlobalCBR;
 
-            bool containsObj = instance.FixedUpdateList.Contains(updateObj, x => x.updateObj);
-
-            if (containsObj)
-                instance.FixedUpdateList.RemoveFirst(updateObj, x => x.updateObj);
-
-            return containsObj;
+            return instance.UnsubscribeToFixedUpdate(updateObj);
         }
 
+        /// <summary>
+        /// Subscribe an update object to the Global CBR late update list.
+        /// </summary>
         public static void SubscribeToGlobalLateUpdate(IUpdate updateObj)
         {
             if (GlobalCBRDestroyed)
@@ -107,6 +115,9 @@ namespace Expanse
                 instance.LateUpdateList.Add(new CallBackRelayUpdateContainer(updateObj));
         }
 
+        /// <summary>
+        /// Unubscribe an update object from the Global CBR late update list.
+        /// </summary>
         public static bool UnsubscribeFromGlobalLateUpdate(IUpdate updateObj)
         {
             if (GlobalCBRDestroyed)
@@ -114,12 +125,7 @@ namespace Expanse
 
             CallBackRelay instance = GlobalCBR;
 
-            bool containsObj = instance.LateUpdateList.Contains(updateObj, x => x.updateObj);
-
-            if (containsObj)
-                instance.LateUpdateList.RemoveFirst(updateObj, x => x.updateObj);
-
-            return containsObj;
+            return instance.UnsubscribeToLateUpdate(updateObj);
         }
 
         #endregion
@@ -148,52 +154,55 @@ namespace Expanse
 
         #region INSTANCE SUBSCRIPTIONS
 
+        /// <summary>
+        /// Subsribe an update object to the update list.
+        /// </summary>
         public void SubscribeToUpdate(IUpdate updateObj)
         {
             if (!UpdateList.Contains(updateObj, x => x.updateObj))
                 UpdateList.Add(new CallBackRelayUpdateContainer(updateObj));
         }
 
+        /// <summary>
+        /// Unsubsribe an update object from the update list.
+        /// </summary>
         public bool UnsubscribeToUpdate(IUpdate updateObj)
         {
-            bool containsObj = UpdateList.Contains(updateObj, x => x.updateObj);
-
-            if (containsObj)
-                UpdateList.RemoveFirst(updateObj, x => x.updateObj);
-
-            return containsObj;
+            return UpdateList.RemoveFirst(x => x.updateObj == updateObj);
         }
 
+        /// <summary>
+        /// Subsribe an update object to the fixed update list.
+        /// </summary>
         public void SubscribeToFixedUpdate(IUpdate updateObj)
         {
             if (!FixedUpdateList.Contains(updateObj, x => x.updateObj))
                 FixedUpdateList.Add(new CallBackRelayUpdateContainer(updateObj));
         }
 
+        // <summary>
+        /// Unsubsribe an update object from the fixed update list.
+        /// </summary>
         public bool UnsubscribeToFixedUpdate(IUpdate updateObj)
         {
-            bool containsObj = FixedUpdateList.Contains(updateObj, x => x.updateObj);
-
-            if (containsObj)
-                FixedUpdateList.RemoveFirst(updateObj, x => x.updateObj);
-
-            return containsObj;
+            return FixedUpdateList.RemoveFirst(x => x.updateObj == updateObj);
         }
 
+        /// <summary>
+        /// Subsribe an update object to the late update list.
+        /// </summary>
         public void SubscribeToLateUpdate(IUpdate updateObj)
         {
             if (!LateUpdateList.Contains(updateObj, x => x.updateObj))
                 LateUpdateList.Add(new CallBackRelayUpdateContainer(updateObj));
         }
 
+        // <summary>
+        /// Unsubsribe an update object from the late update list.
+        /// </summary>
         public bool UnsubscribeToLateUpdate(IUpdate updateObj)
         {
-            bool containsObj = LateUpdateList.Contains(updateObj, x => x.updateObj);
-
-            if (containsObj)
-                LateUpdateList.RemoveFirst(updateObj, x => x.updateObj);
-
-            return containsObj;
+            return LateUpdateList.RemoveFirst(x => x.updateObj == updateObj);
         }
 
         #endregion
@@ -236,6 +245,9 @@ namespace Expanse
             updateSettings.frameIndex++;
         }
 
+        /// <summary>
+        /// Updates all update objects.
+        /// </summary>
         private void ImplUpdateAll(List<CallBackRelayUpdateContainer> updateList)
         {
             CallBackRelayUpdateContainer updateWrapper;
@@ -254,6 +266,9 @@ namespace Expanse
             }
         }
 
+        /// <summary>
+        /// Updates a set amount of update objects.
+        /// </summary>
         private void ImplUpdateSpread(List<CallBackRelayUpdateContainer> updateList)
         {
             CallBackRelayUpdateContainer updateWrapper, firstWrapper = null;
@@ -300,6 +315,9 @@ namespace Expanse
             }
         }
 
+        /// <summary>
+        /// Updates objects within a set amount of time.
+        /// </summary>
         private void ImplUpdateBudget(List<CallBackRelayUpdateContainer> updateList)
         {
             CallBackRelayUpdateContainer updateWrapper, firstWrapper = null;

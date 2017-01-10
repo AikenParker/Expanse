@@ -19,13 +19,13 @@ namespace Expanse
             {
                 return false;
             }
-            else if ((source as ICollection) != null)
-            {
-                return (source as ICollection).Count <= 0;
-            }
             else if ((source as ICollection<T>) != null)
             {
                 return (source as ICollection<T>).Count <= 0;
+            }
+            else if ((source as ICollection) != null)
+            {
+                return (source as ICollection).Count <= 0;
             }
 
             return false;

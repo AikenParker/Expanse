@@ -199,25 +199,125 @@ namespace Expanse
         }
 
         /// <summary>
-        /// Removes the first selected item of a list that meets a condition.
+        /// Removes the first element in the list.
         /// </summary>
-        public static bool RemoveFirst<T, U>(this IList<T> list, U item, Func<T, U> selector)
+        /// <returns>Returns true if an item was removed</returns>
+        public static bool RemoveFirst<T>(this IList<T> list)
         {
-            object itemMatch = null;
+            if (list == null)
+                throw new ArgumentNullException("source");
 
-            foreach (T elem in list)
+            if (list.Count > 0)
             {
-                if (selector(elem).Equals(item))
+                list.RemoveAt(0);
+                return true;
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Removes the first element in the list that is equal to the item.
+        /// </summary>
+        /// <returns>Returns true if an item was removed</returns>
+        public static bool RemoveFirst<T>(this IList<T> list, T item)
+        {
+            if (list == null)
+                throw new ArgumentNullException("source");
+
+            for (int i = 0; i < list.Count; i++)
+            {
+                if (list[i].Equals(item))
                 {
-                    itemMatch = elem;
-                    break;
+                    list.RemoveAt(i);
+                    return true;
                 }
             }
 
-            if (itemMatch != null)
-                return list.Remove((T)itemMatch);
+            return false;
+        }
 
-            else return false;
+        /// <summary>
+        /// Removes the first element in the list that meets the predicate.
+        /// </summary>
+        /// <returns>Returns true if an item was removed</returns>
+        public static bool RemoveFirst<T>(this IList<T> list, Func<T, bool> predicate)
+        {
+            if (list == null)
+                throw new ArgumentNullException("source");
+
+            for (int i = 0; i < list.Count; i++)
+            {
+                if (predicate(list[i]))
+                {
+                    list.RemoveAt(i);
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Removes the last element in the list.
+        /// </summary>
+        /// <returns>Returns true if an item was removed</returns>
+        public static bool RemoveLast<T>(this IList<T> list)
+        {
+            if (list == null)
+                throw new ArgumentNullException("source");
+
+            int listCount = list.Count;
+
+            if (listCount > 0)
+            {
+                list.RemoveAt(listCount - 1);
+                return true;
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Removes the last element in the list that is equal to the item.
+        /// </summary>
+        /// <returns>Returns true if an item was removed</returns>
+        public static bool RemoveLast<T>(this IList<T> list, T item)
+        {
+            if (list == null)
+                throw new ArgumentNullException("source");
+
+            for (int i = list.Count - 1; i >= 0; i--)
+            {
+                if (list[i].Equals(item))
+                {
+                    list.RemoveAt(i);
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Removes the last element in the list that meets the predicate.
+        /// </summary>
+        /// <returns>Returns true if an item was removed</returns>
+        public static bool RemoveLast<T>(this IList<T> list, Func<T, bool> predicate)
+        {
+            if (list == null)
+                throw new ArgumentNullException("source");
+
+            for (int i = list.Count - 1; i >= 0; i--)
+            {
+                if (predicate(list[i]))
+                {
+                    list.RemoveAt(i);
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         /// <summary>
@@ -225,6 +325,9 @@ namespace Expanse
         /// </summary>
         public static void Shuffle<T>(this IList<T> list, Random rng = null)
         {
+            if (list == null)
+                throw new ArgumentNullException("source");
+
             if (rng != null)
                 rng.Shuffle(list);
             else

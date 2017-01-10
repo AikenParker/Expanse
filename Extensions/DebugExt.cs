@@ -36,11 +36,13 @@ namespace Expanse
         /// </param>
         public static void DebugPoint(Vector3 position, Color color, float scale = 1.0f, float duration = 0, bool depthTest = true)
         {
+#if UNITY_EDITOR
             color = (color == default(Color)) ? Color.white : color;
 
             Debug.DrawRay(position + (Vector3.up * (scale * 0.5f)), -Vector3.up * scale, color, duration, depthTest);
             Debug.DrawRay(position + (Vector3.right * (scale * 0.5f)), -Vector3.right * scale, color, duration, depthTest);
-            Debug.DrawRay(position + (Vector3.forward * (scale * 0.5f)), -Vector3.forward * scale, color, duration, depthTest);
+            Debug.DrawRay(position + (Vector3.forward * (scale * 0.5f)), -Vector3.forward * scale, color, duration, depthTest); 
+#endif
         }
 
         /// <summary>
@@ -60,7 +62,9 @@ namespace Expanse
         /// </param>
         public static void DebugPoint(Vector3 position, float scale = 1.0f, float duration = 0, bool depthTest = true)
         {
-            DebugPoint(position, Color.white, scale, duration, depthTest);
+#if UNITY_EDITOR
+            DebugPoint(position, Color.white, scale, duration, depthTest); 
+#endif
         }
 
         /// <summary>
@@ -80,6 +84,7 @@ namespace Expanse
         /// </param>
         public static void DebugBounds(Bounds bounds, Color color, float duration = 0, bool depthTest = true)
         {
+#if UNITY_EDITOR
             Vector3 center = bounds.center;
 
             float x = bounds.extents.x;
@@ -109,7 +114,8 @@ namespace Expanse
             Debug.DrawLine(rdf, lfd, color, duration, depthTest);
             Debug.DrawLine(rdf, rdb, color, duration, depthTest);
             Debug.DrawLine(lfd, lbd, color, duration, depthTest);
-            Debug.DrawLine(lbd, rdb, color, duration, depthTest);
+            Debug.DrawLine(lbd, rdb, color, duration, depthTest); 
+#endif
         }
 
         /// <summary>
@@ -126,7 +132,9 @@ namespace Expanse
         /// </param>
         public static void DebugBounds(Bounds bounds, float duration = 0, bool depthTest = true)
         {
-            DebugBounds(bounds, Color.white, duration, depthTest);
+#if UNITY_EDITOR
+            DebugBounds(bounds, Color.white, duration, depthTest); 
+#endif
         }
 
         /// <summary>
@@ -152,6 +160,7 @@ namespace Expanse
         /// </param>
         public static void DebugLocalCube(Transform transform, Vector3 size, Color color, Vector3 center = default(Vector3), float duration = 0, bool depthTest = true)
         {
+#if UNITY_EDITOR
             Vector3 lbb = transform.TransformPoint(center + ((-size) * 0.5f));
             Vector3 rbb = transform.TransformPoint(center + (new Vector3(size.x, -size.y, -size.z) * 0.5f));
 
@@ -177,7 +186,8 @@ namespace Expanse
             Debug.DrawLine(lbb, lub, color, duration, depthTest);
             Debug.DrawLine(rbb, rub, color, duration, depthTest);
             Debug.DrawLine(lbf, luf, color, duration, depthTest);
-            Debug.DrawLine(rbf, ruf, color, duration, depthTest);
+            Debug.DrawLine(rbf, ruf, color, duration, depthTest); 
+#endif
         }
 
         /// <summary>
@@ -200,7 +210,9 @@ namespace Expanse
         /// </param>
         public static void DebugLocalCube(Transform transform, Vector3 size, Vector3 center = default(Vector3), float duration = 0, bool depthTest = true)
         {
-            DebugLocalCube(transform, size, Color.white, center, duration, depthTest);
+#if UNITY_EDITOR
+            DebugLocalCube(transform, size, Color.white, center, duration, depthTest); 
+#endif
         }
 
         /// <summary>
@@ -226,6 +238,7 @@ namespace Expanse
         /// </param>
         public static void DebugLocalCube(Matrix4x4 space, Vector3 size, Color color, Vector3 center = default(Vector3), float duration = 0, bool depthTest = true)
         {
+#if UNITY_EDITOR
             color = (color == default(Color)) ? Color.white : color;
 
             Vector3 lbb = space.MultiplyPoint3x4(center + ((-size) * 0.5f));
@@ -253,7 +266,8 @@ namespace Expanse
             Debug.DrawLine(lbb, lub, color, duration, depthTest);
             Debug.DrawLine(rbb, rub, color, duration, depthTest);
             Debug.DrawLine(lbf, luf, color, duration, depthTest);
-            Debug.DrawLine(rbf, ruf, color, duration, depthTest);
+            Debug.DrawLine(rbf, ruf, color, duration, depthTest); 
+#endif
         }
 
         /// <summary>
@@ -276,7 +290,9 @@ namespace Expanse
         /// </param>
         public static void DebugLocalCube(Matrix4x4 space, Vector3 size, Vector3 center = default(Vector3), float duration = 0, bool depthTest = true)
         {
-            DebugLocalCube(space, size, Color.white, center, duration, depthTest);
+#if UNITY_EDITOR
+            DebugLocalCube(space, size, Color.white, center, duration, depthTest); 
+#endif
         }
 
         /// <summary>
@@ -302,6 +318,7 @@ namespace Expanse
         /// </param>
         public static void DebugCircle(Vector3 position, Vector3 up, Color color, float radius = 1.0f, float duration = 0, bool depthTest = true)
         {
+#if UNITY_EDITOR
             Vector3 _up = up.normalized * radius;
             Vector3 _forward = Vector3.Slerp(_up, -_up, 0.5f);
             Vector3 _right = Vector3.Cross(_up, _forward).normalized * radius;
@@ -335,7 +352,8 @@ namespace Expanse
 
                 Debug.DrawLine(_lastPoint, _nextPoint, color, duration, depthTest);
                 _lastPoint = _nextPoint;
-            }
+            } 
+#endif
         }
 
         /// <summary>
@@ -358,7 +376,9 @@ namespace Expanse
         /// </param>
         public static void DebugCircle(Vector3 position, Color color, float radius = 1.0f, float duration = 0, bool depthTest = true)
         {
-            DebugCircle(position, Vector3.up, color, radius, duration, depthTest);
+#if UNITY_EDITOR
+            DebugCircle(position, Vector3.up, color, radius, duration, depthTest); 
+#endif
         }
 
         /// <summary>
@@ -381,7 +401,9 @@ namespace Expanse
         /// </param>
         public static void DebugCircle(Vector3 position, Vector3 up, float radius = 1.0f, float duration = 0, bool depthTest = true)
         {
-            DebugCircle(position, up, Color.white, radius, duration, depthTest);
+#if UNITY_EDITOR
+            DebugCircle(position, up, Color.white, radius, duration, depthTest); 
+#endif
         }
 
         /// <summary>
@@ -401,7 +423,9 @@ namespace Expanse
         /// </param>
         public static void DebugCircle(Vector3 position, float radius = 1.0f, float duration = 0, bool depthTest = true)
         {
-            DebugCircle(position, Vector3.up, Color.white, radius, duration, depthTest);
+#if UNITY_EDITOR
+            DebugCircle(position, Vector3.up, Color.white, radius, duration, depthTest); 
+#endif
         }
 
         /// <summary>
@@ -424,6 +448,7 @@ namespace Expanse
         /// </param>
         public static void DebugWireSphere(Vector3 position, Color color, float radius = 1.0f, float duration = 0, bool depthTest = true)
         {
+#if UNITY_EDITOR
             float angle = 10.0f;
 
             Vector3 x = new Vector3(position.x, position.y + radius * Mathf.Sin(0), position.z + radius * Mathf.Cos(0));
@@ -448,7 +473,8 @@ namespace Expanse
                 x = new_x;
                 y = new_y;
                 z = new_z;
-            }
+            } 
+#endif
         }
 
         /// <summary>
@@ -468,7 +494,9 @@ namespace Expanse
         /// </param>
         public static void DebugWireSphere(Vector3 position, float radius = 1.0f, float duration = 0, bool depthTest = true)
         {
-            DebugWireSphere(position, Color.white, radius, duration, depthTest);
+#if UNITY_EDITOR
+            DebugWireSphere(position, Color.white, radius, duration, depthTest); 
+#endif
         }
 
         /// <summary>
@@ -494,6 +522,7 @@ namespace Expanse
         /// </param>
         public static void DebugCylinder(Vector3 start, Vector3 end, Color color, float radius = 1, float duration = 0, bool depthTest = true)
         {
+#if UNITY_EDITOR
             Vector3 up = (end - start).normalized * radius;
             Vector3 forward = Vector3.Slerp(up, -up, 0.5f);
             Vector3 right = Vector3.Cross(up, forward).normalized * radius;
@@ -516,7 +545,8 @@ namespace Expanse
 
             //End endcap
             Debug.DrawLine(end - right, end + right, color, duration, depthTest);
-            Debug.DrawLine(end - forward, end + forward, color, duration, depthTest);
+            Debug.DrawLine(end - forward, end + forward, color, duration, depthTest); 
+#endif
         }
 
         /// <summary>
@@ -539,7 +569,9 @@ namespace Expanse
         /// </param>
         public static void DebugCylinder(Vector3 start, Vector3 end, float radius = 1, float duration = 0, bool depthTest = true)
         {
-            DebugCylinder(start, end, Color.white, radius, duration, depthTest);
+#if UNITY_EDITOR
+            DebugCylinder(start, end, Color.white, radius, duration, depthTest); 
+#endif
         }
 
         /// <summary>
@@ -565,6 +597,7 @@ namespace Expanse
         /// </param>
         public static void DebugCone(Vector3 position, Vector3 direction, Color color, float angle = 45, float duration = 0, bool depthTest = true)
         {
+#if UNITY_EDITOR
             float length = direction.magnitude;
 
             Vector3 _forward = direction;
@@ -587,7 +620,8 @@ namespace Expanse
             Debug.DrawRay(position, Vector3.Slerp(_forward, -_right, angle / 90.0f).normalized * dist, color, duration, depthTest);
 
             DebugExt.DebugCircle(position + _forward, direction, color, (_forward - (slerpedVector.normalized * dist)).magnitude, duration, depthTest);
-            DebugExt.DebugCircle(position + (_forward * 0.5f), direction, color, ((_forward * 0.5f) - (slerpedVector.normalized * (dist * 0.5f))).magnitude, duration, depthTest);
+            DebugExt.DebugCircle(position + (_forward * 0.5f), direction, color, ((_forward * 0.5f) - (slerpedVector.normalized * (dist * 0.5f))).magnitude, duration, depthTest); 
+#endif
         }
 
         /// <summary>
@@ -610,7 +644,9 @@ namespace Expanse
         /// </param>
         public static void DebugCone(Vector3 position, Vector3 direction, float angle = 45, float duration = 0, bool depthTest = true)
         {
-            DebugCone(position, direction, Color.white, angle, duration, depthTest);
+#if UNITY_EDITOR
+            DebugCone(position, direction, Color.white, angle, duration, depthTest); 
+#endif
         }
 
         /// <summary>
@@ -633,7 +669,9 @@ namespace Expanse
         /// </param>
         public static void DebugCone(Vector3 position, Color color, float angle = 45, float duration = 0, bool depthTest = true)
         {
-            DebugCone(position, Vector3.up, color, angle, duration, depthTest);
+#if UNITY_EDITOR
+            DebugCone(position, Vector3.up, color, angle, duration, depthTest); 
+#endif
         }
 
         /// <summary>
@@ -653,7 +691,9 @@ namespace Expanse
         /// </param>
         public static void DebugCone(Vector3 position, float angle = 45, float duration = 0, bool depthTest = true)
         {
-            DebugCone(position, Vector3.up, Color.white, angle, duration, depthTest);
+#if UNITY_EDITOR
+            DebugCone(position, Vector3.up, Color.white, angle, duration, depthTest); 
+#endif
         }
 
         /// <summary>
@@ -676,8 +716,10 @@ namespace Expanse
         /// </param>
         public static void DebugArrow(Vector3 position, Vector3 direction, Color color, float duration = 0, bool depthTest = true)
         {
+#if UNITY_EDITOR
             Debug.DrawRay(position, direction, color, duration, depthTest);
-            DebugExt.DebugCone(position + direction, -direction * 0.333f, color, 15, duration, depthTest);
+            DebugExt.DebugCone(position + direction, -direction * 0.333f, color, 15, duration, depthTest); 
+#endif
         }
 
         /// <summary>
@@ -697,7 +739,9 @@ namespace Expanse
         /// </param>
         public static void DebugArrow(Vector3 position, Vector3 direction, float duration = 0, bool depthTest = true)
         {
-            DebugArrow(position, direction, Color.white, duration, depthTest);
+#if UNITY_EDITOR
+            DebugArrow(position, direction, Color.white, duration, depthTest); 
+#endif
         }
 
         /// <summary>
@@ -723,6 +767,7 @@ namespace Expanse
         /// </param>
         public static void DebugCapsule(Vector3 start, Vector3 end, Color color, float radius = 1, float duration = 0, bool depthTest = true)
         {
+#if UNITY_EDITOR
             Vector3 up = (end - start).normalized * radius;
             Vector3 forward = Vector3.Slerp(up, -up, 0.5f);
             Vector3 right = Vector3.Cross(up, forward).normalized * radius;
@@ -759,7 +804,8 @@ namespace Expanse
                 Debug.DrawLine(Vector3.Slerp(-right, up, i / 25.0f) + end, Vector3.Slerp(-right, up, (i - 1) / 25.0f) + end, color, duration, depthTest);
                 Debug.DrawLine(Vector3.Slerp(forward, up, i / 25.0f) + end, Vector3.Slerp(forward, up, (i - 1) / 25.0f) + end, color, duration, depthTest);
                 Debug.DrawLine(Vector3.Slerp(-forward, up, i / 25.0f) + end, Vector3.Slerp(-forward, up, (i - 1) / 25.0f) + end, color, duration, depthTest);
-            }
+            } 
+#endif
         }
 
         /// <summary>
@@ -782,7 +828,9 @@ namespace Expanse
         /// </param>
         public static void DebugCapsule(Vector3 start, Vector3 end, float radius = 1, float duration = 0, bool depthTest = true)
         {
-            DebugCapsule(start, end, Color.white, radius, duration, depthTest);
+#if UNITY_EDITOR
+            DebugCapsule(start, end, Color.white, radius, duration, depthTest); 
+#endif
         }
 
         /// <summary>
@@ -808,7 +856,9 @@ namespace Expanse
         /// </param>
         public static void DebugBox(Vector3 origin, Vector3 halfExtents, Quaternion orientation, Color color, float duration = 0, bool depthTest = true)
         {
-            DebugBox(new Box(origin, halfExtents, orientation), color, duration, depthTest);
+#if UNITY_EDITOR
+            DebugBox(new Box(origin, halfExtents, orientation), color, duration, depthTest); 
+#endif
         }
 
         /// <summary>
@@ -840,6 +890,7 @@ namespace Expanse
         /// </param>
         public static void DebugBoxCast(Vector3 origin, Vector3 halfExtents, Quaternion orientation, Vector3 direction, float distance, Color color, float duration = 0, bool depthTest = true)
         {
+#if UNITY_EDITOR
             direction.Normalize();
             Box bottomBox = new Box(origin, halfExtents, orientation);
             Box topBox = new Box(origin + (direction * distance), halfExtents, orientation);
@@ -854,7 +905,8 @@ namespace Expanse
             Debug.DrawLine(bottomBox.frontBottomRight, topBox.frontBottomRight, color);
 
             DebugBox(bottomBox, color, duration, depthTest);
-            DebugBox(topBox, color, duration, depthTest);
+            DebugBox(topBox, color, duration, depthTest); 
+#endif
         }
 
 
@@ -876,6 +928,7 @@ namespace Expanse
         /// </param>
         public static void DrawPoint(Vector3 position, Color color, float scale = 1.0f)
         {
+#if UNITY_EDITOR
             Color oldColor = Gizmos.color;
 
             Gizmos.color = color;
@@ -883,7 +936,8 @@ namespace Expanse
             Gizmos.DrawRay(position + (Vector3.right * (scale * 0.5f)), -Vector3.right * scale);
             Gizmos.DrawRay(position + (Vector3.forward * (scale * 0.5f)), -Vector3.forward * scale);
 
-            Gizmos.color = oldColor;
+            Gizmos.color = oldColor; 
+#endif
         }
 
         /// <summary>
@@ -897,7 +951,9 @@ namespace Expanse
         /// </param>
         public static void DrawPoint(Vector3 position, float scale = 1.0f)
         {
-            DrawPoint(position, Color.white, scale);
+#if UNITY_EDITOR
+            DrawPoint(position, Color.white, scale); 
+#endif
         }
 
         /// <summary>
@@ -911,6 +967,7 @@ namespace Expanse
         /// </param>
         public static void DrawBounds(Bounds bounds, Color color)
         {
+#if UNITY_EDITOR
             Vector3 center = bounds.center;
 
             float x = bounds.extents.x;
@@ -945,7 +1002,8 @@ namespace Expanse
             Gizmos.DrawLine(lfd, lbd);
             Gizmos.DrawLine(lbd, rdb);
 
-            Gizmos.color = oldColor;
+            Gizmos.color = oldColor; 
+#endif
         }
 
         /// <summary>
@@ -956,7 +1014,9 @@ namespace Expanse
         /// </param>
         public static void DrawBounds(Bounds bounds)
         {
-            DrawBounds(bounds, Color.white);
+#if UNITY_EDITOR
+            DrawBounds(bounds, Color.white); 
+#endif
         }
 
         /// <summary>
@@ -976,6 +1036,7 @@ namespace Expanse
         /// </param>
         public static void DrawLocalCube(Transform transform, Vector3 size, Color color, Vector3 center = default(Vector3))
         {
+#if UNITY_EDITOR
             Color oldColor = Gizmos.color;
             Gizmos.color = color;
 
@@ -1006,7 +1067,8 @@ namespace Expanse
             Gizmos.DrawLine(lbf, luf);
             Gizmos.DrawLine(rbf, ruf);
 
-            Gizmos.color = oldColor;
+            Gizmos.color = oldColor; 
+#endif
         }
 
         /// <summary>
@@ -1023,7 +1085,9 @@ namespace Expanse
         /// </param>	
         public static void DrawLocalCube(Transform transform, Vector3 size, Vector3 center = default(Vector3))
         {
-            DrawLocalCube(transform, size, Color.white, center);
+#if UNITY_EDITOR
+            DrawLocalCube(transform, size, Color.white, center); 
+#endif
         }
 
         /// <summary>
@@ -1043,6 +1107,7 @@ namespace Expanse
         /// </param>
         public static void DrawLocalCube(Matrix4x4 space, Vector3 size, Color color, Vector3 center = default(Vector3))
         {
+#if UNITY_EDITOR
             Color oldColor = Gizmos.color;
             Gizmos.color = color;
 
@@ -1073,7 +1138,8 @@ namespace Expanse
             Gizmos.DrawLine(lbf, luf);
             Gizmos.DrawLine(rbf, ruf);
 
-            Gizmos.color = oldColor;
+            Gizmos.color = oldColor; 
+#endif
         }
 
         /// <summary>
@@ -1090,7 +1156,9 @@ namespace Expanse
         /// </param>
         public static void DrawLocalCube(Matrix4x4 space, Vector3 size, Vector3 center = default(Vector3))
         {
-            DrawLocalCube(space, size, Color.white, center);
+#if UNITY_EDITOR
+            DrawLocalCube(space, size, Color.white, center); 
+#endif
         }
 
         /// <summary>
@@ -1110,6 +1178,7 @@ namespace Expanse
         /// </param>
         public static void DrawCircle(Vector3 position, Vector3 up, Color color, float radius = 1.0f)
         {
+#if UNITY_EDITOR
             up = ((up == Vector3.zero) ? Vector3.up : up).normalized * radius;
             Vector3 _forward = Vector3.Slerp(up, -up, 0.5f);
             Vector3 _right = Vector3.Cross(up, _forward).normalized * radius;
@@ -1146,7 +1215,8 @@ namespace Expanse
                 _lastPoint = _nextPoint;
             }
 
-            Gizmos.color = oldColor;
+            Gizmos.color = oldColor; 
+#endif
         }
 
         /// <summary>
@@ -1163,7 +1233,9 @@ namespace Expanse
         /// </param>
         public static void DrawCircle(Vector3 position, Color color, float radius = 1.0f)
         {
-            DrawCircle(position, Vector3.up, color, radius);
+#if UNITY_EDITOR
+            DrawCircle(position, Vector3.up, color, radius); 
+#endif
         }
 
         /// <summary>
@@ -1180,7 +1252,9 @@ namespace Expanse
         /// </param>
         public static void DrawCircle(Vector3 position, Vector3 up, float radius = 1.0f)
         {
-            DrawCircle(position, position, Color.white, radius);
+#if UNITY_EDITOR
+            DrawCircle(position, position, Color.white, radius); 
+#endif
         }
 
         /// <summary>
@@ -1194,7 +1268,9 @@ namespace Expanse
         /// </param>
         public static void DrawCircle(Vector3 position, float radius = 1.0f)
         {
-            DrawCircle(position, Vector3.up, Color.white, radius);
+#if UNITY_EDITOR
+            DrawCircle(position, Vector3.up, Color.white, radius); 
+#endif
         }
 
         //Wiresphere already exists
@@ -1216,6 +1292,7 @@ namespace Expanse
         /// </param>
         public static void DrawCylinder(Vector3 start, Vector3 end, Color color, float radius = 1.0f)
         {
+#if UNITY_EDITOR
             Vector3 up = (end - start).normalized * radius;
             Vector3 forward = Vector3.Slerp(up, -up, 0.5f);
             Vector3 right = Vector3.Cross(up, forward).normalized * radius;
@@ -1243,7 +1320,8 @@ namespace Expanse
             Gizmos.DrawLine(end - right, end + right);
             Gizmos.DrawLine(end - forward, end + forward);
 
-            Gizmos.color = oldColor;
+            Gizmos.color = oldColor; 
+#endif
         }
 
         /// <summary>
@@ -1260,7 +1338,9 @@ namespace Expanse
         /// </param>
         public static void DrawCylinder(Vector3 start, Vector3 end, float radius = 1.0f)
         {
-            DrawCylinder(start, end, Color.white, radius);
+#if UNITY_EDITOR
+            DrawCylinder(start, end, Color.white, radius); 
+#endif
         }
 
         /// <summary>
@@ -1280,6 +1360,7 @@ namespace Expanse
         /// </param>
         public static void DrawCone(Vector3 position, Vector3 direction, Color color, float angle = 45)
         {
+#if UNITY_EDITOR
             float length = direction.magnitude;
 
             Vector3 _forward = direction;
@@ -1307,7 +1388,8 @@ namespace Expanse
             DebugExt.DrawCircle(position + _forward, direction, color, (_forward - (slerpedVector.normalized * dist)).magnitude);
             DebugExt.DrawCircle(position + (_forward * 0.5f), direction, color, ((_forward * 0.5f) - (slerpedVector.normalized * (dist * 0.5f))).magnitude);
 
-            Gizmos.color = oldColor;
+            Gizmos.color = oldColor; 
+#endif
         }
 
         /// <summary>
@@ -1324,7 +1406,9 @@ namespace Expanse
         /// </param>
         public static void DrawCone(Vector3 position, Vector3 direction, float angle = 45)
         {
-            DrawCone(position, direction, Color.white, angle);
+#if UNITY_EDITOR
+            DrawCone(position, direction, Color.white, angle); 
+#endif
         }
 
         /// <summary>
@@ -1341,7 +1425,9 @@ namespace Expanse
         /// </param>
         public static void DrawCone(Vector3 position, Color color, float angle = 45)
         {
-            DrawCone(position, Vector3.up, color, angle);
+#if UNITY_EDITOR
+            DrawCone(position, Vector3.up, color, angle); 
+#endif
         }
 
         /// <summary>
@@ -1355,7 +1441,9 @@ namespace Expanse
         /// </param>
         public static void DrawCone(Vector3 position, float angle = 45)
         {
-            DrawCone(position, Vector3.up, Color.white, angle);
+#if UNITY_EDITOR
+            DrawCone(position, Vector3.up, Color.white, angle); 
+#endif
         }
 
         /// <summary>
@@ -1372,13 +1460,15 @@ namespace Expanse
         /// </param>
         public static void DrawArrow(Vector3 position, Vector3 direction, Color color)
         {
+#if UNITY_EDITOR
             Color oldColor = Gizmos.color;
             Gizmos.color = color;
 
             Gizmos.DrawRay(position, direction);
             DebugExt.DrawCone(position + direction, -direction * 0.333f, color, 15);
 
-            Gizmos.color = oldColor;
+            Gizmos.color = oldColor; 
+#endif
         }
 
         /// <summary>
@@ -1392,7 +1482,9 @@ namespace Expanse
         /// </param>
         public static void DrawArrow(Vector3 position, Vector3 direction)
         {
-            DrawArrow(position, direction, Color.white);
+#if UNITY_EDITOR
+            DrawArrow(position, direction, Color.white); 
+#endif
         }
 
         /// <summary>
@@ -1412,6 +1504,7 @@ namespace Expanse
         /// </param>
         public static void DrawCapsule(Vector3 start, Vector3 end, Color color, float radius = 1)
         {
+#if UNITY_EDITOR
             Vector3 up = (end - start).normalized * radius;
             Vector3 forward = Vector3.Slerp(up, -up, 0.5f);
             Vector3 right = Vector3.Cross(up, forward).normalized * radius;
@@ -1453,7 +1546,8 @@ namespace Expanse
                 Gizmos.DrawLine(Vector3.Slerp(-forward, up, i / 25.0f) + end, Vector3.Slerp(-forward, up, (i - 1) / 25.0f) + end);
             }
 
-            Gizmos.color = oldColor;
+            Gizmos.color = oldColor; 
+#endif
         }
 
         /// <summary>
@@ -1470,7 +1564,9 @@ namespace Expanse
         /// </param>
         public static void DrawCapsule(Vector3 start, Vector3 end, float radius = 1)
         {
-            DrawCapsule(start, end, Color.white, radius);
+#if UNITY_EDITOR
+            DrawCapsule(start, end, Color.white, radius); 
+#endif
         }
 
         #endregion
@@ -1552,6 +1648,8 @@ namespace Expanse
 
     public static class DebugExt2D
     {
+        #region DebugDrawFunctions
+
         /// <summary>
         ///     - Debugs a 2D rectangle.
         /// </summary>
@@ -1575,6 +1673,7 @@ namespace Expanse
         /// </param>
         public static void DebugRect(Vector2 position, Vector2 size, Color color, float angle = 0, float duration = 0, bool depthTest = true)
         {
+#if UNITY_EDITOR
             Vector2 halfSize = size * 0.5f;
 
             Vector2 tl = (position + new Vector2(-halfSize.x, -halfSize.y)).RotateAroundCenter(position, angle);
@@ -1585,7 +1684,8 @@ namespace Expanse
             Debug.DrawLine(tl, tr, color, duration, depthTest);
             Debug.DrawLine(tr, br, color, duration, depthTest);
             Debug.DrawLine(br, bl, color, duration, depthTest);
-            Debug.DrawLine(bl, tl, color, duration, depthTest);
+            Debug.DrawLine(bl, tl, color, duration, depthTest); 
+#endif
         }
 
         /// <summary>
@@ -1608,7 +1708,9 @@ namespace Expanse
         /// </param>
         public static void DebugRect(Vector2 position, Vector2 size, float angle = 0, float duration = 0, bool depthTest = true)
         {
-            DebugExt2D.DebugRect(position, size, Color.white, angle, duration, depthTest);
+#if UNITY_EDITOR
+            DebugExt2D.DebugRect(position, size, Color.white, angle, duration, depthTest); 
+#endif
         }
 
         /// <summary>
@@ -1631,6 +1733,7 @@ namespace Expanse
         /// </param>
         public static void DebugCircle(Vector2 position, float radius, Color color, float duration = 0, bool depthTest = true)
         {
+#if UNITY_EDITOR
             Vector3 _position = position.ToVector3();
 
             Vector3 _up = Vector3.forward * radius;
@@ -1666,7 +1769,8 @@ namespace Expanse
 
                 Debug.DrawLine(_lastPoint, _nextPoint, color, duration, depthTest);
                 _lastPoint = _nextPoint;
-            }
+            } 
+#endif
         }
 
         /// <summary>
@@ -1686,7 +1790,11 @@ namespace Expanse
         /// </param>
         public static void DebugCircle(Vector2 position, float radius, float duration = 0, bool depthTest = true)
         {
-            DebugCircle(position, radius, Color.white, duration, depthTest);
+#if UNITY_EDITOR
+            DebugCircle(position, radius, Color.white, duration, depthTest); 
+#endif
         }
+
+        #endregion
     }
 }

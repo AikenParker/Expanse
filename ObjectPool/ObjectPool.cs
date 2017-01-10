@@ -216,7 +216,7 @@ namespace Expanse
         { }
 
         public GameObjectPool(GameObject prefab, int initialCapacity, Func<GameObject, GameObject> gameObjectInstantiator = null, Action<GameObject> onAddGameObject = null, Action<GameObject> onGetGameObject = null, Action<GameObject> onRemoveGameObject = null)
-            : this(prefab, null, gameObjectInstantiator, onAddGameObject, onGetGameObject, onRemoveGameObject)
+            : base(prefab, initialCapacity, gameObjectInstantiator, onAddGameObject, onGetGameObject, onRemoveGameObject)
         { }
 
         public GameObjectPool(GameObject prefab, Func<GameObject, GameObject> gameObjectInstantiator = null, Action<GameObject> onAddGameObject = null, Action<GameObject> onGetGameObject = null, Action<GameObject> onRemoveGameObject = null)
@@ -253,7 +253,7 @@ namespace Expanse
         { }
 
         public ComponentPool(T prefab, int initialCapacity, Func<T, T> componentInstantiator = null, Action<T> onAddComponent = null, Action<T> onGetComponent = null, Action<T> onRemoveComponent = null)
-            : this(prefab, null, componentInstantiator, onAddComponent, onGetComponent, onRemoveComponent)
+            : base(prefab, initialCapacity, componentInstantiator, onAddComponent, onGetComponent, onRemoveComponent)
         { }
 
         public ComponentPool(T prefab, Func<T, T> componentInstantiator = null, Action<T> onAddComponent = null, Action<T> onGetComponent = null, Action<T> onRemoveComponent = null)

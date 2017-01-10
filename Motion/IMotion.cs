@@ -5,12 +5,22 @@
     /// </summary>
     public interface IMotion : IComplexUpdate
     {
-        float Duration { get; set; }
+        float CurrentTime { get; }
+        bool IsActive { get; set; }
 
-        void Play();
-        void Stop();
-        void Reset();
-        void Restart();
-        void Reverse();
+        float Duration { get; }
+        float StartDelay { get; set; }
+        float EndDelay { get; set; }
+        float PlaybackRate { get; set; }
+
+        bool IsStarted { get; }
+        bool IsMotionStarted { get; }
+        bool IsMotionCompleted { get; }
+        bool IsCompleted { get; }
+
+        void OnStart();
+
+        void Resume();
+        void Pause();
     }
 }
