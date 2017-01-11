@@ -30,7 +30,7 @@ namespace Expanse
         /// </summary>
         public static void ApplyTooltip(FieldInfo fieldInfo, GUIContent label)
         {
-            TooltipAttribute tooltipAttribute = fieldInfo.GetAttribute<TooltipAttribute>();
+            UnityEngine.TooltipAttribute tooltipAttribute = fieldInfo.GetAttribute<UnityEngine.TooltipAttribute>();
 
             label.tooltip = (tooltipAttribute != null) ? tooltipAttribute.tooltip : string.Empty;
         }

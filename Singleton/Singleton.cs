@@ -6,10 +6,7 @@ namespace Expanse
     /// <summary>
     /// Singleton non-generic base class. Inherit from Singleton<T> instead.
     /// </summary>
-    public abstract class Singleton : MonoBehaviour
-    {
-
-    }
+    public abstract class Singleton : MonoBehaviour { }
 
     /// <summary>
     /// Singleton base class.
