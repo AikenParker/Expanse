@@ -9,12 +9,14 @@ namespace Expanse
     public static class PhysicsUtil
     {
         /// <summary>
-        /// Single-use collider array buffer for use in non-allocating physics methods.
+        /// Multi-use collider array buffer for use in non-allocating physics methods.
+        /// Note: Iterate over the non-alloc result instead of colliderBuffer.Length
         /// </summary>
         public static Collider[] colliderBuffer = new Collider[50];
 
         /// <summary>
-        /// Single-use raycasthit array buffer for use in non-allocating physics methods.
+        /// Multi-use raycasthit array buffer for use in non-allocating physics methods.
+        /// Note: Iterate over the non-alloc result instead of raycastHitBuffer.Length
         /// </summary>
         public static RaycastHit[] raycastHitBuffer = new RaycastHit[50];
 

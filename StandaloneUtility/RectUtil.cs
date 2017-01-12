@@ -8,7 +8,7 @@ namespace Expanse
     public static class RectUtil
     {
         /// <summary>
-        /// Returns a rect that encapsulates a and b.
+        /// Returns a Rect that encapsulates a and b.
         /// </summary>
         public static Rect MaxRect(Rect a, Rect b)
         {
@@ -25,6 +25,22 @@ namespace Expanse
             maxRect.yMax = yMax;
 
             return maxRect;
+        }
+
+        /// <summary>
+        /// Returns the area of a Rect.
+        /// </summary>
+        public static float GetArea(Rect rect)
+        {
+            return rect.width * rect.height;
+        }
+
+        /// <summary>
+        /// Returns true if Rect A is within Rect B.
+        /// </summary>
+        public static bool IsWithin(Rect a, Rect b)
+        {
+            return a.xMin >= b.xMin && a.xMax <= b.xMax && a.yMin >= b.yMin && a.yMax <= b.yMax;
         }
     }
 }
