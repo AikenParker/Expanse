@@ -6,8 +6,14 @@ using UnityEngine;
 
 namespace Expanse
 {
+    /// <summary>
+    /// A collection of game object and component instantiation related utility funcationality.
+    /// </summary>
     public static class InstantiateUtil
     {
+        /// <summary>
+        /// Instantiates a copy of a game object.
+        /// </summary>
         public static GameObject Instantiate(GameObject original, string name = null, Transform parent = null, bool worldPositionStays = true)
         {
             GameObject gameObject = (GameObject)UnityEngine.Object.Instantiate(original, parent, worldPositionStays);
@@ -20,6 +26,9 @@ namespace Expanse
             return gameObject;
         }
 
+        /// <summary>
+        /// Instantiates a copy of a game object from a component.
+        /// </summary>
         public static T Instantiate<T>(T original, string name = null, Transform parent = null, bool worldPositionStays = true) where T : Component
         {
             GameObject gameObject = (GameObject)UnityEngine.Object.Instantiate(original.gameObject, parent, worldPositionStays);
@@ -36,6 +45,9 @@ namespace Expanse
         const string NUMBER_MARKER = "{NUMBER}";
         const string DEFAULT_NAME = NAME_MARKER + " (" + NUMBER_MARKER + ")";
 
+        /// <summary>
+        /// Instantiates multiple copies of a game object.
+        /// </summary>
         public static IEnumerable<GameObject> InstantiateMany(GameObject original, int amount, string name = DEFAULT_NAME, Transform parent = null, bool worldPositionStays = true)
         {
             name = name ?? DEFAULT_NAME;
@@ -59,6 +71,9 @@ namespace Expanse
             }
         }
 
+        /// <summary>
+        /// Instantiates multiple copies of a game object from a component.
+        /// </summary>
         public static IEnumerable<T> InstantiateMany<T>(T original, int amount, string name = DEFAULT_NAME, Transform parent = null, bool worldPositionStays = true) where T : Component
         {
             name = name ?? DEFAULT_NAME;

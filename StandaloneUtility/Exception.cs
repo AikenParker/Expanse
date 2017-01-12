@@ -1,11 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using UnityEngine;
 
 namespace Expanse
 {
+    /// <summary>
+    /// Base Expanse exception.
+    /// </summary>
     public abstract class ExpanseException : Exception
     {
         public ExpanseException() : base() { }
@@ -15,6 +14,9 @@ namespace Expanse
         public ExpanseException(string message, Exception innerException) : base(message, innerException) { }
     }
 
+    /// <summary>
+    /// Attempted to access inaccessible functionality on an inactive object.
+    /// </summary>
     public class InactiveException : ExpanseException
     {
         public InactiveException() : base() { }
@@ -24,6 +26,9 @@ namespace Expanse
         public InactiveException(string message, Exception innerException) : base(message, innerException) { }
     }
 
+    /// <summary>
+    /// As unexpected code path was reached.
+    /// </summary>
     public class UnexpectedException : ExpanseException
     {
         public UnexpectedException() : base() { }
@@ -33,6 +38,9 @@ namespace Expanse
         public UnexpectedException(string message, Exception innerException) : base(message, innerException) { }
     }
 
+    /// <summary>
+    /// A currently unsupported code path was reached.
+    /// </summary>
     public class UnsupportedException : ExpanseException
     {
         public UnsupportedException() : base() { }
@@ -42,6 +50,9 @@ namespace Expanse
         public UnsupportedException(string message, Exception innerException) : base(message, innerException) { }
     }
 
+    /// <summary>
+    /// A passed in argument is invalid in some way.
+    /// </summary>
     public class InvalidArgumentException : ExpanseException
     {
         public InvalidArgumentException() : base() { }

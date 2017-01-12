@@ -1,7 +1,15 @@
-﻿namespace Expanse
+﻿using UnityEngine;
+
+namespace Expanse
 {
+    /// <summary>
+    /// A collection of application level related utility functionality.
+    /// </summary>
     public static class ApplicationUtil
     {
+        /// <summary>
+        /// Exits the application or stops playing in editor.
+        /// </summary>
         private static void Exit()
         {
 #if (UNITY_EDITOR)

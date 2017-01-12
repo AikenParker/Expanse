@@ -2,6 +2,9 @@
 
 namespace Expanse
 {
+    /// <summary>
+    /// A collection of math related utility functionality.
+    /// </summary>
     public static class MathUtil
     {
         /// <summary>

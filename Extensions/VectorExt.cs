@@ -14,24 +14,24 @@ namespace Expanse
     /// </summary>
     public static class VectorExt
     {
-        public static Vector3 ZeroValues(this Vector3 source, DimensionFlags dims)
+        public static Vector3 ZeroValues(this Vector3 source, DimensionFlags3D dims)
         {
-            if (dims.IsFlagSet(DimensionFlags.X))
+            if (dims.IsFlagSet(DimensionFlags3D.X))
                 source.x = 0;
-            if (dims.IsFlagSet(DimensionFlags.Y))
+            if (dims.IsFlagSet(DimensionFlags3D.Y))
                 source.y = 0;
-            if (dims.IsFlagSet(DimensionFlags.Z))
+            if (dims.IsFlagSet(DimensionFlags3D.Z))
                 source.z = 0;
             return source;
         }
 
-        public static Vector3 SetValues(this Vector3 source, float value, DimensionFlags dims = DimensionFlags.XYZ)
+        public static Vector3 SetValues(this Vector3 source, float value, DimensionFlags3D dims = DimensionFlags3D.XYZ)
         {
-            if (dims.IsFlagSet(DimensionFlags.X))
+            if (dims.IsFlagSet(DimensionFlags3D.X))
                 source.x = value;
-            if (dims.IsFlagSet(DimensionFlags.Y))
+            if (dims.IsFlagSet(DimensionFlags3D.Y))
                 source.y = value;
-            if (dims.IsFlagSet(DimensionFlags.Z))
+            if (dims.IsFlagSet(DimensionFlags3D.Z))
                 source.z = value;
             return source;
         }
@@ -61,30 +61,30 @@ namespace Expanse
             return new Vector2(source.x, y);
         }
 
-        public static Vector2 ToVector2(this Vector3 source, DimensionTypes ignoreDim = DimensionTypes.Z)
+        public static Vector2 ToVector2(this Vector3 source, DimensionTypes3D ignoreDim = DimensionTypes3D.Z)
         {
             switch (ignoreDim)
             {
-                case DimensionTypes.Z:
+                case DimensionTypes3D.Z:
                     return new Vector2(source.x, source.y);
-                case DimensionTypes.Y:
+                case DimensionTypes3D.Y:
                     return new Vector2(source.x, source.z);
-                case DimensionTypes.X:
+                case DimensionTypes3D.X:
                     return new Vector2(source.y, source.z);
                 default:
                     throw new InvalidArgumentException("ignoreDim");
             }
         }
 
-        public static Vector3 ToVector3(this Vector2 source, DimensionTypes ignoreDim = DimensionTypes.Z)
+        public static Vector3 ToVector3(this Vector2 source, DimensionTypes3D ignoreDim = DimensionTypes3D.Z)
         {
             switch (ignoreDim)
             {
-                case DimensionTypes.Z:
+                case DimensionTypes3D.Z:
                     return new Vector3(source.x, source.y, 0f);
-                case DimensionTypes.Y:
+                case DimensionTypes3D.Y:
                     return new Vector3(source.x, 0f, source.y);
-                case DimensionTypes.X:
+                case DimensionTypes3D.X:
                     return new Vector3(0f, source.y, source.x);
                 default:
                     throw new InvalidArgumentException("ignoreDim");

@@ -7,15 +7,19 @@ using UnityEngine.SceneManagement;
 
 namespace Expanse
 {
+    /// <summary>
+    /// A collection of transform related utility funtionality.
+    /// </summary>
     public static class TransformUtil
     {
+        /// <summary>
+        /// Gets or creates a transform at a specific heirachical path. Parentage seperated via a slash character.
+        /// </summary>
         public static Transform GetTransformFromPath(string path, bool create = true)
         {
-            string[] directory = path.Split('/', '\\');
-
             Transform lastTransform = null;
 
-            foreach (string name in directory)
+            foreach (string name in path.Split('/', '\\'))
             {
                 if (string.IsNullOrEmpty(name))
                     continue;

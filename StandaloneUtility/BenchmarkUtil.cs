@@ -9,6 +9,9 @@ using System.Text;
 
 namespace Expanse
 {
+    /// <summary>
+    /// A collection of benchmark related utility functionality.
+    /// </summary>
     public static class BenchmarkUtil
     {
         /// <summary>

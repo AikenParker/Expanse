@@ -3,6 +3,9 @@ using System.Text;
 
 namespace Expanse
 {
+    /// <summary>
+    /// A collection of byte related utility functionality.
+    /// </summary>
     public static class ByteUtil
     {
         /// <summary>

@@ -3,6 +3,9 @@ using UnityEngine;
 
 namespace Expanse
 {
+    /// <summary>
+    /// Collection of physics related utility functionality.
+    /// </summary>
     public static class PhysicsUtil
     {
         /// <summary>
@@ -16,7 +19,33 @@ namespace Expanse
         public static RaycastHit[] raycastHitBuffer = new RaycastHit[50];
 
         /// <summary>
-        /// Sets the ignore state value of all aColliders vs bColliders.
+        /// Sets the ignore status between all colliders in a collection.
+        /// </summary>
+        public static void IgnoreCollision(IEnumerable<Collider> colliders, bool ignore = true)
+        {
+            foreach (Collider aCol in colliders)
+                foreach (Collider bCol in colliders)
+                {
+                    if (aCol.Equals(bCol))
+                        break;
+
+                    Physics.IgnoreCollision(aCol, bCol, ignore);
+                }
+        }
+
+        /// <summary>
+        /// Sets the ignore state value between a single collider and a collection of colliders.
+        /// Note: Does not affect ignore status between colliders in the collection.
+        /// </summary>
+        public static void IgnoreCollision(Collider collider, IEnumerable<Collider> otherColliders, bool ignore = true)
+        {
+            foreach (Collider otherCol in otherColliders)
+                Physics.IgnoreCollision(collider, otherCol, ignore);
+        }
+
+        /// <summary>
+        /// Sets the ignore state value between two collections of colliders.
+        /// Note: Does not affect ignore status between colliders in the same collection.
         /// </summary>
         public static void IgnoreCollision(IEnumerable<Collider> aColliders, IEnumerable<Collider> bColliders, bool ignore = true)
         {

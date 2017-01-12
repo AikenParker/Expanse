@@ -20,6 +20,14 @@ namespace Expanse
         }
 
         /// <summary>
+        /// Clears the cache used by the CopyComponent method.
+        /// </summary>
+        public static void ClearCopyComponentCache()
+        {
+            copyComponentCache.Clear();
+        }
+
+        /// <summary>
         /// Copies over field and property values from one component to another.
         /// </summary>
         /// <returns>The source object with newly changed properties and fields.</returns>
