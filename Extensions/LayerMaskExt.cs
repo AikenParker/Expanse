@@ -3,6 +3,9 @@ using System.Collections;
 
 namespace Expanse
 {
+    /// <summary>
+    /// A collection of LayerMask related extension methods.
+    /// </summary>
     public static class LayerMaskExt
     {
         /// <summary>

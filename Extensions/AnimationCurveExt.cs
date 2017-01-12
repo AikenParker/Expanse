@@ -6,6 +6,9 @@ using UnityEngine;
 
 namespace Expanse
 {
+    /// <summary>
+    /// A collection of AnimationCurve related extension methods.
+    /// </summary>
     public static class AnimationCurveExt
     {
         /// <summary>

@@ -7,7 +7,7 @@ using UnityEngine;
 namespace Expanse
 {
     /// <summary>
-    /// A collection of game object and component instantiation related utility funcationality.
+    /// A collection of GameObject and Component instantiation related utility funcationality.
     /// </summary>
     public static class InstantiateUtil
     {

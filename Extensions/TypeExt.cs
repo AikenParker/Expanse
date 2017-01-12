@@ -5,6 +5,9 @@ using System.Text;
 
 namespace Expanse
 {
+    /// <summary>
+    /// A collection of Type related extension methods.
+    /// </summary>
     public static class TypeExt
     {
         /// <summary>

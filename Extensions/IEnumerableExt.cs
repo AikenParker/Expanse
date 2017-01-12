@@ -7,6 +7,9 @@ using Expanse;
 
 namespace Expanse
 {
+    /// <summary>
+    /// A collection of IEnumerable (LINQ-like) related extension methods.
+    /// </summary>
     public static class IEnumerableExt
     {
         /// <summary>

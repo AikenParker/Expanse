@@ -6,6 +6,9 @@ using UnityEngine;
 
 namespace Expanse
 {
+    /// <summary>
+    /// A collection of GameObject related extension methods.
+    /// </summary>
     public static class GameObjectExt
     {
         /// <summary>

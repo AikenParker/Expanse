@@ -8,7 +8,7 @@ using UnityEngine;
 namespace Expanse
 {
     /// <summary>
-    /// A collection of streaming assets related utility functionality.
+    /// A collection of StreamingAssets related utility functionality.
     /// </summary>
     public static class StreamingAssetsUtil
     {

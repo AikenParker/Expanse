@@ -7,6 +7,9 @@ using UnityEngine;
 
 namespace Expanse
 {
+    /// <summary>
+    /// A collection of Component related extension methods.
+    /// </summary>
     public static class ComponentExt
     {
         private const BindingFlags COPY_COMPONENT_BINDING_FLAGS = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Default | BindingFlags.DeclaredOnly;

@@ -5,7 +5,7 @@ using System.Linq;
 namespace Expanse
 {
     /// <summary>
-    /// A collection of enum related utility functionality.
+    /// A collection of Enum related utility functionality.
     /// </summary>
     public static class EnumUtil
     {

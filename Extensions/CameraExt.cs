@@ -3,6 +3,9 @@ using UnityEngine;
 
 namespace Expanse
 {
+    /// <summary>
+    /// A collection of Camera related extension methods.
+    /// </summary>
     public static class CameraExt
     {
         /// <summary>

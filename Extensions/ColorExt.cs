@@ -3,6 +3,9 @@ using UnityEngine;
 
 namespace Expanse
 {
+    /// <summary>
+    /// A collection of Color related extension methods and properties.
+    /// </summary>
     public static class ColorExt
     {
         /// <summary>
@@ -16,14 +19,28 @@ namespace Expanse
         /// <summary>
         /// Returns the hexidecimal string of a color.
         /// </summary>
-        public static string ToHexString(this Color32 source)
+        public static string ToHexString(this Color source)
         {
+            Color32 source32 = source;
+
             StringBuilder strBuilder = new StringBuilder(3);
-            strBuilder.Append(source.r.ToString("X2"));
-            strBuilder.Append(source.g.ToString("X2"));
-            strBuilder.Append(source.b.ToString("X2"));
+
+            strBuilder.Append(source32.r.ToString("X2"));
+            strBuilder.Append(source32.g.ToString("X2"));
+            strBuilder.Append(source32.b.ToString("X2"));
+
             return strBuilder.ToString();
         }
+
+        /// <summary>
+        /// Converts a color to greyscale.
+        /// </summary>
+        public static Color ToGreyscale(this Color source, ColorUtil.GrayscaleMethod greyscaleMethod = ColorUtil.GrayscaleMethod.LUMINESCENCE)
+        {
+            return ColorUtil.ToGrayscale(source, greyscaleMethod);
+        }
+
+        #region ColorLibrary
 
         public static readonly Color CloudyBlue = ColorUtil.HexToColor(0xacc2d9);
         public static readonly Color DarkPastelGreen = ColorUtil.HexToColor(0x56ae57);
@@ -963,5 +980,7 @@ namespace Expanse
         public static readonly Color Blue = ColorUtil.HexToColor(0x0343df);
         public static readonly Color Green = ColorUtil.HexToColor(0x15b01a);
         public static readonly Color Purple = ColorUtil.HexToColor(0x7e1e9c);
+
+        #endregion
     }
 }

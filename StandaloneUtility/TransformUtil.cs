@@ -8,7 +8,7 @@ using UnityEngine.SceneManagement;
 namespace Expanse
 {
     /// <summary>
-    /// A collection of transform related utility funtionality.
+    /// A collection of Transform related utility funtionality.
     /// </summary>
     public static class TransformUtil
     {

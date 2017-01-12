@@ -1,7 +1,7 @@
 ﻿namespace Expanse
 {
     /// <summary>
-    /// A collection of byte and byte[] related extension methods.
+    /// A collection of System.Byte and System.Byte[] related extension methods.
     /// Note: All index parameters are zero-based.
     /// </summary>
     public static class ByteExt
@@ -23,7 +23,7 @@
         {
             return GetBit(data[bitIndex / 8], bitIndex % 8);
         }
-        
+
         /// <summary>
         /// Get a specific bit in a byte array.
         /// </summary>

@@ -19,6 +19,7 @@ namespace Expanse
             serializedObject.UpdateIfDirtyOrScript();
 
             EditorUtil.DrawInspectorScriptField<SerializedTimer>(Target);
+            EditorUtil.DrawInspectorEditorScriptField<SerializedTimerInspector>(this);
 
             // Top-Level
 
@@ -119,13 +120,13 @@ namespace Expanse
             EditorGUILayout.BeginHorizontal();
 
             SerializedProperty enableCompletedEventProperty = serializedObject.FindProperty(SerializedTimerPropertyNames.ENABLED_COMPLETED_EVENT);
-            enableCompletedEventProperty.boolValue = GUILayout.Toggle(enableCompletedEventProperty.boolValue, new GUIContent("Complete Event"), "Button");
+            enableCompletedEventProperty.boolValue = GUILayout.Toggle(enableCompletedEventProperty.boolValue, new GUIContent("Complete"), "Button");
 
             SerializedProperty enableReturnedProperty = serializedObject.FindProperty(SerializedTimerPropertyNames.ENABLED_RETURNED_EVENT);
-            enableReturnedProperty.boolValue = GUILayout.Toggle(enableReturnedProperty.boolValue, new GUIContent("Returned Event"), "Button");
+            enableReturnedProperty.boolValue = GUILayout.Toggle(enableReturnedProperty.boolValue, new GUIContent("Returned"), "Button");
 
             SerializedProperty enableCompletedOrReturnedEventProperty = serializedObject.FindProperty(SerializedTimerPropertyNames.ENABLED_COMPLETED_OR_RETURNED_EVENT);
-            enableCompletedOrReturnedEventProperty.boolValue = GUILayout.Toggle(enableCompletedOrReturnedEventProperty.boolValue, new GUIContent("Either Event"), "Button");
+            enableCompletedOrReturnedEventProperty.boolValue = GUILayout.Toggle(enableCompletedOrReturnedEventProperty.boolValue, new GUIContent("Either"), "Button");
 
             EditorGUILayout.EndHorizontal();
 

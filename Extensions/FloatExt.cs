@@ -2,6 +2,9 @@
 
 namespace Expanse
 {
+    /// <summary>
+    /// A collection of System.Single related extension methods.
+    /// </summary>
     public static class FloatExt
     {
         /// <summary>

@@ -7,15 +7,39 @@ using UnityEngine.Events;
 
 namespace Expanse
 {
-    public class ObjectPool<T> : IEnumerable<T>, IEnumerable, ICollection<T>, ICollection where T : new()
+    /// <summary>
+    /// Object pooling system to allow performant reuse of frequently created <typeparamref name="T"/> instances.
+    /// </summary>
+    public class ObjectPool<T> : IEnumerable<T>, IEnumerable, ICollection<T> where T : new()
     {
+        /// <summary>
+        /// Instance used as a reference when generating new instances.
+        /// </summary>
         public T SourceItem { get; set; }
 
+        /// <summary>
+        /// Backing collection of the pool.
+        /// </summary>
         protected Queue<T> Pool;
 
+        /// <summary>
+        /// Callback for creating new instances of <typeparamref name="T"/>.
+        /// </summary>
         public Func<T, T> ItemGenerator;
+
+        /// <summary>
+        /// Callback when an instance of <typeparamref name="T"/> is added to the pool.
+        /// </summary>
         public Action<T> AddItem;
+
+        /// <summary>
+        /// Callback when an instance of <typeparamref name="T"/> is retrieved from the pool.
+        /// </summary>
         public Action<T> GetItem;
+
+        /// <summary>
+        /// Callback when an instance of <typeparamref name="T"/> is removed from the pool.
+        /// </summary>
         public Action<T> RemoveItem;
 
         public ObjectPool(T sourceItem, IEnumerable<T> initialPool, Func<T, T> itemGenerator = null, Action<T> onAddItem = null, Action<T> onGetItem = null, Action<T> onRemoveItem = null)
@@ -66,6 +90,10 @@ namespace Expanse
             this.SetCallbacks(null, null, null, null);
         }
 
+        /// <summary>
+        /// Adds a <typeparamref name="T"/> instance to the pool.
+        /// </summary>
+        /// <param name="item"></param>
         public virtual void Add(T item)
         {
             if (this.Contains(item))
@@ -77,6 +105,9 @@ namespace Expanse
             Pool.Enqueue(item);
         }
 
+        /// <summary>
+        /// Returns a <typeparamref name="T"/> instance from the pool and removes it.
+        /// </summary>
         public virtual T Next()
         {
             if (Pool.Any())
@@ -104,6 +135,9 @@ namespace Expanse
             return default(T);
         }
 
+        /// <summary>
+        /// Clears all instances of <typeparamref name="T"/> in the pool.
+        /// </summary>
         public virtual void Clear()
         {
             foreach (T item in Pool)
@@ -116,36 +150,48 @@ namespace Expanse
             Pool = null;
         }
 
+        /// <summary>
+        /// Default callback implementation for creating new instances of <typeparamref name="T"/>.
+        /// </summary>
         public virtual T DefaultItemGenerator(T item)
         {
             return new T();
         }
 
-        public virtual void DefaultAddItem(T item)
-        {
+        /// <summary>
+        /// Default callback implementation when an instance of <typeparamref name="T"/> is added to the pool.
+        /// </summary>
+        public virtual void DefaultAddItem(T item) { }
 
-        }
+        /// <summary>
+        /// Default callback implementation when an instance of <typeparamref name="T"/> is retrieved from the pool.
+        /// </summary>
+        public virtual void DefaultGetItem(T item) { }
 
-        public virtual void DefaultGetItem(T item)
-        {
+        /// <summary>
+        /// Default callback implementation when an instance of <typeparamref name="T"/> is removed.
+        /// </summary>
+        public virtual void DefaultRemoveItem(T item) { }
 
-        }
-
-        public virtual void DefaultRemoveItem(T item)
-        {
-
-        }
-
+        /// <summary>
+        /// Returns true if an item is in the pool.
+        /// </summary>
         public bool Contains(T item)
         {
             return Pool.Contains(item);
         }
 
+        /// <summary>
+        /// Returns the amount of instances in the pool.
+        /// </summary>
         public int Count
         {
             get { return Pool.Count; }
         }
 
+        /// <summary>
+        /// Removes an item.
+        /// </summary>
         bool ICollection<T>.Remove(T item)
         {
             if (this.Contains(item))
@@ -185,101 +231,12 @@ namespace Expanse
 
         void ICollection<T>.CopyTo(T[] array, int arrayIndex)
         {
-            ((ICollection)this).CopyTo(array, arrayIndex);
-        }
-
-        void ICollection.CopyTo(Array array, int index)
-        {
-            ((ICollection)Pool).CopyTo(array, index);
+            ((ICollection<T>)this).CopyTo(array, arrayIndex);
         }
 
         bool ICollection<T>.IsReadOnly
         {
             get { return false; }
-        }
-
-        bool ICollection.IsSynchronized
-        {
-            get { return ((ICollection)Pool).IsSynchronized; }
-        }
-
-        object ICollection.SyncRoot
-        {
-            get { return ((ICollection)Pool).SyncRoot; }
-        }
-    }
-
-    public class GameObjectPool : ObjectPool<GameObject>
-    {
-        public GameObjectPool(GameObject prefab, IEnumerable<GameObject> initialPool, Func<GameObject, GameObject> gameObjectInstantiator = null, Action<GameObject> onAddGameObject = null, Action<GameObject> onGetGameObject = null, Action<GameObject> onRemoveGameObject = null)
-            : base(prefab, initialPool, gameObjectInstantiator, onAddGameObject, onGetGameObject, onRemoveGameObject)
-        { }
-
-        public GameObjectPool(GameObject prefab, int initialCapacity, Func<GameObject, GameObject> gameObjectInstantiator = null, Action<GameObject> onAddGameObject = null, Action<GameObject> onGetGameObject = null, Action<GameObject> onRemoveGameObject = null)
-            : base(prefab, initialCapacity, gameObjectInstantiator, onAddGameObject, onGetGameObject, onRemoveGameObject)
-        { }
-
-        public GameObjectPool(GameObject prefab, Func<GameObject, GameObject> gameObjectInstantiator = null, Action<GameObject> onAddGameObject = null, Action<GameObject> onGetGameObject = null, Action<GameObject> onRemoveGameObject = null)
-            : this(prefab, null, gameObjectInstantiator, onAddGameObject, onGetGameObject, onRemoveGameObject)
-        { }
-
-        public GameObjectPool() : base() { }
-
-        public override GameObject DefaultItemGenerator(GameObject prefab)
-        {
-            return UnityEngine.Object.Instantiate(prefab);
-        }
-
-        public override void DefaultAddItem(GameObject item)
-        {
-            item.SetActive(false);
-        }
-
-        public override void DefaultGetItem(GameObject item)
-        {
-            item.SetActive(true);
-        }
-
-        public override void DefaultRemoveItem(GameObject item)
-        {
-            UnityEngine.Object.Destroy(item);
-        }
-    }
-
-    public class ComponentPool<T> : ObjectPool<T> where T : Component, new()
-    {
-        public ComponentPool(T prefab, IEnumerable<T> initialPool, Func<T, T> componentInstantiator = null, Action<T> onAddComponent = null, Action<T> onGetComponent = null, Action<T> onRemoveComponent = null)
-            : base(prefab, initialPool, componentInstantiator, onAddComponent, onGetComponent, onRemoveComponent)
-        { }
-
-        public ComponentPool(T prefab, int initialCapacity, Func<T, T> componentInstantiator = null, Action<T> onAddComponent = null, Action<T> onGetComponent = null, Action<T> onRemoveComponent = null)
-            : base(prefab, initialCapacity, componentInstantiator, onAddComponent, onGetComponent, onRemoveComponent)
-        { }
-
-        public ComponentPool(T prefab, Func<T, T> componentInstantiator = null, Action<T> onAddComponent = null, Action<T> onGetComponent = null, Action<T> onRemoveComponent = null)
-            : this(prefab, null, componentInstantiator, onAddComponent, onGetComponent, onRemoveComponent)
-        { }
-
-        public ComponentPool() : base() { }
-
-        public override T DefaultItemGenerator(T prefab)
-        {
-            return UnityEngine.Object.Instantiate(prefab);
-        }
-
-        public override void DefaultAddItem(T item)
-        {
-            item.gameObject.SetActive(false);
-        }
-
-        public override void DefaultGetItem(T item)
-        {
-            item.gameObject.SetActive(true);
-        }
-
-        public override void DefaultRemoveItem(T item)
-        {
-            UnityEngine.Object.Destroy(item.gameObject);
         }
     }
 }

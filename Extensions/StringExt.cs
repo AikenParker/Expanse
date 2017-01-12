@@ -5,6 +5,9 @@ using System.Globalization;
 
 namespace Expanse
 {
+    /// <summary>
+    /// A collection of System.String related extension methods.
+    /// </summary>
     public static class StringExt
     {
         /// <summary>

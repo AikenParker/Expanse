@@ -3,6 +3,9 @@ using Rect = UnityEngine.Rect;
 
 namespace Expanse
 {
+    /// <summary>
+    /// A collection of Rect related extension methods.
+    /// </summary>
     public static class RectExt
     {
         public enum RectMode

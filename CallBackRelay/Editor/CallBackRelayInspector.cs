@@ -18,6 +18,7 @@ namespace Expanse
             serializedObject.UpdateIfDirtyOrScript();
 
             EditorUtil.DrawInspectorScriptField<CallBackRelay>(Target);
+            EditorUtil.DrawInspectorEditorScriptField<CallBackRelayInspector>(this);
 
             //
 

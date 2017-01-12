@@ -10,7 +10,7 @@ using System.Text;
 namespace Expanse
 {
     /// <summary>
-    /// Vector specific extension methods.
+    /// A collection of Vector related extension methods.
     /// </summary>
     public static class VectorExt
     {

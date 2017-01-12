@@ -5,7 +5,7 @@ using UnityEngine;
 namespace Expanse
 {
     /// <summary>
-    /// Random class that wraps Unity
+    /// Interface supported RNG wrapper that provides a collection of random related functionality.
     /// </summary>
     public class Random
     {

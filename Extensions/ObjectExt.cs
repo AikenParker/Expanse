@@ -4,6 +4,9 @@ using System.Collections.Generic;
 
 namespace Expanse
 {
+    /// <summary>
+    /// A collection of System.Object related extension methods.
+    /// </summary>
     public static class ObjectExt
     {
         /// <summary>

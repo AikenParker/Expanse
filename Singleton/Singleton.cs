@@ -9,7 +9,7 @@ namespace Expanse
     public abstract class Singleton : MonoBehaviour { }
 
     /// <summary>
-    /// Singleton base class.
+    /// Singleton base class that supports Singleton behaviour of type <typeparamref name="T"/>.
     /// </summary>
     public abstract class Singleton<T> : Singleton where T : Singleton<T>
     {

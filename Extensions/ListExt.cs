@@ -5,6 +5,9 @@ using System.Linq;
 
 namespace Expanse
 {
+    /// <summary>
+    /// A collection of List related extension methods.
+    /// </summary>
     public static class ListExt
     {
         /// <summary>

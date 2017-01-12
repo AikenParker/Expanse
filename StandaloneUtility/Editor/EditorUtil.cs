@@ -58,5 +58,17 @@ namespace Expanse
 
             RevertGUIEnabled();
         }
+
+        /// <summary>
+        /// Draws an inspector editor script field.
+        /// </summary>
+        public static void DrawInspectorEditorScriptField<T>(T target) where T : Editor
+        {
+            SetGUIEnabled(false);
+
+            EditorGUILayout.ObjectField("Editor Script", MonoScript.FromScriptableObject(target), typeof(MonoScript), false);
+
+            RevertGUIEnabled();
+        }
     }
 }

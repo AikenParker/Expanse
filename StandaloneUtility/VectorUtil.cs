@@ -4,7 +4,7 @@ using System;
 namespace Expanse
 {
     /// <summary>
-    /// A collection of vector related utility functionality.
+    /// A collection of Vector related utility functionality.
     /// </summary>
     public static class VectorUtil
     {

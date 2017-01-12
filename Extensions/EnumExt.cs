@@ -10,7 +10,7 @@ using System.Text;
 namespace Expanse
 {
     /// <summary>
-    /// Enumeration utility extension methods.
+    /// A collection Enum related extension methods.
     /// </summary>
     public static class EnumExt
     {

@@ -7,6 +7,9 @@ using Expanse;
 
 namespace Expanse
 {
+    /// <summary>
+    /// A collection of Transform related extension methods.
+    /// </summary>
     public static class TransformExt
     {
         /// <summary>

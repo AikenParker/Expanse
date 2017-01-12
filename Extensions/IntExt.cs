@@ -3,6 +3,9 @@ using System.Collections;
 
 namespace Expanse
 {
+    /// <summary>
+    /// A collection of System.Int32 related extension methods.
+    /// </summary>
     public static class IntExt
     {
         /// <summary>

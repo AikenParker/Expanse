@@ -7,6 +7,9 @@ using Expanse;
 
 namespace Expanse
 {
+    /// <summary>
+    /// A collection of Rigidbody related extension methods.
+    /// </summary>
     public static class RigidbodyExt
     {
         public static void AddForce(this Rigidbody2D rigidbody2D, Vector2 force, ForceMode mode = ForceMode.Force)

@@ -7,13 +7,13 @@ namespace Expanse
     /// <summary>
     /// Single-point vector 3 distance comparer.
     /// </summary>
-    public class DistanceComparer3D : IComparer<Vector3>
+    public class DistanceComparer : IComparer<Vector3>
     {
         public readonly Vector3 targetPosition;
 
         public bool OrderByDescending { get; set; }
 
-        public DistanceComparer3D(Vector3 targetPosition)
+        public DistanceComparer(Vector3 targetPosition)
         {
             this.targetPosition = targetPosition;
         }
@@ -30,20 +30,20 @@ namespace Expanse
     /// <summary>
     /// Single-point vector 3 distance comparer.
     /// </summary>
-    public class DistanceComparer3D<T> : IComparer<T>
+    public class DistanceComparer<T> : IComparer<T>
     {
         public readonly Vector3 targetPosition;
         public readonly Func<T, Vector3> selector;
 
         public bool OrderByDescending { get; set; }
 
-        public DistanceComparer3D(Vector3 targetPosition, Func<T, Vector3> selector)
+        public DistanceComparer(Vector3 targetPosition, Func<T, Vector3> selector)
         {
             this.targetPosition = targetPosition;
             this.selector = selector;
         }
 
-        public DistanceComparer3D(T targetObj, Func<T, Vector3> selector)
+        public DistanceComparer(T targetObj, Func<T, Vector3> selector)
         {
             this.targetPosition = selector(targetObj);
             this.selector = selector;

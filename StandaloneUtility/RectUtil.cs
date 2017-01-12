@@ -3,7 +3,7 @@
 namespace Expanse
 {
     /// <summary>
-    /// Collection of rect related utility functionality.
+    /// Collection of Rect related utility functionality.
     /// </summary>
     public static class RectUtil
     {
