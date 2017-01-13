@@ -10,40 +10,44 @@ namespace Expanse
     [CustomPropertyDrawer(typeof(PopupAttribute), true)]
     public class PopupDrawer : PropertyDrawer
     {
-        public string[] DisplayedOptions
-        {
-            get { return (attribute as PopupAttribute).DisplayedOptions; }
-            set { (attribute as PopupAttribute).DisplayedOptions = value; }
-        }
-
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
+            PopupAttribute popupAttribute = attribute as PopupAttribute;
+            string[] displayOptions = popupAttribute.DisplayedOptions;
+
             EditorUtil.ApplyTooltip(fieldInfo, label);
 
             ReadOnlyDrawer.ApplyReadOnly(fieldInfo);
 
             EditorGUI.BeginProperty(position, label, property);
 
-            int selectedIndex = 0;
-
             switch (property.propertyType)
             {
                 case SerializedPropertyType.Boolean:
-                    property.boolValue = EditorGUI.Popup(position, label.text, property.boolValue ? 0 : 1, DisplayedOptions) == 0;
-                    break;
+                    {
+                        displayOptions = new string[] { displayOptions[0], displayOptions[1] };
+                        property.boolValue = EditorGUI.Popup(position, label.text, property.boolValue ? 1 : 0, displayOptions) == 1;
+                        break;
+                    }
 
                 case SerializedPropertyType.String:
-                    selectedIndex = DisplayedOptions.Contains(property.stringValue) ? DisplayedOptions.ToList().IndexOf(property.stringValue) : 0;
-                    property.stringValue = DisplayedOptions[EditorGUI.Popup(position, label.text, selectedIndex, DisplayedOptions)];
-                    break;
+                    {
+                        int selectedIndex = displayOptions.Contains(property.stringValue) ? displayOptions.IndexOf(property.stringValue) : 0;
+                        int popupIndex = EditorGUI.Popup(position, label.text, selectedIndex, displayOptions);
+                        property.stringValue = displayOptions[popupIndex];
+                        break;
+                    }
 
                 case SerializedPropertyType.Integer:
-                    selectedIndex = DisplayedOptions.Contains(property.intValue.ToString()) ? DisplayedOptions.ToList().IndexOf(property.intValue.ToString()) : 0;
-                    property.intValue = System.Convert.ToInt32(DisplayedOptions[EditorGUI.Popup(position, label.text, selectedIndex, DisplayedOptions)]);
-                    break;
+                    {
+                        int selectedIndex = property.intValue;
+                        int popupIndex = EditorGUI.Popup(position, label.text, selectedIndex, displayOptions);
+                        property.intValue = popupIndex;
+                        break;
+                    }
 
                 default:
-                    Debug.LogWarning("Unsupported popup type.");
+                    Debug.LogWarningFormat("Unsupported popup type: {0}", property.propertyType);
                     break;
             }
 

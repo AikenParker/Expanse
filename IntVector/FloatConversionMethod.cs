@@ -1,6 +1,6 @@
 ﻿namespace Expanse
 {
-    public enum FloatToIntConversionMethod
+    public enum FloatConversionMethod
     {
         FLOOR,
         CEIL,
