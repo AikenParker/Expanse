@@ -7,6 +7,7 @@ namespace Expanse
     public static class EditorUtil
     {
         static bool prevGUIEnabled;
+        static Color prevGUIBackgroundColor;
 
         /// <summary>
         /// Set the enabled state of the GUI.
@@ -23,6 +24,23 @@ namespace Expanse
         public static void RevertGUIEnabled()
         {
             GUI.enabled = prevGUIEnabled;
+        }
+
+        /// <summary>
+        /// Set the background color of the GUI.
+        /// </summary>
+        public static void SetGUIBackgroundColor(Color color)
+        {
+            prevGUIBackgroundColor = GUI.backgroundColor;
+            GUI.backgroundColor = color;
+        }
+
+        /// <summary>
+        /// Revert back to the previous background color of the GUI.
+        /// </summary>
+        public static void RevertGUIBackgroundColor()
+        {
+            GUI.backgroundColor = prevGUIBackgroundColor;
         }
 
         /// <summary>

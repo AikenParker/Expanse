@@ -21,17 +21,24 @@ namespace Expanse
 
             //
 
-            if (fieldInfo.HasAttribute<RangeAttribute>() && property.propertyType == SerializedPropertyType.Float)
+            if (property.propertyType == SerializedPropertyType.Float && fieldInfo.HasAttribute<RangeAttribute>())
             {
                 RangeAttribute rangeAttribute = fieldInfo.GetAttribute<RangeAttribute>();
 
                 property.floatValue = EditorGUI.Slider(position, label, property.floatValue, rangeAttribute.min, rangeAttribute.max);
             }
-            else if (fieldInfo.HasAttribute<RangeAttribute>() && property.propertyType == SerializedPropertyType.Integer)
+            else if (property.propertyType == SerializedPropertyType.Integer && fieldInfo.HasAttribute<RangeAttribute>())
             {
                 RangeAttribute rangeAttribute = fieldInfo.GetAttribute<RangeAttribute>();
 
                 property.intValue = EditorGUI.IntSlider(position, label, property.intValue, Mathf.FloorToInt(rangeAttribute.min), Mathf.RoundToInt(rangeAttribute.max));
+            }
+            else if (property.propertyType == SerializedPropertyType.Generic && fieldInfo.FieldType == typeof(TypeContainer))
+            {
+                TypeContainerDrawer typeContainerDrawer = new TypeContainerDrawer();
+
+                typeContainerDrawer.OnGUI(position, property, label);
+                
             }
             else
             {

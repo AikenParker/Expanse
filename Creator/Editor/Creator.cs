@@ -13,7 +13,7 @@ namespace Expanse
     public class Creator : ExpanseWindow
     {
         const string DISPLAY_NAME = "Creator";
-        const string NONE_TYPE = "[NONE]";
+        const string NONE_TYPE = "-";
         const BindingFlags BINDING_FLAGS = BindingFlags.Public | BindingFlags.Instance;
 
         const string SCRIPTOBJ_DEFAULT_SAVELOCATION = @"Assets/";
@@ -34,13 +34,12 @@ namespace Expanse
             }
         }
 
-        ScriptObjCreatorData ScriptObjData { get; set; }
-        Vector2 scriptObjFilterScrollPosition;
-
+        Type selectedType;
+        int selectedConstructorIndex;
         Dictionary<Type, List<ConstructorInfo>> constructorCache;
         object[] constructorParams;
 
-        [MenuItem("Window/" + DISPLAY_NAME)]
+        [MenuItem("Expanse/" + DISPLAY_NAME)]
         static void Create()
         {
             Creator window = GetWindow<Creator>();
@@ -52,89 +51,117 @@ namespace Expanse
         {
             base.Initialize();
 
-            ScriptObjData = ScriptObjCreatorData.LoadData();
             constructorCache = new Dictionary<Type, List<ConstructorInfo>>();
-
-            RefreshTypes();
-        }
-
-        protected override void OnEnabled()
-        {
-            if (ScriptObjData == null)
-            {
-                ScriptObjData = ScriptObjCreatorData.LoadData();
-
-                RefreshTypes();
-            }
         }
 
         protected override void OnDrawContent()
         {
-            if (ScriptObjData.IsDirty)
-                ScriptObjData.InitializeLists();
-
-            DrawHeading("FILTER");
-
-            GUILayout.BeginVertical();
-            ScriptObjData.showModules = EditorGUILayout.Foldout(ScriptObjData.showModules, "Module Filter", EditorStyles.foldout);
-            if (ScriptObjData.showModules)
-                ScriptObjData.modulesList.Draw();
-            GUILayout.EndVertical();
-
-            GUILayout.BeginVertical();
-            ScriptObjData.showNamespaces = EditorGUILayout.Foldout(ScriptObjData.showNamespaces, "Namespace Filter", EditorStyles.foldout);
-            if (ScriptObjData.showNamespaces)
-                ScriptObjData.namespacesList.Draw();
-            GUILayout.EndVertical();
-
-            var parentOptions = ScriptObjData.GetParentOptions();
-            int parentIndex = EditorGUILayout.Popup("Parent Filter", ScriptObjData.GetSelectedParentIndex(parentOptions), parentOptions);
-            ScriptObjData.SetSelectedParentIndex(parentOptions, parentIndex);
-
-            DrawHeading("CREATE");
-
-            var typeOptions = ScriptObjData.GetTypeOptions();
-            int typeIndex = EditorGUILayout.Popup("Type", ScriptObjData.GetSelectedTypeIndex(typeOptions), typeOptions);
-            ScriptObjData.SetSelectedTypeIndex(typeOptions, typeIndex);
-
-            Type selectedType = ScriptObjData.GetSelectedType();
-            ConstructorInfo selectedConstructor = null;
-
-            if (selectedType != null)
+            // Draw type selection field
             {
-                var constructors = GetConstructors(selectedType);
+                EditorGUILayout.BeginHorizontal();
 
-                if (!constructors.HasIndexValue(ScriptObjData.selectedConstructorIndex))
-                    ScriptObjData.selectedConstructorIndex = 0;
-
-                selectedConstructor = ListExt.SafeGet(constructors, ScriptObjData.selectedConstructorIndex);
-
-                if (selectedConstructor != null)
+                // Prefix label
                 {
-                    string[] constructorOptions = constructors.Select(x => GetParameterSignatureDisplay(x)).ToArray();
-                    int result = EditorGUILayout.Popup("Constructor", ScriptObjData.selectedConstructorIndex, constructorOptions);
+                    string typeString = selectedType != null ? selectedType.FullName : TypeUtil.NULL_TYPE_NAME;
 
-                    if (result != ScriptObjData.selectedConstructorIndex)
+                    if (!typeString.Equals(TypeUtil.NULL_TYPE_NAME))
                     {
-                        ScriptObjData.selectedConstructorIndex = result;
+                        selectedType = TypeUtil.GetTypeFromName(typeString);
 
-                        selectedConstructor = ListExt.SafeGet(constructors, ScriptObjData.selectedConstructorIndex);
-
-                        SetConstructorParameterDefaults(selectedConstructor);
+                        if (!selectedType.IsAssignableTo(SCRIPTOBJ_TYPE) || selectedType.IsAbstract)
+                        {
+                            selectedType = null;
+                        }
+                    }
+                    else
+                    {
+                        selectedType = null;
                     }
 
-                    ShowConstructorFields(selectedConstructor);
+                    EditorGUILayout.PrefixLabel(new GUIContent("Type"));
+                }
+
+                // Object field
+                {
+                    string typeDisplayName = string.Format("{0} (Type)", selectedType != null ? selectedType.Name : TypeUtil.NULL_TYPE_NAME);
+
+                    EditorGUILayout.LabelField(typeDisplayName, EditorStyles.objectField);
+                }
+
+                EditorGUILayout.EndHorizontal();
+
+                // Thumb texture
+                {
+                    Rect lastRect = GUILayoutUtility.GetLastRect();
+
+                    Rect thumbRect = new Rect(lastRect);
+
+                    int thumbWidth = 18;
+
+                    thumbRect.xMin = lastRect.xMax - thumbWidth;
+
+                    if (GUI.Button(thumbRect, string.Empty, GUIStyle.none))
+                    {
+                        Action<Type> onSelectedTypeChanged = (newType) =>
+                        {
+                            if (newType == null || (newType.IsAssignableTo(SCRIPTOBJ_TYPE) && !newType.IsAbstract))
+                            {
+                                selectedType = newType;
+
+                                this.Repaint();
+                            }
+                        };
+
+                        TypeFinderWindow.Initialize(selectedType, onSelectedTypeChanged, SCRIPTOBJ_TYPE, true);
+                    }
+                }
+            }
+
+            ConstructorInfo selectedConstructor = null;
+
+            // Draw constructor popup and parameters
+            {
+                if (selectedType != null)
+                {
+                    var constructors = GetConstructors(selectedType);
+
+                    if (!constructors.HasIndexValue(selectedConstructorIndex))
+                        selectedConstructorIndex = 0;
+
+                    if (constructors.Count > 0)
+                        selectedConstructor = constructors[selectedConstructorIndex];
+
+                    if (selectedConstructor != null)
+                    {
+                        string[] constructorOptions = constructors.Select(x => GetParameterSignatureDisplay(x)).ToArray();
+
+                        int result = EditorGUILayout.Popup("Constructor", selectedConstructorIndex, constructorOptions);
+
+                        if (result != selectedConstructorIndex)
+                        {
+                            selectedConstructorIndex = result;
+
+                            selectedConstructor = constructors[selectedConstructorIndex];
+
+                            SetConstructorParameterDefaults(selectedConstructor);
+                        }
+
+                        ShowConstructorFields(selectedConstructor);
+                    }
+                    else ShowEmptyConstructorPopup();
                 }
                 else ShowEmptyConstructorPopup();
             }
-            else ShowEmptyConstructorPopup();
 
-            GUI.enabled = selectedType != null && selectedConstructor != null;
-            if (GUILayout.Button("Create", GUILayout.MinHeight(30)))
+            // Draw Create button
             {
-                OnCreateClicked(selectedType);
+                GUI.enabled = selectedType != null && selectedConstructor != null;
+                if (GUILayout.Button("Create", GUILayout.MinHeight(30)))
+                {
+                    OnCreateClicked(selectedType);
+                }
+                GUI.enabled = true;
             }
-            GUI.enabled = true;
         }
 
         private void SetConstructorParameterDefaults(ConstructorInfo constructorInfo)
@@ -190,7 +217,7 @@ namespace Expanse
 
             for (int i = 0; i < constructorParams.Length; i++)
             {
-                if (i == 0) CustomGUI.SplitterLayout();
+                if (i == 0) EditorGUISplitter.SplitterLayout();
 
                 var parameter = parameters[i];
 
@@ -253,14 +280,18 @@ namespace Expanse
                     GUI.enabled = true;
                 }
 
-                if (i == constructorParams.Length - 1) CustomGUI.SplitterLayout();
+                if (i == constructorParams.Length - 1) EditorGUISplitter.SplitterLayout();
             }
         }
 
         private void ShowEmptyConstructorPopup()
         {
+            EditorUtil.SetGUIEnabled(false);
+
             EditorGUILayout.Popup("Constructor", 0, new string[] { NONE_TYPE });
             constructorParams = null;
+
+            EditorUtil.RevertGUIEnabled();
         }
 
         private string GetParameterSignatureDisplay(ConstructorInfo constructorInfo)
@@ -309,38 +340,6 @@ namespace Expanse
             }
         }
 
-        private void DrawHeading(string text)
-        {
-            GUILayout.BeginHorizontal(GUI.skin.box);
-            GUILayout.Label(text, EditorStyles.boldLabel);
-            GUILayout.EndHorizontal();
-        }
-
-        protected override void OnDestroyed()
-        {
-            ScriptObjData.SaveData();
-        }
-
-        private void RefreshTypes()
-        {
-            var assemblies = AppDomain.CurrentDomain.GetAssemblies();
-            var types = assemblies.SelectMany(x => x.GetTypes())
-                .Where(t => t.IsSubclassOf(SCRIPTOBJ_TYPE));
-
-            ScriptObjData.allTypes = types.Where(t => !t.IsAbstract).ToList();
-            ScriptObjData.allAbstractTypes = types.Where(t => t.IsAbstract)
-                .OrderBy(t => t.Name).ToList();
-            ScriptObjData.allAbstractTypes.Insert(0, SCRIPTOBJ_TYPE);
-            ScriptObjData.allModules = types.Select(x => x.Module.Name).Distinct().ToList();
-            ScriptObjData.allModules.Sort();
-            ScriptObjData.allNamespaces = types.Where(x => !string.IsNullOrEmpty(x.Namespace))
-                .Select(x => x.Namespace.Trim()).Distinct().ToList();
-            ScriptObjData.allNamespaces.Sort();
-            ScriptObjData.allNamespaces.Insert(0, NONE_TYPE);
-
-            ScriptObjData.InitializeLists();
-        }
-
         private void OnCreateClicked(Type type)
         {
             ScriptableObject newAsset;
@@ -362,301 +361,12 @@ namespace Expanse
                 AssetDatabase.CreateAsset(newAsset, savePath);
                 AssetDatabase.SaveAssets();
                 AssetDatabase.Refresh();
-                //EditorUtility.FocusProjectWindow();
+
                 Selection.activeObject = newAsset;
             }
             else
             {
                 Debug.LogError("Unable to create an instance of " + type.Name);
-            }
-        }
-
-        [Serializable]
-        public class ScriptObjCreatorData
-        {
-            const string DATA_FILE = "/Editor/Expanse/ScriptObjCreator.json";
-
-            const float CHECK_BOX_WIDTH = 10;
-            const float ELEMENT_HEIGHT_OFFSET = 2f;
-            const float ELEMENT_SPACING = 5f;
-
-            string[] filterPresetOptions = new string[] { "All", "None" };
-
-            [NonSerialized]
-            public List<Type> allTypes;
-            [NonSerialized]
-            public List<Type> allAbstractTypes;
-            [NonSerialized]
-            public List<string> allModules;
-            [NonSerialized]
-            public List<string> allNamespaces;
-
-            [NonSerialized]
-            public List<string> activeTypes;
-
-            public List<string> inactiveModules, inactiveNamespaces;
-            [NonSerialized]
-            public ReorderableList<string> modulesList, namespacesList;
-
-            public string selectedParentType;
-            public string selectedType;
-            public int selectedConstructorIndex;
-
-            public bool showModules, showNamespaces;
-
-            public bool IsDirty { get; private set; }
-
-            public static ScriptObjCreatorData LoadData()
-            {
-                ScriptObjCreatorData dataObj;
-
-                string fullpath = StreamingAssetsUtil.GetFullStreamingAssetFilepath(DATA_FILE);
-                FileInfo dataFileInfo = new FileInfo(fullpath);
-                if (dataFileInfo.Exists)
-                {
-                    string dataFileContents = File.ReadAllText(dataFileInfo.FullName);
-                    dataObj = JsonUtility.FromJson<ScriptObjCreatorData>(dataFileContents);
-                }
-                else
-                {
-                    dataObj = new ScriptObjCreatorData();
-                    dataObj.SetupNew();
-                }
-
-                dataObj.SetupDefaults();
-                return dataObj;
-            }
-
-            private void SetupNew()
-            {
-                selectedParentType = SCRIPTOBJ_TYPE.Name;
-                selectedType = NONE_TYPE;
-
-                inactiveModules = new List<string>();
-                inactiveNamespaces = new List<string>();
-            }
-
-            private void SetupDefaults()
-            {
-                if (inactiveModules == null)
-                    inactiveModules = new List<string>();
-
-                if (inactiveNamespaces == null)
-                    inactiveNamespaces = new List<string>();
-            }
-
-            public void InitializeLists()
-            {
-                IsDirty = false;
-
-                modulesList = new ReorderableList<string>(allModules, "Modules", false, false, false);
-                modulesList.drawElementCallback = OnDrawModuleElement;
-                modulesList.drawHeaderCallback = OnDrawModuleHeader;
-                namespacesList = new ReorderableList<string>(allNamespaces, "Namespaces", false, false, false);
-                namespacesList.drawElementCallback = OnDrawNamespaceElement;
-                namespacesList.drawHeaderCallback = OnDrawNamespaceHeader;
-
-                activeTypes = allTypes.Where((t) =>
-                {
-                    if (!t.IsSubclassOf(GetTypeFromName(allAbstractTypes, selectedParentType)))
-                        return false;
-                    else if (IsModuleInactive(t) || IsNamespaceInactive(t))
-                        return false;
-                    else return true;
-                }).Select(t => t.Name).ToList();
-                activeTypes.Insert(0, NONE_TYPE);
-
-                ValidateSelection();
-            }
-
-            private void OnDrawModuleHeader(Rect rect)
-            {
-                GUI.Label(rect, modulesList.DisplayName);
-                int inactiveCount = inactiveModules.Count;
-                int filterOption = inactiveCount == allModules.Count ? 1 : (inactiveCount == 0 ? 0 : -1);
-                int filterResult = GUI.Toolbar(rect.SplitWidth(2, 2).AddPosition(4, 0), filterOption, filterPresetOptions, EditorStyles.toolbarButton);
-
-                if (filterOption != filterResult)
-                {
-                    switch (filterResult)
-                    {
-                        case 0:
-                            inactiveModules.Clear();
-                            break;
-                        case 1:
-                            inactiveModules.AddRange(allModules);
-                            break;
-                        default: break;
-                    }
-                    IsDirty = true;
-                }
-            }
-
-            private void OnDrawNamespaceHeader(Rect rect)
-            {
-                GUI.Label(rect, namespacesList.DisplayName);
-                int inactiveCount = inactiveNamespaces.Count;
-                int filterOption = inactiveCount == allNamespaces.Count ? 1 : (inactiveCount == 0 ? 0 : -1);
-                int filterResult = GUI.Toolbar(rect.SplitWidth(2, 2).AddPosition(4, 0), filterOption, filterPresetOptions, EditorStyles.toolbarButton);
-
-                if (filterOption != filterResult)
-                {
-                    switch (filterResult)
-                    {
-                        case 0:
-                            inactiveNamespaces.Clear();
-                            break;
-                        case 1:
-                            inactiveNamespaces.AddRange(allNamespaces);
-                            break;
-                        default: break;
-                    }
-                    IsDirty = true;
-                }
-            }
-
-            private void OnDrawModuleElement(Rect rect, int index, bool isActive, bool isFocused)
-            {
-                string value = modulesList[index];
-                bool isChecked = !IsModuleInactive(value);
-
-                Rect sourceRect = new Rect(rect);
-                sourceRect = sourceRect.AddPosition(0, ELEMENT_HEIGHT_OFFSET);
-                Rect checkBoxRect = new Rect(sourceRect);
-                checkBoxRect.width = CHECK_BOX_WIDTH;
-                Rect labelRect = new Rect(sourceRect);
-                labelRect.x += CHECK_BOX_WIDTH + ELEMENT_SPACING;
-                labelRect.width -= CHECK_BOX_WIDTH + ELEMENT_SPACING;
-
-                bool result = GUI.Toggle(checkBoxRect, isChecked, "");
-                GUI.Label(labelRect, value);
-
-                if (result != isChecked)
-                {
-                    if (result)
-                        inactiveModules.Remove(value);
-                    else
-                        inactiveModules.Add(value);
-
-                    IsDirty = true;
-                }
-            }
-
-            private void OnDrawNamespaceElement(Rect rect, int index, bool isActive, bool isFocused)
-            {
-                string value = namespacesList[index];
-                bool isChecked = !IsNamespaceInactive(value);
-
-                Rect sourceRect = new Rect(rect);
-                sourceRect = sourceRect.AddPosition(0, ELEMENT_HEIGHT_OFFSET);
-                Rect checkBoxRect = new Rect(sourceRect);
-                checkBoxRect.width = CHECK_BOX_WIDTH;
-                Rect labelRect = new Rect(sourceRect);
-                labelRect.x += CHECK_BOX_WIDTH + ELEMENT_SPACING;
-                labelRect.width -= CHECK_BOX_WIDTH + ELEMENT_SPACING;
-
-                bool result = GUI.Toggle(checkBoxRect, isChecked, "");
-                GUI.Label(labelRect, value);
-
-                if (result != isChecked)
-                {
-                    if (result)
-                        inactiveNamespaces.Remove(value);
-                    else
-                        inactiveNamespaces.Add(value);
-
-                    IsDirty = true;
-                }
-            }
-
-            private void ValidateSelection()
-            {
-                if (GetSelectedType() == null && !selectedType.Equals(NONE_TYPE))
-                    selectedType = NONE_TYPE;
-
-                if (GetSelectedParentType() == null && !selectedParentType.Equals(SCRIPTOBJ_TYPE.Name))
-                    selectedParentType = SCRIPTOBJ_TYPE.Name;
-            }
-
-            public Type GetTypeFromName(List<Type> typeList, string typeName)
-            {
-                return typeList.Find(x => x.Name.Equals(typeName));
-            }
-
-            public bool IsModuleInactive(Type type)
-            {
-                return inactiveModules.Contains(type.Module.Name);
-            }
-
-            public bool IsModuleInactive(string type)
-            {
-                return inactiveModules.Contains(type);
-            }
-
-            public bool IsNamespaceInactive(Type type)
-            {
-                if (string.IsNullOrEmpty(type.Namespace))
-                    return inactiveNamespaces.Contains(NONE_TYPE);
-                else return inactiveNamespaces.Contains(type.Namespace);
-            }
-
-            public bool IsNamespaceInactive(string type)
-            {
-                return inactiveNamespaces.Contains(type);
-            }
-
-            public void SaveData()
-            {
-                string fullpath = StreamingAssetsUtil.GetFullStreamingAssetFilepath(DATA_FILE);
-                string dataFileContents = JsonUtility.ToJson(this, true);
-                File.WriteAllText(fullpath, dataFileContents);
-            }
-
-            public Type GetSelectedType()
-            {
-                if (!selectedType.Equals(NONE_TYPE))
-                {
-                    Type type = GetTypeFromName(allTypes, selectedType);
-                    return activeTypes.Contains(type.Name) ? type : null;
-                }
-                else return null;
-            }
-
-            public Type GetSelectedParentType()
-            {
-                return GetTypeFromName(allAbstractTypes, selectedParentType);
-            }
-
-            public string[] GetParentOptions()
-            {
-                return allAbstractTypes.Select(t => t.Name).ToArray();
-            }
-
-            public int GetSelectedParentIndex(string[] options)
-            {
-                return options.IndexOf(selectedParentType);
-            }
-
-            public void SetSelectedParentIndex(string[] options, int index)
-            {
-                selectedParentType = options[index];
-
-                IsDirty = true;
-            }
-
-            public string[] GetTypeOptions()
-            {
-                return activeTypes.ToArray();
-            }
-
-            public int GetSelectedTypeIndex(string[] options)
-            {
-                return options.IndexOf(selectedType);
-            }
-
-            public void SetSelectedTypeIndex(string[] options, int index)
-            {
-                selectedType = options[index];
             }
         }
     }

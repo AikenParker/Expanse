@@ -13,6 +13,7 @@ namespace Expanse
             public const int ENUM_FLAGS = 3;
             public const int POPUP = 2;
             public const int REORDERABLE = 4;
+            public const int TYPE_CONSTRAINT = 2;
         }
     }
 }

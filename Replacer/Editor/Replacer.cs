@@ -13,7 +13,7 @@ namespace Expanse
         public GameObject Prefab;
         public GameObject[] ReplaceObjects;
 
-        [MenuItem("Tools/Replacer")]
+        [MenuItem("Expanse/Replacer")]
         static void CreateWizard()
         {
             var replaceGameObjects = ScriptableWizard.DisplayWizard<Replacer>("Replace GameObjects", "Replace");

@@ -27,7 +27,7 @@ namespace Expanse
 
             foreach (Input elem in source)
             {
-                string elemName = hasSelector ? selector(elem).ToString() : elem.ToString();
+                string elemName = elem != null ? (hasSelector ? selector(elem).ToString() : elem.ToString()) : "null";
 
                 string message;
 
