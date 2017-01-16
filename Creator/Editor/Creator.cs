@@ -12,18 +12,17 @@ namespace Expanse
 {
     public class Creator : ExpanseWindow
     {
-        const string DISPLAY_NAME = "Creator";
-        const string NONE_TYPE = "-";
-        const BindingFlags BINDING_FLAGS = BindingFlags.Public | BindingFlags.Instance;
+        private const BindingFlags CONSTRUCTOR_BINDING_FLAGS = BindingFlags.Public | BindingFlags.Instance;
 
-        const string SCRIPTOBJ_DEFAULT_SAVELOCATION = @"Assets/";
-        static Type SCRIPTOBJ_TYPE = typeof(ScriptableObject);
+        private const string SCRIPTOBJ_DEFAULT_SAVELOCATION = @"Assets/";
+
+        private readonly static Type SCRIPTOBJ_TYPE = typeof(ScriptableObject);
 
         protected override string DisplayName
         {
             get
             {
-                return DISPLAY_NAME;
+                return "Creator";
             }
         }
         protected override string Tooltip
@@ -36,22 +35,15 @@ namespace Expanse
 
         Type selectedType;
         int selectedConstructorIndex;
-        Dictionary<Type, List<ConstructorInfo>> constructorCache;
+        Dictionary<Type, List<ConstructorInfo>> constructorCache = new Dictionary<Type, List<ConstructorInfo>>();
         object[] constructorParams;
 
-        [MenuItem("Expanse/" + DISPLAY_NAME)]
+        [MenuItem("Expanse/Creator")]
         static void Create()
         {
             Creator window = GetWindow<Creator>();
 
             window.Initialize();
-        }
-
-        protected override void Initialize()
-        {
-            base.Initialize();
-
-            constructorCache = new Dictionary<Type, List<ConstructorInfo>>();
         }
 
         protected override void OnDrawContent()
@@ -288,7 +280,7 @@ namespace Expanse
         {
             EditorUtil.SetGUIEnabled(false);
 
-            EditorGUILayout.Popup("Constructor", 0, new string[] { NONE_TYPE });
+            EditorGUILayout.Popup("Constructor", 0, new string[] { "-" });
             constructorParams = null;
 
             EditorUtil.RevertGUIEnabled();
@@ -332,7 +324,7 @@ namespace Expanse
             }
             else
             {
-                var constructors = type.GetConstructors(BINDING_FLAGS)
+                var constructors = type.GetConstructors(CONSTRUCTOR_BINDING_FLAGS)
                     .Where(x => !x.ContainsGenericParameters && !x.IsGenericMethod)
                     .OrderBy(x => x.GetParameters().Length).ToList();
                 constructorCache.Add(type, constructors);
@@ -347,7 +339,7 @@ namespace Expanse
             if (constructorParams == null || !constructorParams.Any())
                 newAsset = CreateInstance(type);
             else
-                newAsset = (ScriptableObject)Activator.CreateInstance(type, BINDING_FLAGS, Type.DefaultBinder, constructorParams, CultureInfo.CurrentCulture);
+                newAsset = (ScriptableObject)Activator.CreateInstance(type, CONSTRUCTOR_BINDING_FLAGS, Type.DefaultBinder, constructorParams, CultureInfo.CurrentCulture);
 
             if (newAsset != null)
             {

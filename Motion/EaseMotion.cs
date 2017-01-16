@@ -33,8 +33,8 @@ namespace Expanse
 
             ApplyValue(value);
 
-            bool hasCompleted = (PlaybackRate > 0 && rawCurrentTime >= Duration)
-                || (PlaybackRate < 0 && rawCurrentTime <= 0f);
+            //bool hasCompleted = (PlaybackRate > 0 && rawCurrentTime >= Duration)
+            //    || (PlaybackRate < 0 && rawCurrentTime <= 0f);
         }
     }
 }
