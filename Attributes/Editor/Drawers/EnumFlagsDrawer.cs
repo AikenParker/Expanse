@@ -1,8 +1,14 @@
-﻿using UnityEngine;using System.Collections;using System.Collections.Generic;using System.Linq;
+﻿using UnityEngine;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEditor;
 
 namespace Expanse
 {
+    /// <summary>
+    /// Custom drawer for EnumFlagsAttribute.
+    /// </summary>
     [CustomPropertyDrawer(typeof(EnumFlagsAttribute))]
     public class EnumFlagsAttributeDrawer : PropertyDrawer
     {

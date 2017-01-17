@@ -2,6 +2,9 @@
 
 namespace Expanse
 {
+    /// <summary>
+    /// Custom inspector for CallBackRelay.
+    /// </summary>
     [CustomEditor(typeof(CallBackRelay), true)]
     public class CallBackRelayInspector : Editor
     {

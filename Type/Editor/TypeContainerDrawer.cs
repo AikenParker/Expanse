@@ -7,6 +7,9 @@ using UnityEngine;
 
 namespace Expanse
 {
+    /// <summary>
+    /// Custom drawer for TypeContainer.
+    /// </summary>
     [CustomPropertyDrawer(typeof(TypeContainer))]
     public class TypeContainerDrawer : PropertyDrawer
     {

@@ -3,6 +3,9 @@ using UnityEngine;
 
 namespace Expanse
 {
+    /// <summary>
+    /// Custom inspector for SerializedTimerInspector.
+    /// </summary>
     [CustomEditor(typeof(SerializedTimer), true)]
     public class SerializedTimerInspector : Editor
     {

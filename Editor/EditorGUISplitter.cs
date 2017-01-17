@@ -7,6 +7,9 @@ using UnityEditor;
 
 namespace Expanse
 {
+    /// <summary>
+    /// Draws a horizontal line for use in editor GUI.
+    /// </summary>
     public static partial class EditorGUISplitter
     {
         public static readonly GUIStyle splitterStyle;

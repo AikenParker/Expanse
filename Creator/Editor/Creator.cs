@@ -10,6 +10,9 @@ using UnityEngine;
 
 namespace Expanse
 {
+    /// <summary>
+    /// Creator editor utility tool window. Able to create a ScriptableObject of any type using any constructor.
+    /// </summary>
     public class Creator : ExpanseWindow
     {
         private const BindingFlags CONSTRUCTOR_BINDING_FLAGS = BindingFlags.Public | BindingFlags.Instance;
@@ -278,12 +281,12 @@ namespace Expanse
 
         private void ShowEmptyConstructorPopup()
         {
-            EditorUtil.SetGUIEnabled(false);
+            EditorUtil.SetGuiEnabled(false);
 
             EditorGUILayout.Popup("Constructor", 0, new string[] { "-" });
             constructorParams = null;
 
-            EditorUtil.RevertGUIEnabled();
+            EditorUtil.RevertGuiEnabled();
         }
 
         private string GetParameterSignatureDisplay(ConstructorInfo constructorInfo)

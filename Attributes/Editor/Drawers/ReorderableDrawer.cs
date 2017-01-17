@@ -8,7 +8,11 @@ using UnityEngine;
 
 namespace Expanse
 {
+    /// <summary>
+    /// Custom drawer for ReorderableAttribute.
+    /// </summary>
     [CustomPropertyDrawer(typeof(ReorderableAttribute))]
+    [Obsolete("Incomplete | Not functional")]
     public class ReorderableDrawer : PropertyDrawer
     {
         static Rect firstRect;

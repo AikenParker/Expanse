@@ -8,6 +8,9 @@ using UnityEditor;
 
 namespace Expanse
 {
+    /// <summary>
+    /// Base class for any Expanse editor windows.
+    /// </summary>
     public abstract class ExpanseWindow : EditorWindow
     {
         protected virtual string DisplayName

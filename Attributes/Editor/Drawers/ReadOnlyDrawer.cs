@@ -8,6 +8,9 @@ using System;
 
 namespace Expanse
 {
+    /// <summary>
+    /// Custom drawer for ReadOnlyAttribute.
+    /// </summary>
     [CustomPropertyDrawer(typeof(ReadOnlyAttribute))]
     public class ReadOnlyDrawer : PropertyDrawer
     {
@@ -38,7 +41,7 @@ namespace Expanse
                 TypeContainerDrawer typeContainerDrawer = new TypeContainerDrawer();
 
                 typeContainerDrawer.OnGUI(position, property, label);
-                
+
             }
             else
             {
@@ -66,12 +69,12 @@ namespace Expanse
             if (fieldInfo.TryGetAttribute(out readOnlyAttribute))
                 isReadOnly = readOnlyAttribute.IsReadOnly;
 
-            EditorUtil.SetGUIEnabled(!isReadOnly);
+            EditorUtil.SetGuiEnabled(!isReadOnly);
         }
 
         public static void RevertReadOnly()
         {
-            EditorUtil.RevertGUIEnabled();
+            EditorUtil.RevertGuiEnabled();
         }
     }
 }

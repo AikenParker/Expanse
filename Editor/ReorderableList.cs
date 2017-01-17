@@ -9,6 +9,9 @@ using System.Collections;
 
 namespace Expanse
 {
+    /// <summary>
+    /// Generic editor reorderable list wrapper.
+    /// </summary>
     public class ReorderableList<T> : ReorderableList
     {
         public string DisplayName { get; set; }

@@ -7,6 +7,9 @@ using System.Linq;
 
 namespace Expanse
 {
+    /// <summary>
+    /// Custom drawer for PopupAttribute.
+    /// </summary>
     [CustomPropertyDrawer(typeof(PopupAttribute), true)]
     public class PopupDrawer : PropertyDrawer
     {

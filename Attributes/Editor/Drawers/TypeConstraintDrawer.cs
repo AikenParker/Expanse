@@ -8,6 +8,9 @@ using System;
 
 namespace Expanse
 {
+    /// <summary>
+    /// Custom drawer for TypeConstraintAttribute.
+    /// </summary>
     [CustomPropertyDrawer(typeof(TypeConstraintAttribute))]
     public class TypeConstraintDrawer : PropertyDrawer
     {

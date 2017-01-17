@@ -4,6 +4,9 @@ using System.Collections;
 
 namespace Expanse
 {
+    /// <summary>
+    /// Replacer editor utility tool. Able to replace a selection of objects with a prefab.
+    /// </summary>
     public class Replacer : ScriptableWizard
     {
         public bool keepNames = true;
