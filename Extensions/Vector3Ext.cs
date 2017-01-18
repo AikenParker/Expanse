@@ -1,19 +1,18 @@
 ﻿using UnityEngine;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
-using System.Diagnostics;
-using System.Text;
 
 namespace Expanse
 {
     /// <summary>
-    /// A collection of Vector related extension methods.
+    /// A collection of Vector3 related extension methods.
     /// </summary>
-    public static class VectorExt
+    public static class Vector3Ext
     {
+        /// <summary>
+        /// Returns the same Vector with selected components zeroed out.
+        /// </summary>
         public static Vector3 ZeroValues(this Vector3 source, DimensionFlags3D dims)
         {
             if (dims.IsFlagSet(DimensionFlags3D.X))
@@ -22,9 +21,13 @@ namespace Expanse
                 source.y = 0;
             if (dims.IsFlagSet(DimensionFlags3D.Z))
                 source.z = 0;
+
             return source;
         }
 
+        /// <summary>
+        /// Sets selected components of a Vector to a value.
+        /// </summary>
         public static Vector3 SetValues(this Vector3 source, float value, DimensionFlags3D dims = DimensionFlags3D.XYZ)
         {
             if (dims.IsFlagSet(DimensionFlags3D.X))
@@ -33,34 +36,37 @@ namespace Expanse
                 source.y = value;
             if (dims.IsFlagSet(DimensionFlags3D.Z))
                 source.z = value;
+
             return source;
         }
 
+        /// <summary>
+        /// Creates a new Vector with set X.
+        /// </summary>
         public static Vector3 WithX(this Vector3 source, float x)
         {
             return new Vector3(x, source.y, source.z);
         }
 
+        /// <summary>
+        /// Creates a new Vector with set Y.
+        /// </summary>
         public static Vector3 WithY(this Vector3 source, float y)
         {
             return new Vector3(source.x, y, source.z);
         }
 
+        /// <summary>
+        /// Creates a new Vector with set Z.
+        /// </summary>
         public static Vector3 WithZ(this Vector3 source, float z)
         {
             return new Vector3(source.x, source.y, z);
         }
 
-        public static Vector2 WithX(this Vector2 source, float x)
-        {
-            return new Vector2(x, source.y);
-        }
-
-        public static Vector2 WithY(this Vector2 source, float y)
-        {
-            return new Vector2(source.x, y);
-        }
-
+        /// <summary>
+        /// Converts a Vector3 into Vector2 by ignoring a selected dimension value.
+        /// </summary>
         public static Vector2 ToVector2(this Vector3 source, DimensionTypes3D ignoreDim = DimensionTypes3D.Z)
         {
             switch (ignoreDim)
@@ -76,38 +82,30 @@ namespace Expanse
             }
         }
 
-        public static Vector3 ToVector3(this Vector2 source, DimensionTypes3D ignoreDim = DimensionTypes3D.Z)
+        /// <summary>
+        /// Converts a Vector3 into Vector4 by ignoring a selected dimension value.
+        /// </summary>
+        public static Vector4 ToVector4(this Vector3 source, DimensionTypes4D ignoreDim = DimensionTypes4D.W)
         {
             switch (ignoreDim)
             {
-                case DimensionTypes3D.Z:
-                    return new Vector3(source.x, source.y, 0f);
-                case DimensionTypes3D.Y:
-                    return new Vector3(source.x, 0f, source.y);
-                case DimensionTypes3D.X:
-                    return new Vector3(0f, source.y, source.x);
+                case DimensionTypes4D.W:
+                    return new Vector4(source.x, source.y, source.z, 0f);
+                case DimensionTypes4D.Z:
+                    return new Vector4(source.x, source.y, 0f, source.z);
+                case DimensionTypes4D.Y:
+                    return new Vector4(source.x, 0f, source.z, source.y);
+                case DimensionTypes4D.X:
+                    return new Vector4(0f, source.y, source.z, source.x);
                 default:
                     throw new InvalidArgumentException("ignoreDim");
             }
         }
 
         /// <summary>
-        /// Rotates a point around a center point by an angle.
+        /// Calculates the total length of a set of Vectors by added the distance to eachother sequentially.
         /// </summary>
-        /// <param name="angle">In degrees</param>
-        public static Vector2 RotateAroundCenter(this Vector2 point, Vector2 center, float angle)
-        {
-            float angleRad = Mathf.Deg2Rad * angle;
-            float cosTheta = Mathf.Cos(angleRad);
-            float sinTheta = Mathf.Sin(angleRad);
-
-            float x = cosTheta * (point.x - center.x) - sinTheta * (point.y - center.y) + center.x;
-            float y = sinTheta * (point.x - center.x) + cosTheta * (point.y - center.y) + center.y;
-
-            return new Vector2(x, y);
-        }
-
-        public static float TotalLength(this IList<Vector3> source)
+        public static float CalculateTotalLength(this IList<Vector3> source)
         {
             if (source == null)
                 throw new NullReferenceException("source");
@@ -116,27 +114,15 @@ namespace Expanse
 
             for (int i = 1; i < source.Count; i++)
             {
-                totalLength += Vector3.Distance(source[i - 1], source[i]);
+                totalLength += (source[i - 1] - source[i]).magnitude;
             }
 
             return totalLength;
         }
 
-        public static float TotalLength(this IList<Vector2> source)
-        {
-            if (source == null)
-                throw new NullReferenceException("source");
-
-            float totalLength = 0f;
-
-            for (int i = 1; i < source.Count; i++)
-            {
-                totalLength += Vector2.Distance(source[i - 1], source[i]);
-            }
-
-            return totalLength;
-        }
-
+        /// <summary>
+        /// Calculates the average Vector from a set of Vectors.
+        /// </summary>
         public static Vector3 Average(this IEnumerable<Vector3> source)
         {
             if (source == null)
@@ -160,41 +146,10 @@ namespace Expanse
             return Vector3.zero;
         }
 
-        public static Vector2 Average(this IEnumerable<Vector2> source)
-        {
-            if (source == null)
-                throw new NullReferenceException("source");
-
-            Vector2 sum = Vector2.zero;
-            long count = 0;
-
-            checked
-            {
-                foreach (Vector2 elem in source)
-                {
-                    sum += elem;
-                    count++;
-                }
-            }
-
-            if (count > 0)
-                return sum / count;
-
-            return Vector2.zero;
-        }
-
+        /// <summary>
+        /// Calculates the average Vector from a set of Vectors selected from another set.
+        /// </summary>
         public static Vector3 Average<T>(this IEnumerable<T> source, Func<T, Vector3> selector)
-        {
-            if (source == null)
-                throw new NullReferenceException("source");
-
-            if (selector == null)
-                throw new NullReferenceException("selector");
-
-            return source.Select(selector).Average();
-        }
-
-        public static Vector2 Average<T>(this IEnumerable<T> source, Func<T, Vector2> selector)
         {
             if (source == null)
                 throw new NullReferenceException("source");

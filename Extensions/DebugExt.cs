@@ -1682,10 +1682,10 @@ namespace Expanse
 #if UNITY_EDITOR
             Vector2 halfSize = size * 0.5f;
 
-            Vector2 tl = (position + new Vector2(-halfSize.x, -halfSize.y)).RotateAroundCenter(position, angle);
-            Vector2 tr = (position + new Vector2(halfSize.x, -halfSize.y)).RotateAroundCenter(position, angle);
-            Vector2 bl = (position + new Vector2(-halfSize.x, halfSize.y)).RotateAroundCenter(position, angle);
-            Vector2 br = (position + new Vector2(halfSize.x, halfSize.y)).RotateAroundCenter(position, angle);
+            Vector2 tl = Vector2Util.RotateAroundCenter(position + new Vector2(-halfSize.x, -halfSize.y), position, angle);
+            Vector2 tr = Vector2Util.RotateAroundCenter(position + new Vector2(halfSize.x, -halfSize.y), position, angle);
+            Vector2 bl = Vector2Util.RotateAroundCenter(position + new Vector2(-halfSize.x, halfSize.y), position, angle);
+            Vector2 br = Vector2Util.RotateAroundCenter(position + new Vector2(halfSize.x, halfSize.y), position, angle);
 
             Debug.DrawLine(tl, tr, color, duration, depthTest);
             Debug.DrawLine(tr, br, color, duration, depthTest);
