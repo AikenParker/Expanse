@@ -4,7 +4,7 @@ using UnityEngine;
 namespace Expanse
 {
     /// <summary>
-    /// A collection of Color related extension methods and properties.
+    /// A collection of Color related extension methods.
     /// </summary>
     public static class ColorExt
     {

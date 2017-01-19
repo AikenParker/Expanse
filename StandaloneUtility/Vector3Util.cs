@@ -14,11 +14,11 @@ namespace Expanse
         public static Vector3 Create(float value, DimensionFlags3D dims = DimensionFlags3D.XYZ)
         {
             Vector3 vec = Vector3.zero;
-            if (dims.IsFlagSet(DimensionFlags3D.X))
+            if (dims.HasFlag(DimensionFlags3D.X))
                 vec.x = value;
-            if (dims.IsFlagSet(DimensionFlags3D.Y))
+            if (dims.HasFlag(DimensionFlags3D.Y))
                 vec.y = value;
-            if (dims.IsFlagSet(DimensionFlags3D.Z))
+            if (dims.HasFlag(DimensionFlags3D.Z))
                 vec.z = value;
 
             return vec;

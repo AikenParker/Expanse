@@ -14,9 +14,9 @@ namespace Expanse
         public static Vector2 Create(float value, DimensionFlags2D dims = DimensionFlags2D.XY)
         {
             Vector2 vec = Vector2.zero;
-            if (dims.IsFlagSet(DimensionFlags2D.X))
+            if (dims.HasFlag(DimensionFlags2D.X))
                 vec.x = value;
-            if (dims.IsFlagSet(DimensionFlags2D.Y))
+            if (dims.HasFlag(DimensionFlags2D.Y))
                 vec.y = value;
 
             return vec;

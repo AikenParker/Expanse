@@ -14,13 +14,13 @@ namespace Expanse
         public static Vector4 Create(float value, DimensionFlags4D dims = DimensionFlags4D.XYZW)
         {
             Vector4 vec = Vector4.zero;
-            if (dims.IsFlagSet(DimensionFlags4D.X))
+            if (dims.HasFlag(DimensionFlags4D.X))
                 vec.x = value;
-            if (dims.IsFlagSet(DimensionFlags4D.Y))
+            if (dims.HasFlag(DimensionFlags4D.Y))
                 vec.y = value;
-            if (dims.IsFlagSet(DimensionFlags4D.Z))
+            if (dims.HasFlag(DimensionFlags4D.Z))
                 vec.z = value;
-            if (dims.IsFlagSet(DimensionFlags4D.W))
+            if (dims.HasFlag(DimensionFlags4D.W))
                 vec.w = value;
 
             return vec;

@@ -106,6 +106,18 @@ namespace Expanse
         }
 
         /// <summary>
+        /// Adds multiple instances of <typeparamref name="T"/> to the pool.
+        /// </summary>
+        /// <param name="items"></param>
+        public virtual void AddRange(IEnumerable<T> items)
+        {
+            foreach (T item in items)
+            {
+                this.Add(item);
+            }
+        }
+
+        /// <summary>
         /// Returns a <typeparamref name="T"/> instance from the pool and removes it.
         /// </summary>
         public virtual T Next()
@@ -211,6 +223,9 @@ namespace Expanse
             return false;
         }
 
+        /// <summary>
+        /// Sets all item callbacks if they are not null in which case the default callback is set.
+        /// </summary>
         protected void SetCallbacks(Func<T, T> itemGenerator, Action<T> onAddItem, Action<T> onGetItem, Action<T> onRemoveItem)
         {
             this.ItemGenerator = itemGenerator ?? DefaultItemGenerator;

@@ -15,11 +15,11 @@ namespace Expanse
         /// </summary>
         public static Vector3 ZeroValues(this Vector3 source, DimensionFlags3D dims)
         {
-            if (dims.IsFlagSet(DimensionFlags3D.X))
+            if (dims.HasFlag(DimensionFlags3D.X))
                 source.x = 0;
-            if (dims.IsFlagSet(DimensionFlags3D.Y))
+            if (dims.HasFlag(DimensionFlags3D.Y))
                 source.y = 0;
-            if (dims.IsFlagSet(DimensionFlags3D.Z))
+            if (dims.HasFlag(DimensionFlags3D.Z))
                 source.z = 0;
 
             return source;
@@ -30,11 +30,11 @@ namespace Expanse
         /// </summary>
         public static Vector3 SetValues(this Vector3 source, float value, DimensionFlags3D dims = DimensionFlags3D.XYZ)
         {
-            if (dims.IsFlagSet(DimensionFlags3D.X))
+            if (dims.HasFlag(DimensionFlags3D.X))
                 source.x = value;
-            if (dims.IsFlagSet(DimensionFlags3D.Y))
+            if (dims.HasFlag(DimensionFlags3D.Y))
                 source.y = value;
-            if (dims.IsFlagSet(DimensionFlags3D.Z))
+            if (dims.HasFlag(DimensionFlags3D.Z))
                 source.z = value;
 
             return source;

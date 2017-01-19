@@ -15,13 +15,13 @@ namespace Expanse
         /// </summary>
         public static Vector4 ZeroValues(this Vector4 source, DimensionFlags4D dims)
         {
-            if (dims.IsFlagSet(DimensionFlags4D.X))
+            if (dims.HasFlag(DimensionFlags4D.X))
                 source.x = 0;
-            if (dims.IsFlagSet(DimensionFlags4D.Y))
+            if (dims.HasFlag(DimensionFlags4D.Y))
                 source.y = 0;
-            if (dims.IsFlagSet(DimensionFlags4D.Z))
+            if (dims.HasFlag(DimensionFlags4D.Z))
                 source.z = 0;
-            if (dims.IsFlagSet(DimensionFlags4D.W))
+            if (dims.HasFlag(DimensionFlags4D.W))
                 source.w = 0;
 
             return source;
@@ -32,13 +32,13 @@ namespace Expanse
         /// </summary>
         public static Vector4 SetValues(this Vector4 source, float value, DimensionFlags4D dims = DimensionFlags4D.XYZW)
         {
-            if (dims.IsFlagSet(DimensionFlags4D.X))
+            if (dims.HasFlag(DimensionFlags4D.X))
                 source.x = value;
-            if (dims.IsFlagSet(DimensionFlags4D.Y))
+            if (dims.HasFlag(DimensionFlags4D.Y))
                 source.y = value;
-            if (dims.IsFlagSet(DimensionFlags4D.Z))
+            if (dims.HasFlag(DimensionFlags4D.Z))
                 source.z = value;
-            if (dims.IsFlagSet(DimensionFlags4D.W))
+            if (dims.HasFlag(DimensionFlags4D.W))
                 source.w = value;
 
             return source;

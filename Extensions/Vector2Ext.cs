@@ -15,9 +15,9 @@ namespace Expanse
         /// </summary>
         public static Vector2 ZeroValues(this Vector2 source, DimensionFlags2D dims)
         {
-            if (dims.IsFlagSet(DimensionFlags2D.X))
+            if (dims.HasFlag(DimensionFlags2D.X))
                 source.x = 0;
-            if (dims.IsFlagSet(DimensionFlags2D.Y))
+            if (dims.HasFlag(DimensionFlags2D.Y))
                 source.y = 0;
 
             return source;
@@ -28,9 +28,9 @@ namespace Expanse
         /// </summary>
         public static Vector2 SetValues(this Vector2 source, float value, DimensionFlags2D dims = DimensionFlags2D.XY)
         {
-            if (dims.IsFlagSet(DimensionFlags2D.X))
+            if (dims.HasFlag(DimensionFlags2D.X))
                 source.x = value;
-            if (dims.IsFlagSet(DimensionFlags2D.Y))
+            if (dims.HasFlag(DimensionFlags2D.Y))
                 source.y = value;
 
             return source;

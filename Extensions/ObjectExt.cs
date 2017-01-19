@@ -70,9 +70,11 @@ namespace Expanse
         /// </summary>
         public static bool EqualsAny<T>(this T source, params T[] comparisons)
         {
-            foreach (T item in comparisons)
-                if (source.Equals(item))
+            for (int i = 0; i < comparisons.Length; i++)
+            {
+                if (source.Equals(comparisons[i]))
                     return true;
+            }
 
             return false;
         }
