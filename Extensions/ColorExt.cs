@@ -39,7 +39,7 @@ namespace Expanse
         /// <param name="amount">Value from 0 to 1 describing how much to darken the color</param>
         public static Color Darken(this Color source, float amount)
         {
-            return Color.Lerp(source, Color.white.WithAlpha(source.a), amount);
+            return Color.Lerp(source, Color.black.WithAlpha(source.a), amount);
         }
 
         /// <summary>

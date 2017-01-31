@@ -13,55 +13,6 @@ namespace Expanse
     public static class IEnumerableExt
     {
         /// <summary>
-        /// Logs a collection of objects.
-        /// TODO: Place in DLL and allow custom string formatting.
-        /// </summary>
-        public static void Log<Input, Output>(this IEnumerable<Input> source, string prefix = null, Func<Input, Output> selector = null, LogType logType = LogType.Log)
-        {
-            if (source == null)
-                throw new ArgumentNullException("source");
-
-            int index = 0;
-
-            bool hasSelector = selector != null;
-
-            foreach (Input elem in source)
-            {
-                string elemName = elem != null ? (hasSelector ? selector(elem).ToString() : elem.ToString()) : "null";
-
-                string message;
-
-                if (!string.IsNullOrEmpty(prefix))
-                    message = string.Format("{0} | {1} {2}", ++index, prefix, elemName);
-                else
-                    message = string.Format("{0} | {1}", ++index, elemName);
-
-                switch (logType)
-                {
-                    case LogType.Log:
-                        Debug.Log(message, elem as UnityEngine.Object);
-                        break;
-
-                    case LogType.Warning:
-                        Debug.LogWarning(message, elem as UnityEngine.Object);
-                        break;
-
-                    case LogType.Error:
-                        Debug.LogError(message, elem as UnityEngine.Object);
-                        break;
-
-                    case LogType.Exception:
-                        Debug.LogException(new UnityException(message), elem as UnityEngine.Object);
-                        break;
-
-                    case LogType.Assert:
-                        Debug.LogAssertion(message, elem as UnityEngine.Object);
-                        break;
-                }
-            }
-        }
-
-        /// <summary>
         /// Determines if all objects in souce are not equal to one another.
         /// </summary>
         public static bool IsUnique<T>(this IEnumerable<T> source)

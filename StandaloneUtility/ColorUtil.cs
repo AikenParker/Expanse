@@ -81,6 +81,10 @@ namespace Expanse
                 case GrayscaleMethod.AVERAGE:
                     value = (color.r + color.g + color.b) / 3;
                     break;
+
+                case GrayscaleMethod.UNITY:
+                    value = color.grayscale;
+                    break;
             }
 
             return new Color(value, value, value, color.a);
@@ -101,7 +105,12 @@ namespace Expanse
             /// <summary>
             /// Averages the values of a color.
             /// </summary>
-            AVERAGE
+            AVERAGE,
+
+            /// <summary>
+            /// Uses the Unity defined Color.grayscale value.
+            /// </summary>
+            UNITY
         }
     }
 }
