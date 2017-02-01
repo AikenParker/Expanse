@@ -35,5 +35,21 @@ namespace Expanse
             source.localRotation = Quaternion.identity;
             source.localScale = Vector3.one;
         }
+
+        /// <summary>
+        /// Performs a breadth-first search to find a deep child transform with name.
+        /// </summary>
+        public static Transform FindDeepChildByBreadth(this Transform parent, string name)
+        {
+            return TransformUtil.FindDeepChildByBreadth(parent, name);
+        }
+
+        /// <summary>
+        /// Performs a depth-first search to find a deep child transform with name.
+        /// </summary>
+        public static Transform FindDeepChildByDepth(this Transform parent, string name)
+        {
+            return TransformUtil.FindDeepChildByDepth(parent, name);
+        }
     }
 }

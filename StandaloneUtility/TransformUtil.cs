@@ -60,5 +60,45 @@ namespace Expanse
 
             return lastTransform;
         }
+
+        /// <summary>
+        /// Performs a breadth-first search to find a deep child transform with name.
+        /// </summary>
+        public static Transform FindDeepChildByBreadth(Transform parent, string name)
+        {
+            Transform result = parent.Find(name);
+
+            if (result != null)
+                return result;
+
+            foreach (Transform child in parent)
+            {
+                result = FindDeepChildByBreadth(child, name);
+
+                if (result != null)
+                    return result;
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Performs a depth-first search to find a deep child transform with name.
+        /// </summary>
+        public static Transform FindDeepChildByDepth(Transform parent, string name)
+        {
+            foreach (Transform child in parent)
+            {
+                if (child.name == name)
+                    return child;
+
+                Transform result = child.FindDeepChildByDepth(name);
+
+                if (result != null)
+                    return result;
+            }
+
+            return null;
+        }
     }
 }
