@@ -139,7 +139,7 @@ namespace Expanse
         /// Logs a collection of objects.
         /// </summary>
         [Conditional(CONDITIONAL)]
-        public static void LogIterator<Input, Output>(IEnumerable<Input> source, string logFormat = null, LogType logType = LogType.Log, Func<Input, Output> selector = null, StackTraceLogType stackTraceLogType = StackTraceLogType.ScriptOnly)
+        public static void LogIterator<Input, Output>(IEnumerable<Input> source, string logFormat = null, LogType logType = LogType.Log, Func<Input, Output> selector = null)
         {
             if (source == null)
                 throw new ArgumentNullException("source");
@@ -194,7 +194,7 @@ namespace Expanse
                     index++;
                 }
 
-                LogImpl(logBuilder.ToString(), source as UnityEngine.Object, logType, stackTraceLogType);
+                LogImpl(logBuilder.ToString(), source as UnityEngine.Object, logType);
             }
             else
             {
@@ -227,7 +227,7 @@ namespace Expanse
                         message = message.Replace(timeFormatTag, timeStr);
                     }
 
-                    LogImpl(message, item as UnityEngine.Object, logType, stackTraceLogType);
+                    LogImpl(message, item as UnityEngine.Object, logType);
 
                     index++;
                 }
@@ -238,7 +238,7 @@ namespace Expanse
         /// Logs an object.
         /// </summary>
         [Conditional(CONDITIONAL)]
-        public static void Log<Input, Output>(Input source, string logFormat = null, LogType logType = LogType.Log, Func<Input, Output> selector = null, StackTraceLogType stackTraceLogType = StackTraceLogType.ScriptOnly)
+        public static void Log<Input, Output>(Input source, string logFormat = null, LogType logType = LogType.Log, Func<Input, Output> selector = null)
         {
             logFormat = logFormat ?? DefaultLogFormat;
 
@@ -264,14 +264,14 @@ namespace Expanse
                 message = message.Replace(timeFormatTag, timeStr);
             }
 
-            LogImpl(message, source as UnityEngine.Object, logType, stackTraceLogType);
+            LogImpl(message, source as UnityEngine.Object, logType);
         }
 
         [Conditional(CONDITIONAL)]
-        private static void LogImpl(string message, UnityEngine.Object context, LogType logType, StackTraceLogType stackTraceLogType)
+        private static void LogImpl(string message, UnityEngine.Object context, LogType logType)
         {
             StackTraceLogType previousStackTraceLogType = Application.GetStackTraceLogType(logType);
-            Application.SetStackTraceLogType(logType, StackTraceEnabled ? stackTraceLogType : StackTraceLogType.None);
+            Application.SetStackTraceLogType(logType, StackTraceEnabled ? previousStackTraceLogType : StackTraceLogType.None);
 
             switch (logType)
             {

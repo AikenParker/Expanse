@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Text;
 using System.Globalization;
+using System;
 
 namespace Expanse
 {
@@ -12,6 +13,7 @@ namespace Expanse
     {
         /// <summary>
         /// Adds spaces before capital letters in a string.
+        /// E.g. "AFewWords" ➔ "A Few Words"
         /// </summary>
         public static string AddSpaces(this string source, bool preserveAcronyms = true)
         {
@@ -37,10 +39,39 @@ namespace Expanse
 
         /// <summary>
         /// Returns the given string in title case format.
+        /// E.g "Title Case"
         /// </summary>
         public static string ToTitleCase(this string source)
         {
             return CultureInfo.CurrentCulture.TextInfo.ToTitleCase(source.ToLower());
+        }
+
+        /// <summary>
+        /// Returns the given string in pascal case format.
+        /// E.g "PascalCase"
+        /// </summary>
+        public static string ToPascalCase(this string source)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Returns the given string in camel case format.
+        /// E.g "camelCase"
+        /// </summary>
+        public static string ToCamelCase(this string source)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Returns the given string in to a display format.
+        /// Removes underscores, adds spaces, trims ends and formats as Title Case.
+        /// E.g. " _twoWords " ➔ "Two Words"
+        /// </summary>
+        public static string ToDisplayString(this string source)
+        {
+            throw new NotImplementedException();
         }
     }
 }
