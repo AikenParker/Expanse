@@ -13,9 +13,27 @@ namespace Expanse
         /// Logs a collection of objects.
         /// </summary>
         [System.Diagnostics.Conditional(LogUtil.CONDITIONAL)]
+        public static void LogIterator<Input>(this IEnumerable<Input> source, string logFormat = null, LogType logType = LogType.Log)
+        {
+            LogUtil.LogIterator<Input, object>(source, logFormat, logType);
+        }
+
+        /// <summary>
+        /// Logs a collection of objects.
+        /// </summary>
+        [System.Diagnostics.Conditional(LogUtil.CONDITIONAL)]
         public static void LogIterator<Input, Output>(this IEnumerable<Input> source, string logFormat = null, LogType logType = LogType.Log, Func<Input, Output> selector = null)
         {
             LogUtil.LogIterator<Input, Output>(source, logFormat, logType, selector);
+        }
+
+        /// <summary>
+        /// Logs an object.
+        /// </summary>
+        [System.Diagnostics.Conditional(LogUtil.CONDITIONAL)]
+        public static void Log<Input>(this Input source, string logFormat = null, LogType logType = LogType.Log)
+        {
+            LogUtil.Log<Input, object>(source, logFormat, logType, null);
         }
 
         /// <summary>
