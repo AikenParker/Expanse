@@ -33,6 +33,32 @@ namespace Expanse
             return value;
         }
 
+        int IRandomNumberGenerator.NextInt()
+        {
+            UnityEngine.Random.State prevState = UnityEngine.Random.state;
+            UnityEngine.Random.state = rngState;
+
+            int value = UnityEngine.Random.Range(0, int.MaxValue);
+
+            rngState = UnityEngine.Random.state;
+            UnityEngine.Random.state = prevState;
+
+            return value;
+        }
+
+        int IRandomNumberGenerator.NextInt(int max)
+        {
+            UnityEngine.Random.State prevState = UnityEngine.Random.state;
+            UnityEngine.Random.state = rngState;
+
+            int value = UnityEngine.Random.Range(0, max);
+
+            rngState = UnityEngine.Random.state;
+            UnityEngine.Random.state = prevState;
+
+            return value;
+        }
+
         int IRandomNumberGenerator.NextInt(int min, int max)
         {
             UnityEngine.Random.State prevState = UnityEngine.Random.state;

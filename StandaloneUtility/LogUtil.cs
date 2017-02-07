@@ -15,12 +15,15 @@ namespace Expanse
     {
         internal const string CONDITIONAL = "UNITY_EDITOR";
 
+        private static List<string> logCache = new List<string>();
+
         private static string nullFormatTag = "{null}";
         private static string itemFormatTag = "{item}";
         private static string indexFormatTag = "{index}";
         private static string typeFormatTag = "{type}";
         private static string timeFormatTag = "{time}";
         private static Func<string> timeCallback = () => Time.time.ToString();
+        private static bool cacheLogs = false;
 
         static LogUtil()
         {
@@ -102,6 +105,23 @@ namespace Expanse
         /// Gets or sets a value that specifies if the index value should be zero-based in iterator logging.
         /// </summary>
         public static bool ZeroBasedIndex { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value that specifies if we should cache the logs.
+        /// </summary>
+        public static bool CacheLogs
+        {
+            get { return cacheLogs; }
+            set
+            {
+                cacheLogs = value;
+
+                if (cacheLogs)
+                    Application.logMessageReceived += OnApplicationLogReceived;
+                else
+                    Application.logMessageReceived -= OnApplicationLogReceived;
+            }
+        }
 
         /// <summary>
         /// Simply displays a string representation of an item.
@@ -267,6 +287,47 @@ namespace Expanse
             LogImpl(message, source as UnityEngine.Object, logType);
         }
 
+        /// <summary>
+        /// Logs a Json serialization of a collection object.
+        /// </summary>
+        [Conditional(CONDITIONAL)]
+        public static void LogJsonIterator<Input>(IEnumerable<Input> source, LogType logType = LogType.Log)
+        {
+            if (CombineIteratorLog)
+            {
+                StringBuilder logBuilder = new StringBuilder(source.Count());
+
+                foreach (Input item in source)
+                {
+                    string message = JsonUtility.ToJson(item, true);
+
+                    logBuilder.Append(message);
+                }
+
+                LogImpl(logBuilder.ToString(), source as UnityEngine.Object, logType);
+            }
+            else
+            {
+                foreach (Input item in source)
+                {
+                    string message = JsonUtility.ToJson(item, true);
+
+                    LogImpl(message, item as UnityEngine.Object, logType);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Logs a Json serialization of an object.
+        /// </summary>
+        [Conditional(CONDITIONAL)]
+        public static void LogJson<Input>(Input source, LogType logType = LogType.Log)
+        {
+            string message = JsonUtility.ToJson(source, true);
+
+            LogImpl(message, source as UnityEngine.Object, logType);
+        }
+
         [Conditional(CONDITIONAL)]
         private static void LogImpl(string message, UnityEngine.Object context, LogType logType)
         {
@@ -297,6 +358,29 @@ namespace Expanse
             }
 
             Application.SetStackTraceLogType(logType, previousStackTraceLogType);
+        }
+
+        private static void OnApplicationLogReceived(string condition, string stackTrace, LogType type)
+        {
+            logCache.Add(condition);
+        }
+
+        /// <summary>
+        /// Clears all stored logs in the cache.
+        /// </summary>
+        [Conditional(CONDITIONAL)]
+        public static void ClearLogCache()
+        {
+            logCache.Clear();
+        }
+
+        /// <summary>
+        /// Outputs all logs in the cache to a file.
+        /// </summary>
+        [Conditional(CONDITIONAL)]
+        public static void WriteLogCache(string filePath)
+        {
+            System.IO.File.WriteAllLines(filePath, logCache.ToArray());
         }
     }
 }

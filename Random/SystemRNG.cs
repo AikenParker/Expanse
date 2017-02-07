@@ -21,6 +21,16 @@ namespace Expanse
             return rng.NextDouble();
         }
 
+        int IRandomNumberGenerator.NextInt()
+        {
+            return rng.Next();
+        }
+
+        int IRandomNumberGenerator.NextInt(int max)
+        {
+            return rng.Next(max);
+        }
+
         int IRandomNumberGenerator.NextInt(int min, int max)
         {
             return rng.Next(min, max);
