@@ -33,7 +33,7 @@ namespace Expanse
         /// </summary>
         public int Int()
         {
-            return rng.NextInt(0, Int32.MaxValue);
+            return rng.NextInt();
         }
 
         /// <summary>
@@ -41,14 +41,17 @@ namespace Expanse
         /// </summary>
         public int Int(int max)
         {
-            return rng.NextInt(0, max);
+            return rng.NextInt(max);
         }
 
         /// <summary>
         /// Returns a random integer between min and max. (Exclusive upper bound)
         /// </summary>
-        public int Int(int min, int max)
+        public int Int(int a, int b)
         {
+            int min = Mathf.Min(a, b);
+            int max = Mathf.Max(a, b);
+
             return rng.NextInt(min, max);
         }
 
