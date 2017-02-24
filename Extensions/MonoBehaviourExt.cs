@@ -65,60 +65,84 @@ namespace Expanse
             return monoBehaviour.StartCoroutine(Co_WaitCustom(action, customYieldInstruction));
         }
 
+        /// <summary>
+        /// Waits for a threaded task to complete before invoking the action.
+        /// </summary>
+        public static Coroutine WaitForThreadedTask(this MonoBehaviour monoBehaviour, Action action, Action threadedTask, System.Threading.ThreadPriority priority = System.Threading.ThreadPriority.Normal)
+        {
+            return monoBehaviour.StartCoroutine(Co_WaitForThreadedTask(threadedTask, action, priority));
+        }
+
+        /// <summary>
+        /// Loads an object from a Json file using another thread.
+        /// </summary>
+        public static Coroutine LoadJsonFile<T>(this MonoBehaviour monoBehaviour, string filePath, Action<ApplicationUtil.JsonLoadInfo<T>> onComplete, System.Threading.ThreadPriority priority = System.Threading.ThreadPriority.Normal) where T : new()
+        {
+            return monoBehaviour.StartCoroutine(ApplicationUtil.Co_LoadJsonFile(filePath, onComplete, priority));
+        }
+
+        /// <summary>
+        /// Loads an object from a Json file in the StreamingAssets folder using another thread.
+        /// </summary>
+        public static Coroutine LoadStreamingAssetJsonFile<T>(this MonoBehaviour monoBehaviour, string filePath, Action<ApplicationUtil.JsonLoadInfo<T>> onComplete, System.Threading.ThreadPriority priority = System.Threading.ThreadPriority.Normal) where T : new()
+        {
+            return monoBehaviour.StartCoroutine(ApplicationUtil.Co_LoadStreamingAssetJsonFile(filePath, onComplete, priority));
+        }
+
         private static IEnumerator Co_WaitForEndOfFrame(Action action)
         {
             yield return new WaitForEndOfFrame();
 
-            if (action != null)
-                action.Invoke();
+            action.SafeInvoke();
         }
 
         private static IEnumerator Co_WaitForSeconds(Action action, float delay)
         {
             yield return new WaitForSeconds(delay);
 
-            if (action != null)
-                action.Invoke();
+            action.SafeInvoke();
         }
 
         private static IEnumerator Co_WaitForFixedUpdate(Action action)
         {
             yield return new WaitForFixedUpdate();
 
-            if (action != null)
-                action.Invoke();
+            action.SafeInvoke();
         }
 
         private static IEnumerator Co_WaitForSecondsRealtime(Action action, float delay)
         {
             yield return new WaitForSecondsRealtime(delay);
 
-            if (action != null)
-                action.Invoke();
+            action.SafeInvoke();
         }
 
         private static IEnumerator Co_WaitUntil(Action action, Func<bool> predicate)
         {
             yield return new WaitUntil(predicate);
 
-            if (action != null)
-                action.Invoke();
+            action.SafeInvoke();
         }
 
         private static IEnumerator Co_WaitWhile(Action action, Func<bool> predicate)
         {
             yield return new WaitWhile(predicate);
 
-            if (action != null)
-                action.Invoke();
+            action.SafeInvoke();
         }
 
         private static IEnumerator Co_WaitCustom(Action action, CustomYieldInstruction customYieldInstruction)
         {
             yield return customYieldInstruction;
 
-            if (action != null)
-                action.Invoke();
+            action.SafeInvoke();
+        }
+
+        private static IEnumerator Co_WaitForThreadedTask(Action action, Action threadedTask, System.Threading.ThreadPriority priority = System.Threading.ThreadPriority.Normal)
+        {
+            yield return new WaitForThreadedTask(threadedTask, priority);
+
+            action.SafeInvoke();
         }
     }
 }

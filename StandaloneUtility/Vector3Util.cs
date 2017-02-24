@@ -39,6 +39,16 @@ namespace Expanse
         {
             return AngleBetweenTwoPoints(a - c, b - c);
         }
+
+        /// <summary>
+        /// Determines the signed angle between two vectors with a defined axis.
+        /// </summary>
+        public static float AngleSigned(Vector3 a, Vector3 b, Vector3 axis)
+        {
+            return Mathf.Atan2(
+                Vector3.Dot(axis, Vector3.Cross(a, b)),
+                Vector3.Dot(a, b)) * Mathf.Rad2Deg;
+        }
     }
 
     public enum DimensionTypes3D

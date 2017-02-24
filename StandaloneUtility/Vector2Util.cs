@@ -53,6 +53,37 @@ namespace Expanse
 
             return new Vector2(x, y);
         }
+
+        /// <summary>
+        /// Determines the signed angle between two vectors.
+        /// </summary>
+        public static float AngleSigned(Vector2 a, Vector2 b)
+        {
+            Vector3 v1 = a.ToVector3();
+            Vector3 v2 = b.ToVector3();
+
+            return Mathf.Atan2(Vector3.Dot(Vector3.forward, Vector3.Cross(v1, v2)), Vector3.Dot(v1, v2)) * Mathf.Rad2Deg;
+        }
+
+        /// <summary>
+        /// Creates a vector from a degree angle.
+        /// </summary>
+        public static Vector2 DegreeToVector2(float degree, Vector2 zeroAngle)
+        {
+            float offsetAngle = Vector2.Angle(Vector2.right, zeroAngle.normalized);
+
+            float radian = (degree + offsetAngle) * Mathf.Deg2Rad;
+
+            return new Vector2(-Mathf.Cos(radian), Mathf.Sin(radian));
+        }
+
+        /// <summary>
+        /// Creates a vector from a degree angle with Vector2.Right as a zero degree angle.
+        /// </summary>
+        public static Vector2 DegreeToVector2(float degree)
+        {
+            return DegreeToVector2(degree, Vector2.right);
+        }
     }
 
     public enum DimensionTypes2D
