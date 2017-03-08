@@ -16,7 +16,7 @@ namespace Expanse
         /// </summary>
         public static T GetAttribute<T>(this MemberInfo memberInfo, bool inherited = true) where T : Attribute
         {
-            return memberInfo.GetCustomAttributes(typeof(T), inherited).Cast<T>().FirstOrDefault();
+            return memberInfo.GetCustomAttributes(typeof(T), inherited).OfType<T>().FirstOrDefault();
         }
 
         /// <summary>
