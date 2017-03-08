@@ -22,11 +22,11 @@ namespace Expanse
             {
                 return false;
             }
-            else if ((source as ICollection<T>) != null)
+            else if (source is ICollection<T>)
             {
                 return (source as ICollection<T>).Count <= 0;
             }
-            else if ((source as ICollection) != null)
+            else if (source is ICollection)
             {
                 return (source as ICollection).Count <= 0;
             }

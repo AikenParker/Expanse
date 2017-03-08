@@ -54,8 +54,7 @@ namespace Expanse
             {
                 foreach (T item in initialPool)
                 {
-                    if (AddItem != null)
-                        AddItem.Invoke(item);
+                    AddItem.SafeInvoke(item);
                 }
             }
 
@@ -99,8 +98,7 @@ namespace Expanse
             if (this.Contains(item))
                 throw new ArgumentException("Item is already in the pool");
 
-            if (AddItem != null)
-                AddItem.Invoke(item);
+            AddItem.SafeInvoke(item);
 
             Pool.Enqueue(item);
         }
@@ -122,12 +120,11 @@ namespace Expanse
         /// </summary>
         public virtual T Next()
         {
-            if (Pool.Any())
+            if (Pool.Count > 0)
             {
                 T pooledItem = Pool.Dequeue();
 
-                if (GetItem != null)
-                    GetItem(pooledItem);
+                GetItem.SafeInvoke(pooledItem);
 
                 return pooledItem;
             }
@@ -135,11 +132,9 @@ namespace Expanse
             {
                 T newItem = ItemGenerator.Invoke(SourceItem);
 
-                if (AddItem != null)
-                    AddItem.Invoke(newItem);
+                AddItem.SafeInvoke(newItem);
 
-                if (GetItem != null)
-                    GetItem.Invoke(newItem);
+                GetItem.SafeInvoke(newItem);
 
                 return newItem;
             }
@@ -154,8 +149,7 @@ namespace Expanse
         {
             foreach (T item in Pool)
             {
-                if (RemoveItem != null)
-                    RemoveItem.Invoke(item);
+                RemoveItem.SafeInvoke(item);
             }
 
             Pool.Clear();
@@ -210,8 +204,7 @@ namespace Expanse
             {
                 List<T> tempList = Pool.ToList();
 
-                if (RemoveItem != null)
-                    RemoveItem(item);
+                RemoveItem(item);
 
                 tempList.Remove(item);
 

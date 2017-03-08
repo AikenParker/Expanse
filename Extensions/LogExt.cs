@@ -47,21 +47,21 @@ namespace Expanse
         }
 
         /// <summary>
-        /// Logs a Json serialization of a collection object.
+        /// Logs a serialization of a collection object. (Unity Json serializer is default)
         /// </summary>
         [Conditional(LogUtil.CONDITIONAL)]
-        public static void LogJsonIterator<Input>(this IEnumerable<Input> source, LogType logType = LogType.Log)
+        public static void LogSerializationIterator<Input>(this IEnumerable<Input> source, ISerializer serializer = null, LogType logType = LogType.Log)
         {
-            LogUtil.LogJsonIterator(source, logType);
+            LogUtil.LogSerializationIterator(source, serializer, logType);
         }
 
         /// <summary>
-        /// Logs a Json serialization of an object.
+        /// Logs a serialization of an object. (Unity Json serializer is default)
         /// </summary>
         [Conditional(LogUtil.CONDITIONAL)]
-        public static void LogJson<Input>(this Input source, LogType logType = LogType.Log)
+        public static void LogSerialization<Input>(this Input source, ISerializer serializer = null, LogType logType = LogType.Log)
         {
-            LogUtil.LogJson(source, logType);
+            LogUtil.LogSerialization(source, serializer, logType);
         }
     }
 }
