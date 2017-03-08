@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.IO;
 using UnityEngine;
 
 namespace Expanse
@@ -74,19 +75,49 @@ namespace Expanse
         }
 
         /// <summary>
-        /// Loads an object from a Json file using another thread.
+        /// Loads an object from a file using another thread.
         /// </summary>
-        public static Coroutine LoadJsonFile<T>(this MonoBehaviour monoBehaviour, string filePath, Action<ApplicationUtil.JsonLoadInfo<T>> onComplete, System.Threading.ThreadPriority priority = System.Threading.ThreadPriority.Normal) where T : new()
+        public static Coroutine LoadFromFileThreaded<T>(this MonoBehaviour monoBehaviour, string filePath, Action<ApplicationUtil.FileLoadInfo<T>> onComplete, ISerializer serializer = null, System.Threading.ThreadPriority priority = System.Threading.ThreadPriority.Normal) where T : new()
         {
-            return monoBehaviour.StartCoroutine(ApplicationUtil.Co_LoadJsonFile(filePath, onComplete, priority));
+            return monoBehaviour.StartCoroutine(ApplicationUtil.Co_LoadFromFileThreaded(filePath, onComplete, serializer, priority));
         }
 
         /// <summary>
-        /// Loads an object from a Json file in the StreamingAssets folder using another thread.
+        /// Loads an object from a file in the StreamingAssets folder using another thread.
         /// </summary>
-        public static Coroutine LoadStreamingAssetJsonFile<T>(this MonoBehaviour monoBehaviour, string filePath, Action<ApplicationUtil.JsonLoadInfo<T>> onComplete, System.Threading.ThreadPriority priority = System.Threading.ThreadPriority.Normal) where T : new()
+        public static Coroutine LoadFromStreamingAssetFileThreaded<T>(this MonoBehaviour monoBehaviour, string filePath, Action<ApplicationUtil.FileLoadInfo<T>> onComplete, ISerializer serializer = null, System.Threading.ThreadPriority priority = System.Threading.ThreadPriority.Normal) where T : new()
         {
-            return monoBehaviour.StartCoroutine(ApplicationUtil.Co_LoadStreamingAssetJsonFile(filePath, onComplete, priority));
+            filePath = Path.Combine(ApplicationUtil.StreamingAssestsPath, filePath);
+
+            return monoBehaviour.StartCoroutine(ApplicationUtil.Co_LoadFromFileThreaded(filePath, onComplete, serializer, priority));
+        }
+
+        /// <summary>
+        /// Loads an object from a file in the PersistentData folder using another thread.
+        /// </summary>
+        public static Coroutine LoadFromPersistentDataFileThreaded<T>(this MonoBehaviour monoBehaviour, string filePath, Action<ApplicationUtil.FileLoadInfo<T>> onComplete, ISerializer serializer = null, System.Threading.ThreadPriority priority = System.Threading.ThreadPriority.Normal) where T : new()
+        {
+            filePath = Path.Combine(ApplicationUtil.PersistentDataPath, filePath);
+
+            return monoBehaviour.StartCoroutine(ApplicationUtil.Co_LoadFromFileThreaded(filePath, onComplete, serializer, priority));
+        }
+
+        /// <summary>
+        /// Saves an object to a file using another thread.
+        /// </summary>
+        public static Coroutine SaveToFileThreaded(this MonoBehaviour monoBehaviour, object obj, string filePath, Action<ApplicationUtil.FileSaveInfo> onComplete = null, ISerializer serializer = null, System.Threading.ThreadPriority priority = System.Threading.ThreadPriority.Normal)
+        {
+            return monoBehaviour.StartCoroutine(ApplicationUtil.Co_SaveToFileThreaded(obj, filePath, onComplete, serializer, priority));
+        }
+
+        /// <summary>
+        /// Saves an object to a file in the PersistentData folder using another thread.
+        /// </summary>
+        public static Coroutine SaveToPersistentDataFileThreaded(this MonoBehaviour monoBehaviour, object obj, string filePath, Action<ApplicationUtil.FileSaveInfo> onComplete = null, ISerializer serializer = null, System.Threading.ThreadPriority priority = System.Threading.ThreadPriority.Normal)
+        {
+            filePath = Path.Combine(ApplicationUtil.PersistentDataPath, filePath);
+
+            return monoBehaviour.StartCoroutine(ApplicationUtil.Co_SaveToFileThreaded(obj, filePath, onComplete, serializer, priority));
         }
 
         private static IEnumerator Co_WaitForEndOfFrame(Action action)

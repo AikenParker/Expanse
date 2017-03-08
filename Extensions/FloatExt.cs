@@ -39,10 +39,12 @@ namespace Expanse
         /// </summary>
         public static float Normalize(this float source, float curMin, float curMax, float newMin, float newMax, bool clamp = false)
         {
+            float t = (source - curMin) / (curMax - curMin);
+
             if (clamp)
-                return Mathf.Clamp(Mathf.LerpUnclamped(newMin, newMax, (source - curMin) / (curMax - curMin)), Mathf.Min(newMin, newMax), Mathf.Max(newMin, newMax));
+                return newMin + (newMax - newMin) * Mathf.Clamp01(t);
             else
-                return Mathf.LerpUnclamped(newMin, newMax, (source - curMin) / (curMax - curMin));
+                return newMin + (newMax - newMin) * t;
         }
 
         /// <summary>

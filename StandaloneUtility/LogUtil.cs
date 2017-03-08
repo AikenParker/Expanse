@@ -288,18 +288,20 @@ namespace Expanse
         }
 
         /// <summary>
-        /// Logs a Json serialization of a collection object.
+        /// Logs a serialization of a collection object. (Unity Json serializer is default)
         /// </summary>
         [Conditional(CONDITIONAL)]
-        public static void LogJsonIterator<Input>(IEnumerable<Input> source, LogType logType = LogType.Log)
+        public static void LogSerializationIterator<Input>(IEnumerable<Input> source, ISerializer serializer = null, LogType logType = LogType.Log)
         {
+            serializer = serializer ?? new UnityJsonUtilitySerializer(true);
+
             if (CombineIteratorLog)
             {
                 StringBuilder logBuilder = new StringBuilder(source.Count());
 
                 foreach (Input item in source)
                 {
-                    string message = JsonUtility.ToJson(item, true);
+                    string message = serializer.Serialize(item);
 
                     logBuilder.Append(message);
                 }
@@ -310,7 +312,7 @@ namespace Expanse
             {
                 foreach (Input item in source)
                 {
-                    string message = JsonUtility.ToJson(item, true);
+                    string message = serializer.Serialize(item);
 
                     LogImpl(message, item as UnityEngine.Object, logType);
                 }
@@ -318,12 +320,14 @@ namespace Expanse
         }
 
         /// <summary>
-        /// Logs a Json serialization of an object.
+        /// Logs a serialization of an object. (Unity Json serializer is default)
         /// </summary>
         [Conditional(CONDITIONAL)]
-        public static void LogJson<Input>(Input source, LogType logType = LogType.Log)
+        public static void LogSerialization<Input>(Input source, ISerializer serializer = null, LogType logType = LogType.Log)
         {
-            string message = JsonUtility.ToJson(source, true);
+            serializer = serializer ?? new UnityJsonUtilitySerializer(true);
+
+            string message = serializer.Serialize(source);
 
             LogImpl(message, source as UnityEngine.Object, logType);
         }

@@ -19,7 +19,7 @@ namespace Expanse
                 throw new ArgumentNullException("list");
 
             T obj = list[0];
-            list.Remove(obj);
+            list.RemoveAt(0);
             return obj;
         }
 
@@ -31,8 +31,9 @@ namespace Expanse
             if (list == null)
                 throw new ArgumentNullException("list");
 
-            T obj = list[list.Count - 1];
-            list.Remove(obj);
+            int lastIndex = list.Count - 1;
+            T obj = list[lastIndex];
+            list.RemoveAt(lastIndex);
             return obj;
         }
 
@@ -80,7 +81,7 @@ namespace Expanse
                 throw new ArgumentNullException("list");
 
             T obj = list[0];
-            list.Remove(obj);
+            list.RemoveAt(0);
             return obj;
         }
 
@@ -335,6 +336,33 @@ namespace Expanse
                 rng.Shuffle(list);
             else
                 RandomUtil.Shuffle(list);
+        }
+
+        /// <summary>
+        /// Casts all valid objects in a list to another type. Faster than Cast<T>.ToList().
+        /// </summary>
+        public static List<TOutput> CastToList<TInput, TOutput>(IList<TInput> list)
+            where TInput: class
+            where TOutput: class
+        {
+            if (list == null)
+                throw new ArgumentNullException("source");
+
+            int count = list.Count;
+
+            List<TOutput> output = new List<TOutput>(count);
+
+            for (int i = 0; i < count; i++)
+            {
+                TOutput obj = list[i] as TOutput;
+
+                if (obj != null)
+                {
+                    output.Add(obj);
+                }
+            }
+
+            return output;
         }
     }
 }
