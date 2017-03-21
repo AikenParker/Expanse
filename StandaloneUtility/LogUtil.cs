@@ -114,12 +114,15 @@ namespace Expanse
             get { return cacheLogs; }
             set
             {
-                cacheLogs = value;
+                if (cacheLogs != value)
+                {
+                    cacheLogs = value;
 
-                if (cacheLogs)
-                    Application.logMessageReceived += OnApplicationLogReceived;
-                else
-                    Application.logMessageReceived -= OnApplicationLogReceived;
+                    if (cacheLogs)
+                        Application.logMessageReceived += OnApplicationLogReceived;
+                    else
+                        Application.logMessageReceived -= OnApplicationLogReceived;
+                }
             }
         }
 
