@@ -2,25 +2,25 @@
 {
     public static class Quadratic
     {
-        public class EaseOut : IEase
+        public class EaseOut : IEaseEquation
         {
-            public float Update(float time, float start, float end, float duration, float param1, float param2)
+            public float Update(float time, float start, float end, float duration)
             {
                 return -end * (time /= duration) * (time - 2.0f) + start;
             }
         }
 
-        public class EaseIn : IEase
+        public class EaseIn : IEaseEquation
         {
-            public float Update(float time, float start, float end, float duration, float param1, float param2)
+            public float Update(float time, float start, float end, float duration)
             {
                 return end * (time /= duration) * time + start;
             }
         }
 
-        public class EaseInOut : IEase
+        public class EaseInOut : IEaseEquation
         {
-            public float Update(float time, float start, float end, float duration, float param1, float param2)
+            public float Update(float time, float start, float end, float duration)
             {
                 if ((time /= duration / 2.0f) < 1.0f)
                     return end / 2.0f * time * time + start;

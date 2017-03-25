@@ -2,39 +2,46 @@
 {
     public static class Back
     {
-        public class EaseIn : IEase
+        public abstract class BackBase : IEaseEquation
         {
-            public float Update(float time, float start, float end, float duration, float param1, float param2)
-            {
-                if (param1 == 0.0f)
-                    param1 = 1.70158f;
+            public float ParamA { get; set; }
 
-                return end * (time /= duration) * time * ((param1 + 1) * time - param1) + start;
+            public abstract float Update(float time, float start, float end, float duration);
+        }
+
+        public class EaseIn : BackBase
+        {
+            public override float Update(float time, float start, float end, float duration)
+            {
+                if (ParamA == 0.0f)
+                    ParamA = 1.70158f;
+
+                return end * (time /= duration) * time * ((ParamA + 1) * time - ParamA) + start;
             }
         }
 
-        public class EaseInOut : IEase
+        public class EaseInOut : BackBase
         {
-            public float Update(float time, float start, float end, float duration, float param1, float param2)
+            public override float Update(float time, float start, float end, float duration)
             {
-                if (param1 == 0.0f)
-                    param1 = 1.70158f;
+                if (ParamA == 0.0f)
+                    ParamA = 1.70158f;
 
                 if ((time /= duration / 2f) < 1f)
-                    return end / 2f * (time * time * (((param1 *= (1.525f)) + 1f) * time - param1)) + start;
+                    return end / 2f * (time * time * (((ParamA *= (1.525f)) + 1f) * time - ParamA)) + start;
 
-                return end / 2f * ((time -= 2f) * time * (((param1 *= (1.525f)) + 1f) * time + param1) + 2f) + start;
+                return end / 2f * ((time -= 2f) * time * (((ParamA *= (1.525f)) + 1f) * time + ParamA) + 2f) + start;
             }
         }
 
-        public class EaseOut : IEase
+        public class EaseOut : BackBase
         {
-            public float Update(float time, float start, float end, float duration, float param1, float param2)
+            public override float Update(float time, float start, float end, float duration)
             {
-                if (param1 == 0.0f)
-                    param1 = 1.70158f;
+                if (ParamA == 0.0f)
+                    ParamA = 1.70158f;
 
-                return end * ((time = time / duration - 1f) * time * ((param1 + 1f) * time + param1) + 1f) + start;
+                return end * ((time = time / duration - 1f) * time * ((ParamA + 1f) * time + ParamA) + 1f) + start;
             }
         }
     }

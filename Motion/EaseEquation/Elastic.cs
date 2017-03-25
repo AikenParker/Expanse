@@ -4,9 +4,17 @@ namespace Expanse
 {
     public static class Elastic
     {
-        public class EaseIn : IEase
+        public abstract class ElasticBase : IEaseEquation
         {
-            public float Update(float time, float start, float end, float duration, float param1, float param2)
+            public float ParamA { get; set; }
+            public float ParamB { get; set; }
+
+            public abstract float Update(float time, float start, float end, float duration);
+        }
+
+        public class EaseIn : ElasticBase
+        {
+            public override float Update(float time, float start, float end, float duration)
             {
                 if (time == 0f)
                     return start;
@@ -14,27 +22,27 @@ namespace Expanse
                 if ((time /= duration) == 1f)
                     return start + end;
 
-                if (param2 == 0f)
-                    param2 = duration * 0.3f;
+                if (ParamB == 0f)
+                    ParamB = duration * 0.3f;
 
                 float s;
-                if (param1 == 0f || param1 < Mathf.Abs(end))
+                if (ParamA == 0f || ParamA < Mathf.Abs(end))
                 {
-                    param1 = end;
-                    s = param2 / 4f;
+                    ParamA = end;
+                    s = ParamB / 4f;
                 }
                 else
                 {
-                    s = param2 / (2f * Mathf.PI) * Mathf.Asin(end / param1);
+                    s = ParamB / (2f * Mathf.PI) * Mathf.Asin(end / ParamA);
                 }
 
-                return -(param1 * Mathf.Pow(2f, 10f * (time -= 1f)) * Mathf.Sin((time * duration - s) * (2f * Mathf.PI) / param2)) + start;
+                return -(ParamA * Mathf.Pow(2f, 10f * (time -= 1f)) * Mathf.Sin((time * duration - s) * (2f * Mathf.PI) / ParamB)) + start;
             }
         }
 
-        public class EaseInOut : IEase
+        public class EaseInOut : ElasticBase
         {
-            public float Update(float time, float start, float end, float duration, float param1, float param2)
+            public override float Update(float time, float start, float end, float duration)
             {
                 if (time == 0f)
                     return start;
@@ -42,32 +50,32 @@ namespace Expanse
                 if ((time /= duration / 2f) == 2f)
                     return start + end;
 
-                if (param2 == 0f)
-                    param2 = duration * (0.3f * 1.5f);
+                if (ParamB == 0f)
+                    ParamB = duration * (0.3f * 1.5f);
 
                 float s;
-                if (param1 == 0f || param1 < Mathf.Abs(end))
+                if (ParamA == 0f || ParamA < Mathf.Abs(end))
                 {
-                    param1 = end;
-                    s = param2 / 4f;
+                    ParamA = end;
+                    s = ParamB / 4f;
                 }
                 else
                 {
-                    s = param2 / (2f * Mathf.PI) * Mathf.Asin(end / param1);
+                    s = ParamB / (2f * Mathf.PI) * Mathf.Asin(end / ParamA);
                 }
 
                 if (time < 1f)
                 {
-                    return -0.5f * (param1 * Mathf.Pow(2f, 10f * (time -= 1f)) * Mathf.Sin((time * duration - s) * (2f * Mathf.PI) / param2)) + start;
+                    return -0.5f * (ParamA * Mathf.Pow(2f, 10f * (time -= 1f)) * Mathf.Sin((time * duration - s) * (2f * Mathf.PI) / ParamB)) + start;
                 }
 
-                return param1 * Mathf.Pow(2f, -10f * (time -= 1f)) * Mathf.Sin((time * duration - s) * (2f * Mathf.PI) / param2) * 0.5f + end + start;
+                return ParamA * Mathf.Pow(2f, -10f * (time -= 1f)) * Mathf.Sin((time * duration - s) * (2f * Mathf.PI) / ParamB) * 0.5f + end + start;
             }
         }
 
-        public class EaseOut : IEase
+        public class EaseOut : ElasticBase
         {
-            public float Update(float time, float start, float end, float duration, float param1, float param2)
+            public override float Update(float time, float start, float end, float duration)
             {
                 if (time == 0f)
                     return start;
@@ -75,21 +83,21 @@ namespace Expanse
                 if ((time /= duration) == 1f)
                     return start + end;
 
-                if (param2 == 0f)
-                    param2 = duration * 0.3f;
+                if (ParamB == 0f)
+                    ParamB = duration * 0.3f;
 
                 float s;
-                if (param1 == 0f || param1 < Mathf.Abs(end))
+                if (ParamA == 0f || ParamA < Mathf.Abs(end))
                 {
-                    param1 = end;
-                    s = param2 / 4f;
+                    ParamA = end;
+                    s = ParamB / 4f;
                 }
                 else
                 {
-                    s = param2 / (2f * Mathf.PI) * Mathf.Asin(end / param1);
+                    s = ParamB / (2f * Mathf.PI) * Mathf.Asin(end / ParamA);
                 }
 
-                return param1 * Mathf.Pow(2f, -10f * time) * Mathf.Sin((time * duration - s) * (2f * Mathf.PI) / param2) + end + start;
+                return ParamA * Mathf.Pow(2f, -10f * time) * Mathf.Sin((time * duration - s) * (2f * Mathf.PI) / ParamB) + end + start;
             }
         }
     }

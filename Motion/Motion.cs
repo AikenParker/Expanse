@@ -17,14 +17,14 @@ namespace Expanse
     /// <summary>
     /// Core Expanse Motion class.
     /// </summary>
-    public abstract class Motion : IMotion
+    public abstract class Motion : IComplexUpdate
     {
         public CallBackRelay CBR { get; set; }
         public UpdateModes UpdateMode { get; set; }
         public int Priority { get; set; }
 
         public bool IsActive { get; set; }
-        public float CurrentTime { get; protected set; }
+        public float Position { get; protected set; }
 
         public float Duration { get; set; }
         public float StartDelay { get; set; }
@@ -72,7 +72,20 @@ namespace Expanse
             }
         }
 
-        public abstract void OnUpdate(float deltaTime);
+        public virtual void OnUpdate(float deltaTime)
+        {
+            if (!IsActive)
+                return;
+
+            float gain = deltaTime * PlaybackRate;
+
+            float newPostion = Mathf.Clamp(Position + gain, 0, TotalDuration);
+            Position = newPostion;
+
+            OnPositionChanged();
+        }
+
+        protected abstract void OnPositionChanged();
 
         /// <summary>
         /// Resumes motion playback from a stop.
@@ -96,8 +109,7 @@ namespace Expanse
             {
                 IsStarted = true;
 
-                if (Started != null)
-                    Started.Invoke();
+                Started.SafeInvoke();
             }
         }
 
@@ -107,8 +119,7 @@ namespace Expanse
             {
                 IsMotionStarted = true;
 
-                if (MotionStarted != null)
-                    MotionStarted.Invoke();
+                MotionStarted.SafeInvoke();
             }
         }
 
@@ -118,8 +129,7 @@ namespace Expanse
             {
                 IsMotionCompleted = true;
 
-                if (MotionCompleted != null)
-                    MotionCompleted.Invoke();
+                MotionCompleted.SafeInvoke();
             }
         }
 
@@ -129,9 +139,13 @@ namespace Expanse
             {
                 IsCompleted = true;
 
-                if (Completed != null)
-                    Completed.Invoke();
+                Completed.SafeInvoke();
             }
+        }
+
+        public float TotalDuration
+        {
+            get { return StartDelay + Duration + EndDelay; }
         }
 
         /// <summary>
@@ -139,14 +153,6 @@ namespace Expanse
         /// Note: This is not the TargetObject.
         /// </summary>
         public MonoBehaviour AttachedMonoBehaviour { get; set; }
-
-        /// <summary>
-        /// Returns the normalized current time between 0 and 1.
-        /// </summary>
-        public float NormalizedTime
-        {
-            get { return CurrentTime.Normalize(Duration, true); }
-        }
 
         bool IComplexUpdate.AlwaysUpdate
         {
@@ -171,6 +177,16 @@ namespace Expanse
         bool IComplexUpdate.UnscaledDelta
         {
             get { return this.UpdateMode.EqualsAny(UpdateModes.UNSCALED_UPDATE, UpdateModes.UNSCALED_LATE_UPDATE); }
+        }
+
+        public static SequenceMotion operator +(Motion a, Motion b)
+        {
+            return new SequenceMotion(a, b);
+        }
+
+        public static GroupMotion operator *(Motion a, Motion b)
+        {
+            return new GroupMotion(a, b);
         }
     }
 }

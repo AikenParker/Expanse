@@ -2,9 +2,17 @@
 {
     public static class Bounce
     {
-        public class EaseOut : IEase
+        public abstract class BounceBase : IEaseEquation
         {
-            public float Update(float time, float start, float end, float duration, float param1, float param2)
+            public float ParamA { get; set; }
+            public float ParamB { get; set; }
+
+            public abstract float Update(float time, float start, float end, float duration);
+        }
+
+        public class EaseOut : BounceBase
+        {
+            public override float Update(float time, float start, float end, float duration)
             {
                 if ((time /= duration) < (1.0f / 2.75f))
                     return end * (7.5625f * time * time) + start;
@@ -17,14 +25,14 @@
             }
         }
 
-        public class EaseIn : IEase
+        public class EaseIn : BounceBase
         {
-            public float Update(float time, float start, float end, float duration, float param1, float param2)
+            public override float Update(float time, float start, float end, float duration)
             {
-                return end - EaseOut(duration - time, 0.0f, end, duration, 0.0f, 0.0f) + start;
+                return end - EaseOut(duration - time, 0.0f, end, duration) + start;
             }
 
-            public float EaseOut(float time, float start, float end, float duration, float param1, float param2)
+            private float EaseOut(float time, float start, float end, float duration)
             {
                 if ((time /= duration) < (1.0f / 2.75f))
                     return end * (7.5625f * time * time) + start;
@@ -37,22 +45,22 @@
             }
         }
 
-        public class EaseInOut : IEase
+        public class EaseInOut : BounceBase
         {
-            public float Update(float time, float start, float end, float duration, float param1, float param2)
+            public override float Update(float time, float start, float end, float duration)
             {
                 if (time < duration / 2.0f)
-                    return EaseIn(time * 2.0f, 0.0f, end, duration, 0.0f, 0.0f) * 0.5f + start;
+                    return EaseIn(time * 2.0f, 0.0f, end, duration) * 0.5f + start;
                 else
-                    return EaseOut(time * 2.0f - duration, 0.0f, end, duration, 0.0f, 0.0f) * 0.5f + end * 0.5f + start;
+                    return EaseOut(time * 2.0f - duration, 0.0f, end, duration) * 0.5f + end * 0.5f + start;
             }
 
-            public float EaseIn(float time, float start, float end, float duration, float param1, float param2)
+            private float EaseIn(float time, float start, float end, float duration)
             {
-                return end - EaseOut(duration - time, 0.0f, end, duration, 0.0f, 0.0f) + start;
+                return end - EaseOut(duration - time, 0.0f, end, duration) + start;
             }
 
-            public float EaseOut(float time, float start, float end, float duration, float param1, float param2)
+            private float EaseOut(float time, float start, float end, float duration)
             {
                 if ((time /= duration) < (1.0f / 2.75f))
                     return end * (7.5625f * time * time) + start;
