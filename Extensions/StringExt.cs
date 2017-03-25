@@ -3,6 +3,9 @@ using System.Collections;
 using System.Text;
 using System.Globalization;
 using System;
+using System.Text.RegularExpressions;
+using System.Linq;
+using System.Collections.Generic;
 
 namespace Expanse
 {
@@ -52,7 +55,7 @@ namespace Expanse
         /// </summary>
         public static string ToPascalCase(this string source)
         {
-            throw new NotImplementedException();
+            return ToTitleCase(source).Replace(" ", string.Empty);
         }
 
         /// <summary>
@@ -61,7 +64,9 @@ namespace Expanse
         /// </summary>
         public static string ToCamelCase(this string source)
         {
-            throw new NotImplementedException();
+            StringBuilder strBuilder = new StringBuilder(ToPascalCase(source));
+            strBuilder[0] = char.ToLower(strBuilder[0]);
+            return strBuilder.ToString();
         }
 
         /// <summary>
@@ -71,7 +76,54 @@ namespace Expanse
         /// </summary>
         public static string ToDisplayString(this string source)
         {
-            throw new NotImplementedException();
+            string str = source.Replace('_', ' ').Trim().AddSpaces().WithoutMultiWhiteSpace();
+            return ToTitleCase(str);
+        }
+
+        /// <summary>
+        /// Removes all white space characters until there is only one.
+        /// </summary>
+        public static string WithoutMultiWhiteSpace(this string source)
+        {
+            int sourceLength = source.Length;
+
+            List<char> nonWhiteSpaceCharacters = new List<char>(sourceLength);
+            bool lastWhiteSpace = false;
+
+            for (int i = 0; i < sourceLength; i++)
+            {
+                char character = source[i];
+
+                bool isWhiteSpace = char.IsWhiteSpace(character);
+
+                if (!isWhiteSpace || !lastWhiteSpace)
+                    nonWhiteSpaceCharacters.Add(character);
+
+                lastWhiteSpace = isWhiteSpace;
+            }
+
+            return new string(nonWhiteSpaceCharacters.ToArray());
+            //return Regex.Replace(source, @"\s+", " ");
+        }
+
+        /// <summary>
+        /// Removes all white space characters.
+        /// </summary>
+        public static string WithoutAllWhiteSpace(this string source)
+        {
+            int sourceLength = source.Length;
+
+            List<char> nonWhiteSpaceCharacters = new List<char>(sourceLength);
+
+            for (int i = 0; i < sourceLength; i++)
+            {
+                char character = source[i];
+
+                if (!char.IsWhiteSpace(character))
+                    nonWhiteSpaceCharacters.Add(character);
+            }
+
+            return new string(nonWhiteSpaceCharacters.ToArray());
         }
     }
 }
