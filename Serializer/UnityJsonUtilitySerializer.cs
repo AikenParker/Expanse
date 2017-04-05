@@ -5,7 +5,7 @@ namespace Expanse
     /// <summary>
     /// In-built Json serializer from UnityEngine.JsonUtility.
     /// </summary>
-    public class UnityJsonUtilitySerializer : ISerializer
+    public class UnityJsonUtilitySerializer : IStringSerializer
     {
         private bool prettyPrint;
 
@@ -16,12 +16,12 @@ namespace Expanse
             this.prettyPrint = prettyPrint;
         }
 
-        string ISerializer.Serialize<T>(T obj)
+        public string Serialize<T>(T obj)
         {
             return JsonUtility.ToJson(obj, prettyPrint);
         }
 
-        T ISerializer.Deserialize<T>(string data)
+        public T Deserialize<T>(string data) where T : new()
         {
             return JsonUtility.FromJson<T>(data);
         }

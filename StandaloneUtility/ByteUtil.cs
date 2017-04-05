@@ -47,6 +47,99 @@ namespace Expanse
             throw new UnsupportedException("Unable to convert type to bytes. " + typeof(T).ToString());
         }
 
+#if UNSAFE
+        public static unsafe int GetBytes(int value, byte[] array, int offset)
+        {
+            fixed (byte* ptr = &array[offset])
+                *(int*)ptr = value;
+            return offset + sizeof(int);
+        }
+
+        public static unsafe int GetBytes(bool value, byte[] array, int offset)
+        {
+            fixed (byte* ptr = &array[offset])
+                *(bool*)ptr = value;
+            return offset + sizeof(bool);
+        }
+
+        public static unsafe int GetBytes(float value, byte[] array, int offset)
+        {
+            fixed (byte* ptr = &array[offset])
+                *(float*)ptr = value;
+            return offset + sizeof(float);
+        }
+
+        public static unsafe int GetBytes(double value, byte[] array, int offset)
+        {
+            fixed (byte* ptr = &array[offset])
+                *(double*)ptr = value;
+            return offset + sizeof(double);
+        }
+
+        public static unsafe int GetBytes(char value, byte[] array, int offset)
+        {
+            fixed (byte* ptr = &array[offset])
+                *(char*)ptr = value;
+            return offset + sizeof(char);
+        }
+
+        public static unsafe int GetBytes(short value, byte[] array, int offset)
+        {
+            fixed (byte* ptr = &array[offset])
+                *(short*)ptr = value;
+            return offset + sizeof(short);
+        }
+
+        public static unsafe int GetBytes(long value, byte[] array, int offset)
+        {
+            fixed (byte* ptr = &array[offset])
+                *(long*)ptr = value;
+            return offset + sizeof(long);
+        }
+
+        public static unsafe int GetBytes(uint value, byte[] array, int offset)
+        {
+            fixed (byte* ptr = &array[offset])
+                *(uint*)ptr = value;
+            return offset + sizeof(uint);
+        }
+
+        public static unsafe int GetBytes(ushort value, byte[] array, int offset)
+        {
+            fixed (byte* ptr = &array[offset])
+                *(ushort*)ptr = value;
+            return offset + sizeof(ushort);
+        }
+
+        public static unsafe int GetBytes(ulong value, byte[] array, int offset)
+        {
+            fixed (byte* ptr = &array[offset])
+                *(ulong*)ptr = value;
+            return offset + sizeof(ulong);
+        }
+
+        public static unsafe int GetBytes(byte value, byte[] array, int offset)
+        {
+            fixed (byte* ptr = &array[offset])
+                *(byte*)ptr = value;
+            return offset + sizeof(byte);
+        }
+
+        public static unsafe int GetBytes(sbyte value, byte[] array, int offset)
+        {
+            fixed (byte* ptr = &array[offset])
+                *(sbyte*)ptr = value;
+            return offset + sizeof(sbyte);
+        }
+
+        public static unsafe int GetBytes(decimal value, byte[] array, int offset)
+        {
+            fixed (byte* ptr = &array[offset])
+                *(decimal*)ptr = value;
+            return offset + sizeof(decimal);
+        }
+#endif
+
         /// <summary>
         /// Converts a byte array into a primitive value type.
         /// Avoid in production code as it boxes the value type.

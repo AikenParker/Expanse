@@ -294,7 +294,7 @@ namespace Expanse
         /// Logs a serialization of a collection object. (Unity Json serializer is default)
         /// </summary>
         [Conditional(CONDITIONAL)]
-        public static void LogSerializationIterator<Input>(IEnumerable<Input> source, ISerializer serializer = null, LogType logType = LogType.Log)
+        public static void LogSerializationIterator<Input>(IEnumerable<Input> source, IStringSerializer serializer = null, LogType logType = LogType.Log)
         {
             serializer = serializer ?? new UnityJsonUtilitySerializer(true);
 
@@ -326,7 +326,7 @@ namespace Expanse
         /// Logs a serialization of an object. (Unity Json serializer is default)
         /// </summary>
         [Conditional(CONDITIONAL)]
-        public static void LogSerialization<Input>(Input source, ISerializer serializer = null, LogType logType = LogType.Log)
+        public static void LogSerialization<Input>(Input source, IStringSerializer serializer = null, LogType logType = LogType.Log)
         {
             serializer = serializer ?? new UnityJsonUtilitySerializer(true);
 

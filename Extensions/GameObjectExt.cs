@@ -16,7 +16,59 @@ namespace Expanse
         /// </summary>
         public static T AddComponent<T>(this GameObject gameObject, T source) where T : Component
         {
-            return gameObject.AddComponent<T>().CopyComponent<T>(source) as T;
+            T newComponent = gameObject.AddComponent<T>();
+            newComponent.CopyComponent<T>(source);
+            return newComponent;
+        }
+
+        /// <summary>
+        /// Sets the tag of a game object.
+        /// </summary>
+        public static void SetTag(this GameObject gameObject, string tag)
+        {
+            gameObject.tag = tag;
+        }
+
+        /// <summary>
+        /// Sets the tag of a game object and all children.
+        /// </summary>
+        public static void SetTagRecursively(this GameObject gameObject, string tag)
+        {
+            gameObject.tag = tag;
+
+            Transform transform = gameObject.transform;
+
+            for (int i = 0; i < transform.childCount; i++)
+            {
+                Transform child = transform.GetChild(i);
+
+                child.gameObject.SetTagRecursively(tag);
+            }
+        }
+
+        /// <summary>
+        /// Sets the layer of a game object.
+        /// </summary>
+        public static void SetLayer(this GameObject gameObject, int layer)
+        {
+            gameObject.layer = layer;
+        }
+
+        /// <summary>
+        /// Sets the layer of a game object and all children.
+        /// </summary>
+        public static void SetLayerRecursively(this GameObject gameObject, int layer)
+        {
+            gameObject.layer = layer;
+
+            Transform transform = gameObject.transform;
+
+            for (int i = 0; i < transform.childCount; i++)
+            {
+                Transform child = transform.GetChild(i);
+
+                child.gameObject.SetLayerRecursively(layer);
+            }
         }
 
         /// <summary>

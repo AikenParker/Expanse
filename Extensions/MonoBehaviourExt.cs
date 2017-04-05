@@ -77,7 +77,7 @@ namespace Expanse
         /// <summary>
         /// Loads an object from a file using another thread.
         /// </summary>
-        public static Coroutine LoadFromFileThreaded<T>(this MonoBehaviour monoBehaviour, string filePath, Action<ApplicationUtil.FileLoadInfo<T>> onComplete, ISerializer serializer = null, System.Threading.ThreadPriority priority = System.Threading.ThreadPriority.Normal) where T : new()
+        public static Coroutine LoadFromFileThreaded<T>(this MonoBehaviour monoBehaviour, string filePath, Action<ApplicationUtil.FileLoadInfo<T>> onComplete, IStringSerializer serializer = null, System.Threading.ThreadPriority priority = System.Threading.ThreadPriority.Normal) where T : new()
         {
             return monoBehaviour.StartCoroutine(ApplicationUtil.Co_LoadFromFileThreaded(filePath, onComplete, serializer, priority));
         }
@@ -85,7 +85,7 @@ namespace Expanse
         /// <summary>
         /// Loads an object from a file in the StreamingAssets folder using another thread.
         /// </summary>
-        public static Coroutine LoadFromStreamingAssetFileThreaded<T>(this MonoBehaviour monoBehaviour, string filePath, Action<ApplicationUtil.FileLoadInfo<T>> onComplete, ISerializer serializer = null, System.Threading.ThreadPriority priority = System.Threading.ThreadPriority.Normal) where T : new()
+        public static Coroutine LoadFromStreamingAssetFileThreaded<T>(this MonoBehaviour monoBehaviour, string filePath, Action<ApplicationUtil.FileLoadInfo<T>> onComplete, IStringSerializer serializer = null, System.Threading.ThreadPriority priority = System.Threading.ThreadPriority.Normal) where T : new()
         {
             filePath = Path.Combine(ApplicationUtil.StreamingAssestsPath, filePath);
 
@@ -95,7 +95,7 @@ namespace Expanse
         /// <summary>
         /// Loads an object from a file in the PersistentData folder using another thread.
         /// </summary>
-        public static Coroutine LoadFromPersistentDataFileThreaded<T>(this MonoBehaviour monoBehaviour, string filePath, Action<ApplicationUtil.FileLoadInfo<T>> onComplete, ISerializer serializer = null, System.Threading.ThreadPriority priority = System.Threading.ThreadPriority.Normal) where T : new()
+        public static Coroutine LoadFromPersistentDataFileThreaded<T>(this MonoBehaviour monoBehaviour, string filePath, Action<ApplicationUtil.FileLoadInfo<T>> onComplete, IStringSerializer serializer = null, System.Threading.ThreadPriority priority = System.Threading.ThreadPriority.Normal) where T : new()
         {
             filePath = Path.Combine(ApplicationUtil.PersistentDataPath, filePath);
 
@@ -105,7 +105,7 @@ namespace Expanse
         /// <summary>
         /// Saves an object to a file using another thread.
         /// </summary>
-        public static Coroutine SaveToFileThreaded(this MonoBehaviour monoBehaviour, object obj, string filePath, Action<ApplicationUtil.FileSaveInfo> onComplete = null, ISerializer serializer = null, System.Threading.ThreadPriority priority = System.Threading.ThreadPriority.Normal)
+        public static Coroutine SaveToFileThreaded(this MonoBehaviour monoBehaviour, object obj, string filePath, Action<ApplicationUtil.FileSaveInfo> onComplete = null, IStringSerializer serializer = null, System.Threading.ThreadPriority priority = System.Threading.ThreadPriority.Normal)
         {
             return monoBehaviour.StartCoroutine(ApplicationUtil.Co_SaveToFileThreaded(obj, filePath, onComplete, serializer, priority));
         }
@@ -113,7 +113,7 @@ namespace Expanse
         /// <summary>
         /// Saves an object to a file in the PersistentData folder using another thread.
         /// </summary>
-        public static Coroutine SaveToPersistentDataFileThreaded(this MonoBehaviour monoBehaviour, object obj, string filePath, Action<ApplicationUtil.FileSaveInfo> onComplete = null, ISerializer serializer = null, System.Threading.ThreadPriority priority = System.Threading.ThreadPriority.Normal)
+        public static Coroutine SaveToPersistentDataFileThreaded(this MonoBehaviour monoBehaviour, object obj, string filePath, Action<ApplicationUtil.FileSaveInfo> onComplete = null, IStringSerializer serializer = null, System.Threading.ThreadPriority priority = System.Threading.ThreadPriority.Normal)
         {
             filePath = Path.Combine(ApplicationUtil.PersistentDataPath, filePath);
 

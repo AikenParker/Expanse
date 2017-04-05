@@ -1,16 +1,15 @@
-﻿using UnityEngine;
-using UnityEngine.UI;
-using System.Collections.Generic;
+﻿using System;
 using System.Linq;
-using System;
-using Expanse;
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
 
 namespace Expanse
 {
     /// <summary>
-    /// A collection of IEnumerable (LINQ-like) related extension methods.
+    /// A collection of IEnumerable<T> related LINQ-like extension methods.
     /// </summary>
-    public static class IEnumerableExt
+    public static class EnumerableLinq
     {
         /// <summary>
         /// Determines if all objects in souce are not equal to one another.

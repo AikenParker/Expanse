@@ -50,7 +50,7 @@ namespace Expanse
         /// <summary>
         /// Loads an object from a file.
         /// </summary>
-        public static FileLoadInfo<T> LoadFromFile<T>(string filePath, ISerializer serializer = null) where T : new()
+        public static FileLoadInfo<T> LoadFromFile<T>(string filePath, IStringSerializer serializer = null) where T : new()
         {
             serializer = serializer ?? new UnityJsonUtilitySerializer(true);
 
@@ -106,7 +106,7 @@ namespace Expanse
         /// <summary>
         /// Loads an object from a file using another thread.
         /// </summary>
-        public static IEnumerator Co_LoadFromFileThreaded<T>(string filePath, Action<FileLoadInfo<T>> onComplete, ISerializer serializer = null, ThreadPriority priority = ThreadPriority.Normal) where T : new()
+        public static IEnumerator Co_LoadFromFileThreaded<T>(string filePath, Action<FileLoadInfo<T>> onComplete, IStringSerializer serializer = null, ThreadPriority priority = ThreadPriority.Normal) where T : new()
         {
             serializer = serializer ?? new UnityJsonUtilitySerializer(true);
 
@@ -175,7 +175,7 @@ namespace Expanse
         /// <summary>
         /// Saves an object to a file.
         /// </summary>
-        public static FileSaveInfo SaveToFile(object obj, string filePath, ISerializer serializer = null)
+        public static FileSaveInfo SaveToFile(object obj, string filePath, IStringSerializer serializer = null)
         {
             serializer = serializer ?? new UnityJsonUtilitySerializer(true);
 
@@ -217,7 +217,7 @@ namespace Expanse
         /// <summary>
         /// Saves an object to a file using another thread.
         /// </summary>
-        public static IEnumerator Co_SaveToFileThreaded(object obj, string filePath, Action<FileSaveInfo> onComplete = null, ISerializer serializer = null, ThreadPriority priority = ThreadPriority.Normal)
+        public static IEnumerator Co_SaveToFileThreaded(object obj, string filePath, Action<FileSaveInfo> onComplete = null, IStringSerializer serializer = null, ThreadPriority priority = ThreadPriority.Normal)
         {
             serializer = serializer ?? new UnityJsonUtilitySerializer(true);
 
