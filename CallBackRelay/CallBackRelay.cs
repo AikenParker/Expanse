@@ -224,7 +224,7 @@ namespace Expanse
 
         private void ExecuteUpdates(List<CallBackRelayUpdateContainer> updateList)
         {
-            if (updateList.Any())
+            if (updateList.Count > 0)
             {
                 switch (updateSettings.updateType)
                 {
@@ -275,7 +275,7 @@ namespace Expanse
             CallBackRelayUpdateContainer.UpdateResult updateResult;
             int updateCount;
 
-            for (updateCount = 0; updateCount < updateSettings.spreadCount; )
+            for (updateCount = 0; updateCount < updateSettings.spreadCount;)
             {
                 do
                 {
@@ -283,7 +283,7 @@ namespace Expanse
 
                     updateResult = updateWrapper.GetUpdateResult();
 
-                    if (updateResult != CallBackRelayUpdateContainer.UpdateResult.SUCCESS && !updateList.Any())
+                    if (updateResult != CallBackRelayUpdateContainer.UpdateResult.SUCCESS && updateList.Count == 0)
                         break;
                 }
                 while (updateResult != CallBackRelayUpdateContainer.UpdateResult.SUCCESS);
@@ -334,7 +334,7 @@ namespace Expanse
 
                     updateResult = updateWrapper.GetUpdateResult();
 
-                    if (updateResult != CallBackRelayUpdateContainer.UpdateResult.SUCCESS && !updateList.Any())
+                    if (updateResult != CallBackRelayUpdateContainer.UpdateResult.SUCCESS && updateList.Count == 0)
                         break;
                 }
                 while (updateResult != CallBackRelayUpdateContainer.UpdateResult.SUCCESS);

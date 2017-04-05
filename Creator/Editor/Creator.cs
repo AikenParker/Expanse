@@ -293,7 +293,7 @@ namespace Expanse
         {
             var parameters = constructorInfo.GetParameters();
 
-            if (!parameters.Any())
+            if (parameters.Length == 0)
                 return "Default";
             else
             {
@@ -339,7 +339,7 @@ namespace Expanse
         {
             ScriptableObject newAsset;
 
-            if (constructorParams == null || !constructorParams.Any())
+            if (constructorParams == null || constructorParams.Length == 0)
                 newAsset = CreateInstance(type);
             else
                 newAsset = (ScriptableObject)Activator.CreateInstance(type, CONSTRUCTOR_BINDING_FLAGS, Type.DefaultBinder, constructorParams, CultureInfo.CurrentCulture);
