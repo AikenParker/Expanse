@@ -17,7 +17,6 @@ namespace Expanse
         private BindingFlags bindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly;
         private List<TypeCacheInfo> typeCacheInfoList;
         private TypeCacheInfo lastTypeCacheInfo;
-        private byte[] byteData;
         private char[] charData;
 
         public void ClearCache()
@@ -154,12 +153,7 @@ namespace Expanse
                 return new byte[0];
 
             int byteLength = typeCacheInfo.CalculateSize(obj);
-
-            if (byteData == null || byteData.Length < byteLength)
-            {
-                byteData = new byte[byteLength];
-            }
-
+            byte[] byteData = new byte[byteLength];
             int position = 0;
 
             for (int i = 0; i < fieldLength; i++)
