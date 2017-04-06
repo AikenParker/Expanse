@@ -69,7 +69,6 @@ namespace Expanse
                         fci.SetValue(obj, BitConverter.ToChar(byteData, position));
                         position += sizeof(char);
                         continue;
-
                     case SupportedFieldType.STRING:
                         int stringLength = 0;
                         {
@@ -96,46 +95,48 @@ namespace Expanse
                         fci.SetValue(obj, new string(charData, 0, stringLength));
                         position += stringLength * sizeof(char) + sizeof(char);
                         continue;
-
                     case SupportedFieldType.DATE_TIME:
                         long ticks = BitConverter.ToInt64(byteData, position);
                         fci.SetValue(obj, new DateTime(ticks));
                         position += sizeof(long);
                         continue;
-
                     case SupportedFieldType.SHORT:
                         fci.SetValue(obj, BitConverter.ToInt16(byteData, position));
                         position += sizeof(short);
                         continue;
-
                     case SupportedFieldType.LONG:
                         fci.SetValue(obj, BitConverter.ToInt64(byteData, position));
                         position += sizeof(long);
                         continue;
-
                     case SupportedFieldType.UINT:
                         fci.SetValue(obj, BitConverter.ToUInt32(byteData, position));
                         position += sizeof(uint);
                         continue;
-
                     case SupportedFieldType.USHORT:
                         fci.SetValue(obj, BitConverter.ToUInt16(byteData, position));
                         position += sizeof(ushort);
                         continue;
-
                     case SupportedFieldType.ULONG:
                         fci.SetValue(obj, BitConverter.ToUInt64(byteData, position));
                         position += sizeof(ulong);
                         continue;
-
                     case SupportedFieldType.BYTE:
                         fci.SetValue(obj, byteData[position]);
                         position += sizeof(byte);
                         continue;
-
                     case SupportedFieldType.SBYTE:
                         fci.SetValue(obj, (sbyte)byteData[position]);
                         position += sizeof(sbyte);
+                        continue;
+                    case SupportedFieldType.DECIMAL:
+                        int[] decBits = new int[4];
+                        for (int j = 0; j < 4; j++)
+                        {
+                            decBits[j] = BitConverter.ToInt32(byteData, position);
+                            position += sizeof(int);
+                        }
+                        decimal decValue = new decimal(decBits);
+                        fci.SetValue(obj, decValue);
                         continue;
                 }
             }
@@ -217,6 +218,14 @@ namespace Expanse
                         continue;
                     case SupportedFieldType.SBYTE:
                         position = ByteUtil.GetBytes(fci.GetValue<T, sbyte>(obj), byteData, position);
+                        continue;
+                    case SupportedFieldType.DECIMAL:
+                        decimal decValue = fci.GetValue<T, decimal>(obj);
+                        int[] decBits = decimal.GetBits(decValue);
+                        for (int j = 0; j < 4; j++)
+                        {
+                            position = ByteUtil.GetBytes(decBits[j], byteData, position);
+                        }
                         continue;
                 }
             }
@@ -336,6 +345,9 @@ namespace Expanse
                         case SupportedFieldType.SBYTE:
                             size += sizeof(sbyte);
                             continue;
+                        case SupportedFieldType.DECIMAL:
+                            size += sizeof(decimal);
+                            continue;
                     }
                 }
 
@@ -411,6 +423,8 @@ namespace Expanse
                     type = SupportedFieldType.BYTE;
                 else if (fieldType == typeof(sbyte))
                     type = SupportedFieldType.SBYTE;
+                else if (fieldType == typeof(decimal))
+                    type = SupportedFieldType.DECIMAL;
                 else
                     type = SupportedFieldType.NONE;
             }
@@ -500,7 +514,8 @@ namespace Expanse
             USHORT = 11,
             ULONG = 12,
             BYTE = 13,
-            SBYTE = 14
+            SBYTE = 14,
+            DECIMAL = 15
         }
     }
 }

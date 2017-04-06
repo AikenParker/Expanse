@@ -1,5 +1,4 @@
-﻿#define JSON_NET
-#if JSON_NET
+﻿#if JSON_NET
 using System;
 using Newtonsoft.Json;
 

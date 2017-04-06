@@ -47,7 +47,28 @@ namespace Expanse
             throw new UnsupportedException("Unable to convert type to bytes. " + typeof(T).ToString());
         }
 
+        /// <summary>
+        /// Converts a primitive value type into a byte array.
+        /// Avoid in production code as it boxes the value type.
+        /// </summary>
+        public static int GetBytes<T>(T obj, byte[] array, int offset) where T : struct, IConvertible, IComparable, IComparable<T>
+        {
+            byte[] data = GetBytes(obj);
+            int length = data.Length;
+
+            for (int i = 0; i < length; i++)
+            {
+                array[i + offset] = data[i];
+            }
+
+            return offset + length;
+        }
+
 #if UNSAFE
+        /// <summary>
+        /// Gets the bytes of an int and sets it into a byte array at offset.
+        /// Returns the new position (offset + length).
+        /// </summary>
         public static unsafe int GetBytes(int value, byte[] array, int offset)
         {
             fixed (byte* ptr = &array[offset])
@@ -55,6 +76,10 @@ namespace Expanse
             return offset + sizeof(int);
         }
 
+        /// <summary>
+        /// Gets the bytes of a bool and sets it into a byte array at offset.
+        /// Returns the new position (offset + length).
+        /// </summary>
         public static unsafe int GetBytes(bool value, byte[] array, int offset)
         {
             fixed (byte* ptr = &array[offset])
@@ -62,6 +87,10 @@ namespace Expanse
             return offset + sizeof(bool);
         }
 
+        /// <summary>
+        /// Gets the bytes of a float and sets it into a byte array at offset.
+        /// Returns the new position (offset + length).
+        /// </summary>
         public static unsafe int GetBytes(float value, byte[] array, int offset)
         {
             fixed (byte* ptr = &array[offset])
@@ -69,6 +98,10 @@ namespace Expanse
             return offset + sizeof(float);
         }
 
+        /// <summary>
+        /// Gets the bytes of a double and sets it into a byte array at offset.
+        /// Returns the new position (offset + length).
+        /// </summary>
         public static unsafe int GetBytes(double value, byte[] array, int offset)
         {
             fixed (byte* ptr = &array[offset])
@@ -76,6 +109,10 @@ namespace Expanse
             return offset + sizeof(double);
         }
 
+        /// <summary>
+        /// Gets the bytes of a char and sets it into a byte array at offset.
+        /// Returns the new position (offset + length).
+        /// </summary>
         public static unsafe int GetBytes(char value, byte[] array, int offset)
         {
             fixed (byte* ptr = &array[offset])
@@ -83,6 +120,10 @@ namespace Expanse
             return offset + sizeof(char);
         }
 
+        /// <summary>
+        /// Gets the bytes of a short and sets it into a byte array at offset.
+        /// Returns the new position (offset + length).
+        /// </summary>
         public static unsafe int GetBytes(short value, byte[] array, int offset)
         {
             fixed (byte* ptr = &array[offset])
@@ -90,6 +131,10 @@ namespace Expanse
             return offset + sizeof(short);
         }
 
+        /// <summary>
+        /// Gets the bytes of a long and sets it into a byte array at offset.
+        /// Returns the new position (offset + length).
+        /// </summary>
         public static unsafe int GetBytes(long value, byte[] array, int offset)
         {
             fixed (byte* ptr = &array[offset])
@@ -97,6 +142,10 @@ namespace Expanse
             return offset + sizeof(long);
         }
 
+        /// <summary>
+        /// Gets the bytes of a uint and sets it into a byte array at offset.
+        /// Returns the new position (offset + length).
+        /// </summary>
         public static unsafe int GetBytes(uint value, byte[] array, int offset)
         {
             fixed (byte* ptr = &array[offset])
@@ -104,6 +153,10 @@ namespace Expanse
             return offset + sizeof(uint);
         }
 
+        /// <summary>
+        /// Gets the bytes of a ushort and sets it into a byte array at offset.
+        /// Returns the new position (offset + length).
+        /// </summary>
         public static unsafe int GetBytes(ushort value, byte[] array, int offset)
         {
             fixed (byte* ptr = &array[offset])
@@ -111,6 +164,10 @@ namespace Expanse
             return offset + sizeof(ushort);
         }
 
+        /// <summary>
+        /// Gets the bytes of a ulong and sets it into a byte array at offset.
+        /// Returns the new position (offset + length).
+        /// </summary>
         public static unsafe int GetBytes(ulong value, byte[] array, int offset)
         {
             fixed (byte* ptr = &array[offset])
@@ -118,6 +175,10 @@ namespace Expanse
             return offset + sizeof(ulong);
         }
 
+        /// <summary>
+        /// Gets the bytes of a byte and sets it into a byte array at offset.
+        /// Returns the new position (offset + length).
+        /// </summary>
         public static unsafe int GetBytes(byte value, byte[] array, int offset)
         {
             fixed (byte* ptr = &array[offset])
@@ -125,6 +186,10 @@ namespace Expanse
             return offset + sizeof(byte);
         }
 
+        /// <summary>
+        /// Gets the bytes of an sbyte and sets it into a byte array at offset.
+        /// Returns the new position (offset + length).
+        /// </summary>
         public static unsafe int GetBytes(sbyte value, byte[] array, int offset)
         {
             fixed (byte* ptr = &array[offset])
@@ -132,6 +197,10 @@ namespace Expanse
             return offset + sizeof(sbyte);
         }
 
+        /// <summary>
+        /// Gets the bytes of a decimal and sets it into a byte array at offset.
+        /// Returns the new position (offset + length).
+        /// </summary>
         public static unsafe int GetBytes(decimal value, byte[] array, int offset)
         {
             fixed (byte* ptr = &array[offset])
