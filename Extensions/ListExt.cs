@@ -242,6 +242,30 @@ namespace Expanse
         }
 
         /// <summary>
+        /// Removes the first element in the list that is equal to the item.
+        /// </summary>
+        /// <returns>Returns true if an item was removed</returns>
+        public static bool RemoveFirst<T>(this IList<T> list, T item, IEqualityComparer<T> comparer)
+        {
+            if (list == null)
+                throw new ArgumentNullException("source");
+
+            if (comparer == null)
+                throw new ArgumentNullException("comparer");
+
+            for (int i = 0; i < list.Count; i++)
+            {
+                if (comparer.Equals(item, list[i]))
+                {
+                    list.RemoveAt(i);
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        /// <summary>
         /// Removes the first element in the list that meets the predicate.
         /// </summary>
         /// <returns>Returns true if an item was removed</returns>
@@ -304,6 +328,30 @@ namespace Expanse
         }
 
         /// <summary>
+        /// Removes the last element in the list that is equal to the item.
+        /// </summary>
+        /// <returns>Returns true if an item was removed</returns>
+        public static bool RemoveLast<T>(this IList<T> list, T item, IEqualityComparer<T> comparer)
+        {
+            if (list == null)
+                throw new ArgumentNullException("source");
+
+            if (comparer == null)
+                throw new ArgumentNullException("comparer");
+
+            for (int i = list.Count - 1; i >= 0; i--)
+            {
+                if (comparer.Equals(item, list[i]))
+                {
+                    list.RemoveAt(i);
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        /// <summary>
         /// Removes the last element in the list that meets the predicate.
         /// </summary>
         /// <returns>Returns true if an item was removed</returns>
@@ -322,6 +370,88 @@ namespace Expanse
             }
 
             return false;
+        }
+
+        /// <summary>
+        /// Returns the first element in a list that does NOT equal item or default value.
+        /// </summary>
+        public static T FirstWhereNotOrDefault<T>(this IList<T> list, T item)
+        {
+            if (list == null)
+                throw new ArgumentNullException("source");
+
+            for (int i = 0; i < list.Count; i++)
+            {
+                T elem = list[i];
+
+                if (!elem.Equals(item))
+                    return elem;
+            }
+
+            return default(T);
+        }
+
+        /// <summary>
+        /// Returns the first element in a list that does NOT equal item or default value.
+        /// </summary>
+        public static T FirstWhereNotOrDefault<T>(this IList<T> list, T item, IEqualityComparer<T> comparer)
+        {
+            if (list == null)
+                throw new ArgumentNullException("source");
+
+            if (comparer == null)
+                throw new ArgumentNullException("comparer");
+
+            for (int i = 0; i < list.Count; i++)
+            {
+                T elem = list[i];
+
+                if (!comparer.Equals(item, elem))
+                    return elem;
+            }
+
+            return default(T);
+        }
+
+        /// <summary>
+        /// Returns the last element in a list that does NOT equal item or default value.
+        /// </summary>
+        public static T LastWhereNotOrDefault<T>(this IList<T> list, T item)
+        {
+            if (list == null)
+                throw new ArgumentNullException("source");
+
+            for (int i = list.Count - 1; i >= 0; i--)
+            {
+                T elem = list[i];
+
+                if (!elem.Equals(item))
+                    return elem;
+            }
+
+            return default(T);
+        }
+
+        /// <summary>
+        /// Returns the last element in a list that does NOT equal item or default value.
+        /// </summary>
+        public static T LastWhereNotOrDefault<T>(this IList<T> list, T item, IEqualityComparer<T> comparer)
+        {
+            if (list == null)
+                throw new ArgumentNullException("source");
+
+            if (comparer == null)
+                throw new ArgumentNullException("comparer");
+
+            for (int i = list.Count - 1; i >= 0; i--)
+            {
+                T elem = list[i];
+
+                if (!comparer.Equals(item, elem))
+                    return elem;
+            }
+
+            return default(T);
         }
 
         /// <summary>
