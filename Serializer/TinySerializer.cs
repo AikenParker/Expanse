@@ -357,22 +357,11 @@ namespace Expanse
 
                 if (constructor == null)
                 {
-                    constructor = CreateDefaultConstructor<TSource>();
+                    constructor = EmitUtil.GenerateDefaultConstructor<TSource>();
                     this.constructor = constructor;
                 }
 
                 return constructor();
-            }
-
-            static Func<TSource> CreateDefaultConstructor<TSource>()
-            {
-                DynamicMethod constructorMethod = new DynamicMethod("ctor", typeof(TSource), new Type[0], true);
-                ILGenerator gen = constructorMethod.GetILGenerator();
-
-                gen.Emit(OpCodes.Newobj, typeof(TSource).GetConstructor(new Type[0]));
-                gen.Emit(OpCodes.Ret);
-
-                return (Func<TSource>)constructorMethod.CreateDelegate(typeof(Func<TSource>));
             }
         }
 
@@ -429,7 +418,7 @@ namespace Expanse
 
                 if (getter == null)
                 {
-                    getter = CreateGetter<TSource, TReturn>(fieldInfo);
+                    getter = EmitUtil.GenerateGetter<TSource, TReturn>(fieldInfo);
                     this.getter = getter;
                 }
 
@@ -442,53 +431,11 @@ namespace Expanse
 
                 if (setter == null)
                 {
-                    setter = CreateSetter<TSource, TValue>(fieldInfo);
+                    setter = EmitUtil.GenerateSetter<TSource, TValue>(fieldInfo);
                     this.setter = setter;
                 }
 
                 setter(source, value);
-            }
-
-            static Func<TSource, TReturn> CreateGetter<TSource, TReturn>(FieldInfo field)
-            {
-                string methodName = field.ReflectedType.FullName + ".get_" + field.Name;
-                DynamicMethod getterMethod = new DynamicMethod(methodName, typeof(TReturn), new Type[1] { typeof(TSource) }, true);
-                ILGenerator gen = getterMethod.GetILGenerator();
-
-                if (field.IsStatic)
-                {
-                    gen.Emit(OpCodes.Ldsfld, field);
-                }
-                else
-                {
-                    gen.Emit(OpCodes.Ldarg_0);
-                    gen.Emit(OpCodes.Ldfld, field);
-                }
-
-                gen.Emit(OpCodes.Ret);
-                return (Func<TSource, TReturn>)getterMethod.CreateDelegate(typeof(Func<TSource, TReturn>));
-            }
-
-            static Action<TSource, TValue> CreateSetter<TSource, TValue>(FieldInfo field)
-            {
-                string methodName = field.ReflectedType.FullName + ".set_" + field.Name;
-                DynamicMethod setterMethod = new DynamicMethod(methodName, null, new Type[2] { typeof(TSource), typeof(TValue) }, true);
-                ILGenerator gen = setterMethod.GetILGenerator();
-
-                if (field.IsStatic)
-                {
-                    gen.Emit(OpCodes.Ldarg_1);
-                    gen.Emit(OpCodes.Stsfld, field);
-                }
-                else
-                {
-                    gen.Emit(OpCodes.Ldarg_0);
-                    gen.Emit(OpCodes.Ldarg_1);
-                    gen.Emit(OpCodes.Stfld, field);
-                }
-
-                gen.Emit(OpCodes.Ret);
-                return (Action<TSource, TValue>)setterMethod.CreateDelegate(typeof(Action<TSource, TValue>));
             }
         }
 
