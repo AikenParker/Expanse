@@ -15,7 +15,7 @@ namespace Expanse
         public static Func<TSource> GenerateDefaultConstructor<TSource>()
         {
             Type type = typeof(TSource);
-            string methodName = type.ReflectedType.FullName + ".ctor";
+            string methodName = type.FullName + ".ctor";
             DynamicMethod constructorMethod = new DynamicMethod(methodName, type, new Type[0], true);
             ILGenerator gen = constructorMethod.GetILGenerator();
 
