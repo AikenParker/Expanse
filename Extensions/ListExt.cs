@@ -195,7 +195,7 @@ namespace Expanse
         public static bool Contains<T, U>(this IList<T> list, U item, Func<T, U> selector)
         {
             if (list == null)
-                throw new ArgumentNullException("source");
+                throw new ArgumentNullException("list");
 
             var selected = list.Select(selector);
 
@@ -209,7 +209,7 @@ namespace Expanse
         public static bool RemoveFirst<T>(this IList<T> list)
         {
             if (list == null)
-                throw new ArgumentNullException("source");
+                throw new ArgumentNullException("list");
 
             if (list.Count > 0)
             {
@@ -227,7 +227,7 @@ namespace Expanse
         public static bool RemoveFirst<T>(this IList<T> list, T item)
         {
             if (list == null)
-                throw new ArgumentNullException("source");
+                throw new ArgumentNullException("list");
 
             for (int i = 0; i < list.Count; i++)
             {
@@ -248,7 +248,7 @@ namespace Expanse
         public static bool RemoveFirst<T>(this IList<T> list, T item, IEqualityComparer<T> comparer)
         {
             if (list == null)
-                throw new ArgumentNullException("source");
+                throw new ArgumentNullException("list");
 
             if (comparer == null)
                 throw new ArgumentNullException("comparer");
@@ -272,7 +272,7 @@ namespace Expanse
         public static bool RemoveFirst<T>(this IList<T> list, Func<T, bool> predicate)
         {
             if (list == null)
-                throw new ArgumentNullException("source");
+                throw new ArgumentNullException("list");
 
             for (int i = 0; i < list.Count; i++)
             {
@@ -293,7 +293,7 @@ namespace Expanse
         public static bool RemoveLast<T>(this IList<T> list)
         {
             if (list == null)
-                throw new ArgumentNullException("source");
+                throw new ArgumentNullException("list");
 
             int listCount = list.Count;
 
@@ -313,7 +313,7 @@ namespace Expanse
         public static bool RemoveLast<T>(this IList<T> list, T item)
         {
             if (list == null)
-                throw new ArgumentNullException("source");
+                throw new ArgumentNullException("list");
 
             for (int i = list.Count - 1; i >= 0; i--)
             {
@@ -334,7 +334,7 @@ namespace Expanse
         public static bool RemoveLast<T>(this IList<T> list, T item, IEqualityComparer<T> comparer)
         {
             if (list == null)
-                throw new ArgumentNullException("source");
+                throw new ArgumentNullException("list");
 
             if (comparer == null)
                 throw new ArgumentNullException("comparer");
@@ -358,7 +358,7 @@ namespace Expanse
         public static bool RemoveLast<T>(this IList<T> list, Func<T, bool> predicate)
         {
             if (list == null)
-                throw new ArgumentNullException("source");
+                throw new ArgumentNullException("list");
 
             for (int i = list.Count - 1; i >= 0; i--)
             {
@@ -378,7 +378,7 @@ namespace Expanse
         public static T FirstWhereNotOrDefault<T>(this IList<T> list, T item)
         {
             if (list == null)
-                throw new ArgumentNullException("source");
+                throw new ArgumentNullException("list");
 
             for (int i = 0; i < list.Count; i++)
             {
@@ -397,7 +397,7 @@ namespace Expanse
         public static T FirstWhereNotOrDefault<T>(this IList<T> list, T item, IEqualityComparer<T> comparer)
         {
             if (list == null)
-                throw new ArgumentNullException("source");
+                throw new ArgumentNullException("list");
 
             if (comparer == null)
                 throw new ArgumentNullException("comparer");
@@ -419,7 +419,7 @@ namespace Expanse
         public static T LastWhereNotOrDefault<T>(this IList<T> list, T item)
         {
             if (list == null)
-                throw new ArgumentNullException("source");
+                throw new ArgumentNullException("list");
 
             for (int i = list.Count - 1; i >= 0; i--)
             {
@@ -438,7 +438,7 @@ namespace Expanse
         public static T LastWhereNotOrDefault<T>(this IList<T> list, T item, IEqualityComparer<T> comparer)
         {
             if (list == null)
-                throw new ArgumentNullException("source");
+                throw new ArgumentNullException("list");
 
             if (comparer == null)
                 throw new ArgumentNullException("comparer");
@@ -460,12 +460,59 @@ namespace Expanse
         public static void Shuffle<T>(this IList<T> list, Random rng = null)
         {
             if (list == null)
-                throw new ArgumentNullException("source");
+                throw new ArgumentNullException("list");
 
             if (rng != null)
                 rng.Shuffle(list);
             else
                 RandomUtil.Shuffle(list);
+        }
+
+        /// <summary>
+        /// Insert a value into an list that is presumed to be already sorted such that sort
+        /// ordering is preserved.
+        /// </summary>
+        /// <param name="list">List to insert into</param>
+        /// <param name="value">Value to insert</param>
+        /// <typeparam name="T">Type of element to insert and type of elements in the list</typeparam>
+        public static void InsertSorted<T>(this IList<T> list, T value) where T : IComparable<T>
+        {
+            InsertSorted(list, value, (a, b) => a.CompareTo(b));
+        }
+
+        /// <summary>
+        /// Insert a value into an list that is presumed to be already sorted such that sort
+        /// ordering is preserved.
+        /// </summary>
+        /// <param name="list">List to insert into</param>
+        /// <param name="value">Value to insert</param>
+        /// <param name="comparison">Comparison to determine sort order with</param>
+        /// <typeparam name="T">Type of element to insert and type of elements in the list</typeparam>
+        public static void InsertSorted<T>(this IList<T> list, T value, Comparison<T> comparison)
+        {
+            var startIndex = 0;
+            var endIndex = list.Count;
+            while (endIndex > startIndex)
+            {
+                var windowSize = endIndex - startIndex;
+                var middleIndex = startIndex + (windowSize / 2);
+                var middleValue = list[middleIndex];
+                var compareToResult = comparison(middleValue, value);
+                if (compareToResult == 0)
+                {
+                    list.Insert(middleIndex, value);
+                    return;
+                }
+                else if (compareToResult < 0)
+                {
+                    startIndex = middleIndex + 1;
+                }
+                else
+                {
+                    endIndex = middleIndex;
+                }
+            }
+            list.Insert(startIndex, value);
         }
     }
 }
