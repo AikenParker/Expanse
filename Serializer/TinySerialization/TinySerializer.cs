@@ -17,6 +17,7 @@ namespace Expanse.TinySerialization
         private SerializationInfo serializationInfo;
 
         private List<TypeCacheInfo> typeCacheInfoList;
+        private List<FieldCacheInfo> fieldCacheInfoList;
         private TypeCacheInfo lastTypeCacheInfo;
 
         private BasicPrimitiveTypeResolver basicPrimitiveTypeResolver;
@@ -225,7 +226,37 @@ namespace Expanse.TinySerialization
 
             if (typeCacheInfo == null)
             {
-                FieldCacheInfo[] fields = type.GetFields(serializationInfo.BindingFlags).SelectWhereToList(x => new FieldCacheInfo(this, x), x => x.type != SupportedFieldType.NONE).ToArray();
+                FieldInfo[] allFieldInfo = type.GetFields(serializationInfo.BindingFlags);
+                int fieldInfoCount = allFieldInfo.Length;
+
+                fieldCacheInfoList = fieldCacheInfoList ?? new List<FieldCacheInfo>(fieldInfoCount);
+                fieldCacheInfoList.Capacity = fieldInfoCount;
+
+                int fieldListCacheCount = fieldCacheInfoList.Count;
+                int supportedFieldListCount = 0;
+
+                for (int i = 0; i < fieldInfoCount; i++)
+                {
+                    FieldInfo fieldInfo = allFieldInfo[i];
+                    SupportedFieldType fieldType = FieldCacheInfo.GetFieldType(fieldInfo);
+
+                    if (fieldType != SupportedFieldType.NONE)
+                    {
+                        supportedFieldListCount++;
+                        FieldCacheInfo field = new FieldCacheInfo(this, fieldInfo, fieldType);
+
+                        if (i < fieldListCacheCount)
+                            fieldCacheInfoList[i] = field;
+                        else
+                            fieldCacheInfoList.Add(field);
+                    }
+                }
+
+                FieldCacheInfo[] fields = new FieldCacheInfo[supportedFieldListCount];
+                for (int i = 0; i < fields.Length; i++)
+                {
+                    fields[i] = fieldCacheInfoList[i];
+                }
 
                 typeCacheInfo = new TypeCacheInfo(this, type, fields);
 

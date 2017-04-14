@@ -14,7 +14,7 @@ namespace Expanse.TinySerialization
         private bool hasCalculatedSize;
 
 #if !AOT_ONLY
-        private object constructor;
+        private Delegate constructor;
 #endif
 
         public TypeCacheInfo(TinySerializer serializer, Type type, FieldCacheInfo[] fields)

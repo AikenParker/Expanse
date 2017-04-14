@@ -11,49 +11,54 @@ namespace Expanse.TinySerialization
         public FieldInfo fieldInfo;
 
 #if !AOT_ONLY
-        public object getter;
-        public object setter;
+        public Delegate getter;
+        public Delegate setter;
 #endif
 
-        public FieldCacheInfo(TinySerializer serializer, FieldInfo fieldInfo)
+        public static SupportedFieldType GetFieldType(FieldInfo fieldInfo)
+        {
+            Type type = fieldInfo.FieldType;
+
+            // --SUPPORTED-TYPE-SWITCH--
+            if (type == typeof(int))
+                return SupportedFieldType.INT;
+            else if (type == typeof(bool))
+                return SupportedFieldType.BOOL;
+            else if (type == typeof(float))
+                return SupportedFieldType.FLOAT;
+            else if (type == typeof(double))
+                return SupportedFieldType.DOUBLE;
+            else if (type == typeof(char))
+                return SupportedFieldType.CHAR;
+            else if (type == typeof(string))
+                return SupportedFieldType.STRING;
+            else if (type == typeof(DateTime))
+                return SupportedFieldType.DATE_TIME;
+            else if (type == typeof(short))
+                return SupportedFieldType.SHORT;
+            else if (type == typeof(long))
+                return SupportedFieldType.LONG;
+            else if (type == typeof(uint))
+                return SupportedFieldType.UINT;
+            else if (type == typeof(ushort))
+                return SupportedFieldType.USHORT;
+            else if (type == typeof(ulong))
+                return SupportedFieldType.ULONG;
+            else if (type == typeof(byte))
+                return SupportedFieldType.BYTE;
+            else if (type == typeof(sbyte))
+                return SupportedFieldType.SBYTE;
+            else if (type == typeof(decimal))
+                return SupportedFieldType.DECIMAL;
+            else
+                return SupportedFieldType.NONE;
+        }
+
+        public FieldCacheInfo(TinySerializer serializer, FieldInfo fieldInfo, SupportedFieldType type)
         {
             this.serializer = serializer;
             this.fieldInfo = fieldInfo;
-
-            Type fieldType = fieldInfo.FieldType;
-
-            if (fieldType == typeof(int))
-                type = SupportedFieldType.INT;
-            else if (fieldType == typeof(bool))
-                type = SupportedFieldType.BOOL;
-            else if (fieldType == typeof(float))
-                type = SupportedFieldType.FLOAT;
-            else if (fieldType == typeof(double))
-                type = SupportedFieldType.DOUBLE;
-            else if (fieldType == typeof(char))
-                type = SupportedFieldType.CHAR;
-            else if (fieldType == typeof(string))
-                type = SupportedFieldType.STRING;
-            else if (fieldType == typeof(DateTime))
-                type = SupportedFieldType.DATE_TIME;
-            else if (fieldType == typeof(short))
-                type = SupportedFieldType.SHORT;
-            else if (fieldType == typeof(long))
-                type = SupportedFieldType.LONG;
-            else if (fieldType == typeof(uint))
-                type = SupportedFieldType.UINT;
-            else if (fieldType == typeof(ushort))
-                type = SupportedFieldType.USHORT;
-            else if (fieldType == typeof(ulong))
-                type = SupportedFieldType.ULONG;
-            else if (fieldType == typeof(byte))
-                type = SupportedFieldType.BYTE;
-            else if (fieldType == typeof(sbyte))
-                type = SupportedFieldType.SBYTE;
-            else if (fieldType == typeof(decimal))
-                type = SupportedFieldType.DECIMAL;
-            else
-                type = SupportedFieldType.NONE;
+            this.type = type;
         }
 
         public TReturn GetValue<TSource, TReturn>(TSource source)

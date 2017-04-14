@@ -29,6 +29,10 @@ namespace Expanse
             }
         }
 
+        private static Type[] emptyTypeArray = new Type[0];
+        private static Type[] singleTypeArray = new Type[1];
+        private static Type[] doubleTypeArray = new Type[2];
+
         public static void Prewarm()
         {
             dynamicModule = dynamicModule ?? GenerateDynamicModule();
@@ -48,10 +52,10 @@ namespace Expanse
         public static Func<TSource> GenerateDefaultConstructor<TSource>()
         {
             Type type = typeof(TSource);
-            DynamicMethod constructorMethod = new DynamicMethod(useMeaningfulNames ? type.FullName + ".ctor" : GENERATED_NAME, type, new Type[0], DynamicModule);
+            DynamicMethod constructorMethod = new DynamicMethod(useMeaningfulNames ? type.FullName + ".ctor" : GENERATED_NAME, type, emptyTypeArray, DynamicModule);
             ILGenerator gen = constructorMethod.GetILGenerator();
 
-            gen.Emit(OpCodes.Newobj, type.GetConstructor(new Type[0]));
+            gen.Emit(OpCodes.Newobj, type.GetConstructor(emptyTypeArray));
             gen.Emit(OpCodes.Ret);
 
             return (Func<TSource>)constructorMethod.CreateDelegate(typeof(Func<TSource>));
@@ -62,20 +66,14 @@ namespace Expanse
         /// </summary>
         public static Func<TSource, TReturn> GenerateGetter<TSource, TReturn>(FieldInfo field)
         {
-            DynamicMethod getterMethod = new DynamicMethod(useMeaningfulNames ? field.ReflectedType.FullName + ".get_" + field.Name : GENERATED_NAME, typeof(TReturn), new Type[1] { typeof(TSource) }, DynamicModule);
+            singleTypeArray[0] = typeof(TSource);
+            DynamicMethod getterMethod = new DynamicMethod(useMeaningfulNames ? field.ReflectedType.FullName + ".get_" + field.Name : GENERATED_NAME, typeof(TReturn), singleTypeArray, DynamicModule);
+
             ILGenerator gen = getterMethod.GetILGenerator();
-
-            if (field.IsStatic)
-            {
-                gen.Emit(OpCodes.Ldsfld, field);
-            }
-            else
-            {
-                gen.Emit(OpCodes.Ldarg_0);
-                gen.Emit(OpCodes.Ldfld, field);
-            }
-
+            gen.Emit(OpCodes.Ldarg_0);
+            gen.Emit(OpCodes.Ldfld, field);
             gen.Emit(OpCodes.Ret);
+
             return (Func<TSource, TReturn>)getterMethod.CreateDelegate(typeof(Func<TSource, TReturn>));
         }
 
@@ -84,22 +82,16 @@ namespace Expanse
         /// </summary>
         public static Action<TSource, TValue> GenerateSetter<TSource, TValue>(FieldInfo field)
         {
-            DynamicMethod setterMethod = new DynamicMethod(useMeaningfulNames ? field.ReflectedType.FullName + ".set_" + field.Name : GENERATED_NAME, null, new Type[2] { typeof(TSource), typeof(TValue) }, DynamicModule);
+            doubleTypeArray[0] = typeof(TSource);
+            doubleTypeArray[1] = typeof(TValue);
+            DynamicMethod setterMethod = new DynamicMethod(useMeaningfulNames ? field.ReflectedType.FullName + ".set_" + field.Name : GENERATED_NAME, null, doubleTypeArray, DynamicModule);
+
             ILGenerator gen = setterMethod.GetILGenerator();
-
-            if (field.IsStatic)
-            {
-                gen.Emit(OpCodes.Ldarg_1);
-                gen.Emit(OpCodes.Stsfld, field);
-            }
-            else
-            {
-                gen.Emit(OpCodes.Ldarg_0);
-                gen.Emit(OpCodes.Ldarg_1);
-                gen.Emit(OpCodes.Stfld, field);
-            }
-
+            gen.Emit(OpCodes.Ldarg_0);
+            gen.Emit(OpCodes.Ldarg_1);
+            gen.Emit(OpCodes.Stfld, field);
             gen.Emit(OpCodes.Ret);
+
             return (Action<TSource, TValue>)setterMethod.CreateDelegate(typeof(Action<TSource, TValue>));
         }
     }
