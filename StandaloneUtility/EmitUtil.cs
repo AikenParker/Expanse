@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if !AOT_ONLY
+using System;
 using System.Reflection;
 using System.Reflection.Emit;
 
@@ -9,14 +10,45 @@ namespace Expanse
     /// </summary>
     public static class EmitUtil
     {
+        private static bool useMeaningfulNames = true;
+        private const string GENERATED_NAME = "GEN";
+
+        public static bool UseMeaningfulNames
+        {
+            get { return useMeaningfulNames; }
+            set { useMeaningfulNames = value; }
+        }
+
+        private static Module dynamicModule;
+        private static Module DynamicModule
+        {
+            get
+            {
+                dynamicModule = dynamicModule ?? GenerateDynamicModule();
+                return dynamicModule;
+            }
+        }
+
+        public static void Prewarm()
+        {
+            dynamicModule = dynamicModule ?? GenerateDynamicModule();
+        }
+
+        private static Module GenerateDynamicModule()
+        {
+            AssemblyName dynamicAssemblyName = new AssemblyName("DynamicEmitUtilAssembly");
+            AssemblyBuilder dynamicAssemblyBuilder = AppDomain.CurrentDomain.DefineDynamicAssembly(dynamicAssemblyName, AssemblyBuilderAccess.Run);
+            ModuleBuilder dynamicModuleBuilder = dynamicAssemblyBuilder.DefineDynamicModule("DynamicEmitUtilModule");
+            return dynamicModuleBuilder.Assembly.GetModule("DynamicEmitUtilModule");
+        }
+
         /// <summary>
         /// Returns a dynamically compiled method that calls a default constructor for a type.
         /// </summary>
         public static Func<TSource> GenerateDefaultConstructor<TSource>()
         {
             Type type = typeof(TSource);
-            string methodName = type.FullName + ".ctor";
-            DynamicMethod constructorMethod = new DynamicMethod(methodName, type, new Type[0], true);
+            DynamicMethod constructorMethod = new DynamicMethod(useMeaningfulNames ? type.FullName + ".ctor" : GENERATED_NAME, type, new Type[0], DynamicModule);
             ILGenerator gen = constructorMethod.GetILGenerator();
 
             gen.Emit(OpCodes.Newobj, type.GetConstructor(new Type[0]));
@@ -30,8 +62,7 @@ namespace Expanse
         /// </summary>
         public static Func<TSource, TReturn> GenerateGetter<TSource, TReturn>(FieldInfo field)
         {
-            string methodName = field.ReflectedType.FullName + ".get_" + field.Name;
-            DynamicMethod getterMethod = new DynamicMethod(methodName, typeof(TReturn), new Type[1] { typeof(TSource) }, true);
+            DynamicMethod getterMethod = new DynamicMethod(useMeaningfulNames ? field.ReflectedType.FullName + ".get_" + field.Name : GENERATED_NAME, typeof(TReturn), new Type[1] { typeof(TSource) }, DynamicModule);
             ILGenerator gen = getterMethod.GetILGenerator();
 
             if (field.IsStatic)
@@ -53,8 +84,7 @@ namespace Expanse
         /// </summary>
         public static Action<TSource, TValue> GenerateSetter<TSource, TValue>(FieldInfo field)
         {
-            string methodName = field.ReflectedType.FullName + ".set_" + field.Name;
-            DynamicMethod setterMethod = new DynamicMethod(methodName, null, new Type[2] { typeof(TSource), typeof(TValue) }, true);
+            DynamicMethod setterMethod = new DynamicMethod(useMeaningfulNames ? field.ReflectedType.FullName + ".set_" + field.Name : GENERATED_NAME, null, new Type[2] { typeof(TSource), typeof(TValue) }, DynamicModule);
             ILGenerator gen = setterMethod.GetILGenerator();
 
             if (field.IsStatic)
@@ -74,3 +104,4 @@ namespace Expanse
         }
     }
 }
+#endif

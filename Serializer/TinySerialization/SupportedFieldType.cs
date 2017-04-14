@@ -1,5 +1,6 @@
 ﻿namespace Expanse.TinySerialization
 {
+    // --SUPPORTED-TYPE-SWITCH--
     public enum SupportedFieldType
     {
         NONE = 0,

@@ -5,13 +5,19 @@ namespace Expanse.TinySerialization
 {
     public class FieldCacheInfo
     {
+        private TinySerializer serializer;
+
         public SupportedFieldType type;
         public FieldInfo fieldInfo;
+
+#if !AOT_ONLY
         public object getter;
         public object setter;
+#endif
 
-        public FieldCacheInfo(FieldInfo fieldInfo)
+        public FieldCacheInfo(TinySerializer serializer, FieldInfo fieldInfo)
         {
+            this.serializer = serializer;
             this.fieldInfo = fieldInfo;
 
             Type fieldType = fieldInfo.FieldType;
@@ -52,28 +58,53 @@ namespace Expanse.TinySerialization
 
         public TReturn GetValue<TSource, TReturn>(TSource source)
         {
+#if AOT_ONLY
+            return (TReturn)fieldInfo.GetValue(source);
+#else
+
             Func<TSource, TReturn> getter = this.getter as Func<TSource, TReturn>;
 
             if (getter == null)
             {
-                getter = EmitUtil.GenerateGetter<TSource, TReturn>(fieldInfo);
-                this.getter = getter;
+                if (serializer.SerializationInfo.EmitReflection)
+                {
+                    getter = EmitUtil.GenerateGetter<TSource, TReturn>(fieldInfo);
+                    this.getter = getter;
+                }
+                else
+                {
+                    return (TReturn)fieldInfo.GetValue(source);
+                }
             }
 
             return getter(source);
+#endif
         }
 
         public void SetValue<TSource, TValue>(TSource source, TValue value)
         {
+#if AOT_ONLY
+            fieldInfo.SetValue(source, value);
+#else
+
             Action<TSource, TValue> setter = this.setter as Action<TSource, TValue>;
 
             if (setter == null)
             {
-                setter = EmitUtil.GenerateSetter<TSource, TValue>(fieldInfo);
-                this.setter = setter;
+                if (serializer.SerializationInfo.EmitReflection)
+                {
+                    setter = EmitUtil.GenerateSetter<TSource, TValue>(fieldInfo);
+                    this.setter = setter;
+                }
+                else
+                {
+                    fieldInfo.SetValue(source, value);
+                    return;
+                }
             }
 
             setter(source, value);
+#endif
         }
     }
 }
