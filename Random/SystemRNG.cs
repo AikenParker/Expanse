@@ -7,6 +7,22 @@ namespace Expanse
     /// </summary>
     public class SystemRNG : IRandomNumberGenerator
     {
+        /// <summary>
+        /// Creates a new Random wrapper using SystemRNG.
+        /// </summary>
+        public static Random CreateNew()
+        {
+            return new Random(new SystemRNG());
+        }
+
+        /// <summary>
+        /// Creates a new Random wrapper using SystemRNG.
+        /// </summary>
+        public static Random CreateNew(int seed)
+        {
+            return new Random(new SystemRNG(seed));
+        }
+
         protected System.Random rng;
 
         public SystemRNG() : this(Environment.TickCount) { }

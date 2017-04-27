@@ -7,6 +7,14 @@ namespace Expanse
     /// </summary>
     public class CryptoRNG : IRandomNumberGenerator
     {
+        /// <summary>
+        /// Creates a new Random wrapper using CryptoRNG.
+        /// </summary>
+        public static Random CreateNew()
+        {
+            return new Random(new CryptoRNG());
+        }
+
         protected System.Security.Cryptography.RNGCryptoServiceProvider rng;
 
         public CryptoRNG()

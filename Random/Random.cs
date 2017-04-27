@@ -83,6 +83,14 @@ namespace Expanse
         }
 
         /// <summary>
+        /// Returns a byte with randomly set bits.
+        /// </summary>
+        public byte Byte()
+        {
+            return (byte)Int(0x00, 0xFF);
+        }
+
+        /// <summary>
         /// Returns a byte array with randomly set bits.
         /// </summary>
         public byte[] Bytes(int length = 1)
@@ -236,7 +244,14 @@ namespace Expanse
         /// </summary>
         public Color Color()
         {
-            return new Color(Float(), Float(), Float(), Float());
+            int data = Int();
+
+            byte r = (byte)((data >> 24) & 0xFF);
+            byte g = (byte)((data >> 16) & 0xFF);
+            byte b = (byte)((data >> 08) & 0xFF);
+            byte a = (byte)((data >> 00) & 0xFF);
+
+            return new Color32(r, g, b, a);
         }
 
         /// <summary>
@@ -244,7 +259,13 @@ namespace Expanse
         /// </summary>
         public Color Color(float alpha)
         {
-            return new Color(Float(), Float(), Float(), alpha);
+            int data = Int();
+
+            byte r = (byte)((data >> 24) & 0xFF);
+            byte g = (byte)((data >> 16) & 0xFF);
+            byte b = (byte)((data >> 08) & 0xFF);
+
+            return new Color(r, g, b, alpha);
         }
 
         /// <summary>

@@ -94,6 +94,17 @@ namespace Expanse
         }
 
         /// <summary>
+        /// Returns a byte with randomly set bits.
+        /// </summary>
+        public static byte Byte()
+        {
+            lock (@lock)
+            {
+                return instance.Byte();
+            }
+        }
+
+        /// <summary>
         /// Returns a byte array with randomly set bits.
         /// </summary>
         public static byte[] Bytes(int length = 1)

@@ -7,6 +7,22 @@ namespace Expanse
     /// </summary>
     public class UnityRNG : IRandomNumberGenerator
     {
+        /// <summary>
+        /// Creates a new Random wrapper using UnityRNG.
+        /// </summary>
+        public static Random CreateNew()
+        {
+            return new Random(new UnityRNG());
+        }
+
+        /// <summary>
+        /// Creates a new Random wrapper using UnityRNG.
+        /// </summary>
+        public static Random CreateNew(int seed)
+        {
+            return new Random(new UnityRNG(seed));
+        }
+
         protected UnityEngine.Random.State rngState;
 
         public UnityRNG() : this(Environment.TickCount) { }
@@ -25,7 +41,7 @@ namespace Expanse
             UnityEngine.Random.State prevState = UnityEngine.Random.state;
             UnityEngine.Random.state = rngState;
 
-            double value = (double)(decimal)UnityEngine.Random.value;
+            double value = UnityEngine.Random.value;
 
             rngState = UnityEngine.Random.state;
             UnityEngine.Random.state = prevState;
