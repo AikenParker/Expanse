@@ -1,0 +1,15 @@
+﻿using System;
+using System.Linq;
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.UI;
+using Expanse;
+
+namespace NAMESPACE
+{
+	public class #SCRIPTNAME# : MonoBehaviour
+	{
+		#NOTRIM#
+	}
+}
