@@ -19,7 +19,7 @@ namespace Expanse
         public override void OnInspectorGUI()
         {
             EditorGUI.BeginChangeCheck();
-            serializedObject.UpdateIfDirtyOrScript();
+            serializedObject.UpdateIfRequiredOrScript();
 
             EditorUtil.DrawInspectorScriptField<SerializedTimer>(Target);
             EditorUtil.DrawInspectorEditorScriptField<SerializedTimerInspector>(this);

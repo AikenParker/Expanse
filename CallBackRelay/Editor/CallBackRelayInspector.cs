@@ -18,7 +18,7 @@ namespace Expanse
         public override void OnInspectorGUI()
         {
             EditorGUI.BeginChangeCheck();
-            serializedObject.UpdateIfDirtyOrScript();
+            serializedObject.UpdateIfRequiredOrScript();
 
             EditorUtil.DrawInspectorScriptField<CallBackRelay>(Target);
             EditorUtil.DrawInspectorEditorScriptField<CallBackRelayInspector>(this);

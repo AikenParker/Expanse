@@ -32,7 +32,7 @@ namespace Expanse
         }
 
         /// <summary>
-        /// Returns a new array where items are selected from another list. Faster than Select<>().ToList().
+        /// Returns a new array where items are selected from another list. Faster than Select<>().ToArray().
         /// </summary>
         public static TOutput[] SelectToArray<TInput, TOutput>(this IList<TInput> list, Func<TInput, TOutput> selector)
         {
