@@ -6,11 +6,24 @@ using UnityEngine;
 
 namespace Expanse
 {
+    /// <summary>
+    /// A motion that moves a value of any type towards a target value.
+    /// </summary>
     public abstract class ValueMotion<T> : Motion where T : struct
     {
-        public T StartValue { get; private set; }
-        public T TargetValue { get; private set; }
-        public T CurrentValue { get; protected set; }
+        public T StartValue { get; protected set; }
+        public T TargetValue { get; protected set; }
+
+        private T currentValue;
+        public T CurrentValue
+        {
+            get { return currentValue; }
+            protected set
+            {
+                currentValue = value;
+                OnValueChanged();
+            }
+        }
 
         public float ValueProgress { get; private set; }
 
@@ -79,6 +92,8 @@ namespace Expanse
                 OnProgressChanged();
             }
         }
+
+        protected virtual void OnValueChanged() { }
 
         protected override void OnMotionCompleted()
         {

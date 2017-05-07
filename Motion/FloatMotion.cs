@@ -3,6 +3,9 @@ using UnityEngine;
 
 namespace Expanse
 {
+    /// <summary>
+    /// A Motion that moves a float value towards a target value.
+    /// </summary>
     public class FloatMotion : ValueMotion<float>
     {
         public FloatMotion() : base(1, null, null) { }
@@ -13,7 +16,7 @@ namespace Expanse
 
         protected override void OnProgressChanged()
         {
-            CurrentValue = Mathf.Lerp(StartValue, TargetValue, ValueProgress);
+            CurrentValue = Mathf.LerpUnclamped(StartValue, TargetValue, ValueProgress);
         }
     }
 }
