@@ -22,8 +22,11 @@ namespace Expanse
             {
                 currentValue = value;
                 OnValueChanged();
+                ValueChanged.SafeInvoke(currentValue);
             }
         }
+
+        public event Action<T> ValueChanged;
 
         public float ValueProgress { get; private set; }
 
@@ -45,7 +48,7 @@ namespace Expanse
         {
             this.duration = duration;
 
-            this.EaseEquation = new Linear.EaseNone();
+            this.EaseEquation = Expanse.EaseEquation.DefaultEase;
         }
 
         public virtual void SetParameters(Func<T> getter, T targetValue)

@@ -6,11 +6,13 @@ namespace Expanse
     /*
     TODO:
     : Add completion mode (stop, repeat, reverse)
-    : Add max repeats
     : Add statistical data
     : Add comments
     : Add non alloc ease equations
     : Add motion utils (e.g. bounce)
+    : Add InitialRepeats, RepeatsRemaining
+    : Add Duration/TrueDuration, TotalDuration/TrueTotalDuration, TotalDurationWithRepeats/TrueTotalDurationWithRepeats
+    : Add TimeRemaining/TrueTimeRemaining, TotalTimeRemaining/TrueTotalTimeRemaining, TotalTimeRemainingWithRepeats/TrueTotalTimeRemainingWithRepeats
     */
 
     /// <summary>
@@ -37,8 +39,9 @@ namespace Expanse
         public bool IsCompleted { get; private set; }
 
         public event Action Started;
-        public event Action Updated;
         public event Action MotionStarted;
+        public event Action Updated;
+        public event Action MotionUpdated;
         public event Action MotionCompleted;
         public event Action Completed;
 
@@ -120,6 +123,12 @@ namespace Expanse
             if (!IsActive)
                 return;
 
+            float position = this.Position;
+            float startDelay = this.StartDelay;
+            float endDelay = this.EndDelay;
+            float duration = this.Duration;
+            float totalDuration = duration + startDelay + endDelay;
+
             // Check starting events
 
             if (!IsMotionStarted)
@@ -129,7 +138,7 @@ namespace Expanse
                     OnStarted();
                 }
 
-                if (Position > StartDelay)
+                if (position > startDelay)
                 {
                     OnMotionStarted();
                 }
@@ -139,25 +148,31 @@ namespace Expanse
 
             float gain = deltaTime * PlaybackRate;
 
-            float newPostion = Mathf.Clamp(Position + gain, 0, TotalDuration);
+
+            float newPostion = Mathf.Clamp(position + gain, 0, totalDuration);
             Position = newPostion;
 
             OnPositionChanged();
 
             OnUpdated();
 
-            // Check completed events
-
-            if (!IsCompleted)
+            if (IsMotionStarted)
             {
-                if (!IsMotionCompleted && Position >= StartDelay + Duration)
-                {
-                    OnMotionCompleted();
-                }
+                OnMotionUpdated();
 
-                if (Position >= TotalDuration)
+                // Check completed events
+
+                if (!IsCompleted)
                 {
-                    OnCompleted();
+                    if (!IsMotionCompleted && newPostion >= startDelay + duration)
+                    {
+                        OnMotionCompleted();
+                    }
+
+                    if (newPostion >= totalDuration)
+                    {
+                        OnCompleted();
+                    }
                 }
             }
         }
@@ -179,6 +194,11 @@ namespace Expanse
             Updated.SafeInvoke();
         }
 
+        protected virtual void OnMotionUpdated()
+        {
+            MotionUpdated.SafeInvoke();
+        }
+
         protected virtual void OnMotionCompleted()
         {
             MotionCompleted.SafeInvoke();
@@ -189,7 +209,7 @@ namespace Expanse
         {
             Completed.SafeInvoke();
             IsCompleted = true;
-            IsActive = false;
+            Stop();
         }
 
         protected virtual void OnPositionChanged() { }

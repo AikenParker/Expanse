@@ -395,5 +395,13 @@ namespace Expanse
 
             return false;
         }
+
+        /// <summary>
+        /// Returns the total number of subscribed updates objects on this callback relay.
+        /// </summary>
+        public int SubscriberCount
+        {
+            get { return UpdateList.Count + FixedUpdateList.Count + LateUpdateList.Count; }
+        }
     }
 }

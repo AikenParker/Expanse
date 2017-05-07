@@ -6,6 +6,9 @@ using UnityEngine;
 
 namespace Expanse
 {
+    /// <summary>
+    /// All attached motions are played one after the other.
+    /// </summary>
     public class SequenceMotion : Motion
     {
         private List<Motion> motions = new List<Motion>();
@@ -104,6 +107,8 @@ namespace Expanse
 
             if (IsMotionStarted)
             {
+                OnMotionUpdated();
+
                 // Update child motions
 
                 bool allMotionsComplete = true;

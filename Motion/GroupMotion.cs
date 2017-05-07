@@ -6,6 +6,9 @@ using UnityEngine;
 
 namespace Expanse
 {
+    /// <summary>
+    /// All attached motions are played at the same time.
+    /// </summary>
     public class GroupMotion : Motion
     {
         private List<Motion> motions = new List<Motion>();
@@ -110,6 +113,8 @@ namespace Expanse
 
             if (IsMotionStarted)
             {
+                OnMotionUpdated();
+
                 // Update child motions
 
                 int completeCount = 0;
