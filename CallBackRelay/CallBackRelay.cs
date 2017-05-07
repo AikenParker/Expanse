@@ -57,7 +57,7 @@ namespace Expanse
 
             CallBackRelay instance = GlobalCBR;
 
-            if (!instance.UpdateList.Contains(updateObj, x => x.updateObj))
+            if (!UpdateListContains(instance.UpdateList, updateObj))
                 instance.UpdateList.Add(new CallBackRelayUpdateContainer(updateObj));
         }
 
@@ -84,7 +84,7 @@ namespace Expanse
 
             CallBackRelay instance = GlobalCBR;
 
-            if (!instance.FixedUpdateList.Contains(updateObj, x => x.updateObj))
+            if (!UpdateListContains(instance.FixedUpdateList, updateObj))
                 instance.FixedUpdateList.Add(new CallBackRelayUpdateContainer(updateObj));
         }
 
@@ -111,7 +111,7 @@ namespace Expanse
 
             CallBackRelay instance = GlobalCBR;
 
-            if (!instance.LateUpdateList.Contains(updateObj, x => x.updateObj))
+            if (!UpdateListContains(instance.LateUpdateList, updateObj))
                 instance.LateUpdateList.Add(new CallBackRelayUpdateContainer(updateObj));
         }
 
@@ -130,7 +130,7 @@ namespace Expanse
 
         #endregion
 
-        public List<CallBackRelayUpdateContainer> UpdateList = new List<CallBackRelayUpdateContainer>();
+        public List<CallBackRelayUpdateContainer> UpdateList = new List<CallBackRelayUpdateContainer>(10);
         public List<CallBackRelayUpdateContainer> FixedUpdateList = new List<CallBackRelayUpdateContainer>();
         public List<CallBackRelayUpdateContainer> LateUpdateList = new List<CallBackRelayUpdateContainer>();
 
@@ -159,7 +159,7 @@ namespace Expanse
         /// </summary>
         public void SubscribeToUpdate(IUpdate updateObj)
         {
-            if (!UpdateList.Contains(updateObj, x => x.updateObj))
+            if (!UpdateListContains(UpdateList, updateObj))
                 UpdateList.Add(new CallBackRelayUpdateContainer(updateObj));
         }
 
@@ -176,7 +176,7 @@ namespace Expanse
         /// </summary>
         public void SubscribeToFixedUpdate(IUpdate updateObj)
         {
-            if (!FixedUpdateList.Contains(updateObj, x => x.updateObj))
+            if (!UpdateListContains(FixedUpdateList, updateObj))
                 FixedUpdateList.Add(new CallBackRelayUpdateContainer(updateObj));
         }
 
@@ -193,7 +193,7 @@ namespace Expanse
         /// </summary>
         public void SubscribeToLateUpdate(IUpdate updateObj)
         {
-            if (!LateUpdateList.Contains(updateObj, x => x.updateObj))
+            if (!UpdateListContains(LateUpdateList, updateObj))
                 LateUpdateList.Add(new CallBackRelayUpdateContainer(updateObj));
         }
 
@@ -383,6 +383,17 @@ namespace Expanse
 
             if (this == GlobalCBR)
                 GlobalCBRDestroyed = true;
+        }
+
+        private static bool UpdateListContains(List<CallBackRelayUpdateContainer> updateList, IUpdate updateObj)
+        {
+            for (int i = 0; i < updateList.Count; i++)
+            {
+                if (updateList[i].updateObj == updateObj)
+                    return true;
+            }
+
+            return false;
         }
     }
 }

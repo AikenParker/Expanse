@@ -190,19 +190,6 @@ namespace Expanse
         }
 
         /// <summary>
-        /// Returns true if a selected list contains an item.
-        /// </summary>
-        public static bool Contains<T, U>(this IList<T> list, U item, Func<T, U> selector)
-        {
-            if (list == null)
-                throw new ArgumentNullException("list");
-
-            var selected = list.Select(selector);
-
-            return selected.Contains(item);
-        }
-
-        /// <summary>
         /// Removes the first element in the list.
         /// </summary>
         /// <returns>Returns true if an item was removed</returns>

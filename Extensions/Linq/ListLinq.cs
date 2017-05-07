@@ -12,6 +12,27 @@ namespace Expanse
     public static class ListLinq
     {
         /// <summary>
+        /// Returns true if a list contains an object.
+        /// </summary>
+        public static bool ContainsObject<T>(this IList<T> list, T obj) where T : class
+        {
+            if (list == null)
+                throw new ArgumentNullException("source");
+
+            int count = list.Count;
+
+            for (int i = 0; i < count; i++)
+            {
+                T item = list[i];
+
+                if (item == obj)
+                    return true;
+            }
+
+            return false;
+        }
+
+        /// <summary>
         /// Returns a new list where items are casted from one type to another. Faster than OfType<>().ToList().
         /// </summary>
         public static List<TOutput> OfTypeToList<TInput, TOutput>(this IList<TInput> list)

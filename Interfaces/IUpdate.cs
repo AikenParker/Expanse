@@ -15,7 +15,7 @@ namespace Expanse
     public interface IComplexUpdate : IUpdate, IPriority
     {
         /// <summary>
-        /// Will this update even if the attached MonoBehaviour is destroyed?
+        /// Will this update even if the attached MonoBehaviour is destroyed or non-existent?
         /// </summary>
         bool UnsafeUpdates { get; }
 

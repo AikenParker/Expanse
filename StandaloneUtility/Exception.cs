@@ -27,6 +27,18 @@ namespace Expanse
     }
 
     /// <summary>
+    /// Attempted to access/modify object while active when it can only happen while the object is inactive.
+    /// </summary>
+    public class ActiveException : ExpanseException
+    {
+        public ActiveException() : base() { }
+
+        public ActiveException(string message) : base(message) { }
+
+        public ActiveException(string message, Exception innerException) : base(message, innerException) { }
+    }
+
+    /// <summary>
     /// As unexpected code path was reached.
     /// </summary>
     public class UnexpectedException : ExpanseException
