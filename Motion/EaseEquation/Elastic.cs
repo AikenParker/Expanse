@@ -9,12 +9,12 @@ namespace Expanse
             public float ParamA { get; set; }
             public float ParamB { get; set; }
 
-            public abstract float Update(float time, float start, float end, float duration);
+            public abstract float Evaluate(float time, float start, float end, float duration);
         }
 
         public class EaseIn : ElasticBase
         {
-            public override float Update(float time, float start, float end, float duration)
+            public override float Evaluate(float time, float start, float end, float duration)
             {
                 if (time == 0f)
                     return start;
@@ -42,7 +42,7 @@ namespace Expanse
 
         public class EaseInOut : ElasticBase
         {
-            public override float Update(float time, float start, float end, float duration)
+            public override float Evaluate(float time, float start, float end, float duration)
             {
                 if (time == 0f)
                     return start;
@@ -75,7 +75,7 @@ namespace Expanse
 
         public class EaseOut : ElasticBase
         {
-            public override float Update(float time, float start, float end, float duration)
+            public override float Evaluate(float time, float start, float end, float duration)
             {
                 if (time == 0f)
                     return start;

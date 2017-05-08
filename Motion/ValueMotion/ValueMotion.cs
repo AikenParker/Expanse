@@ -91,7 +91,7 @@ namespace Expanse
         {
             if (this.IsMotionStarted && !this.IsMotionCompleted)
             {
-                ValueProgress = this.EaseEquation.Update(this.MotionProgress, 0, 1, 1);
+                ValueProgress = this.EaseEquation.Evaluate(this.MotionProgress, 0, 1, 1);
                 OnProgressChanged();
             }
         }

@@ -8,7 +8,6 @@ namespace Expanse
     : Add completion mode (stop, repeat, reverse)
     : Add statistical data
     : Add comments
-    : Add non alloc ease equations
     : Add motion utils (e.g. bounce)
     : Add InitialRepeats, RepeatsRemaining
     : Add Duration/TrueDuration, TotalDuration/TrueTotalDuration, TotalDurationWithRepeats/TrueTotalDurationWithRepeats

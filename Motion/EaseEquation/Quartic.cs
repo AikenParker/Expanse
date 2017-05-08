@@ -1,12 +1,14 @@
 ﻿namespace Expanse
 {
-    public static class Quadratic
+    public static class Quartic
     {
         public class EaseOut : IEaseEquation
         {
             public float Evaluate(float time, float start, float end, float duration)
             {
-                return -end * (time /= duration) * (time - 2.0f) + start;
+                time /= duration;
+                time--;
+                return -end * (time * time * time * time - 1) + start;
             }
         }
 
@@ -14,7 +16,8 @@
         {
             public float Evaluate(float time, float start, float end, float duration)
             {
-                return end * (time /= duration) * time + start;
+                time /= duration;
+                return end * time * time * time * time + start;
             }
         }
 
@@ -22,10 +25,13 @@
         {
             public float Evaluate(float time, float start, float end, float duration)
             {
-                if ((time /= duration / 2.0f) < 1.0f)
-                    return end / 2.0f * time * time + start;
+                time /= duration / 2;
 
-                return -end / 2.0f * ((--time) * (time - 2.0f) - 1.0f) + start;
+                if (time < 1)
+                    return end / 2 * time * time * time * time + start;
+
+                time -= 2;
+                return -end / 2 * (time * time * time * time - 2) + start;
             }
         }
     }

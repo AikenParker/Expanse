@@ -6,12 +6,12 @@
         {
             public float ParamA { get; set; }
 
-            public abstract float Update(float time, float start, float end, float duration);
+            public abstract float Evaluate(float time, float start, float end, float duration);
         }
 
         public class EaseIn : BackBase
         {
-            public override float Update(float time, float start, float end, float duration)
+            public override float Evaluate(float time, float start, float end, float duration)
             {
                 if (ParamA == 0.0f)
                     ParamA = 1.70158f;
@@ -22,7 +22,7 @@
 
         public class EaseInOut : BackBase
         {
-            public override float Update(float time, float start, float end, float duration)
+            public override float Evaluate(float time, float start, float end, float duration)
             {
                 if (ParamA == 0.0f)
                     ParamA = 1.70158f;
@@ -36,7 +36,7 @@
 
         public class EaseOut : BackBase
         {
-            public override float Update(float time, float start, float end, float duration)
+            public override float Evaluate(float time, float start, float end, float duration)
             {
                 if (ParamA == 0.0f)
                     ParamA = 1.70158f;

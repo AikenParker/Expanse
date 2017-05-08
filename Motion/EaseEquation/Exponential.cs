@@ -1,12 +1,14 @@
-﻿namespace Expanse
+﻿using UnityEngine;
+
+namespace Expanse
 {
-    public static class Quadratic
+    public static class Exponential
     {
         public class EaseOut : IEaseEquation
         {
             public float Evaluate(float time, float start, float end, float duration)
             {
-                return -end * (time /= duration) * (time - 2.0f) + start;
+                return end * (-Mathf.Pow(2, -10 * time / duration) + 1) + start;
             }
         }
 
@@ -14,7 +16,7 @@
         {
             public float Evaluate(float time, float start, float end, float duration)
             {
-                return end * (time /= duration) * time + start;
+                return end * Mathf.Pow(2, 10 * (time / duration - 1)) + start;
             }
         }
 
@@ -22,10 +24,13 @@
         {
             public float Evaluate(float time, float start, float end, float duration)
             {
-                if ((time /= duration / 2.0f) < 1.0f)
-                    return end / 2.0f * time * time + start;
+                time /= duration / 2;
 
-                return -end / 2.0f * ((--time) * (time - 2.0f) - 1.0f) + start;
+                if (time < 1)
+                    return end / 2 * Mathf.Pow(2, 10 * (time - 1)) + start;
+
+                time--;
+                return end / 2 * (-Mathf.Pow(2, -10 * time) + 2) + start;
             }
         }
     }
