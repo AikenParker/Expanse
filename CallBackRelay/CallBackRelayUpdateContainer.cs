@@ -13,6 +13,9 @@ namespace Expanse
         public CallBackRelayUpdateContainer(IUpdate updateObj)
         {
             this.updateObj = updateObj;
+
+            this.LastFrameTime = Time.time;
+            this.LastUnscaledFrameTime = Time.unscaledTime;
         }
 
         public float DeltaTime

@@ -5,13 +5,16 @@ namespace Expanse
 {
     /*
     TODO:
-    : Add completion mode (stop, repeat, reverse)
-    : Add statistical data
-    : Add comments
-    : Add motion utils (e.g. bounce)
+    : Add CompletionMode (stop, repeat, reverse) (consider an option to be able to repeat/reverse just the motion and delays seperately)
     : Add InitialRepeats, RepeatsRemaining
     : Add Duration/TrueDuration, TotalDuration/TrueTotalDuration, TotalDurationWithRepeats/TrueTotalDurationWithRepeats
     : Add TimeRemaining/TrueTimeRemaining, TotalTimeRemaining/TrueTotalTimeRemaining, TotalTimeRemainingWithRepeats/TrueTotalTimeRemainingWithRepeats
+    : Add MotionUtil (e.g. bounce, pulse, shake)
+    : Add all SetParameter overloads to component motions.
+    : Add comments to public API
+    : Add comments everywhere
+    : Add statistical data (TimeElapsed, UpdateCount, etc.)
+    : Optimize
     */
 
     /// <summary>
@@ -19,32 +22,116 @@ namespace Expanse
     /// </summary>
     public abstract class Motion : IComplexUpdate
     {
-        public CallBackRelay CBR { get; private set; }
+        private CallBackRelay cbr;
+        /// <summary>
+        /// The CallBackRelay that this motion will subscribe to when active to get Update callbacks.
+        /// Note: This is null if the motion is in a Group or Sequence Motion.
+        /// </summary>
+        public CallBackRelay CBR
+        {
+            get { return cbr; }
+            set
+            {
+                if (cbr != value)
+                {
+                    if (cbr != null && IsActive)
+                        UnsubscribeFromCBR();
+
+                    cbr = value;
+
+                    if (cbr != null && IsActive)
+                        SubsrcribeToCBR();
+                }
+            }
+        }
+        /// <summary>
+        /// The priority values given to the CBR to determine how important this motion is.
+        /// Higher the value to more priority this is given when updating.
+        /// </summary>
         public int Priority { get; set; }
 
+        /// <summary>
+        /// The activity state of this motion. If true something should be updating this motion. (Usually the CBR)
+        /// </summary>
         public bool IsActive { get; set; }
+        /// <summary>
+        /// Will this motion update even if the attached MonoBehaviour is destroyed or non-existent.
+        /// </summary>
         public bool UnsafeUpdates { get; set; }
+        /// <summary>
+        /// Will this motion update even if the attached MonoBehaviour is disabled or inactive.
+        /// </summary>
         public bool AlwaysUpdate { get; set; }
+        /// <summary>
+        /// The playback position of this motion in seconds. This also includes time passed during the start and end delays.
+        /// </summary>
         public float Position { get; protected set; }
 
+        /// <summary>
+        /// The duration of the motion itself. Not including start or end delays.
+        /// </summary>
         public abstract float Duration { get; }
+        /// <summary>
+        /// The amount of time that will pass before the motion begins.
+        /// </summary>
         public float StartDelay { get; set; }
+        /// <summary>
+        /// The amount of time that will pass after the motion completes but before the Completed callback is invoked.
+        /// </summary>
         public float EndDelay { get; set; }
+        /// <summary>
+        /// The speed multiplier applied to the playback rate of this motion. (2 = twice as fast)
+        /// </summary>
         public float PlaybackRate { get; set; }
 
+        /// <summary>
+        /// If true the motion has recieved its first update. (Start delay begins)
+        /// </summary>
         public bool IsStarted { get; private set; }
+        /// <summary>
+        /// If true the motion itself has begun its first update. (Start delay finished)
+        /// </summary>
         public bool IsMotionStarted { get; private set; }
+        /// <summary>
+        /// If true the motion itself has just completed its last update. (End delay starts)
+        /// </summary>
         public bool IsMotionCompleted { get; private set; }
+        /// <summary>
+        /// If true the motion has recieved its last update. (End delay finished)
+        /// </summary>
         public bool IsCompleted { get; private set; }
 
+        /// <summary>
+        /// Called on the first update when the start delay begins.
+        /// </summary>
         public event Action Started;
+        /// <summary>
+        /// Called after the start delay is completed and the motion begins.
+        /// </summary>
         public event Action MotionStarted;
+        /// <summary>
+        /// Called every time the motion updates. (Including during the start and end delays)
+        /// </summary>
         public event Action Updated;
+        /// <summary>
+        /// Called every time the motion updates. (NOT during the start and end delays)
+        /// </summary>
         public event Action MotionUpdated;
+        /// <summary>
+        /// Called when the motion is complete and the end delay begins.
+        /// </summary>
         public event Action MotionCompleted;
+        /// <summary>
+        /// Called when the end delay is complete.
+        /// </summary>
         public event Action Completed;
 
         private UpdateModes updateMode = UpdateModes.UPDATE;
+        /// <summary>
+        /// Defines which update loop this motion will subscribe to.
+        /// All callbacks are invoked in the context of this loop.
+        /// Note: All child motions of a Sequence or Group inherit the update mode of its parent.
+        /// </summary>
         public UpdateModes UpdateMode
         {
             get { return updateMode; }
@@ -66,57 +153,78 @@ namespace Expanse
             }
         }
 
+        /// <summary>
+        /// Creates an unsafe and globally updating motion.
+        /// </summary>
         public Motion() : this(null, null) { }
+        /// <summary>
+        /// Creates an unsafe motion.
+        /// </summary>
         public Motion(CallBackRelay cbr) : this(cbr, null) { }
+        /// <summary>
+        /// Creates a globally updating motion.
+        /// </summary>
         public Motion(MonoBehaviour attachedMonobehaviour) : this(null, attachedMonobehaviour) { }
+        /// <summary>
+        /// Creates a motion.
+        /// </summary>
         public Motion(CallBackRelay cbr, MonoBehaviour attachedMonobehaviour)
         {
             this.AttachedMonoBehaviour = attachedMonobehaviour;
-            this.CBR = cbr ?? CallBackRelay.GlobalCBR;
+            this.cbr = cbr ?? CallBackRelay.GlobalCBR;
             this.UnsafeUpdates = attachedMonobehaviour == null;
             this.PlaybackRate = 1f;
         }
 
         protected void SubsrcribeToCBR()
         {
+            if (cbr == null)
+                return;
+
             switch (updateMode)
             {
                 case UpdateModes.UPDATE:
                 case UpdateModes.UNSCALED_UPDATE:
-                    CBR.SubscribeToUpdate(this);
+                    cbr.SubscribeToUpdate(this);
                     break;
 
                 case UpdateModes.LATE_UPDATE:
                 case UpdateModes.UNSCALED_LATE_UPDATE:
-                    CBR.SubscribeToLateUpdate(this);
+                    cbr.SubscribeToLateUpdate(this);
                     break;
 
                 case UpdateModes.FIXED_UPDATE:
-                    CBR.SubscribeToFixedUpdate(this);
+                    cbr.SubscribeToFixedUpdate(this);
                     break;
             }
         }
 
         protected void UnsubscribeFromCBR()
         {
+            if (cbr == null)
+                return;
+
             switch (updateMode)
             {
                 case UpdateModes.UPDATE:
                 case UpdateModes.UNSCALED_UPDATE:
-                    CBR.UnsubscribeToUpdate(this);
+                    cbr.UnsubscribeToUpdate(this);
                     break;
 
                 case UpdateModes.LATE_UPDATE:
                 case UpdateModes.UNSCALED_LATE_UPDATE:
-                    CBR.UnsubscribeToLateUpdate(this);
+                    cbr.UnsubscribeToLateUpdate(this);
                     break;
 
                 case UpdateModes.FIXED_UPDATE:
-                    CBR.UnsubscribeToFixedUpdate(this);
+                    cbr.UnsubscribeToFixedUpdate(this);
                     break;
             }
         }
 
+        /// <summary>
+        /// Updates the state of this motion. Should only be called by a CBR or Group/Sequence motion.
+        /// </summary>
         public virtual void OnUpdate(float deltaTime)
         {
             if (!IsActive)
@@ -146,9 +254,8 @@ namespace Expanse
             // Apply position change
 
             float gain = deltaTime * PlaybackRate;
-
-
             float newPostion = Mathf.Clamp(position + gain, 0, totalDuration);
+
             Position = newPostion;
 
             OnPositionChanged();
@@ -185,7 +292,11 @@ namespace Expanse
         protected virtual void OnMotionStarted()
         {
             MotionStarted.SafeInvoke();
-            IsMotionStarted = true;
+
+            if (IsStarted)
+            {
+                IsMotionStarted = true;
+            }
         }
 
         protected virtual void OnUpdated()
@@ -201,22 +312,30 @@ namespace Expanse
         protected virtual void OnMotionCompleted()
         {
             MotionCompleted.SafeInvoke();
-            IsMotionCompleted = true;
+
+            if (IsMotionStarted)
+            {
+                IsMotionCompleted = true;
+            }
         }
 
         protected virtual void OnCompleted()
         {
             Completed.SafeInvoke();
-            IsCompleted = true;
-            Stop();
+
+            if (IsMotionCompleted)
+            {
+                IsCompleted = true;
+                Stop();
+            }
         }
 
         protected virtual void OnPositionChanged() { }
 
         /// <summary>
-        /// Resumes motion playback from a stop.
+        /// Begins/resumes motion playback.
         /// </summary>
-        public void Start()
+        public virtual void Start()
         {
             if (!IsActive)
             {
@@ -227,9 +346,9 @@ namespace Expanse
         }
 
         /// <summary>
-        /// Pauses motion playback.
+        /// Ends/pauses motion playback.
         /// </summary>
-        public void Stop()
+        public virtual void Stop()
         {
             if (IsActive)
             {
@@ -237,6 +356,52 @@ namespace Expanse
 
                 UnsubscribeFromCBR();
             }
+        }
+
+        /// <summary>
+        /// Resets the state of the motion and stops playback.
+        /// </summary>
+        public virtual void Reset()
+        {
+            Stop();
+
+            Position = 0;
+            IsStarted = false;
+            IsMotionStarted = false;
+            IsMotionCompleted = false;
+            IsCompleted = false;
+        }
+
+        /// <summary>
+        /// Resets the state of the motion and starts playback.
+        /// </summary>
+        public virtual void Restart()
+        {
+            Reset();
+            Start();
+        }
+
+        /// <summary>
+        /// Resets the state of the motion and stops playback to after the start delay.
+        /// </summary>
+        public virtual void ResetToMotion()
+        {
+            Stop();
+
+            Position = StartDelay;
+            IsStarted = true;
+            IsMotionStarted = false;
+            IsMotionCompleted = false;
+            IsCompleted = false;
+        }
+
+        /// <summary>
+        /// Resets the state of the motion and starts playback to after the start delay.
+        /// </summary>
+        public virtual void RestartToMotion()
+        {
+            ResetToMotion();
+            Start();
         }
 
         /// <summary>
@@ -296,11 +461,17 @@ namespace Expanse
             }
         }
 
+        /// <summary>
+        /// Adds 2 motions together into a Sequence.
+        /// </summary>
         public static SequenceMotion operator +(Motion a, Motion b)
         {
             return new SequenceMotion(a, b);
         }
 
+        /// <summary>
+        /// Adds 2 motions together into a Group.
+        /// </summary>
         public static GroupMotion operator &(Motion a, Motion b)
         {
             return new GroupMotion(a, b);

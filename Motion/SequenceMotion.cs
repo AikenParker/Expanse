@@ -57,6 +57,9 @@ namespace Expanse
             Add(motionB);
         }
 
+        /// <summary>
+        /// Adds a new motion into the sequence.
+        /// </summary>
         public void Add(Motion motion)
         {
             ThrowIfActive();
@@ -64,16 +67,110 @@ namespace Expanse
             if (motion.IsActive)
                 throw new ActiveException("Cannot add active motion to sequence motion.");
 
-            motion.IsActive = true;
+            if (motions.ContainsObject(motion))
+                throw new ArgumentException("motion is already in sequence motion.");
+
+            motion.CBR = null;
+            motion.IsActive = IsActive;
+
             motions.Add(motion);
         }
 
+        /// <summary>
+        /// Removes a motion from the sequence.
+        /// </summary>
         public bool Remove(Motion motion)
         {
             ThrowIfActive();
 
             motion.IsActive = false;
+            motion.CBR = CallBackRelay.GlobalCBR;
+
             return motions.Remove(motion);
+        }
+
+        /// <summary>
+        /// Begins/resumes motion playback.
+        /// </summary>
+        public override void Start()
+        {
+            base.Start();
+
+            for (int i = 0; i < motions.Count; i++)
+            {
+                Motion motion = motions[i];
+                motion.Start();
+            }
+        }
+
+        /// <summary>
+        /// Ends/pauses motion playback.
+        /// </summary>
+        public override void Stop()
+        {
+            base.Stop();
+
+            for (int i = 0; i < motions.Count; i++)
+            {
+                Motion motion = motions[i];
+                motion.Stop();
+            }
+        }
+
+        /// <summary>
+        /// Resets the state of the motion and starts playback.
+        /// </summary>
+        public override void Reset()
+        {
+            base.Reset();
+
+            for (int i = 0; i < motions.Count; i++)
+            {
+                Motion motion = motions[i];
+                motion.Reset();
+            }
+        }
+
+        /// <summary>
+        /// Resets the state of the motion and stops playback to after the start delay.
+        /// </summary>
+        public override void Restart()
+        {
+            base.Restart();
+
+            for (int i = 0; i < motions.Count; i++)
+            {
+                Motion motion = motions[i];
+                motion.Restart();
+            }
+        }
+
+        /// <summary>
+        /// Resets the state of the motion and starts playback to after the start delay.
+        /// </summary>
+        public override void ResetToMotion()
+        {
+            base.ResetToMotion();
+
+            for (int i = 0; i < motions.Count; i++)
+            {
+                Motion motion = motions[i];
+                motion.ResetToMotion();
+            }
+        }
+
+        /// <summary>
+        /// Resets the state of the motion and starts playback to after the start delay.
+        /// </summary>
+        public override void RestartToMotion()
+        {
+            base.RestartToMotion();
+
+            for (int i = 0; i < motions.Count; i++)
+            {
+                Motion motion = motions[i];
+                motion.RestartToMotion();
+            }
         }
 
         public override void OnUpdate(float deltaTime)

@@ -20,14 +20,14 @@ namespace Expanse
         {
             Transform = transform;
             UseLocal = useLocal;
-            SetParameters(() => this.UseLocal ? this.Transform.localEulerAngles : this.Transform.eulerAngles, targetRotation);
+            SetValues(() => this.UseLocal ? this.Transform.localEulerAngles : this.Transform.eulerAngles, targetRotation);
         }
 
         public void SetParameters(Transform transform, Vector3 startRotation, Vector3 targetRotation, bool useLocal = true)
         {
             Transform = transform;
             UseLocal = useLocal;
-            SetParameters(startRotation, targetRotation);
+            SetValues(startRotation, targetRotation);
         }
 
         protected override void OnValueChanged()

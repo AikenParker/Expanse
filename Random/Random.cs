@@ -265,7 +265,7 @@ namespace Expanse
             byte g = (byte)((data >> 16) & 0xFF);
             byte b = (byte)((data >> 08) & 0xFF);
 
-            return new Color(r, g, b, alpha);
+            return new Color32(r, g, b, (byte)(alpha * 0xFF));
         }
 
         /// <summary>

@@ -18,13 +18,13 @@ namespace Expanse
         public void SetParameters(Camera camera, float targetOrthographicSize)
         {
             Camera = camera;
-            SetParameters(() => this.Camera.orthographicSize, targetOrthographicSize);
+            SetValues(() => this.Camera.orthographicSize, targetOrthographicSize);
         }
 
         public void SetParameters(Camera camera, float startOrthographicSize, float targetOrthographicSize)
         {
             Camera = camera;
-            SetParameters(startOrthographicSize, targetOrthographicSize);
+            SetValues(startOrthographicSize, targetOrthographicSize);
         }
 
         protected override void OnValueChanged()

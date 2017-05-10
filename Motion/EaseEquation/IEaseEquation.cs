@@ -10,28 +10,28 @@
     /// </summary>
     public static class EaseEquation
     {
-        public static readonly IEaseEquation DefaultEase = new Linear.EaseNone();
-        public static readonly Linear.EaseNone LinearEaseNone = new Linear.EaseNone();
-        public static readonly Quadratic.EaseIn QuadraticEaseIn = new Quadratic.EaseIn();
-        public static readonly Quadratic.EaseOut QuadraticEaseOut = new Quadratic.EaseOut();
-        public static readonly Quadratic.EaseInOut QuadraticEaseInOut = new Quadratic.EaseInOut();
-        public static readonly Cubic.EaseIn CubicEaseIn = new Cubic.EaseIn();
-        public static readonly Cubic.EaseOut CubicEaseOut = new Cubic.EaseOut();
-        public static readonly Cubic.EaseInOut CubicEaseInOut = new Cubic.EaseInOut();
-        public static readonly Quartic.EaseIn QuarticEaseIn = new Quartic.EaseIn();
-        public static readonly Quartic.EaseOut QuarticEaseOut = new Quartic.EaseOut();
-        public static readonly Quartic.EaseInOut QuarticEaseInOut = new Quartic.EaseInOut();
-        public static readonly Quintic.EaseIn QuinticEaseIn = new Quintic.EaseIn();
-        public static readonly Quintic.EaseOut QuinticEaseOut = new Quintic.EaseOut();
-        public static readonly Quintic.EaseInOut QuinticEaseInOut = new Quintic.EaseInOut();
-        public static readonly Sinusoidal.EaseIn SinusoidalEaseIn = new Sinusoidal.EaseIn();
-        public static readonly Sinusoidal.EaseOut SinusoidalEaseOut = new Sinusoidal.EaseOut();
-        public static readonly Sinusoidal.EaseInOut SinusoidalEaseInOut = new Sinusoidal.EaseInOut();
-        public static readonly Exponential.EaseIn ExponentialEaseIn = new Exponential.EaseIn();
-        public static readonly Exponential.EaseOut ExponentialEaseOut = new Exponential.EaseOut();
-        public static readonly Exponential.EaseInOut ExponentialEaseInOut = new Exponential.EaseInOut();
-        public static readonly Circular.EaseIn CircularEaseIn = new Circular.EaseIn();
-        public static readonly Circular.EaseOut CircularEaseOut = new Circular.EaseOut();
-        public static readonly Circular.EaseInOut CircularEaseInOut = new Circular.EaseInOut();
+        public static readonly IEaseEquation Default = new Linear.EaseNone();
+        public static readonly Linear.EaseNone Linear = new Linear.EaseNone();
+        public static readonly Quadratic.EaseIn QuadraticIn = new Quadratic.EaseIn();
+        public static readonly Quadratic.EaseOut QuadraticOut = new Quadratic.EaseOut();
+        public static readonly Quadratic.EaseInOut QuadraticInOut = new Quadratic.EaseInOut();
+        public static readonly Cubic.EaseIn CubicIn = new Cubic.EaseIn();
+        public static readonly Cubic.EaseOut CubicOut = new Cubic.EaseOut();
+        public static readonly Cubic.EaseInOut CubicInOut = new Cubic.EaseInOut();
+        public static readonly Quartic.EaseIn QuarticIn = new Quartic.EaseIn();
+        public static readonly Quartic.EaseOut QuarticOut = new Quartic.EaseOut();
+        public static readonly Quartic.EaseInOut QuarticInOut = new Quartic.EaseInOut();
+        public static readonly Quintic.EaseIn QuinticIn = new Quintic.EaseIn();
+        public static readonly Quintic.EaseOut QuinticOut = new Quintic.EaseOut();
+        public static readonly Quintic.EaseInOut QuinticInOut = new Quintic.EaseInOut();
+        public static readonly Sinusoidal.EaseIn SinusoidalIn = new Sinusoidal.EaseIn();
+        public static readonly Sinusoidal.EaseOut SinusoidalOut = new Sinusoidal.EaseOut();
+        public static readonly Sinusoidal.EaseInOut SinusoidalInOut = new Sinusoidal.EaseInOut();
+        public static readonly Exponential.EaseIn ExponentialIn = new Exponential.EaseIn();
+        public static readonly Exponential.EaseOut ExponentialOut = new Exponential.EaseOut();
+        public static readonly Exponential.EaseInOut ExponentialInOut = new Exponential.EaseInOut();
+        public static readonly Circular.EaseIn CircularIn = new Circular.EaseIn();
+        public static readonly Circular.EaseOut CircularOut = new Circular.EaseOut();
+        public static readonly Circular.EaseInOut CircularInOut = new Circular.EaseInOut();
     }
 }

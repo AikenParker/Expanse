@@ -18,13 +18,13 @@ namespace Expanse
         public void SetParameters(Transform transform, Vector3 targetScale)
         {
             Transform = transform;
-            SetParameters(() => this.Transform.localScale, targetScale);
+            SetValues(() => this.Transform.localScale, targetScale);
         }
 
         public void SetParameters(Transform transform, Vector3 startScale, Vector3 targetScale)
         {
             Transform = transform;
-            SetParameters(startScale, targetScale);
+            SetValues(startScale, targetScale);
         }
 
         protected override void OnValueChanged()

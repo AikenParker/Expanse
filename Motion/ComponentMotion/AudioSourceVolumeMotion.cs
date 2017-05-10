@@ -18,13 +18,13 @@ namespace Expanse
         public void SetParameters(AudioSource audioSource, float targetVolume)
         {
             AudioSource = audioSource;
-            SetParameters(() => this.AudioSource.volume, targetVolume);
+            SetValues(() => this.AudioSource.volume, targetVolume);
         }
 
         public void SetParameters(AudioSource audioSource, float startVolume, float targetVolume)
         {
             AudioSource = audioSource;
-            SetParameters(startVolume, targetVolume);
+            SetValues(startVolume, targetVolume);
         }
 
         protected override void OnValueChanged()

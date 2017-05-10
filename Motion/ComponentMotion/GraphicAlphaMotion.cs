@@ -19,13 +19,13 @@ namespace Expanse
         public void SetParameters(Graphic graphic, float targetAlpha)
         {
             Graphic = graphic;
-            SetParameters(() => this.Graphic.color.a, targetAlpha);
+            SetValues(() => this.Graphic.color.a, targetAlpha);
         }
 
         public void SetParameters(Graphic graphic, float startAlpha, float targetAlpha)
         {
             Graphic = graphic;
-            SetParameters(startAlpha, targetAlpha);
+            SetValues(startAlpha, targetAlpha);
         }
 
         protected override void OnValueChanged()

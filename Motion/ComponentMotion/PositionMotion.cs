@@ -20,14 +20,14 @@ namespace Expanse
         {
             Transform = transform;
             UseLocal = useLocal;
-            SetParameters(() => this.UseLocal ? this.Transform.localPosition : this.Transform.position, targetPosition);
+            SetValues(() => this.UseLocal ? this.Transform.localPosition : this.Transform.position, targetPosition);
         }
 
         public void SetParameters(Transform transform, Vector3 startPosition, Vector3 targetPosition, bool useLocal = true)
         {
             Transform = transform;
             UseLocal = useLocal;
-            SetParameters(startPosition, targetPosition);
+            SetValues(startPosition, targetPosition);
         }
 
         protected override void OnValueChanged()

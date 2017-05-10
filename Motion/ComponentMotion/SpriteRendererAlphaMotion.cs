@@ -19,13 +19,13 @@ namespace Expanse
         public void SetParameters(SpriteRenderer spriteRenderer, float targetAlpha)
         {
             SpriteRenderer = spriteRenderer;
-            SetParameters(() => this.SpriteRenderer.color.a, targetAlpha);
+            SetValues(() => this.SpriteRenderer.color.a, targetAlpha);
         }
 
         public void SetParameters(SpriteRenderer spriteRenderer, float startAlpha, float targetAlpha)
         {
             SpriteRenderer = spriteRenderer;
-            SetParameters(startAlpha, targetAlpha);
+            SetValues(startAlpha, targetAlpha);
         }
 
         protected override void OnValueChanged()

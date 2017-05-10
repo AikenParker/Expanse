@@ -18,13 +18,13 @@ namespace Expanse
         public void SetParameters(Camera camera, float targetFieldOfView)
         {
             Camera = camera;
-            SetParameters(() => this.Camera.fieldOfView, targetFieldOfView);
+            SetValues(() => this.Camera.fieldOfView, targetFieldOfView);
         }
 
         public void SetParameters(Camera camera, float startFieldOfView, float targetFieldOfView)
         {
             Camera = camera;
-            SetParameters(startFieldOfView, targetFieldOfView);
+            SetValues(startFieldOfView, targetFieldOfView);
         }
 
         protected override void OnValueChanged()

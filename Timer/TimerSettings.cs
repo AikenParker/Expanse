@@ -37,19 +37,22 @@ namespace Expanse
         {
             get
             {
-                TimerSettings settings = new TimerSettings();
-                settings.duration = 1f;
-                settings.isRandomized = false;
-                settings.minDuration = 1f;
-                settings.maxDuration = 1f;
-                settings.autoPlay = false;
-                settings.playBackRate = 1.0f;
-                settings.completionMode = Timer.TimerCompletionModes.DEACTIVATE;
-                settings.updateMode = UpdateModes.UPDATE;
-                settings.repeats = -1;
-                settings.deactivateOnLoad = true;
-                settings.priority = 0;
-                settings.alwaysPlay = false;
+                TimerSettings settings = new TimerSettings()
+                {
+                    duration = 1f,
+                    isRandomized = false,
+                    minDuration = 1f,
+                    maxDuration = 1f,
+                    autoPlay = false,
+                    playBackRate = 1.0f,
+                    completionMode = Timer.TimerCompletionModes.DEACTIVATE,
+                    updateMode = UpdateModes.UPDATE,
+                    repeats = -1,
+                    deactivateOnLoad = true,
+                    priority = 0,
+                    alwaysPlay = false
+                };
+
                 return settings;
             }
         }

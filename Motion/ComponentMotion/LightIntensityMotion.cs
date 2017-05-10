@@ -19,13 +19,13 @@ namespace Expanse
         public void SetParameters(Light light, float targetIntensity)
         {
             Light = light;
-            SetParameters(() => this.Light.intensity, targetIntensity);
+            SetValues(() => this.Light.intensity, targetIntensity);
         }
 
         public void SetParameters(Light light, float startIntensity, float targetIntensity)
         {
             Light = light;
-            SetParameters(startIntensity, targetIntensity);
+            SetValues(startIntensity, targetIntensity);
         }
 
         protected override void OnValueChanged()

@@ -19,13 +19,13 @@ namespace Expanse
         public void SetParameters(CanvasGroup canvasGroup, float targetAlpha)
         {
             CanvasGroup = canvasGroup;
-            SetParameters(() => this.CanvasGroup.alpha, targetAlpha);
+            SetValues(() => this.CanvasGroup.alpha, targetAlpha);
         }
 
         public void SetParameters(CanvasGroup canvasGroup, float startAlpha, float targetAlpha)
         {
             CanvasGroup = canvasGroup;
-            SetParameters(startAlpha, targetAlpha);
+            SetValues(startAlpha, targetAlpha);
         }
 
         protected override void OnValueChanged()

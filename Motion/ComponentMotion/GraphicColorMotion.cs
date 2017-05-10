@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 using UnityEngine.UI;
 
 namespace Expanse
@@ -19,13 +20,19 @@ namespace Expanse
         public void SetParameters(Graphic graphic, Color targetColor)
         {
             Graphic = graphic;
-            SetParameters(() => this.Graphic.color, targetColor);
+            SetValues(() => this.Graphic.color, targetColor);
         }
 
         public void SetParameters(Graphic graphic, Color startColor, Color targetColor)
         {
             Graphic = graphic;
-            SetParameters(startColor, targetColor);
+            SetValues(startColor, targetColor);
+        }
+
+        public void SetParameters(Graphic graphic, Func<Color> targetColorGetter)
+        {
+            Graphic = graphic;
+            SetValues(() => this.Graphic.color, targetColorGetter);
         }
 
         protected override void OnValueChanged()

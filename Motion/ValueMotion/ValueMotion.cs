@@ -32,7 +32,8 @@ namespace Expanse
 
         public IEaseEquation EaseEquation { get; set; }
 
-        private Func<T> getter;
+        private Func<T> startValueGetter;
+        private Func<T> targetValueGetter;
 
         private float duration;
         public override float Duration
@@ -48,19 +49,47 @@ namespace Expanse
         {
             this.duration = duration;
 
-            this.EaseEquation = Expanse.EaseEquation.DefaultEase;
+            this.EaseEquation = Expanse.EaseEquation.Default;
         }
 
-        public virtual void SetParameters(Func<T> getter, T targetValue)
-        {
-            this.getter = getter;
-            this.TargetValue = targetValue;
-        }
-
-        public virtual void SetParameters(T startValue, T targetValue)
+        /// <summary>
+        /// Set base parameters with constant start and target values.
+        /// </summary>
+        public virtual void SetValues(T startValue, T targetValue)
         {
             this.StartValue = startValue;
             this.TargetValue = targetValue;
+            this.startValueGetter = null;
+            this.targetValueGetter = null;
+        }
+
+        /// <summary>
+        /// Set base parameters with a variable start value (Evaluated when motion starts) and constant target value.
+        /// </summary>
+        public virtual void SetValues(Func<T> startValueGetter, T targetValue)
+        {
+            this.startValueGetter = startValueGetter;
+            this.TargetValue = targetValue;
+            this.targetValueGetter = null;
+        }
+
+        /// <summary>
+        /// Set base parameters with constant start value and variable target value. (Evaluated when motion starts)
+        /// </summary>
+        public virtual void SetValues(T startValue, Func<T> targetValueGetter)
+        {
+            this.StartValue = startValue;
+            this.targetValueGetter = targetValueGetter;
+            this.startValueGetter = null;
+        }
+
+        /// <summary>
+        /// Set base parameters with variable start and target value. (Evaluated when motion starts)
+        /// </summary>
+        public virtual void SetValues(Func<T> startValueGetter, Func<T> targetValueGetter)
+        {
+            this.startValueGetter = startValueGetter;
+            this.targetValueGetter = targetValueGetter;
         }
 
         public virtual void SetEaseEquation<U>() where U : IEaseEquation, new()
@@ -79,9 +108,14 @@ namespace Expanse
 
             ValueProgress = 0;
 
-            if (this.getter != null)
+            if (this.startValueGetter != null)
             {
-                StartValue = this.getter();
+                StartValue = this.startValueGetter();
+            }
+
+            if (this.targetValueGetter != null)
+            {
+                TargetValue = this.targetValueGetter();
             }
 
             OnProgressChanged();

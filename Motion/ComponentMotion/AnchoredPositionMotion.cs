@@ -18,13 +18,13 @@ namespace Expanse
         public void SetParameters(RectTransform rectTransform, Vector2 targetAnchoredPosition)
         {
             RectTransform = rectTransform;
-            SetParameters(() => this.RectTransform.anchoredPosition, targetAnchoredPosition);
+            SetValues(() => this.RectTransform.anchoredPosition, targetAnchoredPosition);
         }
 
         public void SetParameters(RectTransform rectTransform, Vector2 startAnchoredPosition, Vector2 targetAnchoredPosition)
         {
             RectTransform = rectTransform;
-            SetParameters(startAnchoredPosition, targetAnchoredPosition);
+            SetValues(startAnchoredPosition, targetAnchoredPosition);
         }
 
         protected override void OnValueChanged()

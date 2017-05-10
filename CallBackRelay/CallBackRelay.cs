@@ -21,10 +21,7 @@ namespace Expanse
                 if (GlobalCBRDestroyed)
                     return null;
 
-                if (globalCBR == null)
-                    globalCBR = CreateGlobalCBR();
-
-                return globalCBR;
+                return globalCBR ?? (globalCBR = CreateGlobalCBR());
             }
         }
 

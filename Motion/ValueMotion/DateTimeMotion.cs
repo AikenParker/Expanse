@@ -16,20 +16,6 @@ namespace Expanse
         public DateTimeMotion(float duration, MonoBehaviour attachedMonobehaviour) : base(duration, null, attachedMonobehaviour) { }
         public DateTimeMotion(float duration, CallBackRelay cbr, MonoBehaviour attachedMonobehaviour) : base(duration, cbr, attachedMonobehaviour) { }
 
-        public override void SetParameters(DateTime startValue, DateTime targetValue)
-        {
-            base.SetParameters(startValue, targetValue);
-
-            DateTimeKind = startValue.Kind;
-        }
-
-        public override void SetParameters(Func<DateTime> getter, DateTime targetValue)
-        {
-            base.SetParameters(getter, targetValue);
-
-            DateTimeKind = targetValue.Kind;
-        }
-
         protected override void OnProgressChanged()
         {
             long ticks = FloatConversionUtil.ConvertToLong(Mathf.LerpUnclamped(StartValue.Ticks, TargetValue.Ticks, ValueProgress), FloatConversionMethod.ROUND);
