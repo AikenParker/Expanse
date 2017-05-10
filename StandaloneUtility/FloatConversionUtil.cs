@@ -32,5 +32,23 @@ namespace Expanse
                     throw new UnexpectedException("floatConversionMethod");
             }
         }
+
+        /// <summary>
+        /// Converts a float value to an long using a float conversion method.
+        /// </summary>
+        public static long ConvertToLong(float value, FloatConversionMethod floatConversionMethod)
+        {
+            switch (floatConversionMethod)
+            {
+                case FloatConversionMethod.ROUND:
+                    return (long)Math.Round(value);
+                case FloatConversionMethod.FLOOR:
+                    return (long)Math.Floor(value);
+                case FloatConversionMethod.CEIL:
+                    return (long)Math.Ceiling(value);
+                default:
+                    throw new UnexpectedException("floatConversionMethod");
+            }
+        }
     }
 }
