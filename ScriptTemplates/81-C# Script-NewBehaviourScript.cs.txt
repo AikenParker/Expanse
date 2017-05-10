@@ -8,7 +8,7 @@ using Expanse;
 
 namespace NAMESPACE
 {
-	public class #SCRIPTNAME# : MonoBehaviour
+	public sealed class #SCRIPTNAME# : MonoBehaviour
 	{
 		#NOTRIM#
 	}
