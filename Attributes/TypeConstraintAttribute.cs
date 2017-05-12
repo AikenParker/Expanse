@@ -15,12 +15,9 @@ namespace Expanse
         public Type BaseType { get; private set; }
         public bool NonAbstractOnly { get; private set; }
 
-        private TypeConstraintAttribute()
-        {
-            this.order = AttributeConstants.Order.TYPE_CONSTRAINT;
-        }
+        private TypeConstraintAttribute() { }
 
-        public TypeConstraintAttribute(Type baseType, bool nonAbstractOnly = false) : this()
+        public TypeConstraintAttribute(Type baseType, bool nonAbstractOnly = false)
         {
             this.BaseType = baseType;
             this.NonAbstractOnly = nonAbstractOnly;

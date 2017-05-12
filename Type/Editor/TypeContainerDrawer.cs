@@ -25,8 +25,6 @@ namespace Expanse
             if (!isSelfInitialize)
             {
                 EditorUtil.ApplyTooltip(fieldInfo, label);
-
-                ReadOnlyDrawer.ApplyReadOnly(fieldInfo);
             }
 
             EditorGUI.BeginProperty(position, label, property);
@@ -86,11 +84,6 @@ namespace Expanse
             }
 
             EditorGUI.EndProperty();
-
-            if (!isSelfInitialize)
-            {
-                ReadOnlyDrawer.RevertReadOnly();
-            }
         }
     }
 }

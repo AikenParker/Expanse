@@ -134,7 +134,6 @@ namespace Expanse
         public event Action Destroyed;
         public event Action LevelChanged;
 
-        [ReadOnly(EditableInEditor = true)]
         public bool destroyOnLoad = true;
 
         public CallBackRelaySettings updateSettings = new CallBackRelaySettings();

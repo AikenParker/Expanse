@@ -24,22 +24,17 @@ namespace Expanse
 
             EditorUtil.ApplyTooltip(fieldInfo, label);
 
-            ReadOnlyDrawer.ApplyReadOnly(fieldInfo);
-
             TypeConstraintAttribute typeConstraintAttribute = (TypeConstraintAttribute)attribute;
 
             //
 
-            TypeContainerDrawer typeContainerDrawer = new TypeContainerDrawer();
-
-            typeContainerDrawer.baseType = typeConstraintAttribute.BaseType;
-            typeContainerDrawer.nonAbstractOnly = typeConstraintAttribute.NonAbstractOnly;
+            TypeContainerDrawer typeContainerDrawer = new TypeContainerDrawer()
+            {
+                baseType = typeConstraintAttribute.BaseType,
+                nonAbstractOnly = typeConstraintAttribute.NonAbstractOnly
+            };
 
             typeContainerDrawer.OnGUI(position, property, label);
-
-            //
-
-            ReadOnlyDrawer.RevertReadOnly();
         }
     }
 }
