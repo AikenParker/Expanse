@@ -1,4 +1,8 @@
-﻿#if !AOT_ONLY
+﻿#if (UNITY_EDITOR || UNITY_STANDALONE) && !ENABLE_IL2CPP
+#define EMIT_ENABLED
+#endif
+
+#if EMIT_ENABLED
 using System;
 using System.Reflection;
 using System.Reflection.Emit;

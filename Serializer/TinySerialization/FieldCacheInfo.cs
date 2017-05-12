@@ -1,4 +1,8 @@
-﻿using System;
+﻿#if (UNITY_EDITOR || UNITY_STANDALONE) && !ENABLE_IL2CPP
+#define EMIT_ENABLED
+#endif
+
+using System;
 using System.Reflection;
 
 namespace Expanse.TinySerialization
@@ -10,7 +14,7 @@ namespace Expanse.TinySerialization
         public SupportedFieldType type;
         public FieldInfo fieldInfo;
 
-#if !AOT_ONLY
+#if EMIT_ENABLED
         public Delegate getter;
         public Delegate setter;
 #endif
@@ -63,7 +67,7 @@ namespace Expanse.TinySerialization
 
         public TReturn GetValue<TSource, TReturn>(TSource source)
         {
-#if AOT_ONLY
+#if !EMIT_ENABLED
             return (TReturn)fieldInfo.GetValue(source);
 #else
 
@@ -88,7 +92,7 @@ namespace Expanse.TinySerialization
 
         public void SetValue<TSource, TValue>(TSource source, TValue value)
         {
-#if AOT_ONLY
+#if !EMIT_ENABLED
             fieldInfo.SetValue(source, value);
 #else
 
