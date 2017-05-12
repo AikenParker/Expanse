@@ -1,6 +1,5 @@
 ﻿using UnityEngine;
 using UnityEditor;
-using System.Collections;
 
 namespace Expanse
 {
@@ -9,17 +8,19 @@ namespace Expanse
     /// </summary>
     public class Replacer : ScriptableWizard
     {
-        public bool keepNames = true;
-        public bool keepTransform = true;
+        public bool keepName = true;
+        public bool keepPosition = true;
+        public bool keepRotation = true;
+        public bool keepScale = false;
         public bool destroyOrignals = true;
-        public bool keepEdgeCollider2DPoints = false;
+
         public GameObject Prefab;
         public GameObject[] ReplaceObjects;
 
         [MenuItem("Expanse/Replacer")]
         static void CreateWizard()
         {
-            var replaceGameObjects = ScriptableWizard.DisplayWizard<Replacer>("Replace GameObjects", "Replace");
+            Replacer replaceGameObjects = DisplayWizard<Replacer>("Replace GameObjects", "Replace");
             replaceGameObjects.ReplaceObjects = Selection.gameObjects;
         }
 
@@ -34,24 +35,21 @@ namespace Expanse
                 GameObject newObject;
                 newObject = (GameObject)PrefabUtility.InstantiatePrefab(Prefab);
 
-                if (keepNames)
+                if (keepName)
                     newObject.name = gameObject.name;
                 else
                     newObject.name = Prefab.name;
 
                 newObject.transform.parent = gameObject.transform.parent;
 
-                if (keepTransform)
-                {
+                if (keepPosition)
                     newObject.transform.localPosition = gameObject.transform.localPosition;
-                    newObject.transform.localRotation = gameObject.transform.localRotation;
-                    newObject.transform.localScale = gameObject.transform.localScale;
-                }
 
-                if (keepEdgeCollider2DPoints)
-                {
-                    KeepEdgeCollider2DPoints(newObject, gameObject);
-                }
+                if (keepRotation)
+                    newObject.transform.localRotation = gameObject.transform.localRotation;
+
+                if (keepScale)
+                    newObject.transform.localScale = gameObject.transform.localScale;
 
                 Undo.RegisterCreatedObjectUndo(newObject, "Replaced" + gameObject.name);
 
@@ -60,17 +58,6 @@ namespace Expanse
             }
 
             Undo.CollapseUndoOperations(undoIndex);
-        }
-
-        private void KeepEdgeCollider2DPoints(GameObject newGameObject, GameObject originalGameObject)
-        {
-            EdgeCollider2D newCollider = newGameObject.GetComponent<EdgeCollider2D>();
-            EdgeCollider2D originalCollider = originalGameObject.GetComponent<EdgeCollider2D>();
-
-            if (newCollider && originalCollider)
-            {
-                newCollider.points = originalCollider.points;
-            }
         }
     }
 }
