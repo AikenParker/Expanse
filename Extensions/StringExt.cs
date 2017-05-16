@@ -125,5 +125,39 @@ namespace Expanse
 
             return new string(nonWhiteSpaceCharacters.ToArray());
         }
+
+#if UNSAFE
+        /// <summary>
+        /// Sets the character of index in a string.
+        /// </summary>
+        public static unsafe void SetCharacter(this string source, int index, char @char)
+        {
+            if (string.IsNullOrEmpty(source))
+                throw new ArgumentNullException("source");
+
+            if (index < 0 || index >= source.Length)
+                throw new IndexOutOfRangeException("index");
+
+            fixed (char* c = source)
+            {
+                c[index] = @char;
+            }
+        }
+
+        /// <summary>
+        /// Sets all the characters in a string to a single character.
+        /// </summary>
+        public static unsafe void SetAllCharacters(this string source, char @char)
+        {
+            if (string.IsNullOrEmpty(source))
+                throw new ArgumentNullException("source");
+
+            fixed (char* c = source)
+            {
+                for (int i = 0; i < source.Length; i++)
+                    c[i] = @char;
+            }
+        }
+#endif
     }
 }
