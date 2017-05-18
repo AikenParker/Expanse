@@ -19,8 +19,10 @@ namespace Expanse
             Bounds startValue = this.StartValue;
             Bounds targetValue = this.TargetValue;
 
-            Vector3 center = Vector2.Lerp(startValue.center, targetValue.center, ValueProgress);
-            Vector3 size = Vector2.Lerp(startValue.size, targetValue.size, ValueProgress);
+            float valueProgress = this.ValueProgress;
+
+            Vector3 center = Vector2.Lerp(startValue.center, targetValue.center, valueProgress);
+            Vector3 size = Vector2.Lerp(startValue.size, targetValue.size, valueProgress);
 
             CurrentValue = new Bounds(center, size);
         }

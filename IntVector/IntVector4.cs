@@ -21,32 +21,10 @@ namespace Expanse
 
         public IntVector4(Vector4 source, FloatConversionMethod conversionMethod = FloatConversionMethod.FLOOR)
         {
-            switch (conversionMethod)
-            {
-                case FloatConversionMethod.CEIL:
-                    this.x = Mathf.CeilToInt(source.x);
-                    this.y = Mathf.CeilToInt(source.y);
-                    this.z = Mathf.CeilToInt(source.z);
-                    this.w = Mathf.CeilToInt(source.w);
-                    break;
-
-                case FloatConversionMethod.FLOOR:
-                    this.x = Mathf.FloorToInt(source.x);
-                    this.y = Mathf.FloorToInt(source.y);
-                    this.z = Mathf.FloorToInt(source.z);
-                    this.w = Mathf.FloorToInt(source.w);
-                    break;
-
-                case FloatConversionMethod.ROUND:
-                    this.x = Mathf.RoundToInt(source.x);
-                    this.y = Mathf.RoundToInt(source.y);
-                    this.z = Mathf.RoundToInt(source.z);
-                    this.w = Mathf.RoundToInt(source.w);
-                    break;
-
-                default:
-                    throw new ArgumentException("conversionMethod");
-            }
+            this.x = FloatConversionUtil.ConvertToInt(source.x, conversionMethod, false);
+            this.y = FloatConversionUtil.ConvertToInt(source.y, conversionMethod, false);
+            this.z = FloatConversionUtil.ConvertToInt(source.z, conversionMethod, false);
+            this.w = FloatConversionUtil.ConvertToInt(source.w, conversionMethod, false);
         }
 
         /// <summary>

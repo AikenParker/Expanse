@@ -19,8 +19,10 @@ namespace Expanse
             Rect startValue = this.StartValue;
             Rect targetValue = this.TargetValue;
 
-            Vector2 position = Vector2.Lerp(startValue.position, targetValue.position, ValueProgress);
-            Vector2 size = Vector2.Lerp(startValue.size, targetValue.size, ValueProgress);
+            float valueProgress = this.ValueProgress;
+
+            Vector2 position = Vector2.Lerp(startValue.position, targetValue.position, valueProgress);
+            Vector2 size = Vector2.Lerp(startValue.size, targetValue.size, valueProgress);
 
             CurrentValue = new Rect(position, size);
         }

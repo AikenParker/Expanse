@@ -19,29 +19,9 @@ namespace Expanse
 
         public IntVector3(Vector3 source, FloatConversionMethod conversionMethod = FloatConversionMethod.FLOOR)
         {
-            switch (conversionMethod)
-            {
-                case FloatConversionMethod.CEIL:
-                    this.x = Mathf.CeilToInt(source.x);
-                    this.y = Mathf.CeilToInt(source.y);
-                    this.z = Mathf.CeilToInt(source.z);
-                    break;
-
-                case FloatConversionMethod.FLOOR:
-                    this.x = Mathf.FloorToInt(source.x);
-                    this.y = Mathf.FloorToInt(source.y);
-                    this.z = Mathf.FloorToInt(source.z);
-                    break;
-
-                case FloatConversionMethod.ROUND:
-                    this.x = Mathf.RoundToInt(source.x);
-                    this.y = Mathf.RoundToInt(source.y);
-                    this.z = Mathf.RoundToInt(source.z);
-                    break;
-
-                default:
-                    throw new ArgumentException("conversionMethod");
-            }
+            this.x = FloatConversionUtil.ConvertToInt(source.x, conversionMethod, false);
+            this.y = FloatConversionUtil.ConvertToInt(source.y, conversionMethod, false);
+            this.z = FloatConversionUtil.ConvertToInt(source.z, conversionMethod, false);
         }
 
         /// <summary>

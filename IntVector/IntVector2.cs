@@ -17,26 +17,8 @@ namespace Expanse
 
         public IntVector2(Vector2 source, FloatConversionMethod conversionMethod = FloatConversionMethod.FLOOR)
         {
-            switch (conversionMethod)
-            {
-                case FloatConversionMethod.CEIL:
-                    this.x = Mathf.CeilToInt(source.x);
-                    this.y = Mathf.CeilToInt(source.y);
-                    break;
-
-                case FloatConversionMethod.FLOOR:
-                    this.x = Mathf.FloorToInt(source.x);
-                    this.y = Mathf.FloorToInt(source.y);
-                    break;
-
-                case FloatConversionMethod.ROUND:
-                    this.x = Mathf.RoundToInt(source.x);
-                    this.y = Mathf.RoundToInt(source.y);
-                    break;
-
-                default:
-                    throw new ArgumentException("conversionMethod");
-            }
+            this.x = FloatConversionUtil.ConvertToInt(source.x, conversionMethod, false);
+            this.y = FloatConversionUtil.ConvertToInt(source.y, conversionMethod, false);
         }
 
         /// <summary>
