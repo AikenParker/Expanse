@@ -1,5 +1,6 @@
-﻿#if (UNITY_EDITOR || UNITY_STANDALONE) && !ENABLE_IL2CPP
-#define EMIT_ENABLED
+﻿#define AOT_ONLY
+#if (UNITY_EDITOR || UNITY_STANDALONE) && !ENABLE_IL2CPP
+#undef AOT_ONLY
 #endif
 
 using System;
@@ -17,7 +18,7 @@ namespace Expanse.TinySerialization
 
         private bool hasCalculatedSize;
 
-#if EMIT_ENABLED
+#if !AOT_ONLY
         private Delegate constructor;
 #endif
 
@@ -187,7 +188,7 @@ namespace Expanse.TinySerialization
 
         public TSource GetDefaultConstructedInstance<TSource>() where TSource : new()
         {
-#if !EMIT_ENABLED
+#if AOT_ONLY
             return new TSource();
 #else
 
@@ -197,7 +198,7 @@ namespace Expanse.TinySerialization
             {
                 if (serializer.SerializationInfo.EmitReflection)
                 {
-                    this.constructor = constructor = EmitUtil.GenerateDefaultConstructor<TSource>();
+                    this.constructor = constructor = EmitUtil.GenerateDefaultConstructorDelegate<TSource>();
                 }
                 else
                 {
@@ -211,10 +212,10 @@ namespace Expanse.TinySerialization
 
         public void SetupDefaultConstructor<TSource>() where TSource : new()
         {
-#if EMIT_ENABLED
+#if !AOT_ONLY
             if (serializer.SerializationInfo.EmitReflection)
             {
-                this.constructor = EmitUtil.GenerateDefaultConstructor<TSource>();
+                this.constructor = EmitUtil.GenerateDefaultConstructorDelegate<TSource>();
             }
 #endif
         }

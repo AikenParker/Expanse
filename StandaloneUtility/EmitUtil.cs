@@ -1,8 +1,9 @@
-﻿#if (UNITY_EDITOR || UNITY_STANDALONE) && !ENABLE_IL2CPP
-#define EMIT_ENABLED
+﻿#define AOT_ONLY
+#if (UNITY_EDITOR || UNITY_STANDALONE) && !ENABLE_IL2CPP
+#undef AOT_ONLY
 #endif
 
-#if EMIT_ENABLED
+#if !AOT_ONLY
 using System;
 using System.Reflection;
 using System.Reflection.Emit;
@@ -37,11 +38,6 @@ namespace Expanse
         private static Type[] singleTypeArray = new Type[1];
         private static Type[] doubleTypeArray = new Type[2];
 
-        public static void Prewarm()
-        {
-            dynamicModule = dynamicModule ?? GenerateDynamicModule();
-        }
-
         private static Module GenerateDynamicModule()
         {
             AssemblyName dynamicAssemblyName = new AssemblyName("DynamicEmitUtilAssembly");
@@ -51,49 +47,168 @@ namespace Expanse
         }
 
         /// <summary>
-        /// Returns a dynamically compiled method that calls a default constructor for a type.
+        /// Generates the dynamic module if there is not one already.
         /// </summary>
-        public static Func<TSource> GenerateDefaultConstructor<TSource>()
+        public static void Prewarm()
         {
-            Type type = typeof(TSource);
-            DynamicMethod constructorMethod = new DynamicMethod(useMeaningfulNames ? type.FullName + ".ctor" : GENERATED_NAME, type, emptyTypeArray, DynamicModule);
+            dynamicModule = dynamicModule ?? GenerateDynamicModule();
+        }
+
+        /// <summary>
+        /// Generates a delegate that constructs an instance of type TSource using the default constructor.
+        /// </summary>
+        /// <typeparam name="TSource">Declaring type that the constructor belongs to.</typeparam>
+        public static Func<TSource> GenerateDefaultConstructorDelegate<TSource>()
+        {
+            Type tSource = typeof(TSource);
+            ConstructorInfo defaultConstructorInfo = tSource.GetConstructor(emptyTypeArray);
+
+            if (defaultConstructorInfo == null)
+                throw new InvalidTypeException("TSource must have a default constructor");
+
+            string dynamicMethodName = useMeaningfulNames ? tSource.FullName + ".ctor" : GENERATED_NAME;
+            DynamicMethod constructorMethod = new DynamicMethod(dynamicMethodName, tSource, emptyTypeArray, DynamicModule);
             ILGenerator gen = constructorMethod.GetILGenerator();
 
-            gen.Emit(OpCodes.Newobj, type.GetConstructor(emptyTypeArray));
+            gen.Emit(OpCodes.Newobj, defaultConstructorInfo);
             gen.Emit(OpCodes.Ret);
 
             return (Func<TSource>)constructorMethod.CreateDelegate(typeof(Func<TSource>));
         }
 
         /// <summary>
-        /// Returns a dynamically compiled method that gets the value of a field for a type.
+        /// Creates a delegate that gets the value of a static field.
         /// </summary>
-        public static Func<TSource, TReturn> GenerateGetter<TSource, TReturn>(FieldInfo field)
+        /// <typeparam name="TValue">Field type of the field info.</typeparam>
+        public static Func<TValue> GenerateStaticFieldGetterDelegate<TValue>(FieldInfo fieldInfo)
         {
-            singleTypeArray[0] = typeof(TSource);
-            DynamicMethod getterMethod = new DynamicMethod(useMeaningfulNames ? field.ReflectedType.FullName + ".get_" + field.Name : GENERATED_NAME, typeof(TReturn), singleTypeArray, DynamicModule);
+            if (fieldInfo == null)
+                throw new ArgumentNullException("field");
+
+            if (!fieldInfo.IsStatic)
+                throw new InvalidArgumentException("fieldInfo is not static use GenerateFieldGetterDelegate() instead");
+
+            if (!fieldInfo.IsPublic)
+                throw new InvalidArgumentException("fieldInfo must be public");
+
+            Type tValue = typeof(TValue);
+
+            if (tValue != fieldInfo.FieldType)
+                throw new InvalidArgumentException("Type TValue must equal the fieldInfo field type");
+
+            string dynamicMethodName = useMeaningfulNames ? fieldInfo.ReflectedType.FullName + ".get_" + fieldInfo.Name : GENERATED_NAME;
+            DynamicMethod getterMethod = new DynamicMethod(dynamicMethodName, tValue, emptyTypeArray, DynamicModule);
 
             ILGenerator gen = getterMethod.GetILGenerator();
-            gen.Emit(OpCodes.Ldarg_0);
-            gen.Emit(OpCodes.Ldfld, field);
+            gen.Emit(OpCodes.Ldsfld, fieldInfo);
             gen.Emit(OpCodes.Ret);
 
-            return (Func<TSource, TReturn>)getterMethod.CreateDelegate(typeof(Func<TSource, TReturn>));
+            return (Func<TValue>)getterMethod.CreateDelegate(typeof(Func<TValue>));
         }
 
         /// <summary>
-        /// Returns a dynamically compiled method that sets the value of a field for a type.
+        /// Creates a delegate that gets the value of a field.
         /// </summary>
-        public static Action<TSource, TValue> GenerateSetter<TSource, TValue>(FieldInfo field)
+        /// <typeparam name="TSource">Declaring type that the field belongs to.</typeparam>
+        /// <typeparam name="TValue">Field type of the field info.</typeparam>
+        public static Func<TSource, TValue> GenerateFieldGetterDelegate<TSource, TValue>(FieldInfo fieldInfo)
         {
-            doubleTypeArray[0] = typeof(TSource);
-            doubleTypeArray[1] = typeof(TValue);
-            DynamicMethod setterMethod = new DynamicMethod(useMeaningfulNames ? field.ReflectedType.FullName + ".set_" + field.Name : GENERATED_NAME, null, doubleTypeArray, DynamicModule);
+            if (fieldInfo == null)
+                throw new ArgumentNullException("field");
+
+            if (fieldInfo.IsStatic)
+                throw new InvalidArgumentException("fieldInfo is static use GenerateStaticFieldGetterDelegate() instead");
+
+            if (!fieldInfo.IsPublic)
+                throw new InvalidArgumentException("fieldInfo must be public");
+
+            Type tSource = typeof(TSource);
+            Type tValue = typeof(TValue);
+
+            if (tSource != fieldInfo.DeclaringType)
+                throw new InvalidArgumentException("Type TSource must equal the fieldInfo declaring type");
+
+            if (tValue != fieldInfo.FieldType)
+                throw new InvalidArgumentException("Type TValue must equal the fieldInfo field type");
+
+            singleTypeArray[0] = tSource;
+            string dynamicMethodName = useMeaningfulNames ? fieldInfo.ReflectedType.FullName + ".get_" + fieldInfo.Name : GENERATED_NAME;
+            DynamicMethod getterMethod = new DynamicMethod(dynamicMethodName, tValue, singleTypeArray, DynamicModule);
+
+            ILGenerator gen = getterMethod.GetILGenerator();
+            gen.Emit(OpCodes.Ldarg_0);
+            gen.Emit(OpCodes.Ldfld, fieldInfo);
+            gen.Emit(OpCodes.Ret);
+
+            return (Func<TSource, TValue>)getterMethod.CreateDelegate(typeof(Func<TSource, TValue>));
+        }
+
+        /// <summary>
+        /// Creates a delegate that sets the value of a static field.
+        /// </summary>
+        /// <typeparam name="TValue">Field type of the field info.</typeparam>
+        public static Action<TValue> GenerateStaticFieldSetterDelegate<TValue>(FieldInfo fieldInfo)
+        {
+            if (fieldInfo == null)
+                throw new ArgumentNullException("field");
+
+            if (!fieldInfo.IsStatic)
+                throw new InvalidArgumentException("fieldInfo is not static use GenerateFieldSetterDelegate() instead");
+
+            if (!fieldInfo.IsPublic)
+                throw new InvalidArgumentException("fieldInfo must be public");
+
+            Type tValue = typeof(TValue);
+
+            if (tValue != fieldInfo.FieldType)
+                throw new InvalidArgumentException("Type TValue must equal the fieldInfo field type");
+
+            singleTypeArray[0] = tValue;
+            string dynamicMethodName = useMeaningfulNames ? fieldInfo.ReflectedType.FullName + ".set_" + fieldInfo.Name : GENERATED_NAME;
+            DynamicMethod setterMethod = new DynamicMethod(dynamicMethodName, null, singleTypeArray, DynamicModule);
+
+            ILGenerator gen = setterMethod.GetILGenerator();
+            gen.Emit(OpCodes.Ldarg_0);
+            gen.Emit(OpCodes.Stsfld, fieldInfo);
+            gen.Emit(OpCodes.Ret);
+
+            return (Action<TValue>)setterMethod.CreateDelegate(typeof(Action<TValue>));
+        }
+
+        /// <summary>
+        /// Creates a delegate that sets the value of a field.
+        /// </summary>
+        /// <typeparam name="TSource">Declaring type that the field belongs to.</typeparam>
+        /// <typeparam name="TValue">Field type of the field info.</typeparam>
+        public static Action<TSource, TValue> GenerateFieldSetterDelegate<TSource, TValue>(FieldInfo fieldInfo)
+        {
+            if (fieldInfo == null)
+                throw new ArgumentNullException("field");
+
+            if (fieldInfo.IsStatic)
+                throw new InvalidArgumentException("fieldInfo is static use GenerateStaticFieldSetterDelegate() instead");
+
+            if (!fieldInfo.IsPublic)
+                throw new InvalidArgumentException("fieldInfo must be public");
+
+            Type tSource = typeof(TSource);
+            Type tValue = typeof(TValue);
+
+            if (tSource != fieldInfo.DeclaringType)
+                throw new InvalidArgumentException("Type TSource must equal the fieldInfo declaring type");
+
+            if (tValue != fieldInfo.FieldType)
+                throw new InvalidArgumentException("Type TValue must equal the fieldInfo field type");
+
+            doubleTypeArray[0] = tSource;
+            doubleTypeArray[1] = tValue;
+            string dynamicMethodName = useMeaningfulNames ? fieldInfo.ReflectedType.FullName + ".set_" + fieldInfo.Name : GENERATED_NAME;
+            DynamicMethod setterMethod = new DynamicMethod(dynamicMethodName, null, doubleTypeArray, DynamicModule);
 
             ILGenerator gen = setterMethod.GetILGenerator();
             gen.Emit(OpCodes.Ldarg_0);
             gen.Emit(OpCodes.Ldarg_1);
-            gen.Emit(OpCodes.Stfld, field);
+            gen.Emit(OpCodes.Stfld, fieldInfo);
             gen.Emit(OpCodes.Ret);
 
             return (Action<TSource, TValue>)setterMethod.CreateDelegate(typeof(Action<TSource, TValue>));

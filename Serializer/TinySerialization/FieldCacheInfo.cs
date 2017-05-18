@@ -1,5 +1,6 @@
-﻿#if (UNITY_EDITOR || UNITY_STANDALONE) && !ENABLE_IL2CPP
-#define EMIT_ENABLED
+﻿#define AOT_ONLY
+#if (UNITY_EDITOR || UNITY_STANDALONE) && !ENABLE_IL2CPP
+#undef AOT_ONLY
 #endif
 
 using System;
@@ -14,7 +15,7 @@ namespace Expanse.TinySerialization
         public SupportedFieldType type;
         public FieldInfo fieldInfo;
 
-#if EMIT_ENABLED
+#if !AOT_ONLY
         public Delegate getter;
         public Delegate setter;
 #endif
@@ -67,7 +68,7 @@ namespace Expanse.TinySerialization
 
         public TReturn GetValue<TSource, TReturn>(TSource source)
         {
-#if !EMIT_ENABLED
+#if AOT_ONLY
             return (TReturn)fieldInfo.GetValue(source);
 #else
 
@@ -77,7 +78,7 @@ namespace Expanse.TinySerialization
             {
                 if (serializer.SerializationInfo.EmitReflection)
                 {
-                    getter = EmitUtil.GenerateGetter<TSource, TReturn>(fieldInfo);
+                    getter = EmitUtil.GenerateFieldGetterDelegate<TSource, TReturn>(fieldInfo);
                     this.getter = getter;
                 }
                 else
@@ -92,7 +93,7 @@ namespace Expanse.TinySerialization
 
         public void SetValue<TSource, TValue>(TSource source, TValue value)
         {
-#if !EMIT_ENABLED
+#if AOT_ONLY
             fieldInfo.SetValue(source, value);
 #else
 
@@ -102,7 +103,7 @@ namespace Expanse.TinySerialization
             {
                 if (serializer.SerializationInfo.EmitReflection)
                 {
-                    setter = EmitUtil.GenerateSetter<TSource, TValue>(fieldInfo);
+                    setter = EmitUtil.GenerateFieldSetterDelegate<TSource, TValue>(fieldInfo);
                     this.setter = setter;
                 }
                 else

@@ -73,4 +73,16 @@ namespace Expanse
 
         public InvalidArgumentException(string message, Exception innerException) : base(message, innerException) { }
     }
+
+    /// <summary>
+    /// Generic type is invalid in some way.
+    /// </summary>
+    public class InvalidTypeException : ExpanseException
+    {
+        public InvalidTypeException() : base() { }
+
+        public InvalidTypeException(string message) : base(message) { }
+
+        public InvalidTypeException(string message, Exception innerException) : base(message, innerException) { }
+    }
 }
