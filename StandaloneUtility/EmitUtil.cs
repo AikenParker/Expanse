@@ -73,7 +73,7 @@ namespace Expanse
             gen.Emit(OpCodes.Newobj, defaultConstructorInfo);
             gen.Emit(OpCodes.Ret);
 
-            return (Func<TSource>)constructorMethod.CreateDelegate(typeof(Func<TSource>));
+            return ReflectionUtil.CreateMethodInvokerDelegate<Func<TSource>>(constructorMethod);
         }
 
         /// <summary>
@@ -103,7 +103,7 @@ namespace Expanse
             gen.Emit(OpCodes.Ldsfld, fieldInfo);
             gen.Emit(OpCodes.Ret);
 
-            return (Func<TValue>)getterMethod.CreateDelegate(typeof(Func<TValue>));
+            return ReflectionUtil.CreateMethodInvokerDelegate<Func<TValue>>(getterMethod);
         }
 
         /// <summary>
@@ -140,7 +140,7 @@ namespace Expanse
             gen.Emit(OpCodes.Ldfld, fieldInfo);
             gen.Emit(OpCodes.Ret);
 
-            return (Func<TSource, TValue>)getterMethod.CreateDelegate(typeof(Func<TSource, TValue>));
+            return ReflectionUtil.CreateMethodInvokerDelegate<Func<TSource, TValue>>(getterMethod);
         }
 
         /// <summary>
@@ -172,7 +172,7 @@ namespace Expanse
             gen.Emit(OpCodes.Stsfld, fieldInfo);
             gen.Emit(OpCodes.Ret);
 
-            return (Action<TValue>)setterMethod.CreateDelegate(typeof(Action<TValue>));
+            return ReflectionUtil.CreateMethodInvokerDelegate<Action<TValue>>(setterMethod);
         }
 
         /// <summary>
@@ -211,7 +211,7 @@ namespace Expanse
             gen.Emit(OpCodes.Stfld, fieldInfo);
             gen.Emit(OpCodes.Ret);
 
-            return (Action<TSource, TValue>)setterMethod.CreateDelegate(typeof(Action<TSource, TValue>));
+            return ReflectionUtil.CreateMethodInvokerDelegate<Action<TSource, TValue>>(setterMethod);
         }
     }
 }
