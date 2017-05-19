@@ -37,21 +37,6 @@ namespace Expanse.TinySerialization
             stringTypeResolver = new StringTypeResolver(serializationInfo.StringResolutionType);
         }
 
-        public void Prewarm<T>() where T : new()
-        {
-            TypeCacheInfo typeCacheInfo = GetTypeCacheInfo(typeof(T));
-
-            typeCacheInfo.SetupDefaultConstructor<T>();
-
-            int size;
-            typeCacheInfo.TryCalculateStaticSize<T>(out size);
-
-            if (serializationInfo.EmitReflection)
-            {
-                EmitUtil.Prewarm();
-            }
-        }
-
         public void ClearCache()
         {
             lastTypeCacheInfo = null;

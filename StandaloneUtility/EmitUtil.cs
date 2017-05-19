@@ -15,44 +15,22 @@ namespace Expanse
     /// </summary>
     public static class EmitUtil
     {
-        private static bool useMeaningfulNames = true;
-        private const string GENERATED_NAME = "GEN";
-
+        /// <summary>
+        /// Will generated methods be named meaningfully using string concatenation.
+        /// </summary>
         public static bool UseMeaningfulNames
         {
             get { return useMeaningfulNames; }
             set { useMeaningfulNames = value; }
         }
 
-        private static Module dynamicModule;
-        private static Module DynamicModule
-        {
-            get
-            {
-                dynamicModule = dynamicModule ?? GenerateDynamicModule();
-                return dynamicModule;
-            }
-        }
+        private static bool useMeaningfulNames = true;
+        private const string GENERATED_NAME = "EmitUtilMethod";
 
+        // Type array caches used when emitting methods
         private static Type[] emptyTypeArray = new Type[0];
         private static Type[] singleTypeArray = new Type[1];
         private static Type[] doubleTypeArray = new Type[2];
-
-        private static Module GenerateDynamicModule()
-        {
-            AssemblyName dynamicAssemblyName = new AssemblyName("DynamicEmitUtilAssembly");
-            AssemblyBuilder dynamicAssemblyBuilder = AppDomain.CurrentDomain.DefineDynamicAssembly(dynamicAssemblyName, AssemblyBuilderAccess.Run);
-            ModuleBuilder dynamicModuleBuilder = dynamicAssemblyBuilder.DefineDynamicModule("DynamicEmitUtilModule");
-            return dynamicModuleBuilder.Assembly.GetModule("DynamicEmitUtilModule");
-        }
-
-        /// <summary>
-        /// Generates the dynamic module if there is not one already.
-        /// </summary>
-        public static void Prewarm()
-        {
-            dynamicModule = dynamicModule ?? GenerateDynamicModule();
-        }
 
         /// <summary>
         /// Generates a delegate that constructs an instance of type TSource using the default constructor.
@@ -67,13 +45,13 @@ namespace Expanse
                 throw new InvalidTypeException("TSource must have a default constructor");
 
             string dynamicMethodName = useMeaningfulNames ? tSource.FullName + ".ctor" : GENERATED_NAME;
-            DynamicMethod constructorMethod = new DynamicMethod(dynamicMethodName, tSource, emptyTypeArray, DynamicModule);
+            DynamicMethod constructorMethod = new DynamicMethod(dynamicMethodName, tSource, emptyTypeArray, tSource);
             ILGenerator gen = constructorMethod.GetILGenerator();
 
             gen.Emit(OpCodes.Newobj, defaultConstructorInfo);
             gen.Emit(OpCodes.Ret);
 
-            return ReflectionUtil.CreateMethodInvokerDelegate<Func<TSource>>(constructorMethod);
+            return (Func<TSource>)constructorMethod.CreateDelegate(typeof(Func<TSource>));
         }
 
         /// <summary>
@@ -88,22 +66,19 @@ namespace Expanse
             if (!fieldInfo.IsStatic)
                 throw new InvalidArgumentException("fieldInfo is not static use GenerateFieldGetterDelegate() instead");
 
-            if (!fieldInfo.IsPublic)
-                throw new InvalidArgumentException("fieldInfo must be public");
-
             Type tValue = typeof(TValue);
 
             if (tValue != fieldInfo.FieldType)
                 throw new InvalidArgumentException("Type TValue must equal the fieldInfo field type");
 
             string dynamicMethodName = useMeaningfulNames ? fieldInfo.ReflectedType.FullName + ".get_" + fieldInfo.Name : GENERATED_NAME;
-            DynamicMethod getterMethod = new DynamicMethod(dynamicMethodName, tValue, emptyTypeArray, DynamicModule);
+            DynamicMethod getterMethod = new DynamicMethod(dynamicMethodName, tValue, emptyTypeArray, fieldInfo.DeclaringType);
 
             ILGenerator gen = getterMethod.GetILGenerator();
             gen.Emit(OpCodes.Ldsfld, fieldInfo);
             gen.Emit(OpCodes.Ret);
 
-            return ReflectionUtil.CreateMethodInvokerDelegate<Func<TValue>>(getterMethod);
+            return (Func<TValue>)getterMethod.CreateDelegate(typeof(Func<TValue>));
         }
 
         /// <summary>
@@ -119,9 +94,6 @@ namespace Expanse
             if (fieldInfo.IsStatic)
                 throw new InvalidArgumentException("fieldInfo is static use GenerateStaticFieldGetterDelegate() instead");
 
-            if (!fieldInfo.IsPublic)
-                throw new InvalidArgumentException("fieldInfo must be public");
-
             Type tSource = typeof(TSource);
             Type tValue = typeof(TValue);
 
@@ -133,14 +105,14 @@ namespace Expanse
 
             singleTypeArray[0] = tSource;
             string dynamicMethodName = useMeaningfulNames ? fieldInfo.ReflectedType.FullName + ".get_" + fieldInfo.Name : GENERATED_NAME;
-            DynamicMethod getterMethod = new DynamicMethod(dynamicMethodName, tValue, singleTypeArray, DynamicModule);
+            DynamicMethod getterMethod = new DynamicMethod(dynamicMethodName, tValue, singleTypeArray, tSource);
 
             ILGenerator gen = getterMethod.GetILGenerator();
             gen.Emit(OpCodes.Ldarg_0);
             gen.Emit(OpCodes.Ldfld, fieldInfo);
             gen.Emit(OpCodes.Ret);
 
-            return ReflectionUtil.CreateMethodInvokerDelegate<Func<TSource, TValue>>(getterMethod);
+            return (Func<TSource, TValue>)getterMethod.CreateDelegate(typeof(Func<TSource, TValue>));
         }
 
         /// <summary>
@@ -155,9 +127,6 @@ namespace Expanse
             if (!fieldInfo.IsStatic)
                 throw new InvalidArgumentException("fieldInfo is not static use GenerateFieldSetterDelegate() instead");
 
-            if (!fieldInfo.IsPublic)
-                throw new InvalidArgumentException("fieldInfo must be public");
-
             Type tValue = typeof(TValue);
 
             if (tValue != fieldInfo.FieldType)
@@ -165,14 +134,14 @@ namespace Expanse
 
             singleTypeArray[0] = tValue;
             string dynamicMethodName = useMeaningfulNames ? fieldInfo.ReflectedType.FullName + ".set_" + fieldInfo.Name : GENERATED_NAME;
-            DynamicMethod setterMethod = new DynamicMethod(dynamicMethodName, null, singleTypeArray, DynamicModule);
+            DynamicMethod setterMethod = new DynamicMethod(dynamicMethodName, null, singleTypeArray, fieldInfo.DeclaringType);
 
             ILGenerator gen = setterMethod.GetILGenerator();
             gen.Emit(OpCodes.Ldarg_0);
             gen.Emit(OpCodes.Stsfld, fieldInfo);
             gen.Emit(OpCodes.Ret);
 
-            return ReflectionUtil.CreateMethodInvokerDelegate<Action<TValue>>(setterMethod);
+            return (Action<TValue>)setterMethod.CreateDelegate(typeof(Action<TValue>));
         }
 
         /// <summary>
@@ -188,9 +157,6 @@ namespace Expanse
             if (fieldInfo.IsStatic)
                 throw new InvalidArgumentException("fieldInfo is static use GenerateStaticFieldSetterDelegate() instead");
 
-            if (!fieldInfo.IsPublic)
-                throw new InvalidArgumentException("fieldInfo must be public");
-
             Type tSource = typeof(TSource);
             Type tValue = typeof(TValue);
 
@@ -203,7 +169,7 @@ namespace Expanse
             doubleTypeArray[0] = tSource;
             doubleTypeArray[1] = tValue;
             string dynamicMethodName = useMeaningfulNames ? fieldInfo.ReflectedType.FullName + ".set_" + fieldInfo.Name : GENERATED_NAME;
-            DynamicMethod setterMethod = new DynamicMethod(dynamicMethodName, null, doubleTypeArray, DynamicModule);
+            DynamicMethod setterMethod = new DynamicMethod(dynamicMethodName, null, doubleTypeArray, tSource);
 
             ILGenerator gen = setterMethod.GetILGenerator();
             gen.Emit(OpCodes.Ldarg_0);
@@ -211,7 +177,7 @@ namespace Expanse
             gen.Emit(OpCodes.Stfld, fieldInfo);
             gen.Emit(OpCodes.Ret);
 
-            return ReflectionUtil.CreateMethodInvokerDelegate<Action<TSource, TValue>>(setterMethod);
+            return (Action<TSource, TValue>)setterMethod.CreateDelegate(typeof(Action<TSource, TValue>));
         }
     }
 }
