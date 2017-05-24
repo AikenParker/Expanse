@@ -28,7 +28,7 @@ namespace Expanse
 
                 if (lastTransform)
                 {
-                    newTransform = lastTransform.FindChild(name);
+                    newTransform = lastTransform.Find(name);
                 }
                 else
                 {

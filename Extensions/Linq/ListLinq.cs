@@ -316,5 +316,43 @@ namespace Expanse
 
             return output;
         }
+
+        /// <summary>
+        /// Returns a new list where items are selected from another list of lists. Faster than SelectMany<>().ToList().
+        /// </summary>
+        public static List<TOutput> SelectManyToList<TInput, TOutput>(this IList<TInput> list, Func<TInput, IList<TOutput>> selector)
+        {
+            if (list == null)
+                throw new ArgumentNullException("source");
+
+            if (selector == null)
+                throw new ArgumentNullException("selector");
+
+            int count = list.Count;
+            int sumCount = 0;
+
+            for (int i = 0; i < count; i++)
+            {
+                IList<TOutput> outputList = selector(list[i]);
+
+                sumCount += outputList.Count;
+            }
+
+            List<TOutput> output = new List<TOutput>(sumCount);
+
+            for (int i = 0; i < count; i++)
+            {
+                IList<TOutput> outputList = selector(list[i]);
+
+                int itemCount = outputList.Count;
+
+                for (int j = 0; j < itemCount; j++)
+                {
+                    output.Add(outputList[j]);
+                }
+            }
+
+            return output;
+        }
     }
 }
