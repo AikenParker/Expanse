@@ -56,7 +56,7 @@ namespace Expanse
             Timer newTimer = new Timer(null, CallBackRelay.GlobalCBR);
 
             newTimer.ApplySettings(settings);
-            if (settings.completionMode != TimerCompletionModes.REVERSE)
+            if (settings.completionMode != TimerCompletionModes.Reverse)
                 newTimer.Completed += onComplete;
             else
                 newTimer.CompletedOrReturned += onComplete;
@@ -85,7 +85,7 @@ namespace Expanse
             Timer newTimer = new Timer(monoBehaviour, CallBackRelay.GlobalCBR);
 
             newTimer.ApplySettings(settings);
-            if (settings.completionMode != TimerCompletionModes.REVERSE)
+            if (settings.completionMode != TimerCompletionModes.Reverse)
                 newTimer.Completed += onComplete;
             else
                 newTimer.CompletedOrReturned += onComplete;
@@ -114,7 +114,7 @@ namespace Expanse
             Timer newTimer = new Timer(monoBehaviour, CBR);
 
             newTimer.ApplySettings(settings);
-            if (settings.completionMode != TimerCompletionModes.REVERSE)
+            if (settings.completionMode != TimerCompletionModes.Reverse)
                 newTimer.Completed += onComplete;
             else
                 newTimer.CompletedOrReturned += onComplete;
@@ -345,17 +345,17 @@ namespace Expanse
         {
             switch (mode)
             {
-                case UpdateModes.UPDATE:
-                case UpdateModes.UNSCALED_UPDATE:
+                case UpdateModes.Update:
+                case UpdateModes.UnscaledUpdate:
                     CBR.UnsubscribeToUpdate(this);
                     break;
 
-                case UpdateModes.LATE_UPDATE:
-                case UpdateModes.UNSCALED_LATE_UPDATE:
+                case UpdateModes.LateUpdate:
+                case UpdateModes.UnscaledLateUpdate:
                     CBR.UnsubscribeToLateUpdate(this);
                     break;
 
-                case UpdateModes.FIXED_UPDATE:
+                case UpdateModes.FixedUpdate:
                     CBR.UnsubscribeToFixedUpdate(this);
                     break;
             }
@@ -365,17 +365,17 @@ namespace Expanse
         {
             switch (mode)
             {
-                case UpdateModes.UPDATE:
-                case UpdateModes.UNSCALED_UPDATE:
+                case UpdateModes.Update:
+                case UpdateModes.UnscaledUpdate:
                     CBR.SubscribeToUpdate(this);
                     break;
 
-                case UpdateModes.LATE_UPDATE:
-                case UpdateModes.UNSCALED_LATE_UPDATE:
+                case UpdateModes.LateUpdate:
+                case UpdateModes.UnscaledLateUpdate:
                     CBR.SubscribeToLateUpdate(this);
                     break;
 
-                case UpdateModes.FIXED_UPDATE:
+                case UpdateModes.FixedUpdate:
                     CBR.SubscribeToFixedUpdate(this);
                     break;
             }
@@ -411,17 +411,17 @@ namespace Expanse
 
             switch (CompletionMode)
             {
-                case TimerCompletionModes.DEACTIVATE:
+                case TimerCompletionModes.Deactivate:
                     this.CurrentTime = CurrentEndTime;
                     this.Deactivate();
                     break;
 
-                case TimerCompletionModes.STOP:
+                case TimerCompletionModes.Stop:
                     this.CurrentTime = CurrentEndTime;
                     this.Stop();
                     break;
 
-                case TimerCompletionModes.RESTART:
+                case TimerCompletionModes.Restart:
                     if (Repeats == 0)
                     {
                         this.CurrentTime = CurrentEndTime;
@@ -434,7 +434,7 @@ namespace Expanse
                     }
                     break;
 
-                case TimerCompletionModes.REVERSE:
+                case TimerCompletionModes.Reverse:
                     if (Repeats == 0 && !IsReversing)
                     {
                         this.CurrentTime = CurrentEndTime;
@@ -540,15 +540,15 @@ namespace Expanse
             {
                 switch (CompletionMode)
                 {
-                    case TimerCompletionModes.RESTART:
-                    case TimerCompletionModes.REVERSE:
+                    case TimerCompletionModes.Restart:
+                    case TimerCompletionModes.Reverse:
                         if (Repeats < 0)
                             return float.PositiveInfinity;
                         else
                             return ((Repeats - 1) * Duration) + RemainingTime;
 
-                    case TimerCompletionModes.STOP:
-                    case TimerCompletionModes.DEACTIVATE:
+                    case TimerCompletionModes.Stop:
+                    case TimerCompletionModes.Deactivate:
                     default:
                         return RemainingTime;
                 }
@@ -617,25 +617,25 @@ namespace Expanse
             get
             {
                 UpdateModes updateMode = this.UpdateMode;
-                return updateMode == UpdateModes.UNSCALED_UPDATE || updateMode == UpdateModes.UNSCALED_LATE_UPDATE;
+                return updateMode == UpdateModes.UnscaledUpdate || updateMode == UpdateModes.UnscaledLateUpdate;
             }
         }
 
         public enum TimerCompletionModes
         {
-            DEACTIVATE = 0,
-            STOP = 1,
-            RESTART = 2,
-            REVERSE = 3
+            Deactivate = 0,
+            Stop = 1,
+            Restart = 2,
+            Reverse = 3
         }
     }
 
     public enum UpdateModes
     {
-        UPDATE = 0,
-        UNSCALED_UPDATE = 1,
-        FIXED_UPDATE = 2,
-        LATE_UPDATE = 3,
-        UNSCALED_LATE_UPDATE = 4,
+        Update = 0,
+        UnscaledUpdate = 1,
+        FixedUpdate = 2,
+        LateUpdate = 3,
+        UnscaledLateUpdate = 4,
     }
 }

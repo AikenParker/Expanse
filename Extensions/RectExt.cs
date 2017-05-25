@@ -10,25 +10,25 @@ namespace Expanse.Extensions
     {
         public enum RectMode
         {
-            TOP_LEFT,
-            CENTER
+            TopLeft,
+            Center
         }
 
         /// <summary>
         /// Creates a new rect with added width and height.
         /// </summary>
-        public static Rect AddSize(this Rect source, float addWidth, float addHeight, RectMode rectMode = RectMode.TOP_LEFT)
+        public static Rect AddSize(this Rect source, float addWidth, float addHeight, RectMode rectMode = RectMode.TopLeft)
         {
             Rect newRect = new Rect(source);
 
             switch (rectMode)
             {
-                case RectMode.TOP_LEFT:
+                case RectMode.TopLeft:
                     newRect.width += addWidth;
                     newRect.height += addHeight;
                     break;
 
-                case RectMode.CENTER:
+                case RectMode.Center:
                     newRect.width += addWidth;
                     newRect.height += addHeight;
                     newRect.x -= addWidth / 2f;
@@ -42,18 +42,18 @@ namespace Expanse.Extensions
         /// <summary>
         /// Creates a new rect with set width and height.
         /// </summary>
-        public static Rect WithSize(this Rect source, float width, float height, RectMode rectMode = RectMode.TOP_LEFT)
+        public static Rect WithSize(this Rect source, float width, float height, RectMode rectMode = RectMode.TopLeft)
         {
             Rect newRect = new Rect(source);
 
             switch (rectMode)
             {
-                case RectMode.TOP_LEFT:
+                case RectMode.TopLeft:
                     newRect.width = width;
                     newRect.height = height;
                     break;
 
-                case RectMode.CENTER:
+                case RectMode.Center:
                     float widthDiff = newRect.width - width;
                     float heightDiff = newRect.height - height;
                     newRect.width += widthDiff;
@@ -89,18 +89,18 @@ namespace Expanse.Extensions
         /// <summary>
         /// Creates a rect with a scaled size.
         /// </summary>
-        public static Rect Scale(this Rect source, Vector2 scale, RectMode rectMode = RectMode.TOP_LEFT)
+        public static Rect Scale(this Rect source, Vector2 scale, RectMode rectMode = RectMode.TopLeft)
         {
             Rect newRect = new Rect(source);
 
             switch (rectMode)
             {
-                case RectMode.TOP_LEFT:
+                case RectMode.TopLeft:
                     newRect.width *= scale.x;
                     newRect.height *= scale.y;
                     break;
 
-                case RectMode.CENTER:
+                case RectMode.Center:
                     float widthDiff = newRect.width - (newRect.width * scale.x);
                     float heightDiff = newRect.height - (newRect.height * scale.x);
                     newRect.width += widthDiff;

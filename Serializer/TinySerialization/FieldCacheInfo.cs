@@ -27,37 +27,37 @@ namespace Expanse.TinySerialization
 
             // --SUPPORTED-TYPE-SWITCH--
             if (type == typeof(int))
-                return SupportedFieldType.INT;
+                return SupportedFieldType.Int;
             else if (type == typeof(bool))
-                return SupportedFieldType.BOOL;
+                return SupportedFieldType.Bool;
             else if (type == typeof(float))
-                return SupportedFieldType.FLOAT;
+                return SupportedFieldType.Float;
             else if (type == typeof(double))
-                return SupportedFieldType.DOUBLE;
+                return SupportedFieldType.Double;
             else if (type == typeof(char))
-                return SupportedFieldType.CHAR;
+                return SupportedFieldType.Char;
             else if (type == typeof(string))
-                return SupportedFieldType.STRING;
+                return SupportedFieldType.String;
             else if (type == typeof(DateTime))
-                return SupportedFieldType.DATE_TIME;
+                return SupportedFieldType.DateTime;
             else if (type == typeof(short))
-                return SupportedFieldType.SHORT;
+                return SupportedFieldType.Short;
             else if (type == typeof(long))
-                return SupportedFieldType.LONG;
+                return SupportedFieldType.Long;
             else if (type == typeof(uint))
-                return SupportedFieldType.UINT;
+                return SupportedFieldType.UInt;
             else if (type == typeof(ushort))
-                return SupportedFieldType.USHORT;
+                return SupportedFieldType.UShort;
             else if (type == typeof(ulong))
-                return SupportedFieldType.ULONG;
+                return SupportedFieldType.ULong;
             else if (type == typeof(byte))
-                return SupportedFieldType.BYTE;
+                return SupportedFieldType.Byte;
             else if (type == typeof(sbyte))
-                return SupportedFieldType.SBYTE;
+                return SupportedFieldType.SByte;
             else if (type == typeof(decimal))
-                return SupportedFieldType.DECIMAL;
+                return SupportedFieldType.Decimal;
             else
-                return SupportedFieldType.NONE;
+                return SupportedFieldType.None;
         }
 
         public FieldCacheInfo(TinySerializer serializer, FieldInfo fieldInfo, SupportedFieldType type)

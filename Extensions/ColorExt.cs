@@ -99,7 +99,7 @@ namespace Expanse.Extensions
         /// <summary>
         /// Converts a color to greyscale.
         /// </summary>
-        public static Color ToGrayscale(this Color source, ColorUtil.GrayscaleMethod grayscaleMethod = ColorUtil.GrayscaleMethod.LUMINESCENCE)
+        public static Color ToGrayscale(this Color source, ColorUtil.GrayscaleMethod grayscaleMethod = ColorUtil.GrayscaleMethod.Luminescence)
         {
             return ColorUtil.ToGrayscale(source, grayscaleMethod);
         }

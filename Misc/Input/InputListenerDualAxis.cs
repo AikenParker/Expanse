@@ -13,10 +13,10 @@ namespace Expanse.Misc
 
         public InputListenerDualAxis(InputListener AxisX, InputListener AxisY)
         {
-            if (AxisX.InputType != InputListener.InputTypes.AXIS)
+            if (AxisX.InputType != InputListener.InputTypes.Axis)
                 Debug.LogWarning("Input Axis X is not an Axis Input Listener");
 
-            if (AxisY.InputType != InputListener.InputTypes.AXIS)
+            if (AxisY.InputType != InputListener.InputTypes.Axis)
                 Debug.LogWarning("Input Axis Y is not an Axis Input Listener");
 
             this.InputX = AxisX;

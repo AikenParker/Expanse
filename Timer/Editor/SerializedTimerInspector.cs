@@ -93,7 +93,7 @@ namespace Expanse
 
             Timer.TimerCompletionModes completionMode = (Timer.TimerCompletionModes)completionModeProperty.enumValueIndex;
 
-            if (completionMode == Timer.TimerCompletionModes.RESTART || completionMode == Timer.TimerCompletionModes.REVERSE)
+            if (completionMode == Timer.TimerCompletionModes.Restart || completionMode == Timer.TimerCompletionModes.Reverse)
             {
                 EditorGUI.indentLevel++;
 

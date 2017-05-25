@@ -15,7 +15,7 @@ namespace Expanse.Utilities
         private Camera Camera;
 
         public Vector2 screenPosition = new Vector2(0.5f, 0.5f);
-        public ScaleMode scaleMode = ScaleMode.MAX;
+        public ScaleMode scaleMode = ScaleMode.MaxFit;
         public float scaleFactor = 1f;
 
         private void Reset()
@@ -39,19 +39,19 @@ namespace Expanse.Utilities
 
             switch (scaleMode)
             {
-                case ScaleMode.NATIVE:
+                case ScaleMode.Native:
                     Transform.localScale = Vector3.zero;
                     break;
 
-                case ScaleMode.MIN:
+                case ScaleMode.MinFit:
                     Transform.localScale = this.GetMinScale() * scaleFactor;
                     break;
 
-                case ScaleMode.MAX:
+                case ScaleMode.MaxFit:
                     Transform.localScale = this.GetMaxScale() * scaleFactor;
                     break;
 
-                case ScaleMode.STRETCH:
+                case ScaleMode.Stretch:
                     Transform.localScale = this.GetStretchScale() * scaleFactor;
                     break;
             }
@@ -97,10 +97,10 @@ namespace Expanse.Utilities
 
         public enum ScaleMode
         {
-            NATIVE = 0,
-            MAX,
-            MIN,
-            STRETCH
+            Native = 0,
+            MaxFit,
+            MinFit,
+            Stretch
         }
 
 #if UNITY_EDITOR

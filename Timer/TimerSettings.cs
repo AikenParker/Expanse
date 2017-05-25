@@ -45,8 +45,8 @@ namespace Expanse
                     maxDuration = 1f,
                     autoPlay = false,
                     playBackRate = 1.0f,
-                    completionMode = Timer.TimerCompletionModes.DEACTIVATE,
-                    updateMode = UpdateModes.UPDATE,
+                    completionMode = Timer.TimerCompletionModes.Deactivate,
+                    updateMode = UpdateModes.Update,
                     repeats = -1,
                     deactivateOnLoad = true,
                     priority = 0,
@@ -72,7 +72,7 @@ namespace Expanse
             get
             {
                 TimerSettings settings = TimerSettings.Default;
-                settings.completionMode = Timer.TimerCompletionModes.STOP;
+                settings.completionMode = Timer.TimerCompletionModes.Stop;
                 return settings;
             }
         }
@@ -83,7 +83,7 @@ namespace Expanse
             {
                 TimerSettings settings = TimerSettings.Default;
                 settings.autoPlay = true;
-                settings.completionMode = Timer.TimerCompletionModes.RESTART;
+                settings.completionMode = Timer.TimerCompletionModes.Restart;
                 return settings;
             }
         }
@@ -94,7 +94,7 @@ namespace Expanse
             {
                 TimerSettings settings = TimerSettings.Default;
                 settings.autoPlay = true;
-                settings.completionMode = Timer.TimerCompletionModes.REVERSE;
+                settings.completionMode = Timer.TimerCompletionModes.Reverse;
                 return settings;
             }
         }
@@ -105,7 +105,7 @@ namespace Expanse
             {
                 TimerSettings settings = TimerSettings.Default;
                 settings.autoPlay = true;
-                settings.updateMode = UpdateModes.FIXED_UPDATE;
+                settings.updateMode = UpdateModes.FixedUpdate;
                 return settings;
             }
         }
@@ -115,8 +115,8 @@ namespace Expanse
             get
             {
                 TimerSettings settings = TimerSettings.Default;
-                settings.completionMode = Timer.TimerCompletionModes.STOP;
-                settings.updateMode = UpdateModes.FIXED_UPDATE;
+                settings.completionMode = Timer.TimerCompletionModes.Stop;
+                settings.updateMode = UpdateModes.FixedUpdate;
                 return settings;
             }
         }
@@ -127,8 +127,8 @@ namespace Expanse
             {
                 TimerSettings settings = TimerSettings.Default;
                 settings.autoPlay = true;
-                settings.completionMode = Timer.TimerCompletionModes.RESTART;
-                settings.updateMode = UpdateModes.FIXED_UPDATE;
+                settings.completionMode = Timer.TimerCompletionModes.Restart;
+                settings.updateMode = UpdateModes.FixedUpdate;
                 return settings;
             }
         }
@@ -139,8 +139,8 @@ namespace Expanse
             {
                 TimerSettings settings = TimerSettings.Default;
                 settings.autoPlay = true;
-                settings.completionMode = Timer.TimerCompletionModes.REVERSE;
-                settings.updateMode = UpdateModes.FIXED_UPDATE;
+                settings.completionMode = Timer.TimerCompletionModes.Reverse;
+                settings.updateMode = UpdateModes.FixedUpdate;
                 return settings;
             }
         }
@@ -153,7 +153,7 @@ namespace Expanse
                 settings.autoPlay = true;
                 settings.alwaysPlay = true;
                 settings.deactivateOnLoad = false;
-                settings.updateMode = UpdateModes.UNSCALED_UPDATE;
+                settings.updateMode = UpdateModes.UnscaledUpdate;
                 return settings;
             }
         }
@@ -165,8 +165,8 @@ namespace Expanse
                 TimerSettings settings = TimerSettings.Default;
                 settings.alwaysPlay = true;
                 settings.deactivateOnLoad = false;
-                settings.completionMode = Timer.TimerCompletionModes.STOP;
-                settings.updateMode = UpdateModes.UNSCALED_UPDATE;
+                settings.completionMode = Timer.TimerCompletionModes.Stop;
+                settings.updateMode = UpdateModes.UnscaledUpdate;
                 return settings;
             }
         }
@@ -179,8 +179,8 @@ namespace Expanse
                 settings.autoPlay = true;
                 settings.alwaysPlay = true;
                 settings.deactivateOnLoad = false;
-                settings.completionMode = Timer.TimerCompletionModes.RESTART;
-                settings.updateMode = UpdateModes.UNSCALED_UPDATE;
+                settings.completionMode = Timer.TimerCompletionModes.Restart;
+                settings.updateMode = UpdateModes.UnscaledUpdate;
                 return settings;
             }
         }
@@ -193,8 +193,8 @@ namespace Expanse
                 settings.autoPlay = true;
                 settings.alwaysPlay = true;
                 settings.deactivateOnLoad = false;
-                settings.completionMode = Timer.TimerCompletionModes.REVERSE;
-                settings.updateMode = UpdateModes.UNSCALED_UPDATE;
+                settings.completionMode = Timer.TimerCompletionModes.Reverse;
+                settings.updateMode = UpdateModes.UnscaledUpdate;
                 return settings;
             }
         }

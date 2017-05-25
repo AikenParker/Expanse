@@ -62,13 +62,13 @@ namespace Expanse
         {
             switch (settings.skipType)
             {
-                case CallBackRelaySettings.SkipTypes.COUNT:
+                case CallBackRelaySettings.SkipTypes.Count:
                     return (settings.frameIndex % (settings.skipFrames + 1)) != 0;
 
-                case CallBackRelaySettings.SkipTypes.TIME:
+                case CallBackRelaySettings.SkipTypes.Time:
                     return TrueDeltaTime < settings.skipTime;
 
-                case CallBackRelaySettings.SkipTypes.NONE:
+                case CallBackRelaySettings.SkipTypes.None:
                     return false;
 
                 default:
@@ -91,7 +91,7 @@ namespace Expanse
         public UpdateResult GetUpdateResult()
         {
             if (updateObj == null)
-                return UpdateResult.REMOVE;
+                return UpdateResult.Remove;
 
             IComplexUpdate complexUpdateObj = updateObj as IComplexUpdate;
 
@@ -100,33 +100,33 @@ namespace Expanse
                 bool unsafeUpdates = complexUpdateObj.UnsafeUpdates;
 
                 if (unsafeUpdates)
-                    return UpdateResult.SUCCESS;
+                    return UpdateResult.Success;
             }
 
             if (!updateObj.MonoBehaviour)
-                return UpdateResult.REMOVE;
+                return UpdateResult.Remove;
 
             bool activeOrEnabled = updateObj.MonoBehaviour.isActiveAndEnabled;
 
             if (complexUpdateObj != null)
             {
                 if (!complexUpdateObj.AlwaysUpdate && !activeOrEnabled)
-                    return UpdateResult.FAIL;
+                    return UpdateResult.Fail;
             }
             else
             {
                 if (!activeOrEnabled)
-                    return UpdateResult.FAIL;
+                    return UpdateResult.Fail;
             }
 
-            return UpdateResult.SUCCESS;
+            return UpdateResult.Success;
         }
 
         public enum UpdateResult
         {
-            SUCCESS = 0,
-            FAIL = 1,
-            REMOVE = 2
+            Success = 0,
+            Fail = 1,
+            Remove = 2
         }
     }
 }

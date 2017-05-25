@@ -127,7 +127,7 @@ namespace Expanse.Motion
         /// </summary>
         public event Action Completed;
 
-        private UpdateModes updateMode = UpdateModes.UPDATE;
+        private UpdateModes updateMode = UpdateModes.Update;
         /// <summary>
         /// Defines which update loop this motion will subscribe to.
         /// All callbacks are invoked in the context of this loop.
@@ -184,17 +184,17 @@ namespace Expanse.Motion
 
             switch (updateMode)
             {
-                case UpdateModes.UPDATE:
-                case UpdateModes.UNSCALED_UPDATE:
+                case UpdateModes.Update:
+                case UpdateModes.UnscaledUpdate:
                     cbr.SubscribeToUpdate(this);
                     break;
 
-                case UpdateModes.LATE_UPDATE:
-                case UpdateModes.UNSCALED_LATE_UPDATE:
+                case UpdateModes.LateUpdate:
+                case UpdateModes.UnscaledLateUpdate:
                     cbr.SubscribeToLateUpdate(this);
                     break;
 
-                case UpdateModes.FIXED_UPDATE:
+                case UpdateModes.FixedUpdate:
                     cbr.SubscribeToFixedUpdate(this);
                     break;
             }
@@ -207,17 +207,17 @@ namespace Expanse.Motion
 
             switch (updateMode)
             {
-                case UpdateModes.UPDATE:
-                case UpdateModes.UNSCALED_UPDATE:
+                case UpdateModes.Update:
+                case UpdateModes.UnscaledUpdate:
                     cbr.UnsubscribeToUpdate(this);
                     break;
 
-                case UpdateModes.LATE_UPDATE:
-                case UpdateModes.UNSCALED_LATE_UPDATE:
+                case UpdateModes.LateUpdate:
+                case UpdateModes.UnscaledLateUpdate:
                     cbr.UnsubscribeToLateUpdate(this);
                     break;
 
-                case UpdateModes.FIXED_UPDATE:
+                case UpdateModes.FixedUpdate:
                     cbr.UnsubscribeToFixedUpdate(this);
                     break;
             }
@@ -458,7 +458,7 @@ namespace Expanse.Motion
             get
             {
                 UpdateModes updateMode = this.UpdateMode;
-                return updateMode == UpdateModes.UNSCALED_UPDATE || updateMode == UpdateModes.UNSCALED_LATE_UPDATE;
+                return updateMode == UpdateModes.UnscaledUpdate || updateMode == UpdateModes.UnscaledLateUpdate;
             }
         }
 

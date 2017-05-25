@@ -20,7 +20,7 @@ namespace Expanse.TinySerialization
         {
             switch (resolutionType)
             {
-                case StringResolutionType.NULL_TERMINATED:
+                case StringResolutionType.NullTerminated:
                     {
                         int stringLength = 0;
                         {
@@ -49,7 +49,7 @@ namespace Expanse.TinySerialization
                         return new string(charCache, 0, stringLength);
                     }
 
-                case StringResolutionType.PREDEFINED_LENGTH:
+                case StringResolutionType.PreDefinedLength:
                     {
                         int stringLength = BitConverter.ToInt32(byteData, position);
                         position += sizeof(int);
@@ -80,7 +80,7 @@ namespace Expanse.TinySerialization
         {
             switch (resolutionType)
             {
-                case StringResolutionType.NULL_TERMINATED:
+                case StringResolutionType.NullTerminated:
                     {
                         int stringLength = value.Length;
                         for (int j = 0; j < stringLength; j++)
@@ -94,7 +94,7 @@ namespace Expanse.TinySerialization
                     }
                     break;
 
-                case StringResolutionType.PREDEFINED_LENGTH:
+                case StringResolutionType.PreDefinedLength:
                     {
                         int stringLength = value.Length;
                         position = ByteUtil.GetBytes(stringLength, byteData, position);
@@ -109,8 +109,8 @@ namespace Expanse.TinySerialization
 
         public enum StringResolutionType : byte
         {
-            NULL_TERMINATED = 0,
-            PREDEFINED_LENGTH = 1
+            NullTerminated = 0,
+            PreDefinedLength = 1
         }
     }
 }

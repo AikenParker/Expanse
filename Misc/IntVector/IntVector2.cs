@@ -16,7 +16,7 @@ namespace Expanse.Misc
             this.y = y;
         }
 
-        public IntVector2(Vector2 source, FloatConversionMethod conversionMethod = FloatConversionMethod.FLOOR)
+        public IntVector2(Vector2 source, FloatConversionMethod conversionMethod = FloatConversionMethod.Floor)
         {
             this.x = FloatConversionUtil.ConvertToInt(source.x, conversionMethod, false);
             this.y = FloatConversionUtil.ConvertToInt(source.y, conversionMethod, false);
@@ -40,7 +40,7 @@ namespace Expanse.Misc
 
             if (magnitude > 0)
             {
-                this = new IntVector2(((Vector2)this / magnitude), FloatConversionMethod.ROUND);
+                this = new IntVector2(((Vector2)this / magnitude), FloatConversionMethod.Round);
             }
         }
 
@@ -139,7 +139,7 @@ namespace Expanse.Misc
 
             Vector2 vec = new Vector2(a.x + (b.x - a.x) * t, a.y + (b.y - a.y) * t);
 
-            return new IntVector2(vec, FloatConversionMethod.ROUND);
+            return new IntVector2(vec, FloatConversionMethod.Round);
         }
 
         /// <summary>
@@ -149,7 +149,7 @@ namespace Expanse.Misc
         {
             Vector2 vec = new Vector2(a.x + (b.x - a.x) * t, a.y + (b.y - a.y) * t);
 
-            return new IntVector2(vec, FloatConversionMethod.ROUND);
+            return new IntVector2(vec, FloatConversionMethod.Round);
         }
 
         /// <summary>

@@ -35,7 +35,7 @@ namespace Expanse
 
             switch ((CallBackRelaySettings.UpdateTypes)updateTypeProperty.enumValueIndex)
             {
-                case CallBackRelaySettings.UpdateTypes.SPREAD:
+                case CallBackRelaySettings.UpdateTypes.Spread:
 
                     EditorGUI.indentLevel++;
                     SerializedProperty spreadCountProperty = updateSettingsProperty.FindPropertyRelative(CallBackRelayUpdateSettingsPropertyNames.SPREAD_COUNT);
@@ -47,7 +47,7 @@ namespace Expanse
 
                     break;
 
-                case CallBackRelaySettings.UpdateTypes.BUDGET:
+                case CallBackRelaySettings.UpdateTypes.Budget:
 
                     EditorGUI.indentLevel++;
                     SerializedProperty frameBudgetProperty = updateSettingsProperty.FindPropertyRelative(CallBackRelayUpdateSettingsPropertyNames.FRAME_BUDGET);
@@ -65,7 +65,7 @@ namespace Expanse
 
             switch ((CallBackRelaySettings.SkipTypes)skipTypeProperty.enumValueIndex)
             {
-                case CallBackRelaySettings.SkipTypes.COUNT:
+                case CallBackRelaySettings.SkipTypes.Count:
 
                     EditorGUI.indentLevel++;
                     SerializedProperty skipFramesProperty = updateSettingsProperty.FindPropertyRelative(CallBackRelayUpdateSettingsPropertyNames.SKIP_FRAMES);
@@ -77,7 +77,7 @@ namespace Expanse
 
                     break;
 
-                case CallBackRelaySettings.SkipTypes.TIME:
+                case CallBackRelaySettings.SkipTypes.Time:
 
                     EditorGUI.indentLevel++;
                     SerializedProperty skipTimeProperty = updateSettingsProperty.FindPropertyRelative(CallBackRelayUpdateSettingsPropertyNames.SKIP_TIME);

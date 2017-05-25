@@ -67,49 +67,49 @@ namespace Expanse.TinySerialization
                 // --SUPPORTED-TYPE-SWITCH--
                 switch (fci.type)
                 {
-                    case SupportedFieldType.INT:
+                    case SupportedFieldType.Int:
                         fci.SetValue(obj, basicPrimitiveTypeResolver.GetInt(ref byteData, ref position));
                         continue;
-                    case SupportedFieldType.BOOL:
+                    case SupportedFieldType.Bool:
                         fci.SetValue(obj, basicPrimitiveTypeResolver.GetBool(ref byteData, ref position));
                         continue;
-                    case SupportedFieldType.FLOAT:
+                    case SupportedFieldType.Float:
                         fci.SetValue(obj, basicPrimitiveTypeResolver.GetFloat(ref byteData, ref position));
                         continue;
-                    case SupportedFieldType.DOUBLE:
+                    case SupportedFieldType.Double:
                         fci.SetValue(obj, basicPrimitiveTypeResolver.GetDouble(ref byteData, ref position));
                         continue;
-                    case SupportedFieldType.CHAR:
+                    case SupportedFieldType.Char:
                         fci.SetValue(obj, basicPrimitiveTypeResolver.GetChar(ref byteData, ref position));
                         continue;
-                    case SupportedFieldType.STRING:
+                    case SupportedFieldType.String:
                         fci.SetValue(obj, stringTypeResolver.GetString(ref byteData, ref position));
                         continue;
-                    case SupportedFieldType.DATE_TIME:
+                    case SupportedFieldType.DateTime:
                         fci.SetValue(obj, dateTimeTypeResolver.GetDateTime(ref byteData, ref position));
                         continue;
-                    case SupportedFieldType.SHORT:
+                    case SupportedFieldType.Short:
                         fci.SetValue(obj, basicPrimitiveTypeResolver.GetShort(ref byteData, ref position));
                         continue;
-                    case SupportedFieldType.LONG:
+                    case SupportedFieldType.Long:
                         fci.SetValue(obj, basicPrimitiveTypeResolver.GetLong(ref byteData, ref position));
                         continue;
-                    case SupportedFieldType.UINT:
+                    case SupportedFieldType.UInt:
                         fci.SetValue(obj, basicPrimitiveTypeResolver.GetUint(ref byteData, ref position));
                         continue;
-                    case SupportedFieldType.USHORT:
+                    case SupportedFieldType.UShort:
                         fci.SetValue(obj, basicPrimitiveTypeResolver.GetUshort(ref byteData, ref position));
                         continue;
-                    case SupportedFieldType.ULONG:
+                    case SupportedFieldType.ULong:
                         fci.SetValue(obj, basicPrimitiveTypeResolver.GetUlong(ref byteData, ref position));
                         continue;
-                    case SupportedFieldType.BYTE:
+                    case SupportedFieldType.Byte:
                         fci.SetValue(obj, basicPrimitiveTypeResolver.GetByte(ref byteData, ref position));
                         continue;
-                    case SupportedFieldType.SBYTE:
+                    case SupportedFieldType.SByte:
                         fci.SetValue(obj, basicPrimitiveTypeResolver.GetSbyte(ref byteData, ref position));
                         continue;
-                    case SupportedFieldType.DECIMAL:
+                    case SupportedFieldType.Decimal:
                         fci.SetValue(obj, decimalTypeResolver.GetDecimal(ref byteData, ref position));
                         continue;
                 }
@@ -138,49 +138,49 @@ namespace Expanse.TinySerialization
                 // --SUPPORTED-TYPE-SWITCH--
                 switch (fci.type)
                 {
-                    case SupportedFieldType.INT:
+                    case SupportedFieldType.Int:
                         basicPrimitiveTypeResolver.SetInt(ref byteData, ref position, fci.GetValue<T, int>(obj));
                         continue;
-                    case SupportedFieldType.BOOL:
+                    case SupportedFieldType.Bool:
                         basicPrimitiveTypeResolver.SetBool(ref byteData, ref position, fci.GetValue<T, bool>(obj));
                         continue;
-                    case SupportedFieldType.FLOAT:
+                    case SupportedFieldType.Float:
                         basicPrimitiveTypeResolver.SetFloat(ref byteData, ref position, fci.GetValue<T, float>(obj));
                         continue;
-                    case SupportedFieldType.DOUBLE:
+                    case SupportedFieldType.Double:
                         basicPrimitiveTypeResolver.SetDouble(ref byteData, ref position, fci.GetValue<T, double>(obj));
                         continue;
-                    case SupportedFieldType.CHAR:
+                    case SupportedFieldType.Char:
                         basicPrimitiveTypeResolver.SetChar(ref byteData, ref position, fci.GetValue<T, char>(obj));
                         continue;
-                    case SupportedFieldType.STRING:
+                    case SupportedFieldType.String:
                         stringTypeResolver.SetString(ref byteData, ref position, fci.GetValue<T, string>(obj));
                         continue;
-                    case SupportedFieldType.DATE_TIME:
+                    case SupportedFieldType.DateTime:
                         dateTimeTypeResolver.SetDateTime(ref byteData, ref position, fci.GetValue<T, DateTime>(obj));
                         continue;
-                    case SupportedFieldType.SHORT:
+                    case SupportedFieldType.Short:
                         basicPrimitiveTypeResolver.SetShort(ref byteData, ref position, fci.GetValue<T, short>(obj));
                         continue;
-                    case SupportedFieldType.LONG:
+                    case SupportedFieldType.Long:
                         basicPrimitiveTypeResolver.SetLong(ref byteData, ref position, fci.GetValue<T, long>(obj));
                         continue;
-                    case SupportedFieldType.UINT:
+                    case SupportedFieldType.UInt:
                         basicPrimitiveTypeResolver.SetUint(ref byteData, ref position, fci.GetValue<T, uint>(obj));
                         continue;
-                    case SupportedFieldType.USHORT:
+                    case SupportedFieldType.UShort:
                         basicPrimitiveTypeResolver.SetUshort(ref byteData, ref position, fci.GetValue<T, ushort>(obj));
                         continue;
-                    case SupportedFieldType.ULONG:
+                    case SupportedFieldType.ULong:
                         basicPrimitiveTypeResolver.SetUlong(ref byteData, ref position, fci.GetValue<T, ulong>(obj));
                         continue;
-                    case SupportedFieldType.BYTE:
+                    case SupportedFieldType.Byte:
                         basicPrimitiveTypeResolver.SetByte(ref byteData, ref position, fci.GetValue<T, byte>(obj));
                         continue;
-                    case SupportedFieldType.SBYTE:
+                    case SupportedFieldType.SByte:
                         basicPrimitiveTypeResolver.SetSbyte(ref byteData, ref position, fci.GetValue<T, sbyte>(obj));
                         continue;
-                    case SupportedFieldType.DECIMAL:
+                    case SupportedFieldType.Decimal:
                         decimalTypeResolver.SetDecimal(ref byteData, ref position, fci.GetValue<T, decimal>(obj));
                         continue;
                 }
@@ -225,7 +225,7 @@ namespace Expanse.TinySerialization
                     FieldInfo fieldInfo = allFieldInfo[i];
                     SupportedFieldType fieldType = FieldCacheInfo.GetFieldType(fieldInfo);
 
-                    if (fieldType != SupportedFieldType.NONE)
+                    if (fieldType != SupportedFieldType.None)
                     {
                         supportedFieldListCount++;
                         FieldCacheInfo field = new FieldCacheInfo(this, fieldInfo, fieldType);

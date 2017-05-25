@@ -225,15 +225,15 @@ namespace Expanse
             {
                 switch (updateSettings.updateType)
                 {
-                    case CallBackRelaySettings.UpdateTypes.ALL:
+                    case CallBackRelaySettings.UpdateTypes.All:
                         ImplUpdateAll(updateList);
                         break;
 
-                    case CallBackRelaySettings.UpdateTypes.SPREAD:
+                    case CallBackRelaySettings.UpdateTypes.Spread:
                         ImplUpdateSpread(updateList);
                         break;
 
-                    case CallBackRelaySettings.UpdateTypes.BUDGET:
+                    case CallBackRelaySettings.UpdateTypes.Budget:
                         ImplUpdateBudget(updateList);
                         break;
                 }
@@ -250,7 +250,7 @@ namespace Expanse
             CallBackRelayUpdateContainer updateWrapper;
             CallBackRelayUpdateContainer.UpdateResult updateResult;
 
-            updateList.RemoveAll(x => x.GetUpdateResult() == CallBackRelayUpdateContainer.UpdateResult.REMOVE);
+            updateList.RemoveAll(x => x.GetUpdateResult() == CallBackRelayUpdateContainer.UpdateResult.Remove);
 
             for (int i = 0; i < updateList.Count; i++)
             {
@@ -258,7 +258,7 @@ namespace Expanse
 
                 updateResult = updateWrapper.GetUpdateResult();
 
-                if (updateResult == CallBackRelayUpdateContainer.UpdateResult.SUCCESS)
+                if (updateResult == CallBackRelayUpdateContainer.UpdateResult.Success)
                     updateWrapper.TryUpdate(updateSettings);
             }
         }
@@ -280,12 +280,12 @@ namespace Expanse
 
                     updateResult = updateWrapper.GetUpdateResult();
 
-                    if (updateResult != CallBackRelayUpdateContainer.UpdateResult.SUCCESS && updateList.Count == 0)
+                    if (updateResult != CallBackRelayUpdateContainer.UpdateResult.Success && updateList.Count == 0)
                         break;
                 }
-                while (updateResult != CallBackRelayUpdateContainer.UpdateResult.SUCCESS);
+                while (updateResult != CallBackRelayUpdateContainer.UpdateResult.Success);
 
-                if (updateResult == CallBackRelayUpdateContainer.UpdateResult.REMOVE)
+                if (updateResult == CallBackRelayUpdateContainer.UpdateResult.Remove)
                     break;
 
                 if (updateWrapper == firstWrapper)
@@ -294,7 +294,7 @@ namespace Expanse
                     break;
                 }
 
-                if (updateResult == CallBackRelayUpdateContainer.UpdateResult.SUCCESS)
+                if (updateResult == CallBackRelayUpdateContainer.UpdateResult.Success)
                 {
                     if (firstWrapper == null)
                         firstWrapper = updateWrapper;
@@ -304,7 +304,7 @@ namespace Expanse
 
                     updateList.Enqueue(updateWrapper);
                 }
-                else if (updateResult == CallBackRelayUpdateContainer.UpdateResult.FAIL)
+                else if (updateResult == CallBackRelayUpdateContainer.UpdateResult.Fail)
                 {
                     updateList.Enqueue(updateWrapper);
                 }
@@ -331,12 +331,12 @@ namespace Expanse
 
                     updateResult = updateWrapper.GetUpdateResult();
 
-                    if (updateResult != CallBackRelayUpdateContainer.UpdateResult.SUCCESS && updateList.Count == 0)
+                    if (updateResult != CallBackRelayUpdateContainer.UpdateResult.Success && updateList.Count == 0)
                         break;
                 }
-                while (updateResult != CallBackRelayUpdateContainer.UpdateResult.SUCCESS);
+                while (updateResult != CallBackRelayUpdateContainer.UpdateResult.Success);
 
-                if (updateResult == CallBackRelayUpdateContainer.UpdateResult.REMOVE)
+                if (updateResult == CallBackRelayUpdateContainer.UpdateResult.Remove)
                     break;
 
                 if (updateWrapper == firstWrapper)
@@ -345,7 +345,7 @@ namespace Expanse
                     break;
                 }
 
-                if (updateResult == CallBackRelayUpdateContainer.UpdateResult.SUCCESS)
+                if (updateResult == CallBackRelayUpdateContainer.UpdateResult.Success)
                 {
                     if (firstWrapper == null)
                         firstWrapper = updateWrapper;
@@ -354,7 +354,7 @@ namespace Expanse
 
                     updateList.Enqueue(updateWrapper);
                 }
-                else if (updateResult == CallBackRelayUpdateContainer.UpdateResult.FAIL)
+                else if (updateResult == CallBackRelayUpdateContainer.UpdateResult.Fail)
                 {
                     updateList.Enqueue(updateWrapper);
                 }

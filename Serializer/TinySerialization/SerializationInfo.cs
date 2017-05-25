@@ -44,8 +44,8 @@ namespace Expanse.TinySerialization
                 return new SerializationInfo()
                 {
                     BindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly,
-                    StringResolutionType = StringTypeResolver.StringResolutionType.PREDEFINED_LENGTH,
-                    DecimalResolutionType = DecimalTypeResolver.DecimalResolutionType.UNION,
+                    StringResolutionType = StringTypeResolver.StringResolutionType.PreDefinedLength,
+                    DecimalResolutionType = DecimalTypeResolver.DecimalResolutionType.Union,
                     EmitReflection = false
                 };
             }

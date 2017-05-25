@@ -5,9 +5,9 @@ namespace Expanse.Utilities
 {
     public enum FloatConversionMethod
     {
-        ROUND = 0,
-        FLOOR,
-        CEIL,
+        Round = 0,
+        Floor,
+        Ceil,
     }
 
     /// <summary>
@@ -24,11 +24,11 @@ namespace Expanse.Utilities
             {
                 switch (floatConversionMethod)
                 {
-                    case FloatConversionMethod.ROUND:
+                    case FloatConversionMethod.Round:
                         return checked(Mathf.RoundToInt(value));
-                    case FloatConversionMethod.FLOOR:
+                    case FloatConversionMethod.Floor:
                         return checked(Mathf.FloorToInt(value));
-                    case FloatConversionMethod.CEIL:
+                    case FloatConversionMethod.Ceil:
                         return checked(Mathf.CeilToInt(value));
                     default:
                         throw new UnexpectedException("floatConversionMethod");
@@ -38,11 +38,11 @@ namespace Expanse.Utilities
             {
                 switch (floatConversionMethod)
                 {
-                    case FloatConversionMethod.ROUND:
+                    case FloatConversionMethod.Round:
                         return unchecked(Mathf.RoundToInt(value));
-                    case FloatConversionMethod.FLOOR:
+                    case FloatConversionMethod.Floor:
                         return unchecked(Mathf.FloorToInt(value));
-                    case FloatConversionMethod.CEIL:
+                    case FloatConversionMethod.Ceil:
                         return unchecked(Mathf.CeilToInt(value));
                     default:
                         throw new UnexpectedException("floatConversionMethod");
@@ -59,11 +59,11 @@ namespace Expanse.Utilities
             {
                 switch (floatConversionMethod)
                 {
-                    case FloatConversionMethod.ROUND:
+                    case FloatConversionMethod.Round:
                         return checked((int)Math.Round(value));
-                    case FloatConversionMethod.FLOOR:
+                    case FloatConversionMethod.Floor:
                         return checked((int)Math.Floor(value));
-                    case FloatConversionMethod.CEIL:
+                    case FloatConversionMethod.Ceil:
                         return checked((int)Math.Ceiling(value));
                     default:
                         throw new UnexpectedException("floatConversionMethod");
@@ -73,11 +73,11 @@ namespace Expanse.Utilities
             {
                 switch (floatConversionMethod)
                 {
-                    case FloatConversionMethod.ROUND:
+                    case FloatConversionMethod.Round:
                         return unchecked((int)Math.Round(value));
-                    case FloatConversionMethod.FLOOR:
+                    case FloatConversionMethod.Floor:
                         return unchecked((int)Math.Floor(value));
-                    case FloatConversionMethod.CEIL:
+                    case FloatConversionMethod.Ceil:
                         return unchecked((int)Math.Ceiling(value));
                     default:
                         throw new UnexpectedException("floatConversionMethod");
@@ -94,11 +94,11 @@ namespace Expanse.Utilities
             {
                 switch (floatConversionMethod)
                 {
-                    case FloatConversionMethod.ROUND:
+                    case FloatConversionMethod.Round:
                         return checked((long)Math.Round(value));
-                    case FloatConversionMethod.FLOOR:
+                    case FloatConversionMethod.Floor:
                         return checked((long)Math.Floor(value));
-                    case FloatConversionMethod.CEIL:
+                    case FloatConversionMethod.Ceil:
                         return checked((long)Math.Ceiling(value));
                     default:
                         throw new UnexpectedException("floatConversionMethod");
@@ -108,11 +108,11 @@ namespace Expanse.Utilities
             {
                 switch (floatConversionMethod)
                 {
-                    case FloatConversionMethod.ROUND:
+                    case FloatConversionMethod.Round:
                         return unchecked((long)Math.Round(value));
-                    case FloatConversionMethod.FLOOR:
+                    case FloatConversionMethod.Floor:
                         return unchecked((long)Math.Floor(value));
-                    case FloatConversionMethod.CEIL:
+                    case FloatConversionMethod.Ceil:
                         return unchecked((long)Math.Ceiling(value));
                     default:
                         throw new UnexpectedException("floatConversionMethod");
@@ -129,11 +129,11 @@ namespace Expanse.Utilities
             {
                 switch (floatConversionMethod)
                 {
-                    case FloatConversionMethod.ROUND:
+                    case FloatConversionMethod.Round:
                         return checked((long)Math.Round(value));
-                    case FloatConversionMethod.FLOOR:
+                    case FloatConversionMethod.Floor:
                         return checked((long)Math.Floor(value));
-                    case FloatConversionMethod.CEIL:
+                    case FloatConversionMethod.Ceil:
                         return checked((long)Math.Ceiling(value));
                     default:
                         throw new UnexpectedException("floatConversionMethod");
@@ -143,11 +143,11 @@ namespace Expanse.Utilities
             {
                 switch (floatConversionMethod)
                 {
-                    case FloatConversionMethod.ROUND:
+                    case FloatConversionMethod.Round:
                         return unchecked((long)Math.Round(value));
-                    case FloatConversionMethod.FLOOR:
+                    case FloatConversionMethod.Floor:
                         return unchecked((long)Math.Floor(value));
-                    case FloatConversionMethod.CEIL:
+                    case FloatConversionMethod.Ceil:
                         return unchecked((long)Math.Ceiling(value));
                     default:
                         throw new UnexpectedException("floatConversionMethod");
@@ -164,11 +164,11 @@ namespace Expanse.Utilities
             {
                 switch (floatConversionMethod)
                 {
-                    case FloatConversionMethod.ROUND:
+                    case FloatConversionMethod.Round:
                         return checked((short)Math.Round(value));
-                    case FloatConversionMethod.FLOOR:
+                    case FloatConversionMethod.Floor:
                         return checked((short)Math.Floor(value));
-                    case FloatConversionMethod.CEIL:
+                    case FloatConversionMethod.Ceil:
                         return checked((short)Math.Ceiling(value));
                     default:
                         throw new UnexpectedException("floatConversionMethod");
@@ -178,11 +178,11 @@ namespace Expanse.Utilities
             {
                 switch (floatConversionMethod)
                 {
-                    case FloatConversionMethod.ROUND:
+                    case FloatConversionMethod.Round:
                         return unchecked((short)Math.Round(value));
-                    case FloatConversionMethod.FLOOR:
+                    case FloatConversionMethod.Floor:
                         return unchecked((short)Math.Floor(value));
-                    case FloatConversionMethod.CEIL:
+                    case FloatConversionMethod.Ceil:
                         return unchecked((short)Math.Ceiling(value));
                     default:
                         throw new UnexpectedException("floatConversionMethod");
@@ -199,11 +199,11 @@ namespace Expanse.Utilities
             {
                 switch (floatConversionMethod)
                 {
-                    case FloatConversionMethod.ROUND:
+                    case FloatConversionMethod.Round:
                         return checked((short)Math.Round(value));
-                    case FloatConversionMethod.FLOOR:
+                    case FloatConversionMethod.Floor:
                         return checked((short)Math.Floor(value));
-                    case FloatConversionMethod.CEIL:
+                    case FloatConversionMethod.Ceil:
                         return checked((short)Math.Ceiling(value));
                     default:
                         throw new UnexpectedException("floatConversionMethod");
@@ -213,11 +213,11 @@ namespace Expanse.Utilities
             {
                 switch (floatConversionMethod)
                 {
-                    case FloatConversionMethod.ROUND:
+                    case FloatConversionMethod.Round:
                         return unchecked((short)Math.Round(value));
-                    case FloatConversionMethod.FLOOR:
+                    case FloatConversionMethod.Floor:
                         return unchecked((short)Math.Floor(value));
-                    case FloatConversionMethod.CEIL:
+                    case FloatConversionMethod.Ceil:
                         return unchecked((short)Math.Ceiling(value));
                     default:
                         throw new UnexpectedException("floatConversionMethod");

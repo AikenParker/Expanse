@@ -19,7 +19,7 @@ namespace Expanse.Motion
 
         protected override void OnProgressChanged()
         {
-            long ticks = FloatConversionUtil.ConvertToLong(Mathf.LerpUnclamped(StartValue.Ticks, TargetValue.Ticks, ValueProgress), FloatConversionMethod.ROUND);
+            long ticks = FloatConversionUtil.ConvertToLong(Mathf.LerpUnclamped(StartValue.Ticks, TargetValue.Ticks, ValueProgress), FloatConversionMethod.Round);
 
             CurrentValue = new DateTime(ticks, DateTimeKind);
         }

@@ -8,7 +8,7 @@ namespace Expanse.Motion
     /// </summary>
     public class IntMotion : ValueMotion<int>
     {
-        private FloatConversionMethod floatConversionMethod = FloatConversionMethod.ROUND;
+        private FloatConversionMethod floatConversionMethod = FloatConversionMethod.Round;
         public FloatConversionMethod FloatConversionMethod
         {
             get { return floatConversionMethod; }

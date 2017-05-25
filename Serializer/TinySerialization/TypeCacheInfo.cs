@@ -45,30 +45,30 @@ namespace Expanse.TinySerialization
                 // --SUPPORTED-TYPE-SWITCH--
                 switch (fci.type)
                 {
-                    case SupportedFieldType.INT:
+                    case SupportedFieldType.Int:
                         size += sizeof(int);
                         continue;
-                    case SupportedFieldType.BOOL:
+                    case SupportedFieldType.Bool:
                         size += sizeof(bool);
                         continue;
-                    case SupportedFieldType.FLOAT:
+                    case SupportedFieldType.Float:
                         size += sizeof(float);
                         continue;
-                    case SupportedFieldType.DOUBLE:
+                    case SupportedFieldType.Double:
                         size += sizeof(double);
                         continue;
-                    case SupportedFieldType.CHAR:
+                    case SupportedFieldType.Char:
                         size += sizeof(char);
                         continue;
-                    case SupportedFieldType.STRING:
+                    case SupportedFieldType.String:
                         {
                             switch (serializer.SerializationInfo.StringResolutionType)
                             {
-                                case StringTypeResolver.StringResolutionType.NULL_TERMINATED:
+                                case StringTypeResolver.StringResolutionType.NullTerminated:
                                     size += (fci.GetValue<TSource, string>(obj).Length * sizeof(char)) + sizeof(char);
                                     break;
 
-                                case StringTypeResolver.StringResolutionType.PREDEFINED_LENGTH:
+                                case StringTypeResolver.StringResolutionType.PreDefinedLength:
                                     size += sizeof(int) + (fci.GetValue<TSource, string>(obj).Length * sizeof(char));
                                     break;
 
@@ -79,31 +79,31 @@ namespace Expanse.TinySerialization
                             this.isStaticSize = false;
                         }
                         continue;
-                    case SupportedFieldType.DATE_TIME:
+                    case SupportedFieldType.DateTime:
                         size += sizeof(long);
                         continue;
-                    case SupportedFieldType.LONG:
+                    case SupportedFieldType.Long:
                         size += sizeof(long);
                         continue;
-                    case SupportedFieldType.SHORT:
+                    case SupportedFieldType.Short:
                         size += sizeof(short);
                         continue;
-                    case SupportedFieldType.UINT:
+                    case SupportedFieldType.UInt:
                         size += sizeof(uint);
                         continue;
-                    case SupportedFieldType.USHORT:
+                    case SupportedFieldType.UShort:
                         size += sizeof(ushort);
                         continue;
-                    case SupportedFieldType.ULONG:
+                    case SupportedFieldType.ULong:
                         size += sizeof(ulong);
                         continue;
-                    case SupportedFieldType.BYTE:
+                    case SupportedFieldType.Byte:
                         size += sizeof(byte);
                         continue;
-                    case SupportedFieldType.SBYTE:
+                    case SupportedFieldType.SByte:
                         size += sizeof(sbyte);
                         continue;
-                    case SupportedFieldType.DECIMAL:
+                    case SupportedFieldType.Decimal:
                         size += sizeof(decimal);
                         continue;
                 }
@@ -133,49 +133,49 @@ namespace Expanse.TinySerialization
                 // --SUPPORTED-TYPE-SWITCH--
                 switch (fci.type)
                 {
-                    case SupportedFieldType.INT:
+                    case SupportedFieldType.Int:
                         size += sizeof(int);
                         continue;
-                    case SupportedFieldType.BOOL:
+                    case SupportedFieldType.Bool:
                         size += sizeof(bool);
                         continue;
-                    case SupportedFieldType.FLOAT:
+                    case SupportedFieldType.Float:
                         size += sizeof(float);
                         continue;
-                    case SupportedFieldType.DOUBLE:
+                    case SupportedFieldType.Double:
                         size += sizeof(double);
                         continue;
-                    case SupportedFieldType.CHAR:
+                    case SupportedFieldType.Char:
                         size += sizeof(char);
                         continue;
-                    case SupportedFieldType.STRING:
+                    case SupportedFieldType.String:
                         this.isStaticSize = false;
                         return false;
-                    case SupportedFieldType.DATE_TIME:
+                    case SupportedFieldType.DateTime:
                         size += sizeof(long);
                         continue;
-                    case SupportedFieldType.LONG:
+                    case SupportedFieldType.Long:
                         size += sizeof(long);
                         continue;
-                    case SupportedFieldType.SHORT:
+                    case SupportedFieldType.Short:
                         size += sizeof(short);
                         continue;
-                    case SupportedFieldType.UINT:
+                    case SupportedFieldType.UInt:
                         size += sizeof(uint);
                         continue;
-                    case SupportedFieldType.USHORT:
+                    case SupportedFieldType.UShort:
                         size += sizeof(ushort);
                         continue;
-                    case SupportedFieldType.ULONG:
+                    case SupportedFieldType.ULong:
                         size += sizeof(ulong);
                         continue;
-                    case SupportedFieldType.BYTE:
+                    case SupportedFieldType.Byte:
                         size += sizeof(byte);
                         continue;
-                    case SupportedFieldType.SBYTE:
+                    case SupportedFieldType.SByte:
                         size += sizeof(sbyte);
                         continue;
-                    case SupportedFieldType.DECIMAL:
+                    case SupportedFieldType.Decimal:
                         size += sizeof(decimal);
                         continue;
                 }

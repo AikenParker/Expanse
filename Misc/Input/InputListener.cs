@@ -23,7 +23,7 @@ namespace Expanse.Misc
         public float ScaledHoldDuration { get; private set; }
         public float UnscaledHoldDuration { get; private set; }
 
-        public InputListener(string inputName, InputTypes type = InputTypes.BUTTON)
+        public InputListener(string inputName, InputTypes type = InputTypes.Button)
         {
             this.InputName = inputName;
             this.InputType = type;
@@ -39,7 +39,7 @@ namespace Expanse.Misc
 
         void IUpdate.OnUpdate(float deltaTime)
         {
-            if (!Active || InputType == InputTypes.NONE)
+            if (!Active || InputType == InputTypes.None)
             {
                 IsReleased = IsHeld = IsPressed = false;
                 UnscaledHoldDuration = ScaledHoldDuration = Axis = 0f;
@@ -48,10 +48,10 @@ namespace Expanse.Misc
 
             switch (InputType)
             {
-                case InputTypes.BUTTON:
+                case InputTypes.Button:
                     ButtonUpdate();
                     break;
-                case InputTypes.AXIS:
+                case InputTypes.Axis:
                     AxisUpdate();
                     break;
             }
@@ -149,9 +149,9 @@ namespace Expanse.Misc
 
         public enum InputTypes
         {
-            NONE = 0,
-            BUTTON = 1,
-            AXIS = 2
+            None = 0,
+            Button = 1,
+            Axis = 2
         }
     }
 }

@@ -5,8 +5,8 @@ namespace Expanse
     [Serializable]
     public class CallBackRelaySettings
     {
-        public UpdateTypes updateType = UpdateTypes.ALL;
-        public SkipTypes skipType = SkipTypes.NONE;
+        public UpdateTypes updateType = UpdateTypes.All;
+        public SkipTypes skipType = SkipTypes.None;
 
         [NonSerialized]
         public int frameIndex;
@@ -20,22 +20,22 @@ namespace Expanse
 
         public enum UpdateTypes
         {
-            NONE = 0,
+            None = 0,
 
             /// <summary>
             /// Updates all objects.
             /// </summary>
-            ALL,
+            All,
 
             /// <summary>
             /// Updates a set amount of objects.
             /// </summary>
-            SPREAD,
+            Spread,
 
             /// <summary>
             /// Updates within a set amount of time.
             /// </summary>
-            BUDGET
+            Budget
         }
 
         public enum SkipTypes
@@ -43,17 +43,17 @@ namespace Expanse
             /// <summary>
             /// Do not skip any updates.
             /// </summary>
-            NONE = 0,
+            None = 0,
 
             /// <summary>
             /// Skip updates within a set amount of time.
             /// </summary>
-            TIME,
+            Time,
 
             /// <summary>
             /// Skip updates after a set amount of frames.
             /// </summary>
-            COUNT
+            Count
         }
     }
 }

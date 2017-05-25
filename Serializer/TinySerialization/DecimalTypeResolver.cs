@@ -22,7 +22,7 @@ namespace Expanse.TinySerialization
         {
             switch (resolutionType)
             {
-                case DecimalResolutionType.INTERNAL:
+                case DecimalResolutionType.Internal:
                     {
                         decBits = decBits ?? new int[4];
                         for (int j = 0; j < 4; j++)
@@ -33,7 +33,7 @@ namespace Expanse.TinySerialization
                         return new decimal(decBits);
                     }
 
-                case DecimalResolutionType.UNION:
+                case DecimalResolutionType.Union:
                     {
                         union.int1 = BitConverter.ToInt32(byteData, position);
                         position += sizeof(int);
@@ -58,7 +58,7 @@ namespace Expanse.TinySerialization
         {
             switch (resolutionType)
             {
-                case DecimalResolutionType.INTERNAL:
+                case DecimalResolutionType.Internal:
                     {
                         decBits = decimal.GetBits(value);
                         for (int j = 0; j < 4; j++)
@@ -68,7 +68,7 @@ namespace Expanse.TinySerialization
                     }
                     break;
 
-                case DecimalResolutionType.UNION:
+                case DecimalResolutionType.Union:
                     {
                         union.@decimal = value;
                         position = ByteUtil.GetBytes(union.int1, byteData, position);
@@ -128,8 +128,8 @@ namespace Expanse.TinySerialization
 
         public enum DecimalResolutionType : byte
         {
-            INTERNAL = 0,
-            UNION = 1
+            Internal = 0,
+            Union = 1
         }
     }
 }

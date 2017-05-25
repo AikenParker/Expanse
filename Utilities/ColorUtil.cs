@@ -58,31 +58,31 @@ namespace Expanse.Utilities
         /// <summary>
         /// Converts a color to greyscale.
         /// </summary>
-        public static Color ToGrayscale(Color color, GrayscaleMethod grayScaleMethod = GrayscaleMethod.LUMINESCENCE)
+        public static Color ToGrayscale(Color color, GrayscaleMethod grayScaleMethod = GrayscaleMethod.Luminescence)
         {
             float value;
 
             switch (grayScaleMethod)
             {
                 default:
-                case GrayscaleMethod.LUMINESCENCE:
+                case GrayscaleMethod.Luminescence:
                     value = (color.r * R_LUMINOSITY) +
                         (color.g * G_LUMINOSITY) +
                         (color.b * B_LUMINOSITY);
 
                     break;
 
-                case GrayscaleMethod.LIGHTNESS:
+                case GrayscaleMethod.Lightness:
                     value = (Mathf.Min(color.r, color.g, color.b) +
                         Mathf.Max(color.r, color.g, color.b)) / 2;
 
                     break;
 
-                case GrayscaleMethod.AVERAGE:
+                case GrayscaleMethod.Average:
                     value = (color.r + color.g + color.b) / 3;
                     break;
 
-                case GrayscaleMethod.UNITY:
+                case GrayscaleMethod.Unity:
                     value = color.grayscale;
                     break;
             }
@@ -95,22 +95,22 @@ namespace Expanse.Utilities
             /// <summary>
             /// Averages the perceived luminance of a color.
             /// </summary>
-            LUMINESCENCE,
+            Luminescence,
 
             /// <summary>
             /// Averages the range lightness of a color.
             /// </summary>
-            LIGHTNESS,
+            Lightness,
 
             /// <summary>
             /// Averages the values of a color.
             /// </summary>
-            AVERAGE,
+            Average,
 
             /// <summary>
             /// Uses the Unity defined Color.grayscale value.
             /// </summary>
-            UNITY
+            Unity
         }
     }
 }
