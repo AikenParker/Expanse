@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using UnityEngine;
+﻿using UnityEngine;
 
-namespace Expanse
+namespace Expanse.Extensions
 {
     /// <summary>
     /// A collection of RaycastHit2D related extension methods.

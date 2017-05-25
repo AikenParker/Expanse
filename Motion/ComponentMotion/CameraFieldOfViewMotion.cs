@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace Expanse
+namespace Expanse.Motion
 {
     /// <summary>
     /// Motion that moves an Camera field of view value towards a target value.

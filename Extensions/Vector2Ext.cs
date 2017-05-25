@@ -2,8 +2,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Expanse.Utilities;
 
-namespace Expanse
+namespace Expanse.Extensions
 {
     /// <summary>
     /// A collection of Vector2 related extension methods.

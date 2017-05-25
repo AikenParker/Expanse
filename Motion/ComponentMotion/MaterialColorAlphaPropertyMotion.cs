@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Linq;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-namespace Expanse
+namespace Expanse.Motion
 {
     /// <summary>
     /// Motion that moves a Material color property alpha value towards a target alpha value.

@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using UnityEngine;
 
-namespace Expanse
+namespace Expanse.Extensions
 {
     /// <summary>
     /// A collection of Camera related extension methods.

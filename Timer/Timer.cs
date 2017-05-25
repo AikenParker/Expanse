@@ -1,4 +1,5 @@
 ﻿using System;
+using Expanse.Utilities;
 using UnityEngine;
 
 namespace Expanse
@@ -615,7 +616,8 @@ namespace Expanse
         {
             get
             {
-                return this.UpdateMode.EqualsAny(UpdateModes.UNSCALED_UPDATE, UpdateModes.UNSCALED_LATE_UPDATE);
+                UpdateModes updateMode = this.UpdateMode;
+                return updateMode == UpdateModes.UNSCALED_UPDATE || updateMode == UpdateModes.UNSCALED_LATE_UPDATE;
             }
         }
 

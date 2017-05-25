@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
-namespace Expanse
+namespace Expanse.Extensions
 {
     /// <summary>
     /// A collection of Type related extension methods.

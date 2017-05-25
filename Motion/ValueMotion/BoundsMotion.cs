@@ -1,7 +1,6 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
 
-namespace Expanse
+namespace Expanse.Motion
 {
     /// <summary>
     /// A Motion that moves a Bounds value towards a target value.

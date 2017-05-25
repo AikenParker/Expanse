@@ -1,7 +1,8 @@
 ﻿using System;
+using Expanse.Utilities;
 using UnityEngine;
 
-namespace Expanse
+namespace Expanse.Motion
 {
     /// <summary>
     /// A Motion that moves a DateTime value towards a target value.

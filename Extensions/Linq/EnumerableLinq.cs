@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Linq;
-using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
 
-namespace Expanse
+namespace Expanse.Extensions
 {
     /// <summary>
     /// A collection of IEnumerable<T> related LINQ-like extension methods.

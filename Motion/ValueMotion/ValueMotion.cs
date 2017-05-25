@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using UnityEngine;
 
-namespace Expanse
+namespace Expanse.Motion
 {
     /// <summary>
     /// A motion that moves a value of any type towards a target value.
@@ -49,7 +46,7 @@ namespace Expanse
         {
             this.duration = duration;
 
-            this.EaseEquation = Expanse.EaseEquation.Default;
+            this.EaseEquation = Expanse.Motion.EaseEquation.Default;
         }
 
         /// <summary>

@@ -1,7 +1,5 @@
+using Expanse.Utilities;
 using UnityEngine;
-using System.Collections;
-using System.Reflection;
-using System;
 
 /// <summary>
 /// Debug Extension
@@ -10,7 +8,7 @@ using System;
 /// 	- Includes gizmo drawing methods for less memory-intensive debug visualization.
 /// </summary>
 
-namespace Expanse
+namespace Expanse.Extensions
 {
     /// <summary>
     /// A collection of 3D debug & gizmo drawing related utility functionality.

@@ -1,4 +1,4 @@
-﻿namespace Expanse
+﻿namespace Expanse.Motion
 {
     public static class Cubic
     {

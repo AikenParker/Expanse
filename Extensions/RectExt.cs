@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using Rect = UnityEngine.Rect;
 
-namespace Expanse
+namespace Expanse.Extensions
 {
     /// <summary>
     /// A collection of Rect related extension methods.

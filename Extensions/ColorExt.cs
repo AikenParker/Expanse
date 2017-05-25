@@ -1,7 +1,8 @@
 ﻿using System.Text;
+using Expanse.Utilities;
 using UnityEngine;
 
-namespace Expanse
+namespace Expanse.Extensions
 {
     /// <summary>
     /// A collection of Color related extension methods.

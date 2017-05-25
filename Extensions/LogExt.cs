@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using Expanse.Utilities;
 using UnityEngine;
 
-namespace Expanse
+namespace Expanse.Extensions
 {
     /// <summary>
     /// A collection Debug.Log related extension methods.

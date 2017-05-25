@@ -1,14 +1,24 @@
-﻿using System;
+﻿#region USINGS
+
+using System;
 using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
+
 using UnityEngine;
 using UnityEngine.UI;
+
 using Expanse;
+using Expanse.Misc;
+using Expanse.Motion;
+using Expanse.Utilities;
+using Expanse.Extensions;
 
 #if ODIN_INSPECTOR
 using Sirenix.OdinInspector;
 #endif
+
+#endregion
 
 namespace NAMESPACE
 {

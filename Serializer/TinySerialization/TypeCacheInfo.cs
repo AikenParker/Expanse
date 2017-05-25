@@ -4,6 +4,7 @@
 #endif
 
 using System;
+using Expanse.Utilities;
 
 namespace Expanse.TinySerialization
 {

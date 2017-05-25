@@ -1,4 +1,4 @@
-﻿namespace Expanse
+﻿namespace Expanse.Extensions
 {
     /// <summary>
     /// A collection of System.Byte and System.Byte[] related extension methods.

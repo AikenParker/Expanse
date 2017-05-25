@@ -21,24 +21,24 @@ namespace Expanse
             EditorGUI.BeginChangeCheck();
             serializedObject.UpdateIfRequiredOrScript();
 
-            EditorUtil.DrawInspectorScriptField<SerializedTimer>(Target);
-            EditorUtil.DrawInspectorEditorScriptField<SerializedTimerInspector>(this);
+            Utilities.EditorUtil.DrawInspectorScriptField<SerializedTimer>(Target);
+            Utilities.EditorUtil.DrawInspectorEditorScriptField<SerializedTimerInspector>(this);
 
             // Top-Level
 
             SerializedProperty useGlobalCBRProperty = serializedObject.FindProperty(SerializedTimerPropertyNames.USE_GLOBAL_CBR);
-            EditorGUILayout.PropertyField(useGlobalCBRProperty, EditorUtil.GetGUIContent(useGlobalCBRProperty));
+            EditorGUILayout.PropertyField(useGlobalCBRProperty, Utilities.EditorUtil.GetGUIContent(useGlobalCBRProperty));
 
             if (useGlobalCBRProperty.boolValue == false)
             {
                 EditorGUI.indentLevel++;
                 SerializedProperty callBackRelayProperty = serializedObject.FindProperty(SerializedTimerPropertyNames.CALL_BACK_RELAY);
-                EditorGUILayout.PropertyField(callBackRelayProperty, EditorUtil.GetGUIContent(callBackRelayProperty));
+                EditorGUILayout.PropertyField(callBackRelayProperty, Utilities.EditorUtil.GetGUIContent(callBackRelayProperty));
                 EditorGUI.indentLevel--;
             }
 
             SerializedProperty attachedMonoBehaviourProperty = serializedObject.FindProperty(SerializedTimerPropertyNames.ATTACHED_MONOBEHAVIOUR);
-            EditorGUILayout.PropertyField(attachedMonoBehaviourProperty, EditorUtil.GetGUIContent(attachedMonoBehaviourProperty));
+            EditorGUILayout.PropertyField(attachedMonoBehaviourProperty, Utilities.EditorUtil.GetGUIContent(attachedMonoBehaviourProperty));
 
             if (attachedMonoBehaviourProperty.objectReferenceValue == null && !Application.isPlaying)
             {
@@ -50,12 +50,12 @@ namespace Expanse
             SerializedProperty settingsProperty = serializedObject.FindProperty(SerializedTimerPropertyNames.TIMER_SETTINGS);
 
             SerializedProperty isRandomizedProperty = settingsProperty.FindPropertyRelative(TimerSettingsPropertyNames.IS_RANDOMIZED);
-            EditorGUILayout.PropertyField(isRandomizedProperty, EditorUtil.GetGUIContent(isRandomizedProperty));
+            EditorGUILayout.PropertyField(isRandomizedProperty, Utilities.EditorUtil.GetGUIContent(isRandomizedProperty));
 
             if (isRandomizedProperty.boolValue == false)
             {
                 SerializedProperty durationProperty = settingsProperty.FindPropertyRelative(TimerSettingsPropertyNames.DURATION);
-                EditorGUILayout.PropertyField(durationProperty, EditorUtil.GetGUIContent(durationProperty));
+                EditorGUILayout.PropertyField(durationProperty, Utilities.EditorUtil.GetGUIContent(durationProperty));
 
                 if (durationProperty.floatValue < 0)
                     durationProperty.floatValue = 0;
@@ -67,8 +67,8 @@ namespace Expanse
                 SerializedProperty minDurationProperty = settingsProperty.FindPropertyRelative(TimerSettingsPropertyNames.MIN_DURATION);
                 SerializedProperty maxDurationProperty = settingsProperty.FindPropertyRelative(TimerSettingsPropertyNames.MAX_DURATION);
 
-                EditorGUILayout.PropertyField(minDurationProperty, EditorUtil.GetGUIContent(minDurationProperty));
-                EditorGUILayout.PropertyField(maxDurationProperty, EditorUtil.GetGUIContent(maxDurationProperty));
+                EditorGUILayout.PropertyField(minDurationProperty, Utilities.EditorUtil.GetGUIContent(minDurationProperty));
+                EditorGUILayout.PropertyField(maxDurationProperty, Utilities.EditorUtil.GetGUIContent(maxDurationProperty));
 
                 if (minDurationProperty.floatValue < 0)
                     minDurationProperty.floatValue = 0;
@@ -80,23 +80,25 @@ namespace Expanse
             }
 
             SerializedProperty autoPlayProperty = settingsProperty.FindPropertyRelative(TimerSettingsPropertyNames.AUTO_PLAY);
-            EditorGUILayout.PropertyField(autoPlayProperty, EditorUtil.GetGUIContent(autoPlayProperty));
+            EditorGUILayout.PropertyField(autoPlayProperty, Utilities.EditorUtil.GetGUIContent(autoPlayProperty));
 
             SerializedProperty playerBackRateProperty = settingsProperty.FindPropertyRelative(TimerSettingsPropertyNames.PLAY_BACK_RATE);
-            EditorGUILayout.PropertyField(playerBackRateProperty, EditorUtil.GetGUIContent(playerBackRateProperty));
+            EditorGUILayout.PropertyField(playerBackRateProperty, Utilities.EditorUtil.GetGUIContent(playerBackRateProperty));
 
             SerializedProperty updateModeProperty = settingsProperty.FindPropertyRelative(TimerSettingsPropertyNames.UPDATE_MODE);
-            EditorGUILayout.PropertyField(updateModeProperty, EditorUtil.GetGUIContent(updateModeProperty));
+            EditorGUILayout.PropertyField(updateModeProperty, Utilities.EditorUtil.GetGUIContent(updateModeProperty));
 
             SerializedProperty completionModeProperty = settingsProperty.FindPropertyRelative(TimerSettingsPropertyNames.COMPLETION_MODE);
-            EditorGUILayout.PropertyField(completionModeProperty, EditorUtil.GetGUIContent(completionModeProperty));
+            EditorGUILayout.PropertyField(completionModeProperty, Utilities.EditorUtil.GetGUIContent(completionModeProperty));
 
-            if (((Timer.TimerCompletionModes)completionModeProperty.enumValueIndex).EqualsAny(Timer.TimerCompletionModes.RESTART, Timer.TimerCompletionModes.REVERSE))
+            Timer.TimerCompletionModes completionMode = (Timer.TimerCompletionModes)completionModeProperty.enumValueIndex;
+
+            if (completionMode == Timer.TimerCompletionModes.RESTART || completionMode == Timer.TimerCompletionModes.REVERSE)
             {
                 EditorGUI.indentLevel++;
 
                 SerializedProperty repeatsProperty = settingsProperty.FindPropertyRelative(TimerSettingsPropertyNames.REPEATS);
-                EditorGUILayout.PropertyField(repeatsProperty, EditorUtil.GetGUIContent(repeatsProperty));
+                EditorGUILayout.PropertyField(repeatsProperty, Utilities.EditorUtil.GetGUIContent(repeatsProperty));
 
                 if (repeatsProperty.intValue < -1)
                     repeatsProperty.intValue = -1;
@@ -108,14 +110,14 @@ namespace Expanse
             }
 
             SerializedProperty deactivateOnLoadProperty = settingsProperty.FindPropertyRelative(TimerSettingsPropertyNames.DEACTIVATE_ON_LOAD);
-            EditorGUILayout.PropertyField(deactivateOnLoadProperty, EditorUtil.GetGUIContent(deactivateOnLoadProperty));
+            EditorGUILayout.PropertyField(deactivateOnLoadProperty, Utilities.EditorUtil.GetGUIContent(deactivateOnLoadProperty));
 
             /*
             SerializedProperty priorityProperty = settingsProperty.FindPropertyRelative(TimerSettingsPropertyNames.PRIORITY);
-            EditorGUILayout.PropertyField(priorityProperty, EditorUtil.GetGUIContent(priorityProperty));
+            EditorGUILayout.PropertyField(priorityProperty, Utilities.EditorUtil.GetGUIContent(priorityProperty));
             
             SerializedProperty alwaysPlayProperty = settingsProperty.FindPropertyRelative(TimerSettingsPropertyNames.ALWAYS_PLAY);
-            EditorGUILayout.PropertyField(alwaysPlayProperty, EditorUtil.GetGUIContent(alwaysPlayProperty))
+            EditorGUILayout.PropertyField(alwaysPlayProperty, Utilities.EditorUtil.GetGUIContent(alwaysPlayProperty))
             */
 
             // Events
@@ -136,19 +138,19 @@ namespace Expanse
             if (enableCompletedEventProperty.boolValue)
             {
                 SerializedProperty completedProperty = serializedObject.FindProperty(SerializedTimerPropertyNames.COMPLETED);
-                EditorGUILayout.PropertyField(completedProperty, EditorUtil.GetGUIContent(completedProperty));
+                EditorGUILayout.PropertyField(completedProperty, Utilities.EditorUtil.GetGUIContent(completedProperty));
             }
 
             if (enableReturnedProperty.boolValue)
             {
                 SerializedProperty returnedProperty = serializedObject.FindProperty(SerializedTimerPropertyNames.RETURNED);
-                EditorGUILayout.PropertyField(returnedProperty, EditorUtil.GetGUIContent(returnedProperty));
+                EditorGUILayout.PropertyField(returnedProperty, Utilities.EditorUtil.GetGUIContent(returnedProperty));
             }
 
             if (enableCompletedOrReturnedEventProperty.boolValue)
             {
                 SerializedProperty completedOrReturnedProperty = serializedObject.FindProperty(SerializedTimerPropertyNames.COMPLETED_OR_RETURNED);
-                EditorGUILayout.PropertyField(completedOrReturnedProperty, EditorUtil.GetGUIContent(completedOrReturnedProperty));
+                EditorGUILayout.PropertyField(completedOrReturnedProperty, Utilities.EditorUtil.GetGUIContent(completedOrReturnedProperty));
             }
 
             //

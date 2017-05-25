@@ -2,7 +2,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace Expanse
+namespace Expanse.Motion
 {
     /// <summary>
     /// Motion that moves an Graphic color value towards a target color.

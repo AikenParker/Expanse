@@ -1,13 +1,9 @@
-﻿using UnityEngine;
-using System.Collections;
-using System.Text;
+﻿using System.Text;
 using System.Globalization;
 using System;
-using System.Text.RegularExpressions;
-using System.Linq;
 using System.Collections.Generic;
 
-namespace Expanse
+namespace Expanse.Extensions
 {
     /// <summary>
     /// A collection of System.String related extension methods.

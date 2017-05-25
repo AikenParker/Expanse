@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace Expanse
+namespace Expanse.Motion
 {
     /// <summary>
     /// Motion that moves a Transform scale towards a target scale.

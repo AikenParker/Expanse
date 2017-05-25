@@ -1,10 +1,7 @@
 ﻿using UnityEngine;
-using UnityEngine.UI;
-using System.Collections.Generic;
-using System.Linq;
 using System;
-using Expanse;
 using UnityEditor;
+using Expanse.Extensions;
 
 namespace Expanse
 {

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Expanse
+namespace Expanse.Extensions
 {
     /// <summary>
     /// A collection of System.Action related extension methods.

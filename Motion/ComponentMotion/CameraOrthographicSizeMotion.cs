@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace Expanse
+namespace Expanse.Motion
 {
     /// <summary>
     /// Motion that moves an Camera orthographic size value towards a target value.

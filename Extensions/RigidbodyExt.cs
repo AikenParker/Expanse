@@ -1,11 +1,6 @@
 ﻿using UnityEngine;
-using UnityEngine.UI;
-using System.Collections.Generic;
-using System.Linq;
-using System;
-using Expanse;
 
-namespace Expanse
+namespace Expanse.Extensions
 {
     /// <summary>
     /// A collection of Rigidbody related extension methods.

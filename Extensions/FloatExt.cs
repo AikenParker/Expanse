@@ -1,6 +1,7 @@
-﻿using UnityEngine;
+﻿using Expanse.Utilities;
+using UnityEngine;
 
-namespace Expanse
+namespace Expanse.Extensions
 {
     /// <summary>
     /// A collection of System.Single related extension methods.
@@ -64,11 +65,15 @@ namespace Expanse
         }
 
         /// <summary>
-        /// Applies a positive modulus operation to a float.
+        /// Performs a modulo operation on a float.
+        /// Note: '%' is a remainder operator and NOT a modulo operator.
         /// </summary>
-        public static float PositiveMod(this float value, float mod)
+        /// <param name="value">Float value to perform a modulo operation on.</param>
+        /// <param name="mod">Modulo value.</param>
+        /// <returns>Returns the modulo result from the operation.</returns>
+        public static float Modulo(this float value, float mod)
         {
-            return (value % mod + mod) % mod;
+            return MathUtil.Modulo(value, mod);
         }
 
         /// <summary>

@@ -1,6 +1,7 @@
-﻿using UnityEngine;
+﻿using Expanse.Utilities;
+using UnityEngine;
 
-namespace Expanse
+namespace Expanse.Extensions
 {
     /// <summary>
     /// A collection of Unity-supported, HTML-like text style markup related extension methods.

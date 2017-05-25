@@ -1,9 +1,7 @@
-﻿using Expanse;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 
-namespace Expanse
+namespace Expanse.Extensions
 {
     /// <summary>
     /// A collection of List<T> related extension methods.
