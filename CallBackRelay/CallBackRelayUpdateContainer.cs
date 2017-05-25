@@ -39,7 +39,7 @@ namespace Expanse
         {
             get
             {
-                return this.GetIsUnscaled() ? this.UnscaledDeltaTime : this.DeltaTime;
+                return updateObj.UnscaledDelta ? this.UnscaledDeltaTime : this.DeltaTime;
             }
         }
 
@@ -76,48 +76,19 @@ namespace Expanse
             }
         }
 
-        public bool GetIsUnscaled()
-        {
-            if (updateObj == null)
-                throw new ArgumentNullException("updateObj");
-
-            IComplexUpdate complexUpdateObj = updateObj as IComplexUpdate;
-
-            if (complexUpdateObj != null)
-                return complexUpdateObj.UnscaledDelta;
-            else return false;
-        }
-
         public UpdateResult GetUpdateResult()
         {
             if (updateObj == null)
                 return UpdateResult.Remove;
 
-            IComplexUpdate complexUpdateObj = updateObj as IComplexUpdate;
+            if (updateObj.UnsafeUpdates)
+                return UpdateResult.Success;
 
-            if (complexUpdateObj != null)
-            {
-                bool unsafeUpdates = complexUpdateObj.UnsafeUpdates;
-
-                if (unsafeUpdates)
-                    return UpdateResult.Success;
-            }
-
-            if (!updateObj.MonoBehaviour)
+            if (updateObj.MonoBehaviour == null)
                 return UpdateResult.Remove;
 
-            bool activeOrEnabled = updateObj.MonoBehaviour.isActiveAndEnabled;
-
-            if (complexUpdateObj != null)
-            {
-                if (!complexUpdateObj.AlwaysUpdate && !activeOrEnabled)
-                    return UpdateResult.Fail;
-            }
-            else
-            {
-                if (!activeOrEnabled)
-                    return UpdateResult.Fail;
-            }
+            if (!updateObj.AlwaysUpdate && !updateObj.MonoBehaviour.isActiveAndEnabled)
+                return UpdateResult.Fail;
 
             return UpdateResult.Success;
         }

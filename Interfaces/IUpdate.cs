@@ -1,19 +1,13 @@
-﻿using UnityEngine;
-using UnityEngine.UI;
-using System.Collections.Generic;
-using System.Linq;
-using System;
-using Expanse;
-
-namespace Expanse
+﻿namespace Expanse
 {
     public interface IUpdate : IUnity
     {
+        /// <summary>
+        /// Invoked by an object managing the updates for this interface.
+        /// </summary>
+        /// <param name="deltaTime">Time in seconds since the last time this was called.</param>
         void OnUpdate(float deltaTime);
-    }
 
-    public interface IComplexUpdate : IUpdate, IPriority
-    {
         /// <summary>
         /// Will this update even if the attached MonoBehaviour is destroyed or non-existent?
         /// </summary>

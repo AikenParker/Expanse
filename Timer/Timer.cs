@@ -7,7 +7,7 @@ namespace Expanse
     /// <summary>
     /// Time related utility class.
     /// </summary>
-    public class Timer : IComplexUpdate, IDisposable
+    public class Timer : IUpdate, IDisposable
     {
         protected Timer()
         {
@@ -140,7 +140,6 @@ namespace Expanse
         public float PlaybackRate { get; set; }
         public TimerCompletionModes CompletionMode { get; set; }
         public int Repeats { get; set; }
-        public int Priority { get; set; }
         public bool IsUnsafe { get; private set; }
         public bool AlwaysPlay { get; set; }
 
@@ -258,7 +257,6 @@ namespace Expanse
             this.PlaybackRate = settings.playBackRate;
             this.CompletionMode = settings.completionMode;
             this.Repeats = settings.repeats;
-            this.Priority = settings.priority;
             this.AlwaysPlay = settings.alwaysPlay;
             this.UpdateMode = settings.updateMode;
             this.DeactivateOnLevelChange = settings.deactivateOnLoad;
@@ -588,7 +586,7 @@ namespace Expanse
             }
         }
 
-        bool IComplexUpdate.UnsafeUpdates
+        bool IUpdate.UnsafeUpdates
         {
             get
             {
@@ -596,19 +594,11 @@ namespace Expanse
             }
         }
 
-        bool IComplexUpdate.AlwaysUpdate
+        bool IUpdate.AlwaysUpdate
         {
             get
             {
                 return this.AlwaysPlay;
-            }
-        }
-
-        int IPriority.Priority
-        {
-            get
-            {
-                return this.Priority;
             }
         }
 

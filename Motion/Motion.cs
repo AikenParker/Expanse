@@ -21,7 +21,7 @@ namespace Expanse.Motion
     /// <summary>
     /// Core Expanse Motion class.
     /// </summary>
-    public abstract class Motion : IComplexUpdate
+    public abstract class Motion : IUpdate
     {
         private CallBackRelay cbr;
         /// <summary>
@@ -45,11 +45,6 @@ namespace Expanse.Motion
                 }
             }
         }
-        /// <summary>
-        /// The priority values given to the CBR to determine how important this motion is.
-        /// Higher the value to more priority this is given when updating.
-        /// </summary>
-        public int Priority { get; set; }
 
         /// <summary>
         /// The activity state of this motion. If true something should be updating this motion. (Usually the CBR)
@@ -453,7 +448,7 @@ namespace Expanse.Motion
             get { return this.AttachedMonoBehaviour; }
         }
 
-        bool IComplexUpdate.UnscaledDelta
+        bool IUpdate.UnscaledDelta
         {
             get
             {

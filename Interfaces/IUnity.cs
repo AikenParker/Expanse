@@ -3,17 +3,17 @@
 namespace Expanse
 {
     /// <summary>
-    /// Base class for Unity interfaces. Allows for conversion between interface types and Unity types.
+    /// Base class for Expanse interfaces that are expected to extend MonoBehaviours.
     /// </summary>
     public interface IUnity
     {
         /// <summary>
-        /// The game object this component is attached to. A component is always attached to a game object.
+        /// The GameObject this component is attached to. A component is always attached to a GameObject.
         /// </summary>
         GameObject gameObject { get; }
 
         /// <summary>
-        /// The mono behavior this interface is attached to. This interface is always attached to a mono behavior.
+        /// The MonoBehaviour this interface is attached to. This interface is always attached to a MonoBehaviour.
         /// </summary>
         MonoBehaviour MonoBehaviour { get; }
     }

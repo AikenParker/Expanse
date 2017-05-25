@@ -247,19 +247,30 @@ namespace Expanse
         /// </summary>
         private void ImplUpdateAll(List<CallBackRelayUpdateContainer> updateList)
         {
-            CallBackRelayUpdateContainer updateWrapper;
-            CallBackRelayUpdateContainer.UpdateResult updateResult;
+            int updateListCount = updateList.Count;
 
-            updateList.RemoveAll(x => x.GetUpdateResult() == CallBackRelayUpdateContainer.UpdateResult.Remove);
+            // Remove all invalid update containers first
+
+            for (int i = updateListCount - 1; i >= 0; i--)
+            {
+                CallBackRelayUpdateContainer updateContainer = updateList[i];
+
+                CallBackRelayUpdateContainer.UpdateResult updateResult = updateContainer.GetUpdateResult();
+
+                if (updateResult == CallBackRelayUpdateContainer.UpdateResult.Remove)
+                    updateList.RemoveAt(i);
+            }
+
+            // Then update valid update containers in order
 
             for (int i = 0; i < updateList.Count; i++)
             {
-                updateWrapper = updateList[i];
+                CallBackRelayUpdateContainer updateContainer = updateList[i];
 
-                updateResult = updateWrapper.GetUpdateResult();
+                CallBackRelayUpdateContainer.UpdateResult updateResult = updateContainer.GetUpdateResult();
 
                 if (updateResult == CallBackRelayUpdateContainer.UpdateResult.Success)
-                    updateWrapper.TryUpdate(updateSettings);
+                    updateContainer.TryUpdate(updateSettings);
             }
         }
 

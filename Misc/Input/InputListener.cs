@@ -6,7 +6,7 @@ namespace Expanse.Misc
     /// <summary>
     /// Automatically managed input listener.
     /// </summary>
-    public class InputListener : IDisposable, IComplexUpdate
+    public class InputListener : IDisposable, IUpdate
     {
         public InputTypes InputType { get; private set; }
         public string InputName { get; private set; }
@@ -98,7 +98,7 @@ namespace Expanse.Misc
             CallBackRelay.UnsubscribeFromGlobalUpdate(this);
         }
 
-        bool IComplexUpdate.UnsafeUpdates
+        bool IUpdate.UnsafeUpdates
         {
             get
             {
@@ -107,7 +107,7 @@ namespace Expanse.Misc
             }
         }
 
-        bool IComplexUpdate.AlwaysUpdate
+        bool IUpdate.AlwaysUpdate
         {
             get
             {
@@ -115,19 +115,11 @@ namespace Expanse.Misc
             }
         }
 
-        bool IComplexUpdate.UnscaledDelta
+        bool IUpdate.UnscaledDelta
         {
             get
             {
                 return false;
-            }
-        }
-
-        int IPriority.Priority
-        {
-            get
-            {
-                return 1;
             }
         }
 

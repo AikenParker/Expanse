@@ -15,7 +15,6 @@ namespace Expanse
         public UpdateModes updateMode;
         public int repeats;
         public bool deactivateOnLoad;
-        public int priority;
         public bool alwaysPlay;
 
         public TimerSettings WithDuration(float duration)
@@ -49,7 +48,6 @@ namespace Expanse
                     updateMode = UpdateModes.Update,
                     repeats = -1,
                     deactivateOnLoad = true,
-                    priority = 0,
                     alwaysPlay = false
                 };
 
