@@ -5,8 +5,28 @@ using UnityEngine;
 
 namespace Expanse
 {
+    /// <summary>
+    /// Manages the finding, prefabrication and auto-creation of other singleton instances.
+    /// Note: You can manually override this process by setting the instance of the object in the static constructor of your Singleton.
+    /// </summary>
     public class SingletonManager : Singleton<SingletonManager>
     {
+        static SingletonManager()
+        {
+            // Creates a hidden instance of a SingletonManager if there is not one already
+
+            SingletonManager instance = FindObjectOfType<SingletonManager>();
+
+            if (instance == null)
+            {
+                GameObject singletonGameObject = new GameObject(typeof(SingletonManager).Name);
+                singletonGameObject.hideFlags = HideFlags.HideInHierarchy;
+                instance = singletonGameObject.AddComponent<SingletonManager>();
+            }
+
+            SingletonManager.Instance = instance;
+        }
+
         public List<Singleton> singletonPrefabs = new List<Singleton>();
 
         public bool autoCreate = true;

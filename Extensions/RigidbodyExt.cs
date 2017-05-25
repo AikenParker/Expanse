@@ -118,13 +118,13 @@ namespace Expanse.Extensions
                     rigidbody2D.AddForce(force);
                     break;
                 case ForceMode.Impulse:
-                    rigidbody2D.AddForce(force / Time.fixedDeltaTime);
+                    rigidbody2D.AddForce(force / TimeManager.FixedDeltaTime);
                     break;
                 case ForceMode.Acceleration:
                     rigidbody2D.AddForce(force * rigidbody2D.mass);
                     break;
                 case ForceMode.VelocityChange:
-                    rigidbody2D.AddForce(force * rigidbody2D.mass / Time.fixedDeltaTime);
+                    rigidbody2D.AddForce(force * rigidbody2D.mass / TimeManager.FixedDeltaTime);
                     break;
             }
         }

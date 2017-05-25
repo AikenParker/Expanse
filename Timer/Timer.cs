@@ -9,10 +9,7 @@ namespace Expanse
     /// </summary>
     public class Timer : IUpdate, IDisposable
     {
-        protected Timer()
-        {
-
-        }
+        protected Timer() { }
 
         private Timer(MonoBehaviour attachedMonoBahviour, CallBackRelay CBR)
         {
@@ -503,7 +500,7 @@ namespace Expanse
         {
             get
             {
-                return Duration / (Mathf.Abs(PlaybackRate) * (UnscaledDelta ? 1f : Time.timeScale));
+                return Duration / (Mathf.Abs(PlaybackRate) * (UnscaledDelta ? 1f : TimeManager.TimeScale));
             }
         }
 

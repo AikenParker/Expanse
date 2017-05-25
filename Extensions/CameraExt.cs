@@ -42,9 +42,9 @@ namespace Expanse.Extensions
         {
             rng = rng ?? RandomUtil.Instance;
 
-            float StartTime = Time.time;
+            float StartTime = TimeManager.Time;
 
-            while (Time.time < StartTime + duration)
+            while (TimeManager.Time < StartTime + duration)
             {
                 Vector3 offset = rng.Vector3(strength);
 

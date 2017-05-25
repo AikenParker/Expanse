@@ -16,6 +16,9 @@ namespace Expanse
         private static T instance;
         private readonly static object @lock = new object();
 
+        /// <summary>
+        /// The instance of type T that is currently the singleton.
+        /// </summary>
         public static T Instance
         {
             get
@@ -30,7 +33,7 @@ namespace Expanse
                 {
                     if (!instance)
                     {
-                        SingletonManager singletonManager = SingletonManager.SafeInstance;
+                        SingletonManager singletonManager = SingletonManager.Instance;
 
                         instance = singletonManager.GetSingletonInstance<T>();
                     }
@@ -38,33 +41,21 @@ namespace Expanse
 
                 return instance ? (T)instance : null;
             }
-        }
-
-        protected static T SafeInstance
-        {
-            get
-            {
-                if (instance == null)
-                    instance = FindObjectOfType<T>();
-
-                if (instance == null)
-                {
-                    Type singletonType = typeof(T);
-                    GameObject singletonGameObject = new GameObject(singletonType.Name, singletonType);
-                    singletonGameObject.hideFlags = HideFlags.HideInHierarchy;
-                    instance = singletonGameObject.GetComponent<T>();
-                }
-
-                return instance;
-            }
+            protected set { instance = value; }
         }
 
 #pragma warning disable 67
+        /// <summary>
+        /// Event raised when the singleton of type T is destroyed.
+        /// </summary>
         public static event Action Destroyed;
 #pragma warning restore
 
         private static bool isDestroyed;
 
+        /// <summary>
+        /// True if the singleton of type T available and not destroyed.
+        /// </summary>
         public static bool IsAvailable
         {
             get { return !isDestroyed; }

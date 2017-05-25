@@ -15,15 +15,15 @@ namespace Expanse
         {
             this.updateObj = updateObj;
 
-            this.LastFrameTime = Time.time;
-            this.LastUnscaledFrameTime = Time.unscaledTime;
+            this.LastFrameTime = TimeManager.Time;
+            this.LastUnscaledFrameTime = TimeManager.UnscaledTime;
         }
 
         public float DeltaTime
         {
             get
             {
-                return Time.time - LastFrameTime;
+                return TimeManager.Time - LastFrameTime;
             }
         }
 
@@ -31,7 +31,7 @@ namespace Expanse
         {
             get
             {
-                return Time.unscaledTime - LastUnscaledFrameTime;
+                return TimeManager.UnscaledTime - LastUnscaledFrameTime;
             }
         }
 
@@ -51,8 +51,8 @@ namespace Expanse
             {
                 updateObj.OnUpdate(TrueDeltaTime);
 
-                LastFrameTime = Time.time;
-                LastUnscaledFrameTime = Time.unscaledTime;
+                LastFrameTime = TimeManager.Time;
+                LastUnscaledFrameTime = TimeManager.UnscaledTime;
             }
 
             return !isSkipFrame;

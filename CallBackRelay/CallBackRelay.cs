@@ -13,7 +13,8 @@ namespace Expanse
     /// Allows for subscriptions to Unity update functions.
     /// With in-built optimization options.
     /// </summary>
-    public partial class CallBackRelay : MonoBehaviour
+    [DefaultExecutionOrder(ExecutionOrderConstants.CALL_BACK_RELAY)]
+    public class CallBackRelay : MonoBehaviour
     {
         private static CallBackRelay globalCBR;
         public static CallBackRelay GlobalCBR
@@ -280,7 +281,7 @@ namespace Expanse
         /// </summary>
         private void ImplUpdateSpread(List<CallBackRelayUpdateContainer> updateList)
         {
-            CallBackRelayUpdateContainer updateWrapper, firstWrapper = null;
+            CallBackRelayUpdateContainer updateContainer, firstUpdateContainer = null;
             CallBackRelayUpdateContainer.UpdateResult updateResult;
             int updateCount;
 
@@ -288,9 +289,9 @@ namespace Expanse
             {
                 do
                 {
-                    updateWrapper = updateList.Dequeue();
+                    updateContainer = updateList.Dequeue();
 
-                    updateResult = updateWrapper.GetUpdateResult();
+                    updateResult = updateContainer.GetUpdateResult();
 
                     if (updateResult != CallBackRelayUpdateContainer.UpdateResult.Success && updateList.Count == 0)
                         break;
@@ -300,25 +301,25 @@ namespace Expanse
                 if (updateResult == CallBackRelayUpdateContainer.UpdateResult.Remove)
                     break;
 
-                if (updateWrapper == firstWrapper)
+                if (updateContainer == firstUpdateContainer)
                 {
-                    updateList.Enqueue(updateWrapper);
+                    updateList.Enqueue(updateContainer);
                     break;
                 }
 
                 if (updateResult == CallBackRelayUpdateContainer.UpdateResult.Success)
                 {
-                    if (firstWrapper == null)
-                        firstWrapper = updateWrapper;
+                    if (firstUpdateContainer == null)
+                        firstUpdateContainer = updateContainer;
 
-                    if (updateWrapper.TryUpdate(updateSettings))
+                    if (updateContainer.TryUpdate(updateSettings))
                         updateCount++;
 
-                    updateList.Enqueue(updateWrapper);
+                    updateList.Enqueue(updateContainer);
                 }
                 else if (updateResult == CallBackRelayUpdateContainer.UpdateResult.Fail)
                 {
-                    updateList.Enqueue(updateWrapper);
+                    updateList.Enqueue(updateContainer);
                 }
                 else throw new UnexpectedException();
             }
@@ -329,7 +330,7 @@ namespace Expanse
         /// </summary>
         private void ImplUpdateBudget(List<CallBackRelayUpdateContainer> updateList)
         {
-            CallBackRelayUpdateContainer updateWrapper, firstWrapper = null;
+            CallBackRelayUpdateContainer updateContainer, firstUpdateContainer = null;
             CallBackRelayUpdateContainer.UpdateResult updateResult;
 
             budgetStopwatch.Reset();
@@ -339,9 +340,9 @@ namespace Expanse
             {
                 do
                 {
-                    updateWrapper = updateList.Dequeue();
+                    updateContainer = updateList.Dequeue();
 
-                    updateResult = updateWrapper.GetUpdateResult();
+                    updateResult = updateContainer.GetUpdateResult();
 
                     if (updateResult != CallBackRelayUpdateContainer.UpdateResult.Success && updateList.Count == 0)
                         break;
@@ -351,24 +352,24 @@ namespace Expanse
                 if (updateResult == CallBackRelayUpdateContainer.UpdateResult.Remove)
                     break;
 
-                if (updateWrapper == firstWrapper)
+                if (updateContainer == firstUpdateContainer)
                 {
-                    updateList.Enqueue(updateWrapper);
+                    updateList.Enqueue(updateContainer);
                     break;
                 }
 
                 if (updateResult == CallBackRelayUpdateContainer.UpdateResult.Success)
                 {
-                    if (firstWrapper == null)
-                        firstWrapper = updateWrapper;
+                    if (firstUpdateContainer == null)
+                        firstUpdateContainer = updateContainer;
 
-                    updateWrapper.TryUpdate(updateSettings);
+                    updateContainer.TryUpdate(updateSettings);
 
-                    updateList.Enqueue(updateWrapper);
+                    updateList.Enqueue(updateContainer);
                 }
                 else if (updateResult == CallBackRelayUpdateContainer.UpdateResult.Fail)
                 {
-                    updateList.Enqueue(updateWrapper);
+                    updateList.Enqueue(updateContainer);
                 }
                 else throw new UnexpectedException();
             }

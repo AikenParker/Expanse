@@ -65,8 +65,8 @@ namespace Expanse.Misc
 
             if (IsHeld)
             {
-                ScaledHoldDuration += Time.deltaTime;
-                UnscaledHoldDuration += Time.unscaledDeltaTime;
+                ScaledHoldDuration += TimeManager.DeltaTime;
+                UnscaledHoldDuration += TimeManager.UnscaledDeltaTime;
             }
             else
             {
@@ -84,8 +84,8 @@ namespace Expanse.Misc
 
             if (IsHeld)
             {
-                ScaledHoldDuration += Time.deltaTime;
-                UnscaledHoldDuration += Time.unscaledDeltaTime;
+                ScaledHoldDuration += TimeManager.DeltaTime;
+                UnscaledHoldDuration += TimeManager.UnscaledDeltaTime;
             }
             else
             {

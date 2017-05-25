@@ -25,7 +25,7 @@ namespace Expanse.Utilities
         private static string indexFormatTag = "{index}";
         private static string typeFormatTag = "{type}";
         private static string timeFormatTag = "{time}";
-        private static Func<string> timeCallback = () => Time.time.ToString();
+        private static Func<string> timeCallback = () => TimeManager.Time.ToString();
         private static bool cacheLogs = false;
 
         static LogUtil()
