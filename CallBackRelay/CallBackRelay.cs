@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using Expanse.Extensions;
 using Expanse.Utilities;
 using UnityEngine;
 using UnityEngine.SceneManagement;
