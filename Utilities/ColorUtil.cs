@@ -1,4 +1,4 @@
-﻿using System.Globalization;
+﻿using System;
 using UnityEngine;
 
 namespace Expanse.Utilities
@@ -24,33 +24,58 @@ namespace Expanse.Utilities
         public const float B_LUMINOSITY = 0.0722f;
 
         /// <summary>
-        /// Returns a color from an RGB uint hex value.
-        /// Note: Does not support RGBA
+        /// Returns a color from an RGBA uint value.
         /// </summary>
-        public static Color HexToColor(uint colorHex)
+        /// <param name="value">Color in RGBA int form. (E.g 0xFFFFFFFF)</param>
+        /// <returns>Color value converted from int value.</returns>
+        public static Color RGBAIntToColor(uint value)
         {
-            byte r = (byte)((colorHex >> 0x10) & 0xFF);
-            byte g = (byte)((colorHex >> 0x8) & 0xFF);
-            byte b = (byte)(colorHex & 0xFF);
+            byte r = (byte)((value >> 24) & 0xFF);
+            byte g = (byte)((value >> 16) & 0xFF);
+            byte b = (byte)((value >> 08) & 0xFF);
+            byte a = (byte)((value >> 00) & 0xFF);
 
-            return new Color32(r, g, b, 0xFF);
+            return new Color32(r, g, b, a);
+        }
+
+        /// <summary>
+        /// Returns a color from an RGB uint value.
+        /// </summary>
+        /// <param name="value">Color in RGB int form. (E.g 0xFFFFFF)</param>
+        /// <param name="alpha">Alpha value in byte form. (0-255)(E.g 0xFF)</param>
+        /// <returns>Color value converted from int value.</returns>
+        public static Color RGBIntToColor(uint value, byte alpha = 0xFF)
+        {
+            byte r = (byte)((value >> 16) & 0xFF);
+            byte g = (byte)((value >> 08) & 0xFF);
+            byte b = (byte)((value >> 00) & 0xFF);
+
+            return new Color32(r, g, b, alpha);
         }
 
         /// <summary>
         /// Returns a color from an RGB or RGBA string hex value.
         /// </summary>
-        public static Color HexToColor(string colorHex)
+        /// <param name="hexString">Color hex value in string form. (E.g "#FFFFFF" or "FFFFFF")</param>
+        /// <returns>Color value from colorHex.</returns>
+        public static Color HexStringToColor(string hexString)
         {
-            if (colorHex[0] == '#')
-                colorHex = colorHex.Remove(0, 1);
+            if (string.IsNullOrEmpty(hexString))
+                throw new ArgumentNullException("hexString");
 
-            if (colorHex.Length != 6 || colorHex.Length != 8)
-                throw new InvalidArgumentException("colorHex must be either 6 (RGB) or 8 (RGBA) hex characters long");
+            int length = hexString.Length;
+            int offset = hexString[0] == '#' ? 1 : 0;
 
-            byte r = byte.Parse(colorHex.Substring(0, 2), NumberStyles.HexNumber);
-            byte g = byte.Parse(colorHex.Substring(2, 2), NumberStyles.HexNumber);
-            byte b = byte.Parse(colorHex.Substring(4, 2), NumberStyles.HexNumber);
-            byte a = colorHex.Length > 6 ? byte.Parse(colorHex.Substring(6, 2), NumberStyles.HexNumber) : (byte)0xFF;
+            if (length - offset != 6 && length - offset != 8)
+                throw new InvalidArgumentException("hexString must be either 6 (RGB) or 8 (RGBA) hex characters long");
+
+            byte r = (byte)(CharUtil.CharToHexDigit(hexString[offset + 0]) * 0x10 + CharUtil.CharToHexDigit(hexString[offset + 1]));
+            byte g = (byte)(CharUtil.CharToHexDigit(hexString[offset + 2]) * 0x10 + CharUtil.CharToHexDigit(hexString[offset + 3]));
+            byte b = (byte)(CharUtil.CharToHexDigit(hexString[offset + 4]) * 0x10 + CharUtil.CharToHexDigit(hexString[offset + 5]));
+            byte a = 0xFF;
+
+            if (length - offset == 8)
+                a = (byte)(CharUtil.CharToHexDigit(hexString[offset + 6]) * 0x10 + CharUtil.CharToHexDigit(hexString[offset + 7]));
 
             return new Color32(r, g, b, a);
         }
@@ -58,6 +83,9 @@ namespace Expanse.Utilities
         /// <summary>
         /// Converts a color to greyscale.
         /// </summary>
+        /// <param name="color">Color to convert to grayscale.</param>
+        /// <param name="grayScaleMethod">Method to use to convert color to greyscale.</param>
+        /// <returns>Greyscale color of color.</returns>
         public static Color ToGrayscale(Color color, GrayscaleMethod grayScaleMethod = GrayscaleMethod.Luminescence)
         {
             float value;
