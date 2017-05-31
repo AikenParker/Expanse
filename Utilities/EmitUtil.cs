@@ -1,5 +1,5 @@
 ﻿#define AOT_ONLY
-#if (UNITY_EDITOR || UNITY_STANDALONE) && !ENABLE_IL2CPP
+#if (UNITY_EDITOR || UNITY_STANDALONE || UNITY_ANDROID) && !ENABLE_IL2CPP
 #undef AOT_ONLY
 #endif
 
@@ -179,6 +179,180 @@ namespace Expanse.Utilities
 
             return (Action<TSource, TValue>)setterMethod.CreateDelegate(typeof(Action<TSource, TValue>));
         }
+
+        #region NON_GENERIC
+
+        // TODO:
+        // : Fix property setters on structs
+        // : Fix property getters on structs
+        // : Add support for statics
+        // : Add support for constructor infos
+
+        /// <summary>
+        /// Creates a delegate that gets the value of a field. Slower and less safe than generic overload.
+        /// Warning: Boxes/Unboxes value types
+        /// </summary>
+        public static Func<object, object> GenerateFieldGetterDelegate(FieldInfo fieldInfo)
+        {
+            if (fieldInfo == null)
+                throw new ArgumentNullException("field");
+
+            if (fieldInfo.IsStatic)
+                throw new InvalidArgumentException("fieldInfo is static use GenerateStaticFieldGetterDelegate() instead");
+
+            Type tSource = fieldInfo.DeclaringType;
+            Type tValue = fieldInfo.FieldType;
+
+            Type tObject = typeof(object);
+            singleTypeArray[0] = tObject;
+            string dynamicMethodName = useMeaningfulNames ? fieldInfo.ReflectedType.FullName + ".get_" + fieldInfo.Name : GENERATED_NAME;
+            DynamicMethod getterMethod = new DynamicMethod(dynamicMethodName, tObject, singleTypeArray, tSource);
+
+            ILGenerator gen = getterMethod.GetILGenerator();
+            gen.Emit(OpCodes.Ldarg_0);
+            if (tSource.IsValueType)
+                gen.Emit(OpCodes.Unbox_Any, tSource);
+            else
+                gen.Emit(OpCodes.Castclass, tSource);
+            gen.Emit(OpCodes.Ldfld, fieldInfo);
+            if (tValue.IsValueType)
+                gen.Emit(OpCodes.Box, tValue);
+            else
+                gen.Emit(OpCodes.Castclass, tValue);
+            gen.Emit(OpCodes.Ret);
+
+            return (Func<object, object>)getterMethod.CreateDelegate(typeof(Func<object, object>));
+        }
+
+        /// <summary>
+        /// Creates a delegate that sets the value of a field. Slower and less safe than generic overload.
+        /// Warning: Unboxes value types
+        /// </summary>
+        public static Action<object, object> GenerateFieldSetterDelegate(FieldInfo fieldInfo)
+        {
+            if (fieldInfo == null)
+                throw new ArgumentNullException("field");
+
+            if (fieldInfo.IsStatic)
+                throw new InvalidArgumentException("fieldInfo is static use GenerateStaticFieldSetterDelegate() instead");
+
+            Type tSource = fieldInfo.DeclaringType;
+            Type tValue = fieldInfo.FieldType;
+
+            Type tObject = typeof(object);
+            doubleTypeArray[0] = tObject;
+            doubleTypeArray[1] = tObject;
+            string dynamicMethodName = useMeaningfulNames ? fieldInfo.ReflectedType.FullName + ".set_" + fieldInfo.Name : GENERATED_NAME;
+            DynamicMethod setterMethod = new DynamicMethod(dynamicMethodName, null, doubleTypeArray, tSource);
+
+            ILGenerator gen = setterMethod.GetILGenerator();
+            gen.Emit(OpCodes.Ldarg_0);
+            if (tSource.IsValueType)
+                gen.Emit(OpCodes.Unbox_Any, tSource);
+            else
+                gen.Emit(OpCodes.Castclass, tSource);
+            gen.Emit(OpCodes.Ldarg_1);
+            if (tValue.IsValueType)
+                gen.Emit(OpCodes.Unbox_Any, tValue);
+            else
+                gen.Emit(OpCodes.Castclass, tValue);
+            gen.Emit(OpCodes.Stfld, fieldInfo);
+            gen.Emit(OpCodes.Ret);
+
+            return (Action<object, object>)setterMethod.CreateDelegate(typeof(Action<object, object>));
+        }
+
+        /// <summary>
+        /// Creates a delegate that gets the value of a property. Slower and less safe than generic overload.
+        /// Warning: Boxes/Unboxes value types
+        /// </summary>
+        public static Func<object, object> GeneratePropertyGetterDelegate(PropertyInfo propertyInfo)
+        {
+            if (propertyInfo == null)
+                throw new ArgumentNullException("propertyInfo");
+
+            if (!propertyInfo.CanRead)
+                throw new InvalidArgumentException("Cannot read from propertyInfo");
+
+            MethodInfo getterMethodInfo = propertyInfo.GetGetMethod(true);
+
+            if (getterMethodInfo.IsStatic)
+                throw new InvalidArgumentException("propertyInfo is static use GenerateStaticPropertyGetterDelegate() instead");
+
+            Type tSource = propertyInfo.DeclaringType;
+            Type tValue = propertyInfo.PropertyType;
+
+            Type tObject = typeof(object);
+            singleTypeArray[0] = tObject;
+            string dynamicMethodName = useMeaningfulNames ? propertyInfo.ReflectedType.FullName + ".get_" + propertyInfo.Name : GENERATED_NAME;
+            DynamicMethod getterMethod = new DynamicMethod(dynamicMethodName, tObject, singleTypeArray, tSource);
+
+            ILGenerator gen = getterMethod.GetILGenerator();
+            gen.Emit(OpCodes.Ldarg_0);
+            if (tSource.IsValueType)
+                gen.Emit(OpCodes.Unbox_Any, tSource);
+            else
+                gen.Emit(OpCodes.Castclass, tSource);
+            if (getterMethodInfo.IsAbstract || getterMethodInfo.IsVirtual)
+                gen.Emit(OpCodes.Callvirt, getterMethodInfo);
+            else
+                gen.Emit(OpCodes.Call, getterMethodInfo);
+            if (tValue.IsValueType)
+                gen.Emit(OpCodes.Box, tValue);
+            else
+                gen.Emit(OpCodes.Castclass, tValue);
+            gen.Emit(OpCodes.Ret);
+
+            return (Func<object, object>)getterMethod.CreateDelegate(typeof(Func<object, object>));
+        }
+
+        /// <summary>
+        /// Creates a delegate that sets the value of a property. Slower and less safe than generic overload.
+        /// Warning: Unboxes value types
+        /// </summary>
+        public static Action<object, object> GeneratePropertySetterDelegate(PropertyInfo propertyInfo)
+        {
+            if (propertyInfo == null)
+                throw new ArgumentNullException("propertyInfo");
+
+            if (!propertyInfo.CanWrite)
+                throw new InvalidArgumentException("Cannot write to propertyInfo");
+
+            MethodInfo setterMethodInfo = propertyInfo.GetSetMethod(true);
+
+            if (setterMethodInfo.IsStatic)
+                throw new InvalidArgumentException("fieldInfo is static use GenerateStaticFieldPropertyDelegate() instead");
+
+            Type tSource = propertyInfo.DeclaringType;
+            Type tValue = propertyInfo.PropertyType;
+
+            Type tObject = typeof(object);
+            doubleTypeArray[0] = tObject;
+            doubleTypeArray[1] = tObject;
+            string dynamicMethodName = useMeaningfulNames ? propertyInfo.ReflectedType.FullName + ".set_" + propertyInfo.Name : GENERATED_NAME;
+            DynamicMethod setterMethod = new DynamicMethod(dynamicMethodName, null, doubleTypeArray, tSource);
+
+            ILGenerator gen = setterMethod.GetILGenerator();
+            gen.Emit(OpCodes.Ldarg_0);
+            if (tSource.IsValueType)
+                gen.Emit(OpCodes.Unbox_Any, tSource);
+            else
+                gen.Emit(OpCodes.Castclass, tSource);
+            gen.Emit(OpCodes.Ldarg_1);
+            if (tValue.IsValueType)
+                gen.Emit(OpCodes.Unbox_Any, tValue);
+            else
+                gen.Emit(OpCodes.Castclass, tValue);
+            if (setterMethodInfo.IsAbstract || setterMethodInfo.IsVirtual)
+                gen.Emit(OpCodes.Callvirt, setterMethodInfo);
+            else
+                gen.Emit(OpCodes.Call, setterMethodInfo);
+            gen.Emit(OpCodes.Ret);
+
+            return (Action<object, object>)setterMethod.CreateDelegate(typeof(Action<object, object>));
+        }
+
+        #endregion
     }
 }
 #endif
