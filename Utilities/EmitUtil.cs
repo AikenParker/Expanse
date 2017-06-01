@@ -1,7 +1,9 @@
-﻿#define AOT_ONLY
+﻿#region AOT_ONLY_DEFINE
+#define AOT_ONLY
 #if (UNITY_EDITOR || UNITY_STANDALONE || UNITY_ANDROID) && !ENABLE_IL2CPP
 #undef AOT_ONLY
 #endif
+#endregion
 
 #if !AOT_ONLY
 using System;
@@ -25,7 +27,7 @@ namespace Expanse.Utilities
         }
 
         private static bool useMeaningfulNames = true;
-        private const string GENERATED_NAME = "EmitUtilMethod";
+        private const string GENERATED_NAME = "EmitUtilGenerated";
 
         // Type array caches used when emitting methods
         private static Type[] emptyTypeArray = new Type[0];
@@ -36,6 +38,7 @@ namespace Expanse.Utilities
         /// Generates a delegate that constructs an instance of type TSource using the default constructor.
         /// </summary>
         /// <typeparam name="TSource">Declaring type that the constructor belongs to.</typeparam>
+        /// <returns>Returns the delegate that invokes the default constructor of a type.</returns>
         public static Func<TSource> GenerateDefaultConstructorDelegate<TSource>()
         {
             Type tSource = typeof(TSource);
@@ -58,6 +61,8 @@ namespace Expanse.Utilities
         /// Creates a delegate that gets the value of a static field.
         /// </summary>
         /// <typeparam name="TValue">Field type of the field info.</typeparam>
+        /// <param name="fieldInfo">Field info to generate getter delegate from.</param>
+        /// <returns>Returns the delegate that invokes a generated field getter for the field.</returns>
         public static Func<TValue> GenerateStaticFieldGetterDelegate<TValue>(FieldInfo fieldInfo)
         {
             if (fieldInfo == null)
@@ -86,6 +91,8 @@ namespace Expanse.Utilities
         /// </summary>
         /// <typeparam name="TSource">Declaring type that the field belongs to.</typeparam>
         /// <typeparam name="TValue">Field type of the field info.</typeparam>
+        /// <param name="fieldInfo">Field info to generate getter delegate from.</param>
+        /// <returns>Returns the delegate that invokes a generated field getter for the field.</returns>
         public static Func<TSource, TValue> GenerateFieldGetterDelegate<TSource, TValue>(FieldInfo fieldInfo)
         {
             if (fieldInfo == null)
@@ -119,6 +126,8 @@ namespace Expanse.Utilities
         /// Creates a delegate that sets the value of a static field.
         /// </summary>
         /// <typeparam name="TValue">Field type of the field info.</typeparam>
+        /// <param name="fieldInfo">Field info to generate setter delegate from.</param>
+        /// <returns>Returns the delegate that invokes a generated field setter for the field.</returns>
         public static Action<TValue> GenerateStaticFieldSetterDelegate<TValue>(FieldInfo fieldInfo)
         {
             if (fieldInfo == null)
@@ -149,6 +158,8 @@ namespace Expanse.Utilities
         /// </summary>
         /// <typeparam name="TSource">Declaring type that the field belongs to.</typeparam>
         /// <typeparam name="TValue">Field type of the field info.</typeparam>
+        /// <param name="fieldInfo">Field info to generate setter delegate from.</param>
+        /// <returns>Returns the delegate that invokes a generated field setter for the field.</returns>
         public static Action<TSource, TValue> GenerateFieldSetterDelegate<TSource, TValue>(FieldInfo fieldInfo)
         {
             if (fieldInfo == null)
@@ -182,16 +193,38 @@ namespace Expanse.Utilities
 
         #region NON_GENERIC
 
-        // TODO:
-        // : Fix property setters on structs
-        // : Fix property getters on structs
-        // : Add support for statics
-        // : Add support for constructor infos
+        /// <summary>
+        /// Generates a delegate that constructs an instance of type tSource using the default constructor. Slower and less safe than generic overload.
+        /// </summary>
+        /// <param name="tSource">The type to generate the default constructor invoker from.</param>
+        /// <returns>Returns the delegate that invokes the default constructor for a given type.</returns>
+        public static Func<object> GenerateDefaultConstructorDelegate(Type tSource)
+        {
+            ConstructorInfo defaultConstructorInfo = tSource.GetConstructor(emptyTypeArray);
+
+            if (defaultConstructorInfo == null)
+                throw new InvalidTypeException("tSource must have a default constructor");
+
+            string dynamicMethodName = useMeaningfulNames ? tSource.FullName + ".ctor" : GENERATED_NAME;
+            DynamicMethod constructorMethod = new DynamicMethod(dynamicMethodName, tSource, emptyTypeArray, tSource);
+            ILGenerator gen = constructorMethod.GetILGenerator();
+
+            gen.Emit(OpCodes.Newobj, defaultConstructorInfo);
+            if (tSource.IsValueType)
+                gen.Emit(OpCodes.Box, tSource);
+            else if (tSource != typeof(object))
+                gen.Emit(OpCodes.Castclass, tSource);
+            gen.Emit(OpCodes.Ret);
+
+            return (Func<object>)constructorMethod.CreateDelegate(typeof(Func<object>));
+        }
 
         /// <summary>
         /// Creates a delegate that gets the value of a field. Slower and less safe than generic overload.
         /// Warning: Boxes/Unboxes value types
         /// </summary>
+        /// <param name="fieldInfo">Field info to generate getter delegate from.</param>
+        /// <returns>Returns the delegate that invokes a generated field getter for the field.</returns>
         public static Func<object, object> GenerateFieldGetterDelegate(FieldInfo fieldInfo)
         {
             if (fieldInfo == null)
@@ -212,12 +245,12 @@ namespace Expanse.Utilities
             gen.Emit(OpCodes.Ldarg_0);
             if (tSource.IsValueType)
                 gen.Emit(OpCodes.Unbox_Any, tSource);
-            else
+            else if (tSource != tObject)
                 gen.Emit(OpCodes.Castclass, tSource);
             gen.Emit(OpCodes.Ldfld, fieldInfo);
             if (tValue.IsValueType)
                 gen.Emit(OpCodes.Box, tValue);
-            else
+            else if (tValue != tObject)
                 gen.Emit(OpCodes.Castclass, tValue);
             gen.Emit(OpCodes.Ret);
 
@@ -225,9 +258,43 @@ namespace Expanse.Utilities
         }
 
         /// <summary>
+        /// Creates a delegate that gets the value of a static field. Slower and less safe than generic overload.
+        /// Warning: Boxes/Unboxes value types
+        /// </summary>
+        /// <param name="fieldInfo">Field info to generate getter delegate from.</param>
+        /// <returns>Returns the delegate that invokes a generated field getter for the field.</returns>
+        public static Func<object> GenerateStaticFieldGetterDelegate(FieldInfo fieldInfo)
+        {
+            if (fieldInfo == null)
+                throw new ArgumentNullException("field");
+
+            if (!fieldInfo.IsStatic)
+                throw new InvalidArgumentException("fieldInfo is not static use GenerateFieldGetterDelegate() instead");
+
+            Type tSource = fieldInfo.DeclaringType;
+            Type tValue = fieldInfo.FieldType;
+
+            Type tObject = typeof(object);
+            string dynamicMethodName = useMeaningfulNames ? fieldInfo.ReflectedType.FullName + ".get_" + fieldInfo.Name : GENERATED_NAME;
+            DynamicMethod getterMethod = new DynamicMethod(dynamicMethodName, tObject, emptyTypeArray, tSource);
+
+            ILGenerator gen = getterMethod.GetILGenerator();
+            gen.Emit(OpCodes.Ldsfld, fieldInfo);
+            if (tValue.IsValueType)
+                gen.Emit(OpCodes.Box, tValue);
+            else if (tValue != tObject)
+                gen.Emit(OpCodes.Castclass, tValue);
+            gen.Emit(OpCodes.Ret);
+
+            return (Func<object>)getterMethod.CreateDelegate(typeof(Func<object>));
+        }
+
+        /// <summary>
         /// Creates a delegate that sets the value of a field. Slower and less safe than generic overload.
         /// Warning: Unboxes value types
         /// </summary>
+        /// <param name="fieldInfo">Field info to generate setter delegate from.</param>
+        /// <returns>Returns the delegate that invokes a generated field setter for the field.</returns>
         public static Action<object, object> GenerateFieldSetterDelegate(FieldInfo fieldInfo)
         {
             if (fieldInfo == null)
@@ -249,12 +316,12 @@ namespace Expanse.Utilities
             gen.Emit(OpCodes.Ldarg_0);
             if (tSource.IsValueType)
                 gen.Emit(OpCodes.Unbox_Any, tSource);
-            else
+            else if (tSource != tObject)
                 gen.Emit(OpCodes.Castclass, tSource);
             gen.Emit(OpCodes.Ldarg_1);
             if (tValue.IsValueType)
                 gen.Emit(OpCodes.Unbox_Any, tValue);
-            else
+            else if (tValue != tObject)
                 gen.Emit(OpCodes.Castclass, tValue);
             gen.Emit(OpCodes.Stfld, fieldInfo);
             gen.Emit(OpCodes.Ret);
@@ -263,9 +330,45 @@ namespace Expanse.Utilities
         }
 
         /// <summary>
+        /// Creates a delegate that sets the value of a static field. Slower and less safe than generic overload.
+        /// Warning: Unboxes value types
+        /// </summary>
+        /// <param name="fieldInfo">Field info to generate setter delegate from.</param>
+        /// <returns>Returns the delegate that invokes a generated field setter for the field.</returns>
+        public static Action<object> GenerateStaticFieldSetterDelegate(FieldInfo fieldInfo)
+        {
+            if (fieldInfo == null)
+                throw new ArgumentNullException("field");
+
+            if (!fieldInfo.IsStatic)
+                throw new InvalidArgumentException("fieldInfo is not static use GenerateFieldSetterDelegate() instead");
+
+            Type tSource = fieldInfo.DeclaringType;
+            Type tValue = fieldInfo.FieldType;
+
+            Type tObject = typeof(object);
+            singleTypeArray[0] = tObject;
+            string dynamicMethodName = useMeaningfulNames ? fieldInfo.ReflectedType.FullName + ".set_" + fieldInfo.Name : GENERATED_NAME;
+            DynamicMethod setterMethod = new DynamicMethod(dynamicMethodName, null, singleTypeArray, tSource);
+
+            ILGenerator gen = setterMethod.GetILGenerator();
+            gen.Emit(OpCodes.Ldarg_0);
+            if (tValue.IsValueType)
+                gen.Emit(OpCodes.Unbox_Any, tValue);
+            else if (tValue != tObject)
+                gen.Emit(OpCodes.Castclass, tValue);
+            gen.Emit(OpCodes.Stsfld, fieldInfo);
+            gen.Emit(OpCodes.Ret);
+
+            return (Action<object>)setterMethod.CreateDelegate(typeof(Action<object>));
+        }
+
+        /// <summary>
         /// Creates a delegate that gets the value of a property. Slower and less safe than generic overload.
         /// Warning: Boxes/Unboxes value types
         /// </summary>
+        /// <param name="propertyInfo">Property info to generate getter delegate from.</param>
+        /// <returns>Returns the delegate that invokes a generated property getter for the property.</returns>
         public static Func<object, object> GeneratePropertyGetterDelegate(PropertyInfo propertyInfo)
         {
             if (propertyInfo == null)
@@ -291,7 +394,7 @@ namespace Expanse.Utilities
             gen.Emit(OpCodes.Ldarg_0);
             if (tSource.IsValueType)
                 gen.Emit(OpCodes.Unbox_Any, tSource);
-            else
+            else if (tSource != tObject)
                 gen.Emit(OpCodes.Castclass, tSource);
             if (getterMethodInfo.IsAbstract || getterMethodInfo.IsVirtual)
                 gen.Emit(OpCodes.Callvirt, getterMethodInfo);
@@ -299,7 +402,7 @@ namespace Expanse.Utilities
                 gen.Emit(OpCodes.Call, getterMethodInfo);
             if (tValue.IsValueType)
                 gen.Emit(OpCodes.Box, tValue);
-            else
+            else if (tValue != tObject)
                 gen.Emit(OpCodes.Castclass, tValue);
             gen.Emit(OpCodes.Ret);
 
@@ -307,9 +410,51 @@ namespace Expanse.Utilities
         }
 
         /// <summary>
+        /// Creates a delegate that gets the value of a static property. Slower and less safe than generic overload.
+        /// Warning: Boxes/Unboxes value types
+        /// </summary>
+        /// <param name="propertyInfo">Property info to generate getter delegate from.</param>
+        /// <returns>Returns the delegate that invokes a generated property getter for the property.</returns>
+        public static Func<object> GenerateStaticPropertyGetterDelegate(PropertyInfo propertyInfo)
+        {
+            if (propertyInfo == null)
+                throw new ArgumentNullException("propertyInfo");
+
+            if (!propertyInfo.CanRead)
+                throw new InvalidArgumentException("Cannot read from propertyInfo");
+
+            MethodInfo getterMethodInfo = propertyInfo.GetGetMethod(true);
+
+            if (!getterMethodInfo.IsStatic)
+                throw new InvalidArgumentException("propertyInfo is not static use GeneratePropertyGetterDelegate() instead");
+
+            Type tSource = propertyInfo.DeclaringType;
+            Type tValue = propertyInfo.PropertyType;
+
+            Type tObject = typeof(object);
+            string dynamicMethodName = useMeaningfulNames ? propertyInfo.ReflectedType.FullName + ".get_" + propertyInfo.Name : GENERATED_NAME;
+            DynamicMethod getterMethod = new DynamicMethod(dynamicMethodName, tObject, emptyTypeArray, tSource);
+
+            ILGenerator gen = getterMethod.GetILGenerator();
+            if (getterMethodInfo.IsAbstract || getterMethodInfo.IsVirtual)
+                gen.Emit(OpCodes.Callvirt, getterMethodInfo);
+            else
+                gen.Emit(OpCodes.Call, getterMethodInfo);
+            if (tValue.IsValueType)
+                gen.Emit(OpCodes.Box, tValue);
+            else if (tValue != tObject)
+                gen.Emit(OpCodes.Castclass, tValue);
+            gen.Emit(OpCodes.Ret);
+
+            return (Func<object>)getterMethod.CreateDelegate(typeof(Func<object>));
+        }
+
+        /// <summary>
         /// Creates a delegate that sets the value of a property. Slower and less safe than generic overload.
         /// Warning: Unboxes value types
         /// </summary>
+        /// <param name="propertyInfo">Property info to generate setter delegate from.</param>
+        /// <returns>Returns the delegate that invokes a generated property setter for the property.</returns>
         public static Action<object, object> GeneratePropertySetterDelegate(PropertyInfo propertyInfo)
         {
             if (propertyInfo == null)
@@ -336,12 +481,12 @@ namespace Expanse.Utilities
             gen.Emit(OpCodes.Ldarg_0);
             if (tSource.IsValueType)
                 gen.Emit(OpCodes.Unbox_Any, tSource);
-            else
+            else if (tSource != tObject)
                 gen.Emit(OpCodes.Castclass, tSource);
             gen.Emit(OpCodes.Ldarg_1);
             if (tValue.IsValueType)
                 gen.Emit(OpCodes.Unbox_Any, tValue);
-            else
+            else if (tValue != tObject)
                 gen.Emit(OpCodes.Castclass, tValue);
             if (setterMethodInfo.IsAbstract || setterMethodInfo.IsVirtual)
                 gen.Emit(OpCodes.Callvirt, setterMethodInfo);
@@ -350,6 +495,48 @@ namespace Expanse.Utilities
             gen.Emit(OpCodes.Ret);
 
             return (Action<object, object>)setterMethod.CreateDelegate(typeof(Action<object, object>));
+        }
+
+        /// <summary>
+        /// Creates a delegate that sets the value of a static property. Slower and less safe than generic overload.
+        /// Warning: Unboxes value types
+        /// </summary>
+        /// <param name="propertyInfo">Property info to generate setter delegate from.</param>
+        /// <returns>Returns the delegate that invokes a generated property setter for the property.</returns>
+        public static Action<object> GenerateStaticPropertySetterDelegate(PropertyInfo propertyInfo)
+        {
+            if (propertyInfo == null)
+                throw new ArgumentNullException("propertyInfo");
+
+            if (!propertyInfo.CanWrite)
+                throw new InvalidArgumentException("Cannot write to propertyInfo");
+
+            MethodInfo setterMethodInfo = propertyInfo.GetSetMethod(true);
+
+            if (!setterMethodInfo.IsStatic)
+                throw new InvalidArgumentException("fieldInfo is not static use GenerateFieldPropertyDelegate() instead");
+
+            Type tSource = propertyInfo.DeclaringType;
+            Type tValue = propertyInfo.PropertyType;
+
+            Type tObject = typeof(object);
+            singleTypeArray[0] = tObject;
+            string dynamicMethodName = useMeaningfulNames ? propertyInfo.ReflectedType.FullName + ".set_" + propertyInfo.Name : GENERATED_NAME;
+            DynamicMethod setterMethod = new DynamicMethod(dynamicMethodName, null, singleTypeArray, tSource);
+
+            ILGenerator gen = setterMethod.GetILGenerator();
+            gen.Emit(OpCodes.Ldarg_0);
+            if (tSource.IsValueType)
+                gen.Emit(OpCodes.Unbox_Any, tSource);
+            else if (tSource != tObject)
+                gen.Emit(OpCodes.Castclass, tSource);
+            if (setterMethodInfo.IsAbstract || setterMethodInfo.IsVirtual)
+                gen.Emit(OpCodes.Callvirt, setterMethodInfo);
+            else
+                gen.Emit(OpCodes.Call, setterMethodInfo);
+            gen.Emit(OpCodes.Ret);
+
+            return (Action<object>)setterMethod.CreateDelegate(typeof(Action<object>));
         }
 
         #endregion

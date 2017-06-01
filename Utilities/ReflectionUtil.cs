@@ -13,6 +13,7 @@ namespace Expanse.Utilities
         /// </summary>
         /// <typeparam name="TDelegate">Type of the delegate.</typeparam>
         /// <param name="methodInfo">Method info to create the delegate from.</param>
+        /// <returns>Returns the delegate that invokes the method.</returns>
         public static TDelegate CreateMethodInvokerDelegate<TDelegate>(MethodInfo methodInfo) where TDelegate : class
         {
             Type tDelegate = typeof(TDelegate);
@@ -28,6 +29,7 @@ namespace Expanse.Utilities
         /// </summary>
         /// <typeparam name="TValue">Property type of the property info.</typeparam>
         /// <param name="propertyInfo">Property info to create the delegate from.</param>
+        /// <returns>Returns the delegate that invokes the property getter.</returns>
         public static Func<TValue> CreateStaticPropertyGetterDelegate<TValue>(PropertyInfo propertyInfo)
         {
             if (propertyInfo == null)
@@ -53,6 +55,7 @@ namespace Expanse.Utilities
         /// <typeparam name="TSource">Declaring type that the property belongs to.</typeparam>
         /// <typeparam name="TValue">Property type of the property info.</typeparam>
         /// <param name="propertyInfo">Property info to create the delegate from.</param>
+        /// <returns>Returns the delegate that invokes the property getter.</returns>
         public static Func<TSource, TValue> CreatePropertyGetterDelegate<TSource, TValue>(PropertyInfo propertyInfo)
         {
             if (propertyInfo == null)
@@ -80,6 +83,7 @@ namespace Expanse.Utilities
         /// </summary>
         /// <typeparam name="TValue">Property type of the property info.</typeparam>
         /// <param name="propertyInfo">Property info to create the delegate from.</param>
+        /// <returns>Returns the delegate that invokes the property setter.</returns>
         public static Action<TValue> CreateStaticPropertySetterDelegate<TValue>(PropertyInfo propertyInfo)
         {
             if (propertyInfo == null)
@@ -105,6 +109,7 @@ namespace Expanse.Utilities
         /// <typeparam name="TSource">Declaring type that the property belongs to.</typeparam>
         /// <typeparam name="TValue">Property type of the property info.</typeparam>
         /// <param name="propertyInfo">Property info to create the delegate from.</param>
+        /// <returns>Returns the delegate that invokes the property setter.</returns>
         public static Action<TSource, TValue> CreatePropertySetterDelegate<TSource, TValue>(PropertyInfo propertyInfo)
         {
             if (propertyInfo == null)
