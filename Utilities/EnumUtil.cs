@@ -9,9 +9,7 @@ namespace Expanse.Utilities
     /// </summary>
     public static class EnumUtil
     {
-        /// <summary>
-        /// Throws an argument exception if passed type is not an enum.
-        /// </summary>
+        // Throws an argument exception if passed type is not an enum.
         private static void ThrowIfNotEnum(Type type)
         {
             if (!type.IsEnum)
@@ -21,6 +19,8 @@ namespace Expanse.Utilities
         /// <summary>
         /// Returns all defined enum values of an enum type.
         /// </summary>
+        /// <typeparam name="T">Type of the Enum.</typeparam>
+        /// <returns>Returns an IEnumerable of all defined values in the enum type.</returns>
         public static IEnumerable<T> GetValues<T>() where T : struct, IFormattable, IConvertible, IComparable
         {
             ThrowIfNotEnum(typeof(T));
@@ -31,6 +31,8 @@ namespace Expanse.Utilities
         /// <summary>
         /// Returns all defined enum values from an enum type.
         /// </summary>
+        /// <param name="enumType">Type of the Enum.</param>
+        /// <returns>Returns an IEnumerable of all defined values in the enum type.</returns>
         public static IEnumerable<object> GetValues(Type enumType)
         {
             ThrowIfNotEnum(enumType);
@@ -41,6 +43,10 @@ namespace Expanse.Utilities
         /// <summary>
         /// Attempts to parse a string into an enum type object.
         /// </summary>
+        /// <typeparam name="T">Type of the enum to parse to.</typeparam>
+        /// <param name="value">Name of the defined enum value.</param>
+        /// <param name="enumObj">Enum value that was parsed from the string value.</param>
+        /// <returns>Returns true if the string value was able to be parsed.</returns>
         public static bool TryParse<T>(string value, out T enumObj) where T : struct, IFormattable, IConvertible, IComparable
         {
             ThrowIfNotEnum(typeof(T));
@@ -61,6 +67,10 @@ namespace Expanse.Utilities
         /// <summary>
         /// Attempts to parse a string into an enum type object.
         /// </summary>
+        /// <param name="value">Name of the defined enum value.</param>
+        /// <param name="enumType">Type of the enum to parse to.</param>
+        /// <param name="enumObj">Enum value that was parsed from the string value.</param>
+        /// <returns>Returns true if the string value was able to be parsed.</returns>
         public static bool TryParse(string value, Type enumType, out object enumObj)
         {
             ThrowIfNotEnum(enumType);
