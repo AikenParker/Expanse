@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Reflection;
 
 namespace Expanse.Utilities
@@ -8,128 +9,93 @@ namespace Expanse.Utilities
     /// </summary>
     public static class ReflectionUtil
     {
+        private static Assembly[] assemblies;
+        private static Type[] types;
+
         /// <summary>
-        /// Creates a delegate that invokes a method.
+        /// Array containing all Assemblies on the CurrentDomain.
         /// </summary>
-        /// <typeparam name="TDelegate">Type of the delegate.</typeparam>
-        /// <param name="methodInfo">Method info to create the delegate from.</param>
-        /// <returns>Returns the delegate that invokes the method.</returns>
-        public static TDelegate CreateMethodInvokerDelegate<TDelegate>(MethodInfo methodInfo) where TDelegate : class
+        public static Assembly[] Assemblies
         {
-            Type tDelegate = typeof(TDelegate);
+            get
+            {
+                if (assemblies == null)
+                {
+                    assemblies = AppDomain.CurrentDomain.GetAssemblies();
+                }
 
-            if (!tDelegate.IsSubclassOf(typeof(Delegate)))
-                throw new InvalidTypeException("Type TDelegate must be a subclass of Delegate");
-
-            return Delegate.CreateDelegate(tDelegate, methodInfo, true) as TDelegate;
+                return assemblies;
+            }
         }
 
         /// <summary>
-        /// Creates a delegate that gets the value of a static property.
+        /// Array containing all Types on the CurrentDomain.
         /// </summary>
-        /// <typeparam name="TValue">Property type of the property info.</typeparam>
-        /// <param name="propertyInfo">Property info to create the delegate from.</param>
-        /// <returns>Returns the delegate that invokes the property getter.</returns>
-        public static Func<TValue> CreateStaticPropertyGetterDelegate<TValue>(PropertyInfo propertyInfo)
+        public static Type[] Types
+        {
+            get
+            {
+                if (types == null)
+                {
+                    List<Type> typeList = new List<Type>();
+                    int length = 0;
+                    int capacity = typeList.Capacity;
+
+                    Assembly[] assemblies = ReflectionUtil.Assemblies;
+
+                    for (int i = 0; i < assemblies.Length; i++)
+                    {
+                        Assembly assembly = assemblies[i];
+
+                        Type[] assemblyTypes = assembly.GetTypes();
+                        length += assemblyTypes.Length;
+
+                        if (capacity < length)
+                        {
+                            typeList.Capacity = capacity = length;
+                        }
+
+                        for (int j = 0; j < assemblyTypes.Length; j++)
+                        {
+                            Type assemblyType = assemblyTypes[j];
+                            typeList.Add(assemblyType);
+                        }
+                    }
+
+                    types = new Type[length];
+
+                    for (int i = 0; i < length; i++)
+                    {
+                        types[i] = typeList[i];
+                    }
+                }
+
+                return types;
+            }
+        }
+
+        /// <summary>
+        /// Gets the backing field info of an auto-property.
+        /// </summary>
+        /// <param name="propertyInfo">Auto property info with a backing field.</param>
+        /// <returns>Returns the backing field info for the auto property.</returns>
+        public static FieldInfo GetAutoPropertyBackingField(PropertyInfo propertyInfo)
         {
             if (propertyInfo == null)
                 throw new ArgumentNullException("propertyInfo");
 
             if (!propertyInfo.CanRead)
-                throw new InvalidArgumentException("Cannot read from propertyInfo");
+                throw new InvalidArgumentException("proeprty must be readable to have a backing field");
 
-            if (typeof(TValue) != propertyInfo.PropertyType)
-                throw new InvalidArgumentException("Type TValue must equal the propertyInfo property type");
+            Type declaringType = propertyInfo.DeclaringType;
+            string backingFieldName = string.Format("<{0}>k__BackingField", propertyInfo.Name);
 
-            MethodInfo getterMethod = propertyInfo.GetGetMethod(true);
+            FieldInfo backingFieldInfo = declaringType.GetField(backingFieldName, BindingFlags.Instance | BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.NonPublic);
 
-            if (!getterMethod.IsStatic)
-                throw new InvalidArgumentException("propertyInfo is not static use CreatePropertyGetterDelegate() instead");
+            if (backingFieldInfo == null)
+                throw new InvalidArgumentException("propertyInfo does not have a backing field");
 
-            return CreateMethodInvokerDelegate<Func<TValue>>(getterMethod);
-        }
-
-        /// <summary>
-        /// Creates a delegate that gets the value of a property.
-        /// </summary>
-        /// <typeparam name="TSource">Declaring type that the property belongs to.</typeparam>
-        /// <typeparam name="TValue">Property type of the property info.</typeparam>
-        /// <param name="propertyInfo">Property info to create the delegate from.</param>
-        /// <returns>Returns the delegate that invokes the property getter.</returns>
-        public static Func<TSource, TValue> CreatePropertyGetterDelegate<TSource, TValue>(PropertyInfo propertyInfo)
-        {
-            if (propertyInfo == null)
-                throw new ArgumentNullException("propertyInfo");
-
-            if (!propertyInfo.CanRead)
-                throw new InvalidArgumentException("Cannot read from propertyInfo");
-
-            if (typeof(TSource) != propertyInfo.DeclaringType)
-                throw new InvalidArgumentException("Type TSource must equal the propertyInfo declaring type");
-
-            if (typeof(TValue) != propertyInfo.PropertyType)
-                throw new InvalidArgumentException("Type TValue must equal the propertyInfo property type");
-
-            MethodInfo getterMethod = propertyInfo.GetGetMethod(true);
-
-            if (getterMethod.IsStatic)
-                throw new InvalidArgumentException("propertyInfo is static use CreateStaticPropertyGetterDelegate() instead");
-
-            return CreateMethodInvokerDelegate<Func<TSource, TValue>>(getterMethod);
-        }
-
-        /// <summary>
-        /// Creates a delegate that sets the value of a static property.
-        /// </summary>
-        /// <typeparam name="TValue">Property type of the property info.</typeparam>
-        /// <param name="propertyInfo">Property info to create the delegate from.</param>
-        /// <returns>Returns the delegate that invokes the property setter.</returns>
-        public static Action<TValue> CreateStaticPropertySetterDelegate<TValue>(PropertyInfo propertyInfo)
-        {
-            if (propertyInfo == null)
-                throw new ArgumentNullException("propertyInfo");
-
-            if (!propertyInfo.CanWrite)
-                throw new InvalidArgumentException("Cannot write to propertyInfo");
-
-            if (typeof(TValue) != propertyInfo.PropertyType)
-                throw new InvalidArgumentException("Type TValue must equal the propertyInfo property type");
-
-            MethodInfo setterMethod = propertyInfo.GetSetMethod(true);
-
-            if (!setterMethod.IsStatic)
-                throw new InvalidArgumentException("propertyInfo is not static use CreatePropertySetterDelegate() instead");
-
-            return CreateMethodInvokerDelegate<Action<TValue>>(setterMethod);
-        }
-
-        /// <summary>
-        /// Creates a delegate that sets the value of a property.
-        /// </summary>
-        /// <typeparam name="TSource">Declaring type that the property belongs to.</typeparam>
-        /// <typeparam name="TValue">Property type of the property info.</typeparam>
-        /// <param name="propertyInfo">Property info to create the delegate from.</param>
-        /// <returns>Returns the delegate that invokes the property setter.</returns>
-        public static Action<TSource, TValue> CreatePropertySetterDelegate<TSource, TValue>(PropertyInfo propertyInfo)
-        {
-            if (propertyInfo == null)
-                throw new ArgumentNullException("propertyInfo");
-
-            if (!propertyInfo.CanWrite)
-                throw new InvalidArgumentException("Cannot write to propertyInfo");
-
-            if (typeof(TSource) != propertyInfo.DeclaringType)
-                throw new InvalidArgumentException("Type TSource must equal the propertyInfo declaring type");
-
-            if (typeof(TValue) != propertyInfo.PropertyType)
-                throw new InvalidArgumentException("Type TValue must equal the propertyInfo property type");
-
-            MethodInfo setterMethod = propertyInfo.GetSetMethod(true);
-
-            if (setterMethod.IsStatic)
-                throw new InvalidArgumentException("propertyInfo is static use CreateStaticPropertySetterDelegate() instead");
-
-            return CreateMethodInvokerDelegate<Action<TSource, TValue>>(setterMethod);
+            return backingFieldInfo;
         }
     }
 }

@@ -36,10 +36,10 @@ namespace Expanse.Utilities
             public FieldInfo[] fieldMembers;
             public PropertyInfo[] propertyMembers;
 #else
-            public Func<object, object>[] fieldGetters;
-            public Action<object, object>[] fieldSetters;
-            public Func<object, object>[] propertyGetters;
-            public Action<object, object>[] propertySetters;
+            public EmitUtil.FieldGetterDelegate<object, object>[] fieldGetters;
+            public EmitUtil.FieldSetterDelegate<object, object>[] fieldSetters;
+            public EmitUtil.PropertyGetterDelegate<object, object>[] propertyGetters;
+            public EmitUtil.PropertySetterDelegate<object, object>[] propertySetters;
 #endif
         }
 
@@ -126,10 +126,10 @@ namespace Expanse.Utilities
 #else
             if (useCache)
             {
-                Func<object, object>[] fieldGetters;
-                Action<object, object>[] fieldSetters;
-                Func<object, object>[] propertyGetters;
-                Action<object, object>[] propertySetters;
+                EmitUtil.FieldGetterDelegate<object, object>[] fieldGetters;
+                EmitUtil.FieldSetterDelegate<object, object>[] fieldSetters;
+                EmitUtil.PropertyGetterDelegate<object, object>[] propertyGetters;
+                EmitUtil.PropertySetterDelegate<object, object>[] propertySetters;
 
                 int fieldCount;
                 int propertyCount;
@@ -156,10 +156,10 @@ namespace Expanse.Utilities
                     fieldCount = fieldMembers.Length;
                     propertyCount = propertyMembers.Length;
 
-                    cacheInfo.fieldGetters = fieldGetters = new Func<object, object>[fieldCount];
-                    cacheInfo.fieldSetters = fieldSetters = new Action<object, object>[fieldCount];
-                    cacheInfo.propertyGetters = propertyGetters = new Func<object, object>[propertyCount];
-                    cacheInfo.propertySetters = propertySetters = new Action<object, object>[propertyCount];
+                    cacheInfo.fieldGetters = fieldGetters = new EmitUtil.FieldGetterDelegate<object, object>[fieldCount];
+                    cacheInfo.fieldSetters = fieldSetters = new EmitUtil.FieldSetterDelegate<object, object>[fieldCount];
+                    cacheInfo.propertyGetters = propertyGetters = new EmitUtil.PropertyGetterDelegate<object, object>[propertyCount];
+                    cacheInfo.propertySetters = propertySetters = new EmitUtil.PropertySetterDelegate<object, object>[propertyCount];
 
                     for (int i = 0; i < fieldCount; i++)
                     {
@@ -181,8 +181,8 @@ namespace Expanse.Utilities
                 // Set the field values
                 for (int i = 0; i < fieldCount; i++)
                 {
-                    Func<object, object> fieldGetter = fieldGetters[i];
-                    Action<object, object> fieldSetter = fieldSetters[i];
+                    EmitUtil.FieldGetterDelegate<object, object> fieldGetter = fieldGetters[i];
+                    EmitUtil.FieldSetterDelegate<object, object> fieldSetter = fieldSetters[i];
 
                     fieldSetter.Invoke(copyTo, fieldGetter.Invoke(copyFrom));
                 }
@@ -190,8 +190,8 @@ namespace Expanse.Utilities
                 // Set the property values
                 for (int i = 0; i < propertyCount; i++)
                 {
-                    Func<object, object> propertyGetter = propertyGetters[i];
-                    Action<object, object> propertySetter = propertySetters[i];
+                    EmitUtil.PropertyGetterDelegate<object, object> propertyGetter = propertyGetters[i];
+                    EmitUtil.PropertySetterDelegate<object, object> propertySetter = propertySetters[i];
 
                     propertySetter.Invoke(copyTo, propertyGetter.Invoke(copyFrom));
                 }

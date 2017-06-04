@@ -18,7 +18,7 @@ namespace Expanse.Utilities
         {
             AssemblySorter assemblySorter = new AssemblySorter();
 
-            Type[] types = AppDomain.CurrentDomain.GetAssemblies()
+            Type[] types = ReflectionUtil.Assemblies
                 .OrderBy(x => x, assemblySorter)
                 .SelectMany(x => x.GetTypes())
                 .Distinct().ToArray();

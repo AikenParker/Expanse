@@ -84,8 +84,7 @@ namespace Expanse.Utilities
         {
             if (!useCache || !interfaceTypeCache.ContainsKey(interfaceType))
             {
-                List<Type> interfaceTypes = AppDomain.CurrentDomain.GetAssemblies().SelectMany(x => x.GetTypes())
-                    .Where(x => x.IsClass && x.IsAssignableTo(typeof(UnityEngine.Object)) && x.GetInterfaces().Contains(interfaceType)).ToList();
+                List<Type> interfaceTypes = ReflectionUtil.Types.Where(x => x.IsClass && x.IsAssignableTo(typeof(UnityEngine.Object)) && x.GetInterfaces().Contains(interfaceType)).ToList();
 
                 if (!useCache)
                     return interfaceTypes;
