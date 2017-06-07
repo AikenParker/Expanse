@@ -97,5 +97,27 @@ namespace Expanse.Utilities
 
             return backingFieldInfo;
         }
+
+        /// <summary>
+        /// Trys to get the backing field info of an auto-property.
+        /// </summary>
+        /// <param name="propertyInfo">Auto property info with a backing field.</param>
+        /// <param name="backingFieldInfo">The backing field for the auto property.</param>
+        /// <returns>Returns true if backing field info is assigned.</returns>
+        public static bool TryGetAutoPropertyBackingField(PropertyInfo propertyInfo, out FieldInfo backingFieldInfo)
+        {
+            if (propertyInfo == null)
+                throw new ArgumentNullException("propertyInfo");
+
+            if (!propertyInfo.CanRead)
+                throw new InvalidArgumentException("proeprty must be readable to have a backing field");
+
+            Type declaringType = propertyInfo.DeclaringType;
+            string backingFieldName = string.Format("<{0}>k__BackingField", propertyInfo.Name);
+
+            backingFieldInfo = declaringType.GetField(backingFieldName, BindingFlags.Instance | BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.NonPublic);
+
+            return backingFieldInfo != null;
+        }
     }
 }

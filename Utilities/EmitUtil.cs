@@ -43,6 +43,13 @@ namespace Expanse.Utilities
         /// <returns>Returns a new instance of a newly constructed type.</returns>
         public delegate TSource DefaultConstructorDelegate<TSource>() where TSource : new();
         /// <summary>
+        /// Delegate used to create new objects using any constructor.
+        /// </summary>
+        /// <typeparam name="TSource">Type of the object being constructed.</typeparam>
+        /// <param name="params">Ordered type parameters of the constructor.</param>
+        /// <returns>Returns a new instance of a newly constructed type.</returns>
+        public delegate TSource ConstructorDelegate<TSource>(params object[] @params) where TSource : new();
+        /// <summary>
         /// Delegate used to get the value of a static field.
         /// </summary>
         /// <typeparam name="TValue">Type of the value to get.</typeparam>
@@ -139,6 +146,38 @@ namespace Expanse.Utilities
             gen.Emit(OpCodes.Ret);
 
             return (DefaultConstructorDelegate<TSource>)constructorMethod.CreateDelegate(typeof(DefaultConstructorDelegate<TSource>));
+        }
+
+        /// <summary>
+        /// Generates a delegate that constructs an instance of type TSource using a constructor.
+        /// </summary>
+        /// <typeparam name="TSource">Declaring type that the constructor belongs to.</typeparam>
+        /// <param name="paramTypes">Ordered parameters of the chosen constructor.</param>
+        /// <returns>Returns the delegate that invokes the constructor of a type.</returns>
+        public static ConstructorDelegate<TSource> GenerateConstructorDelegate<TSource>(params Type[] paramTypes)
+            where TSource : new()
+        {
+            Type tSource = typeof(TSource);
+            ConstructorInfo constructorInfo = tSource.GetConstructor(paramTypes);
+
+            if (constructorInfo == null)
+                throw new InvalidTypeException("TSource must have a constructor with matching parameter types");
+
+            string dynamicMethodName = useMeaningfulNames ? tSource.FullName + ".ctor" : GENERATED_NAME;
+            DynamicMethod constructorMethod = new DynamicMethod(dynamicMethodName, tSource, paramTypes, tSource);
+            ILGenerator gen = constructorMethod.GetILGenerator();
+            if (paramTypes.Length > 0)
+            {
+                for (byte i = 0; i < paramTypes.Length; i++)
+                {
+                    gen.Emit(OpCodes.Ldarg_0);
+                    gen.Emit(OpCodes.Ldelem, i);
+                }
+            }
+            gen.Emit(OpCodes.Newobj, constructorInfo);
+            gen.Emit(OpCodes.Ret);
+
+            return (ConstructorDelegate<TSource>)constructorMethod.CreateDelegate(typeof(ConstructorDelegate<TSource>));
         }
 
         /// <summary>

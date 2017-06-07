@@ -7,10 +7,6 @@ using UnityEngine;
 
 namespace Expanse.Utilities
 {
-    /* TODO
-    * Place in DLL or use DebuggerHiddenAttribute
-    */
-
     /// <summary>
     /// Collection of Debug.Log related utility functionality.
     /// </summary>
@@ -164,7 +160,7 @@ namespace Expanse.Utilities
         /// <summary>
         /// Logs a collection of objects.
         /// </summary>
-        [Conditional(CONDITIONAL)]
+        [Conditional(CONDITIONAL), DebuggerHidden]
         public static void LogIterator<Input, Output>(IEnumerable<Input> source, string logFormat = null, LogType logType = LogType.Log, Func<Input, Output> selector = null)
         {
             if (source == null)
@@ -263,7 +259,7 @@ namespace Expanse.Utilities
         /// <summary>
         /// Logs an object.
         /// </summary>
-        [Conditional(CONDITIONAL)]
+        [Conditional(CONDITIONAL), DebuggerHidden]
         public static void Log<Input, Output>(Input source, string logFormat = null, LogType logType = LogType.Log, Func<Input, Output> selector = null)
         {
             logFormat = logFormat ?? DefaultLogFormat;
@@ -296,7 +292,7 @@ namespace Expanse.Utilities
         /// <summary>
         /// Logs a serialization of a collection object. (Unity Json serializer is default)
         /// </summary>
-        [Conditional(CONDITIONAL)]
+        [Conditional(CONDITIONAL), DebuggerHidden]
         public static void LogSerializationIterator<Input>(IEnumerable<Input> source, IStringSerializer serializer = null, LogType logType = LogType.Log)
         {
             serializer = serializer ?? new UnityJsonUtilitySerializer(true);
@@ -328,7 +324,7 @@ namespace Expanse.Utilities
         /// <summary>
         /// Logs a serialization of an object. (Unity Json serializer is default)
         /// </summary>
-        [Conditional(CONDITIONAL)]
+        [Conditional(CONDITIONAL), DebuggerHidden]
         public static void LogSerialization<Input>(Input source, IStringSerializer serializer = null, LogType logType = LogType.Log)
         {
             serializer = serializer ?? new UnityJsonUtilitySerializer(true);
@@ -338,7 +334,8 @@ namespace Expanse.Utilities
             LogImpl(message, source as UnityEngine.Object, logType);
         }
 
-        [Conditional(CONDITIONAL)]
+        // Internal logging implementation
+        [Conditional(CONDITIONAL), DebuggerHidden]
         private static void LogImpl(string message, UnityEngine.Object context, LogType logType)
         {
             StackTraceLogType previousStackTraceLogType = Application.GetStackTraceLogType(logType);

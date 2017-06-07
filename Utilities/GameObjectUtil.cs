@@ -23,6 +23,9 @@ namespace Expanse.Utilities
         /// <summary>
         /// Returns the first active loaded interface of Type T.
         /// </summary>
+        /// <typeparam name="T">Type of interface to find.</typeparam>
+        /// <param name="useCache">If true the interface types cache is used. Recommended if calling multiple times with the same type.</param>
+        /// <returns>Returns the first instance of the interface found.</returns>
         public static T FindInterfaceOfType<T>(bool useCache = false) where T : class
         {
             return FindInterfaceOfType(typeof(T), useCache) as T;
@@ -31,6 +34,9 @@ namespace Expanse.Utilities
         /// <summary>
         /// Returns the first active loaded interface of Type interfaceType.
         /// </summary>
+        /// <param name="interfaceType">Type of interface to find.</param>
+        /// <param name="useCache">If true the interface types cache is used. Recommended if calling multiple times with the same type.</param>
+        /// <returns>Returns the first instance of the interface found.</returns>
         public static UnityEngine.Object FindInterfaceOfType(Type interfaceType, bool useCache = false)
         {
             if (!interfaceType.IsInterface)
@@ -52,6 +58,9 @@ namespace Expanse.Utilities
         /// <summary>
         /// Returns all active loaded interfaces of Type T.
         /// </summary>
+        /// <typeparam name="T">Type of interface to find.</typeparam>
+        /// <param name="useCache">If true the interface types cache is used. Recommended if calling multiple times with the same type.</param>
+        /// <returns>Returns all instances of the interface found.</returns>
         public static List<T> FindInterfacesOfType<T>(bool useCache = false) where T : class
         {
             return FindInterfacesOfType(typeof(T), useCache).CastToList<UnityEngine.Object, T>();
@@ -60,6 +69,9 @@ namespace Expanse.Utilities
         /// <summary>
         /// Returns all active loaded interfaces of Type interfaceType.
         /// </summary>
+        /// <param name="interfaceType">Type of interface to find.</param>
+        /// <param name="useCache">If true the interface types cache is used. Recommended if calling multiple times with the same type.</param>
+        /// <returns>Returns all instances of the interface found.</returns>
         public static List<UnityEngine.Object> FindInterfacesOfType(Type interfaceType, bool useCache = false)
         {
             if (!interfaceType.IsInterface)
@@ -77,14 +89,12 @@ namespace Expanse.Utilities
             return interfaceObjectList;
         }
 
-        /// <summary>
-        /// Returns all class types in domain that implement an interface type and inherit from UnityEngine.Object.
-        /// </summary>
+        // Returns all class types in domain that implement an interface type and inherit from UnityEngine.Object.
         private static List<Type> GetInterfaceTypes(Type interfaceType, bool useCache)
         {
             if (!useCache || !interfaceTypeCache.ContainsKey(interfaceType))
             {
-                List<Type> interfaceTypes = ReflectionUtil.Types.Where(x => x.IsClass && x.IsAssignableTo(typeof(UnityEngine.Object)) && x.GetInterfaces().Contains(interfaceType)).ToList();
+                List<Type> interfaceTypes = ReflectionUtil.Types.WhereToList(x => x.IsClass && x.IsAssignableTo(typeof(UnityEngine.Object)) && x.GetInterfaces().Contains(interfaceType));
 
                 if (!useCache)
                     return interfaceTypes;
