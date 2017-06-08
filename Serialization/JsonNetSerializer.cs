@@ -2,7 +2,7 @@
 using System;
 using Newtonsoft.Json;
 
-namespace Expanse
+namespace Expanse.Serialization
 {
     // <summary>
     /// Uses Newtonsoft.Json.NET to serialize data.

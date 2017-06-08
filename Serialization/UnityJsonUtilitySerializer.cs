@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace Expanse
+namespace Expanse.Serialization
 {
     /// <summary>
     /// In-built Json serializer from UnityEngine.JsonUtility.

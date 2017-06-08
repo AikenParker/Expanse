@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.IO;
+using Expanse.Serialization;
 using Expanse.Utilities;
 using UnityEngine;
 

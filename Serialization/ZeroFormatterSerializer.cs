@@ -1,7 +1,7 @@
 ﻿#if ZERO_FORMATTER
 using System.Text;
 
-namespace Expanse
+namespace Expanse.Serialization
 {
     /// <summary>
     /// Uses ZeroFormatter to serialize data.

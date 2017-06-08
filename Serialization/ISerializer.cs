@@ -1,4 +1,4 @@
-﻿namespace Expanse
+﻿namespace Expanse.Serialization
 {
     /// <summary>
     /// Interface capable of serializing and deserializing objects.
