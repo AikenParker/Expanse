@@ -66,6 +66,9 @@ namespace Expanse.Utilities
         /// <summary>
         /// Copies over field and property values from one component to another.
         /// </summary>
+        /// <param name="copyTo">Copied values are applied to this component.</param>
+        /// <param name="copyFrom">Values are copied from this component.</param>
+        /// <param name="useCache">If true the data required to copy the values are cached.</param>
         /// <returns>The source object with newly changed properties and fields.</returns>
         public static void CopyComponent<T>(T copyTo, T copyFrom, bool useCache = true) where T : Component
         {

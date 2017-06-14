@@ -23,6 +23,18 @@ namespace Expanse.Utilities
         }
 
         /// <summary>
+        /// Performs a modulo operation on a int.
+        /// Note: '%' is a remainder operator and NOT a modulo operator.
+        /// </summary>
+        /// <param name="value">Int value to perform a modulo operation on.</param>
+        /// <param name="mod">Modulo value.</param>
+        /// <returns>Returns the modulo result from the operation.</returns>
+        public static float Modulo(int value, int mod)
+        {
+            return (value % mod + mod) % mod;
+        }
+
+        /// <summary>
         /// Determines if 2 angles are equal to eachother within a value of tolerance.
         /// </summary>
         /// <param name="angleA">First angle to compare.</param>

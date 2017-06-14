@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using Expanse.Utilities;
+using UnityEngine;
 
 namespace Expanse.Extensions
 {
@@ -10,6 +11,10 @@ namespace Expanse.Extensions
         /// <summary>
         /// Determines if two ints are equal within a tolerance.
         /// </summary>
+        /// <param name="source">Source number to compare.</param>
+        /// <param name="other">Number to compare source against.</param>
+        /// <param name="tolerance">Equality tolerance range.</param>
+        /// <returns>Returns true if the two numbers are equal given a tolerance.</returns>
         public static bool Equals(this int source, int other, int tolerance)
         {
             return Mathf.Abs(source - other) <= tolerance;
@@ -18,6 +23,11 @@ namespace Expanse.Extensions
         /// <summary>
         /// Determines if an int is between any two int values.
         /// </summary>
+        /// <param name="source">Source number to compare.</param>
+        /// <param name="a">First number to compare source against. Can be min or max.</param>
+        /// <param name="b">Second number to compare source against. Can be min or max.</param>
+        /// <param name="inclusive">If true the min and max numbers are included in the between range.</param>
+        /// <returns>Returns true if a number is between two other numbers.</returns>
         public static bool IsBetween(this int source, int a, int b, bool inclusive = true)
         {
             if (inclusive)
@@ -27,16 +37,22 @@ namespace Expanse.Extensions
         }
 
         /// <summary>
-        /// Applies a negative modulus operation to a float.
+        /// Performs a modulo operation on a int.
+        /// Note: '%' is a remainder operator and NOT a modulo operator.
         /// </summary>
-        public static float PositiveMod(this int value, int mod)
+        /// <param name="value">Int value to perform a modulo operation on.</param>
+        /// <param name="mod">Modulo value.</param>
+        /// <returns>Returns the modulo result from the operation.</returns>
+        public static float Modulo(this int value, int mod)
         {
-            return (value % mod + mod) % mod;
+            return MathUtil.Modulo(value, mod);
         }
 
         /// <summary>
         /// Reverses the digit order of an integer.
         /// </summary>
+        /// <param name="num">Source number to reverse.</param>
+        /// <returns>Returns a new int with the digits in reverse order to num.</returns>
         public static int Reverse(this int num)
         {
             int result = 0;

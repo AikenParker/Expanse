@@ -10,9 +10,7 @@ namespace Expanse.Extensions
     /// </summary>
     public static class EnumExt
     {
-        /// <summary>
-        /// Throws an ArgumentException if supplied type is not an Enum.
-        /// </summary>
+        // Throws an ArgumentException if supplied type is not an Enum.
         private static void ThrowIfNotEnum<T>(bool withFlags)
         {
             if (!typeof(T).IsEnum)
@@ -24,6 +22,10 @@ namespace Expanse.Extensions
         /// <summary>
         /// Returns true if the flag on enum value is set.
         /// </summary>
+        /// <typeparam name="T">Type of the enum.</typeparam>
+        /// <param name="value">Current value of the enum.</param>
+        /// <param name="flag">Enum flag to check for.</param>
+        /// <returns>Returns true if value has the flag value set.</returns>
         public static bool HasFlag<T>(this T value, T flag) where T : struct, IFormattable, IConvertible, IComparable
         {
             ThrowIfNotEnum<T>(true);
@@ -35,6 +37,9 @@ namespace Expanse.Extensions
         /// <summary>
         /// Returns all flags set on enum value.
         /// </summary>
+        /// <typeparam name="T">Type of the enum.</typeparam>
+        /// <param name="value">Current value of the enum.</param>
+        /// <returns>Returns all individual set flags of the value.</returns>
         public static IEnumerable<T> GetFlags<T>(this T value) where T : struct, IFormattable, IConvertible, IComparable
         {
             ThrowIfNotEnum<T>(true);
@@ -48,12 +53,17 @@ namespace Expanse.Extensions
         /// <summary>
         /// Sets the flags on enum value.
         /// </summary>
-        public static T SetFlags<T>(this T value, T flags, bool on) where T : struct, IFormattable, IConvertible, IComparable
+        /// <typeparam name="T">Type of the enum.</typeparam>
+        /// <param name="value">Current value of the enum.</param>
+        /// <param name="flags">Enum flags to set the state of.</param>
+        /// <param name="state">If the flags should be set or unset.</param>
+        /// <returns>Returns a new value with the specified flags set to state.</returns>
+        public static T SetFlags<T>(this T value, T flags, bool state) where T : struct, IFormattable, IConvertible, IComparable
         {
             ThrowIfNotEnum<T>(true);
             long lValue = Convert.ToInt64(value);
             long lFlag = Convert.ToInt64(flags);
-            if (on)
+            if (state)
             {
                 lValue |= lFlag;
             }
@@ -67,6 +77,10 @@ namespace Expanse.Extensions
         /// <summary>
         /// Raises the flags on enum value.
         /// </summary>
+        /// <typeparam name="T">Type of the enum.</typeparam>
+        /// <param name="value">Current value of the enum.</param>
+        /// <param name="flags">Enum flags to set the state of.</param>
+        /// <returns>Returns a new value with the specified flags set.</returns>
         public static T SetFlags<T>(this T value, T flags) where T : struct, IFormattable, IConvertible, IComparable
         {
             return value.SetFlags(flags, true);
@@ -75,6 +89,10 @@ namespace Expanse.Extensions
         /// <summary>
         /// Clears the flags on enum value.
         /// </summary>
+        /// <typeparam name="T">Type of the enum.</typeparam>
+        /// <param name="value">Current value of the enum.</param>
+        /// <param name="flags">Enum flags to set the state of.</param>
+        /// <returns>Returns a new value with the specified flags unset.</returns>
         public static T ClearFlags<T>(this T value, T flags) where T : struct, IFormattable, IConvertible, IComparable
         {
             return value.SetFlags(flags, false);
@@ -83,6 +101,9 @@ namespace Expanse.Extensions
         /// <summary>
         /// Combines flags and returns a combined enum value.
         /// </summary>
+        /// <typeparam name="T">Type of the enum.</typeparam>
+        /// <param name="flags">Enum flags values to combine into one.</param>
+        /// <returns>Returns a new enum value with combined enum values from the specified flags.</returns>
         public static T CombineFlags<T>(this IEnumerable<T> flags) where T : struct, IFormattable, IConvertible, IComparable
         {
             ThrowIfNotEnum<T>(true);
@@ -93,28 +114,6 @@ namespace Expanse.Extensions
                 lValue |= lFlag;
             }
             return (T)Enum.ToObject(typeof(T), lValue);
-        }
-
-        /// <summary>
-        /// Returns the description from the DiscriptionAttribute of an enum value.
-        /// </summary>
-        public static string GetDescription<T>(this T value) where T : struct, IFormattable, IConvertible, IComparable
-        {
-            ThrowIfNotEnum<T>(false);
-            string name = Enum.GetName(typeof(T), value);
-            if (name != null)
-            {
-                FieldInfo field = typeof(T).GetField(name);
-                if (field != null)
-                {
-                    System.ComponentModel.DescriptionAttribute attr = Attribute.GetCustomAttribute(field, typeof(System.ComponentModel.DescriptionAttribute)) as System.ComponentModel.DescriptionAttribute;
-                    if (attr != null)
-                    {
-                        return attr.Description;
-                    }
-                }
-            }
-            return null;
         }
     }
 }
