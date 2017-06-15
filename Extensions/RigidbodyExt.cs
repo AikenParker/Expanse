@@ -10,6 +10,7 @@ namespace Expanse.Extensions
         /// <summary>
         /// Clears the Rigidbody force and sets it to kinematic.
         /// </summary>
+        /// <param name="rigidbody">Source rigidbidy component.</param>
         /// <returns>The velocity state before the freeze</returns>
         public static RigidbodyState Freeze(this Rigidbody rigidbody)
         {
@@ -25,6 +26,8 @@ namespace Expanse.Extensions
         /// <summary>
         /// Sets the Rigidbody to not be kinematic and applies a velocity state.
         /// </summary>
+        /// <param name="rigidbody">Source rigidbidy component.</param>
+        /// <param name="state">Rigidbody state to apply to the rigidbody when unfrozen.</param>
         public static void Unfreeze(this Rigidbody rigidbody, RigidbodyState state = default(RigidbodyState))
         {
             rigidbody.isKinematic = false;
@@ -51,6 +54,7 @@ namespace Expanse.Extensions
         /// <summary>
         /// Zero the Rigidbody velocity and angular velocity.
         /// </summary>
+        /// <param name="rigidbody">Source rigidbidy component.</param>
         public static void ClearForce(this Rigidbody rigidbody)
         {
             rigidbody.velocity = Vector3.zero;
@@ -60,6 +64,7 @@ namespace Expanse.Extensions
         /// <summary>
         /// Clears the Rigidbody2D force and sets it to kinematic.
         /// </summary>
+        /// <param name="rigidbody">Source rigidbidy component.</param>
         /// <returns>The velocity state before the freeze</returns>
         public static RigidbodyState2D Freeze(this Rigidbody2D rigidbody)
         {
@@ -75,6 +80,8 @@ namespace Expanse.Extensions
         /// <summary>
         /// Sets the Rigidbody2D to not be kinematic and applies a velocity state.
         /// </summary>
+        /// <param name="rigidbody">Source rigidbidy component.</param>
+        /// <param name="state">Rigidbody state to apply to the rigidbody when unfrozen.</param>
         public static void Unfreeze(this Rigidbody2D rigidbody, RigidbodyState2D state = default(RigidbodyState2D))
         {
             rigidbody.isKinematic = false;
@@ -101,30 +108,34 @@ namespace Expanse.Extensions
         /// <summary>
         /// Zero the Rigidbody2D velocity and anuglar velocity.
         /// </summary>
-        public static void ClearForce(this Rigidbody2D rigidbody2D)
+        /// <param name="rigidbody">Source rigidbidy component.</param>
+        public static void ClearForce(this Rigidbody2D rigidbody)
         {
-            rigidbody2D.velocity = Vector2.zero;
-            rigidbody2D.angularVelocity = 0f;
+            rigidbody.velocity = Vector2.zero;
+            rigidbody.angularVelocity = 0f;
         }
 
         /// <summary>
         /// Rigidbody2D equivalent to Rigidbody.AddForce().
         /// </summary>
-        public static void AddForce(this Rigidbody2D rigidbody2D, Vector2 force, ForceMode mode = ForceMode.Force)
+        /// <param name="rigidbody">Source rigidbidy component.</param>
+        /// <param name="force">Amount and direction of force to apply to the rigidbody.</param>
+        /// <param name="mode">Mode in which to apply the force to the rigidbody.</param>
+        public static void AddForce(this Rigidbody2D rigidbody, Vector2 force, ForceMode mode = ForceMode.Force)
         {
             switch (mode)
             {
                 case ForceMode.Force:
-                    rigidbody2D.AddForce(force);
+                    rigidbody.AddForce(force);
                     break;
                 case ForceMode.Impulse:
-                    rigidbody2D.AddForce(force / TimeManager.FixedDeltaTime);
+                    rigidbody.AddForce(force / TimeManager.FixedDeltaTime);
                     break;
                 case ForceMode.Acceleration:
-                    rigidbody2D.AddForce(force * rigidbody2D.mass);
+                    rigidbody.AddForce(force * rigidbody.mass);
                     break;
                 case ForceMode.VelocityChange:
-                    rigidbody2D.AddForce(force * rigidbody2D.mass / TimeManager.FixedDeltaTime);
+                    rigidbody.AddForce(force * rigidbody.mass / TimeManager.FixedDeltaTime);
                     break;
             }
         }

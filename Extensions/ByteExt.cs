@@ -9,135 +9,178 @@
         /// <summary>
         /// Get a specific bool in a byte.
         /// </summary>
-        public static bool GetBit(this byte data, int bitIndex)
+        /// <param name="source">Source byte value.</param>
+        /// <param name="bitIndex">Index of the bit to get the value of.</param>
+        /// <returns>Returns true if the bit in the byte of index is set.</returns>
+        public static bool GetBit(this byte source, int bitIndex)
         {
             int mask = 1 << bitIndex;
 
-            return (data & mask) != 0;
+            return (source & mask) != 0;
         }
 
         /// <summary>
         /// Get a specific bit in a byte array.
         /// </summary>
-        public static bool GetBit(this byte[] data, int bitIndex)
+        /// <param name="source">Source byte array value.</param>
+        /// <param name="bitIndex">Index of the bit to get the value of.</param>
+        /// <returns>Returns true if the bit in the byte array of index is set.</returns>
+        public static bool GetBit(this byte[] source, int bitIndex)
         {
-            return GetBit(data[bitIndex / 8], bitIndex % 8);
+            return GetBit(source[bitIndex / 8], bitIndex % 8);
         }
 
         /// <summary>
         /// Get a specific bit in a byte array.
         /// </summary>
-        public static bool GetBit(this byte[] data, int byteIndex, int bitIndex)
+        /// <param name="source">Source byte array value.</param>
+        /// <param name="byteIndex">Index of the byte in the array to check.</param>
+        /// <param name="bitIndex">Index of the bit to get the value of in the byte.</param>
+        /// <returns>Returns true if the bit in the byte array of index is set.</returns>
+        public static bool GetBit(this byte[] source, int byteIndex, int bitIndex)
         {
-            return GetBit(data[byteIndex], bitIndex);
+            return GetBit(source[byteIndex], bitIndex);
         }
 
         /// <summary>
         /// Sets a specific bit value in a byte.
         /// </summary>
-        public static byte SetBit(this byte data, int bitIndex, bool value)
+        /// <param name="source">Source byte value.</param>
+        /// <param name="bitIndex">Index of the bit to set the value of.</param>
+        /// <param name="value">Value to set the bit with.</param>
+        /// <returns>Returns a new byte with specified bit of index in byte set with value.</returns>
+        public static byte SetBit(this byte source, int bitIndex, bool value)
         {
             if (value)
-                data |= (byte)(1 << bitIndex);
+                source |= (byte)(1 << bitIndex);
             else
-                data &= (byte)~(1 << bitIndex);
+                source &= (byte)~(1 << bitIndex);
 
-            return data;
+            return source;
         }
 
         /// <summary>
         /// Sets a specific bit value in a byte array.
         /// </summary>
-        public static void SetBit(this byte[] data, int bitIndex, bool value)
+        /// <param name="source">Source byte array value.</param>
+        /// <param name="bitIndex">Index of the bit to set the value of.</param>
+        /// <param name="value">Value to set the bit with.</param>
+        public static void SetBit(this byte[] source, int bitIndex, bool value)
         {
             int byteIndex = bitIndex / 8;
 
-            byte @byte = SetBit(data[byteIndex], bitIndex % 8, value);
+            byte @byte = SetBit(source[byteIndex], bitIndex % 8, value);
 
-            data[byteIndex] = @byte;
+            source[byteIndex] = @byte;
         }
 
         /// <summary>
         /// Sets a specific bit value in a byte array.
         /// </summary>
-        public static void SetBit(this byte[] data, int byteIndex, int bitIndex, bool value)
+        /// <param name="source">Source byte array value.</param>
+        /// <param name="byteIndex">Index of the byte in the array to check.</param>
+        /// <param name="bitIndex">Index of the bit to set the value of.</param>
+        /// <param name="value">Value to set the bit with.</param>
+        public static void SetBit(this byte[] source, int byteIndex, int bitIndex, bool value)
         {
-            SetBit(data[byteIndex], bitIndex, value);
+            SetBit(source[byteIndex], bitIndex, value);
         }
 
         /// <summary>
         /// Inverts a specific bit value in a byte.
         /// </summary>
-        public static byte InvertBit(this byte data, int bitIndex)
+        /// <param name="source">Source byte value.</param>
+        /// <param name="bitIndex">Index of the bit to invert the value of.</param>
+        /// <returns>Returns a new byte with the bit of index with an inverted value.</returns>
+        public static byte InvertBit(this byte source, int bitIndex)
         {
-            data ^= (byte)(1 << bitIndex);
+            source ^= (byte)(1 << bitIndex);
 
-            return data;
+            return source;
         }
 
         /// <summary>
         /// Inverts a specific bit value in a byte array.
         /// </summary>
-        public static void InvertBit(this byte[] data, int bitIndex)
+        /// <param name="source">Source byte array value.</param>
+        /// <param name="bitIndex">Bit of the index to invert the value of.</param>
+        public static void InvertBit(this byte[] source, int bitIndex)
         {
             int byteIndex = bitIndex / 8;
 
-            byte @byte = InvertBit(data[byteIndex], bitIndex % 8);
+            byte @byte = InvertBit(source[byteIndex], bitIndex % 8);
 
-            data[byteIndex] = @byte;
+            source[byteIndex] = @byte;
         }
 
         /// <summary>
         /// Inverts a specific bit value in a byte array.
         /// </summary>
-        public static void InvertBit(this byte[] data, int byteIndex, int bitIndex)
+        /// <param name="source">Source byte array value.</param>
+        /// <param name="byteIndex">Index of the byte in the array to check.</param>
+        /// <param name="bitIndex">Index of the bit to invert the value of.</param>
+        public static void InvertBit(this byte[] source, int byteIndex, int bitIndex)
         {
-            InvertBit(data[byteIndex], bitIndex);
+            InvertBit(source[byteIndex], bitIndex);
         }
 
         /// <summary>
         /// Sets all bits in a specific byte to a value.
         /// </summary>
-        public static void SetByte(this byte[] data, int byteIndex, bool value)
+        /// <param name="source">Source byte array value.</param>
+        /// <param name="byteIndex">Index f the byte in the array to set the value of.</param>
+        /// <param name="value">Value to set the byte with.</param>
+        public static void SetByte(this byte[] source, int byteIndex, bool value)
         {
-            data[byteIndex] = (byte)(value ? 0xFF : 0x00);
+            source[byteIndex] = (byte)(value ? 0xFF : 0x00);
         }
 
         /// <summary>
         /// Inverts all bits in a byte.
         /// </summary>
-        public static byte InvertByte(this byte data)
+        /// <param name="source">Source byte value.</param>
+        /// <returns>Returns a new byte with inverted values.</returns>
+        public static byte InvertByte(this byte source)
         {
-            return (byte)~data;
+            return (byte)~source;
         }
 
         /// <summary>
         /// Inverts all bits in a specific byte;
         /// </summary>
-        public static void InvertByte(this byte[] data, int byteIndex)
+        /// <param name="source">Source byte array value.</param>
+        /// <param name="byteIndex">Index of the byte in the array to invert the value of.</param>
+        public static void InvertByte(this byte[] source, int byteIndex)
         {
-            data[byteIndex] = InvertByte(data[byteIndex]);
+            source[byteIndex] = InvertByte(source[byteIndex]);
         }
 
         /// <summary>
         /// Sets all bits within a specific range to value.
         /// </summary>
-        public static void SetBitRange(this byte[] data, bool value, int startBitIndex, int endBitIndex)
+        /// <param name="source">Source byte array value.</param>
+        /// <param name="value">Value to set the bit range with.</param>
+        /// <param name="startBitIndex">Starting index of the bit range (Inclusive)</param>
+        /// <param name="endBitIndex">Ending index of the bit range (Exclusive)</param>
+        public static void SetBitRange(this byte[] source, bool value, int startBitIndex, int endBitIndex)
         {
             for (int i = startBitIndex; i < endBitIndex; i++)
             {
-                data.SetBit(i, value);
+                source.SetBit(i, value);
             }
         }
 
         /// <summary>
         /// Inverts all bits within a specific range.
         /// </summary>
-        public static void InvertBitRange(this byte[] data, int startBitIndex, int endBitIndex)
+        /// <param name="source">Source byte array value.</param>
+        /// <param name="startBitIndex">Starting index of the bit range (Inclusive)</param>
+        /// <param name="endBitIndex">Ending index of the bit range (Exclusive)</param>
+        public static void InvertBitRange(this byte[] source, int startBitIndex, int endBitIndex)
         {
             for (int i = startBitIndex; i < endBitIndex; i++)
             {
-                data.InvertBit(i);
+                source.InvertBit(i);
             }
         }
     }

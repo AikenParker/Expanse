@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Expanse.Extensions;
+using UnityEngine;
 
 namespace Expanse.Utilities
 {
@@ -11,6 +12,160 @@ namespace Expanse.Utilities
     public static class GameObjectUtil
     {
         private static Dictionary<Type, List<Type>> interfaceTypeCache = new Dictionary<Type, List<Type>>();
+
+        /// <summary>
+        /// Using another component as a source add a component to a game object.
+        /// </summary>
+        /// <param name="gameObject">Source game object.</param>
+        /// <param name="source">Source component to add.</param>
+        /// <returns>Returns a new component added onto the game object with vlaues copied from source.</returns>
+        public static T AddComponent<T>(GameObject gameObject, T source) where T : Component
+        {
+            T newComponent = gameObject.AddComponent<T>();
+            newComponent.CopyComponent<T>(source);
+            return newComponent;
+        }
+
+        /// <summary>
+        /// Sets the tag of a game object.
+        /// </summary>
+        /// <param name="gameObject">Source game obejct.</param>
+        /// <param name="tag">Tag value to apply onto the source game object.</param>
+        public static void SetTag(GameObject gameObject, string tag)
+        {
+            gameObject.tag = tag;
+        }
+
+        /// <summary>
+        /// Sets the tag of a game object and all children.
+        /// </summary>
+        /// <param name="gameObject">Root source game object.</param>
+        /// <param name="tag">Tag value to apply to the source root game object and its children.</param>
+        public static void SetTagRecursively(GameObject gameObject, string tag)
+        {
+            gameObject.tag = tag;
+
+            Transform transform = gameObject.transform;
+
+            for (int i = 0; i < transform.childCount; i++)
+            {
+                Transform child = transform.GetChild(i);
+
+                child.gameObject.SetTagRecursively(tag);
+            }
+        }
+
+        /// <summary>
+        /// Sets the layer of a game object.
+        /// </summary>
+        /// <param name="gameObject">Source game object.</param>
+        /// <param name="layer">Layer value to apply to the source game object.</param>
+        public static void SetLayer(GameObject gameObject, int layer)
+        {
+            gameObject.layer = layer;
+        }
+
+        /// <summary>
+        /// Sets the layer of a game object and all children.
+        /// </summary>
+        /// <param name="gameObject">Source root game object.</param>
+        /// <param name="layer">Layer value to apply to the source game object and its children.</param>
+        public static void SetLayerRecursively(GameObject gameObject, int layer)
+        {
+            gameObject.layer = layer;
+
+            Transform transform = gameObject.transform;
+
+            for (int i = 0; i < transform.childCount; i++)
+            {
+                Transform child = transform.GetChild(i);
+
+                child.gameObject.SetLayerRecursively(layer);
+            }
+        }
+
+        /// <summary>
+        /// Destroys all game objects in a list and then clears it.
+        /// </summary>
+        /// <param name="source">List of all game objects to destroy.</param>
+        /// <param name="immediate">If true use DestroyImmediate() instead of Destroy().</param>
+        public static void DestroyGameObjects(IList<GameObject> source, bool immediate = false)
+        {
+            if (source == null)
+                throw new ArgumentNullException("source");
+
+            for (int i = 0; i < source.Count; i++)
+            {
+                GameObject gameObject = source[i];
+
+                if (gameObject == null)
+                    continue;
+
+                if (immediate)
+                    GameObject.DestroyImmediate(gameObject);
+                else
+                    GameObject.Destroy(gameObject);
+            }
+
+            source.Clear();
+        }
+
+        /// <summary>
+        /// Destroys all game objects in a list and then clears it.
+        /// </summary>
+        /// <param name="source">List of all components with gameobjects to destroy.</param>
+        /// <param name="immediate">If true use DestroyImmediate() instead of Destroy().</param>
+        public static void DestroyGameObjects<T>(IList<T> source, bool immediate = false) where T : Component
+        {
+            if (source == null)
+                throw new ArgumentNullException("source");
+
+            for (int i = 0; i < source.Count; i++)
+            {
+                T component = source[i];
+
+                if (component == null)
+                    continue;
+
+                GameObject gameObject = component.gameObject;
+
+                if (gameObject == null)
+                    continue;
+
+                if (immediate)
+                    GameObject.DestroyImmediate(gameObject);
+                else
+                    GameObject.Destroy(gameObject);
+            }
+
+            source.Clear();
+        }
+
+        /// <summary>
+        /// Destroys all components in a list and then clears it.
+        /// </summary>
+        /// <param name="source">List of all ocmponents to destroy.</param>
+        /// <param name="immediate">If true use DestroyImmediate() instead of Destroy().</param>
+        public static void DestroyComponents<T>(IList<T> source, bool immediate = false) where T : Component
+        {
+            if (source == null)
+                throw new ArgumentNullException("source");
+
+            for (int i = 0; i < source.Count; i++)
+            {
+                T component = source[i];
+
+                if (component == null)
+                    continue;
+
+                if (immediate)
+                    GameObject.DestroyImmediate(component);
+                else
+                    GameObject.Destroy(component);
+            }
+
+            source.Clear();
+        }
 
         /// <summary>
         /// Clears the InterfaceTypeCache used by FindInterface methods.

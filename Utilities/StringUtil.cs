@@ -338,7 +338,7 @@ namespace Expanse.Utilities
         /// </summary>
         /// <param name="source">Source string value to modify.</param>
         /// <param name="char">Character to replace with.</param>
-        public static unsafe void ReplaceAllCharacters(this string source, char @char)
+        public static unsafe void ReplaceAllCharacters(string source, char @char)
         {
             if (string.IsNullOrEmpty(source))
                 throw new ArgumentNullException("source");
@@ -347,6 +347,36 @@ namespace Expanse.Utilities
             {
                 for (int i = 0; i < source.Length; i++)
                     s[i] = @char;
+            }
+        }
+
+        /// <summary>
+        /// Sets a substring in a string at a position.
+        /// </summary>
+        /// <param name="source">Source string value to modify.</param>
+        /// <param name="subString">Sub string to set into the source string.</param>
+        /// <param name="position">Index where the sub string will be placed into on the source string.</param>
+        public static unsafe void SetSubString(string source, string subString, int position)
+        {
+            if (string.IsNullOrEmpty(source))
+                throw new ArgumentNullException("source");
+
+            if (string.IsNullOrEmpty(subString))
+                throw new ArgumentNullException("subString");
+
+            int sourceLength = source.Length;
+            int subStringLength = subString.Length;
+
+            if (position < 0)
+                throw new InvalidArgumentException("position must be greater than zero.");
+
+            if (sourceLength < subStringLength + position)
+                throw new InvalidArgumentException("subString at postion cannot fit into source.");
+
+            fixed (char* s = source)
+            {
+                for (int i = 0; i < subStringLength; i++)
+                    s[i + position] = subString[i];
             }
         }
 #endif
