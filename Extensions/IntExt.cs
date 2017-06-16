@@ -43,7 +43,7 @@ namespace Expanse.Extensions
         /// <param name="value">Int value to perform a modulo operation on.</param>
         /// <param name="mod">Modulo value.</param>
         /// <returns>Returns the modulo result from the operation.</returns>
-        public static float Modulo(this int value, int mod)
+        public static int Modulo(this int value, int mod)
         {
             return MathUtil.Modulo(value, mod);
         }

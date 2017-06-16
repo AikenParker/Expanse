@@ -11,6 +11,9 @@ namespace Expanse.Utilities
         /// <summary>
         /// Returns the half extents size of the screen in world coordinates.
         /// </summary>
+        /// <param name="camera">Target camera component.</param>
+        /// <param name="depth">The depth from teh camera at which to calculate the screen extents from.</param>
+        /// <returns>Returns the width and height of half the screen extents from the camera in world coordinates.</returns>
         public static Vector2 GetScreenHalfExtents(Camera camera, float depth = 10)
         {
             float width, height;
@@ -35,6 +38,10 @@ namespace Expanse.Utilities
         /// <summary>
         /// Returns a world position from an anchor.
         /// </summary>
+        /// <param name="camera">Target camera component.</param>
+        /// <param name="anchor">Normalized screen space position.</param>
+        /// <param name="depth">The depth from teh camera at which to calculate the screen extents from.</param>
+        /// <returns>Returns a world position at depth.</returns>
         public static Vector3 GetWorldPositionFromAnchor(Camera camera, Vector2 anchor, float depth = 10)
         {
             float xPos, yPos, zPos = camera.transform.position.z + depth;
@@ -62,6 +69,9 @@ namespace Expanse.Utilities
         /// <summary>
         /// Returns an anchor from a world position.
         /// </summary>
+        /// <param name="camera">Target camera component.</param>
+        /// <param name="worldPosition">World position to calculate the anchor position from.</param>
+        /// <returns>Returns an normalized screen-space anchor position.</returns>
         public static Vector2 GetAnchorFromWorldPosition(Camera camera, Vector3 worldPosition)
         {
             throw new NotImplementedException();

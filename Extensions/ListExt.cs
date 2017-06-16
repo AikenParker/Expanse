@@ -11,6 +11,9 @@ namespace Expanse.Extensions
         /// <summary>
         /// Removes the first element and returns it.
         /// </summary>
+        /// <typeparam name="T">Type of the list elements.</typeparam>
+        /// <param name="list">Source list.</param>
+        /// <returns>Returns the first element of the list.</returns>
         public static T Pop<T>(this IList<T> list)
         {
             if (list == null)
@@ -24,6 +27,9 @@ namespace Expanse.Extensions
         /// <summary>
         /// Removes the last element and returns it.
         /// </summary>
+        /// <typeparam name="T">Type of the list elements.</typeparam>
+        /// <param name="list">Source list.</param>
+        /// <returns>Returns the last element of the list.</returns>
         public static T PopLast<T>(this IList<T> list)
         {
             if (list == null)
@@ -38,6 +44,9 @@ namespace Expanse.Extensions
         /// <summary>
         /// Adds new element in the first index.
         /// </summary>
+        /// <typeparam name="T">Type of the list elements.</typeparam>
+        /// <param name="list">Source list.</param>
+        /// <param name="item">New item to be added to the list.</param>
         public static void Push<T>(this IList<T> list, T item)
         {
             if (list == null)
@@ -49,6 +58,9 @@ namespace Expanse.Extensions
         /// <summary>
         /// Returns the first element.
         /// </summary>
+        /// <typeparam name="T">Type of the list elements.</typeparam>
+        /// <param name="list">Source list.</param>
+        /// <returns>Returns the first element of the list.</returns>
         public static T Peek<T>(this IList<T> list)
         {
             if (list == null)
@@ -60,6 +72,9 @@ namespace Expanse.Extensions
         /// <summary>
         /// Moves first element to end and returns it.
         /// </summary>
+        /// <typeparam name="T">Type of the list elements.</typeparam>
+        /// <param name="list">Source list.</param>
+        /// <returns>Returns the first element of the list.</returns>
         public static T Requeue<T>(this IList<T> list)
         {
             if (list == null)
@@ -73,6 +88,9 @@ namespace Expanse.Extensions
         /// <summary>
         /// Removes first element and returns it.
         /// </summary>
+        /// <typeparam name="T">Type of the list elements.</typeparam>
+        /// <param name="list">Source list.</param>
+        /// <returns>Returns the first element of the list.</returns>
         public static T Dequeue<T>(this IList<T> list)
         {
             if (list == null)
@@ -86,6 +104,9 @@ namespace Expanse.Extensions
         /// <summary>
         /// Adds new element to the end.
         /// </summary>
+        /// <typeparam name="T">Type of the list elements.</typeparam>
+        /// <param name="list">Source list.</param>
+        /// <param name="item">New item to be added to the list.</param>
         public static void Enqueue<T>(this IList<T> list, T item)
         {
             if (list == null)
@@ -97,6 +118,10 @@ namespace Expanse.Extensions
         /// <summary>
         /// Moves an element to an index.
         /// </summary>
+        /// <typeparam name="T">Type of the list elements.</typeparam>
+        /// <param name="list">Source list.</param>
+        /// <param name="item">Item in the list to be moved.</param>
+        /// <param name="index">New index the item should be moved to.</param>
         public static void Move<T>(this IList<T> list, T item, int index)
         {
             if (list == null)
@@ -109,11 +134,18 @@ namespace Expanse.Extensions
         /// <summary>
         /// Returns next element. If index is last return first.
         /// </summary>
+        /// <typeparam name="T">Type of the list elements.</typeparam>
+        /// <param name="list">Source list.</param>
+        /// <param name="index">Current item index.</param>
+        /// <returns>Returns the next item in the list.</returns>
         public static T Next<T>(this IList<T> list, int index)
         {
             if (list == null)
                 throw new ArgumentNullException("list");
 
+            int listCount = list.Count;
+
+            index = index.Modulo(listCount);
             int nextIndex = index + 1;
 
             if (nextIndex >= list.Count)
@@ -125,11 +157,18 @@ namespace Expanse.Extensions
         /// <summary>
         /// Returns previous element. If index is first return last.
         /// </summary>
+        /// <typeparam name="T">Type of the list elements.</typeparam>
+        /// <param name="list">Source list.</param>
+        /// <param name="index">Current item index.</param>
+        /// <returns>Returns the previous item in the list.</returns>
         public static T Previous<T>(this IList<T> list, int index)
         {
             if (list == null)
                 throw new ArgumentNullException("list");
 
+            int listCount = list.Count;
+
+            index = index.Modulo(listCount);
             int previousIndex = index - 1;
 
             if (previousIndex < 0)
@@ -139,21 +178,12 @@ namespace Expanse.Extensions
         }
 
         /// <summary>
-        /// Returns an the element in the index safely (No Exceptions)
-        /// </summary>
-        public static T SafeGet<T>(this IList<T> list, int index) where T : class
-        {
-            if (list.IsNullOrEmpty())
-                return null;
-            if (!list.HasIndexValue(index))
-                return null;
-
-            return list[index];
-        }
-
-        /// <summary>
         /// Returns the index of an element in a list.
         /// </summary>
+        /// <typeparam name="T">Type of the list elements.</typeparam>
+        /// <param name="list">Source list.</param>
+        /// <param name="item">Item in the list to check the index of.</param>
+        /// <returns>Returns the index of the item in the list.</returns>
         public static int IndexOf<T>(this IList<T> list, T item)
         {
             if (list == null)
@@ -164,7 +194,11 @@ namespace Expanse.Extensions
 
         /// <summary>
         /// Determines if a list has an index.
-        /// </summary
+        /// </summary>
+        /// <typeparam name="T">Type of the list elements.</typeparam>
+        /// <param name="list">Source list.</param>
+        /// <param name="index">Index to check if in the list.</param>
+        /// <returns>Returns true if index is within list range.</returns>
         public static bool HasIndex<T>(this IList<T> list, int index)
         {
             if (list == null)
@@ -176,6 +210,10 @@ namespace Expanse.Extensions
         /// <summary>
         /// Determines if a list has an index with a value.
         /// </summary>
+        /// <typeparam name="T">Type of the list elements.</typeparam>
+        /// <param name="list">Source list.</param>
+        /// <param name="index">Index to check if in the list.</param>
+        /// <returns>Returns true if index is within the list range and value does not equal null.</returns>
         public static bool HasIndexValue<T>(this IList<T> list, int index)
         {
             if (list == null)
@@ -190,6 +228,8 @@ namespace Expanse.Extensions
         /// <summary>
         /// Removes the first element in the list.
         /// </summary>
+        /// <typeparam name="T">Type of the list elements.</typeparam>
+        /// <param name="list">Source list.</param>
         /// <returns>Returns true if an item was removed</returns>
         public static bool RemoveFirst<T>(this IList<T> list)
         {
@@ -208,6 +248,9 @@ namespace Expanse.Extensions
         /// <summary>
         /// Removes the first element in the list that is equal to the item.
         /// </summary>
+        /// <typeparam name="T">Type of the list elements.</typeparam>
+        /// <param name="list">Source list.</param>
+        /// <param name="item">Item in the list to be removed.</param>
         /// <returns>Returns true if an item was removed</returns>
         public static bool RemoveFirst<T>(this IList<T> list, T item)
         {
@@ -229,6 +272,10 @@ namespace Expanse.Extensions
         /// <summary>
         /// Removes the first element in the list that is equal to the item.
         /// </summary>
+        /// <typeparam name="T">Type of the list elements.</typeparam>
+        /// <param name="list">Source list.</param>
+        /// <param name="item">Item in the list to be removed.</param>
+        /// <param name="comparer">Equality comparison object.</param>
         /// <returns>Returns true if an item was removed</returns>
         public static bool RemoveFirst<T>(this IList<T> list, T item, IEqualityComparer<T> comparer)
         {
@@ -253,6 +300,9 @@ namespace Expanse.Extensions
         /// <summary>
         /// Removes the first element in the list that meets the predicate.
         /// </summary>
+        /// <typeparam name="T">Type of the list elements.</typeparam>
+        /// <param name="list">Source list.</param>
+        /// <param name="predicate">Predicate to check if an item should be removed.</param>
         /// <returns>Returns true if an item was removed</returns>
         public static bool RemoveFirst<T>(this IList<T> list, Func<T, bool> predicate)
         {
@@ -274,6 +324,8 @@ namespace Expanse.Extensions
         /// <summary>
         /// Removes the last element in the list.
         /// </summary>
+        /// <typeparam name="T">Type of the list elements.</typeparam>
+        /// <param name="list">Source list.</param>
         /// <returns>Returns true if an item was removed</returns>
         public static bool RemoveLast<T>(this IList<T> list)
         {
@@ -294,6 +346,9 @@ namespace Expanse.Extensions
         /// <summary>
         /// Removes the last element in the list that is equal to the item.
         /// </summary>
+        /// <typeparam name="T">Type of the list elements.</typeparam>
+        /// <param name="list">Source list.</param>
+        /// <param name="item">Item in the list that should be removed.</param>
         /// <returns>Returns true if an item was removed</returns>
         public static bool RemoveLast<T>(this IList<T> list, T item)
         {
@@ -315,6 +370,10 @@ namespace Expanse.Extensions
         /// <summary>
         /// Removes the last element in the list that is equal to the item.
         /// </summary>
+        /// <typeparam name="T">Type of the list elements.</typeparam>
+        /// <param name="list">Source list.</param>
+        /// <param name="item">Item in the list that should be removed.</param>
+        /// <param name="comparer">Equality comparison object.</param>
         /// <returns>Returns true if an item was removed</returns>
         public static bool RemoveLast<T>(this IList<T> list, T item, IEqualityComparer<T> comparer)
         {
@@ -339,6 +398,9 @@ namespace Expanse.Extensions
         /// <summary>
         /// Removes the last element in the list that meets the predicate.
         /// </summary>
+        /// <typeparam name="T">Type of the list elements.</typeparam>
+        /// <param name="list">Source list.</param>
+        /// <param name="predicate">Predicate to check if an item should be removed.</param>
         /// <returns>Returns true if an item was removed</returns>
         public static bool RemoveLast<T>(this IList<T> list, Func<T, bool> predicate)
         {
@@ -360,6 +422,10 @@ namespace Expanse.Extensions
         /// <summary>
         /// Returns the first element in a list that does NOT equal item or default value.
         /// </summary>
+        /// <typeparam name="T">Type of the list elements.</typeparam>
+        /// <param name="list">Source list.</param>
+        /// <param name="item">Item to compare list elements against.</param>
+        /// <returns>Returns the first element in the list that is not equal to the item.</returns>
         public static T FirstWhereNotOrDefault<T>(this IList<T> list, T item)
         {
             if (list == null)
@@ -379,6 +445,11 @@ namespace Expanse.Extensions
         /// <summary>
         /// Returns the first element in a list that does NOT equal item or default value.
         /// </summary>
+        /// <typeparam name="T">Type of the list elements.</typeparam>
+        /// <param name="list">Source list.</param>
+        /// <param name="item">Item to compare list elements against.</param>
+        /// <param name="comparer">Equality comparer object.</param>
+        /// <returns>Returns the first element in the list that is not equal to the item.</returns>
         public static T FirstWhereNotOrDefault<T>(this IList<T> list, T item, IEqualityComparer<T> comparer)
         {
             if (list == null)
@@ -401,6 +472,10 @@ namespace Expanse.Extensions
         /// <summary>
         /// Returns the last element in a list that does NOT equal item or default value.
         /// </summary>
+        /// <typeparam name="T">Type of the list elements.</typeparam>
+        /// <param name="list">Source list.</param>
+        /// <param name="item">Item to compare list elements against.</param>
+        /// <returns>Returns the last item in the list that is not equal to the item.</returns>
         public static T LastWhereNotOrDefault<T>(this IList<T> list, T item)
         {
             if (list == null)
@@ -420,6 +495,9 @@ namespace Expanse.Extensions
         /// <summary>
         /// Returns the last element in a list that does NOT equal item or default value.
         /// </summary>
+        /// <typeparam name="T">Type of the list elements.</typeparam>
+        /// <param name="list">Source list.</param>
+        /// <returns>Returns the last item in the list where the item is not equal to the item.</returns>
         public static T LastWhereNotOrDefault<T>(this IList<T> list, T item, IEqualityComparer<T> comparer)
         {
             if (list == null)
@@ -442,6 +520,9 @@ namespace Expanse.Extensions
         /// <summary>
         /// Suffles the order of elements in the list.
         /// </summary>
+        /// <typeparam name="T">Type of the list elements.</typeparam>
+        /// <param name="list">Source list.</param>
+        /// <param name="rng">Random number generator to use.</param>
         public static void Shuffle<T>(this IList<T> list, Random rng = null)
         {
             if (list == null)
@@ -457,9 +538,9 @@ namespace Expanse.Extensions
         /// Insert a value into an list that is presumed to be already sorted such that sort
         /// ordering is preserved.
         /// </summary>
-        /// <param name="list">List to insert into</param>
+        /// <typeparam name="T">Type of the list elements.</typeparam>
+        /// <param name="list">Source list.</param>
         /// <param name="value">Value to insert</param>
-        /// <typeparam name="T">Type of element to insert and type of elements in the list</typeparam>
         public static void InsertSorted<T>(this IList<T> list, T value) where T : IComparable<T>
         {
             InsertSorted(list, value, (a, b) => a.CompareTo(b));
@@ -469,10 +550,10 @@ namespace Expanse.Extensions
         /// Insert a value into an list that is presumed to be already sorted such that sort
         /// ordering is preserved.
         /// </summary>
-        /// <param name="list">List to insert into</param>
+        /// <typeparam name="T">Type of the list elements.</typeparam>
+        /// <param name="list">Source list.</param>
         /// <param name="value">Value to insert</param>
         /// <param name="comparison">Comparison to determine sort order with</param>
-        /// <typeparam name="T">Type of element to insert and type of elements in the list</typeparam>
         public static void InsertSorted<T>(this IList<T> list, T value, Comparison<T> comparison)
         {
             var startIndex = 0;

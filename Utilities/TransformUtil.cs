@@ -13,6 +13,9 @@ namespace Expanse.Utilities
         /// <summary>
         /// Gets or creates a transform at a specific heirachical path. Parentage seperated via a slash character.
         /// </summary>
+        /// <param name="path">Heirachical path name of the target game object transform.</param>
+        /// <param name="create">If true a game object will be created at path if one does not exist.</param>
+        /// <returns>Returns the transform at the heirachical path.</returns>
         public static Transform GetTransformFromPath(string path, bool create = true)
         {
             Transform lastTransform = null;
@@ -62,6 +65,9 @@ namespace Expanse.Utilities
         /// <summary>
         /// Performs a breadth-first search to find a deep child transform with name.
         /// </summary>
+        /// <param name="parent">Root parent to search under.</param>
+        /// <param name="name">Name of the child game object to find.</param>
+        /// <returns>Returns the transform of the child game object with name.</returns>
         public static Transform FindDeepChildByBreadth(Transform parent, string name)
         {
             Transform result = parent.Find(name);
@@ -83,6 +89,9 @@ namespace Expanse.Utilities
         /// <summary>
         /// Performs a depth-first search to find a deep child transform with name.
         /// </summary>
+        /// <param name="parent">Root parent to search under.</param>
+        /// <param name="name">Name of the child game object to find.</param>
+        /// <returns>Returns the transform of the child game object with name.</returns>
         public static Transform FindDeepChildByDepth(Transform parent, string name)
         {
             foreach (Transform child in parent)

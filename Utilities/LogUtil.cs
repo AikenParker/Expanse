@@ -161,6 +161,12 @@ namespace Expanse.Utilities
         /// <summary>
         /// Logs a collection of objects.
         /// </summary>
+        /// <typeparam name="Input">Type of the objects that gets input.</typeparam>
+        /// <typeparam name="Output">Type of the objects that gets logged.</typeparam>
+        /// <param name="source">Source objects to be logged.</param>
+        /// <param name="logFormat">Describes the formatting of the log.</param>
+        /// <param name="logType">Type of log.</param>
+        /// <param name="selector">Converts the input object into the output object.</param>
         [Conditional(CONDITIONAL), DebuggerHidden]
         public static void LogIterator<Input, Output>(IEnumerable<Input> source, string logFormat = null, LogType logType = LogType.Log, Func<Input, Output> selector = null)
         {
@@ -260,6 +266,12 @@ namespace Expanse.Utilities
         /// <summary>
         /// Logs an object.
         /// </summary>
+        /// <typeparam name="Input">Type of the object that gets input.</typeparam>
+        /// <typeparam name="Output">Type of the object that gets logged.</typeparam>
+        /// <param name="source">Source object to be logged.</param>
+        /// <param name="logFormat">Describes the formatting of the log.</param>
+        /// <param name="logType">Type of log.</param>
+        /// <param name="selector">Converts the input object into the output object.</param>
         [Conditional(CONDITIONAL), DebuggerHidden]
         public static void Log<Input, Output>(Input source, string logFormat = null, LogType logType = LogType.Log, Func<Input, Output> selector = null)
         {
@@ -293,6 +305,10 @@ namespace Expanse.Utilities
         /// <summary>
         /// Logs a serialization of a collection object. (Unity Json serializer is default)
         /// </summary>
+        /// <typeparam name="Input">Type of the objects that gets input.</typeparam>
+        /// <param name="source">Source objects to be logged.</param>
+        /// <param name="serializer">Serializes the source objects into a string to be logged.</param>
+        /// <param name="logType">Type of log.</param>
         [Conditional(CONDITIONAL), DebuggerHidden]
         public static void LogSerializationIterator<Input>(IEnumerable<Input> source, IStringSerializer serializer = null, LogType logType = LogType.Log)
         {
@@ -325,6 +341,10 @@ namespace Expanse.Utilities
         /// <summary>
         /// Logs a serialization of an object. (Unity Json serializer is default)
         /// </summary>
+        /// <typeparam name="Input">Type of the object that gets input.</typeparam>
+        /// <param name="source">Source object to be logged.</param>
+        /// <param name="serializer">Serializes the source object into a string to be logged.</param>
+        /// <param name="logType">Type of log.</param>
         [Conditional(CONDITIONAL), DebuggerHidden]
         public static void LogSerialization<Input>(Input source, IStringSerializer serializer = null, LogType logType = LogType.Log)
         {
@@ -385,6 +405,7 @@ namespace Expanse.Utilities
         /// <summary>
         /// Outputs all logs in the cache to a file.
         /// </summary>
+        /// <param name="filePath">Filepath to write the log cache to.</param>
         [Conditional(CONDITIONAL)]
         public static void WriteLogCache(string filePath)
         {
