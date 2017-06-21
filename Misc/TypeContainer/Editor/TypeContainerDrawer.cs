@@ -36,9 +36,9 @@ namespace Expanse.Misc
             {
                 string typeString = typePathProperty.stringValue;
 
-                if (!typeString.Equals(TypeUtil.NULL_TYPE_NAME))
+                if (!typeString.Equals(ReflectionUtil.NULL_TYPE_NAME))
                 {
-                    containedType = TypeUtil.GetTypeFromName(typeString);
+                    containedType = ReflectionUtil.GetTypeFromName(typeString);
 
                     if ((baseType != null && !containedType.IsAssignableTo(baseType)) ||
                         (nonAbstractOnly && containedType.IsAbstract))
@@ -56,7 +56,7 @@ namespace Expanse.Misc
 
             // Draw object field
             {
-                string typeDisplayName = string.Format("{0} (Type)", containedType != null ? containedType.Name : TypeUtil.NULL_TYPE_NAME);
+                string typeDisplayName = string.Format("{0} (Type)", containedType != null ? containedType.Name : ReflectionUtil.NULL_TYPE_NAME);
 
                 EditorGUI.LabelField(position, typeDisplayName, EditorStyles.objectField);
             }
@@ -73,7 +73,7 @@ namespace Expanse.Misc
                     {
                         property.serializedObject.Update();
 
-                        typePathProperty.stringValue = newType != null ? newType.FullName : TypeUtil.NULL_TYPE_NAME;
+                        typePathProperty.stringValue = newType != null ? newType.FullName : ReflectionUtil.NULL_TYPE_NAME;
 
                         property.serializedObject.ApplyModifiedProperties();
                     };

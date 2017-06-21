@@ -18,12 +18,12 @@ namespace Expanse.Misc
             set
             {
                 type = value;
-                typeName = type != null ? type.FullName : TypeUtil.NULL_TYPE_NAME;
+                typeName = type != null ? type.FullName : ReflectionUtil.NULL_TYPE_NAME;
             }
         }
 
         [SerializeField, HideInInspector]
-        public string typeName = TypeUtil.NULL_TYPE_NAME;
+        public string typeName = ReflectionUtil.NULL_TYPE_NAME;
 
         public TypeContainer() { }
 
@@ -40,15 +40,15 @@ namespace Expanse.Misc
             }
             else
             {
-                typeName = TypeUtil.NULL_TYPE_NAME;
+                typeName = ReflectionUtil.NULL_TYPE_NAME;
             }
         }
 
         void ISerializationCallbackReceiver.OnAfterDeserialize()
         {
-            if (!typeName.Equals(TypeUtil.NULL_TYPE_NAME))
+            if (!typeName.Equals(ReflectionUtil.NULL_TYPE_NAME))
             {
-                type = TypeUtil.GetTypeFromName(typeName);
+                type = ReflectionUtil.GetTypeFromName(typeName);
             }
             else
             {

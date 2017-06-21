@@ -59,11 +59,11 @@ namespace Expanse.Tools
 
                 // Prefix label
                 {
-                    string typeString = selectedType != null ? selectedType.FullName : TypeUtil.NULL_TYPE_NAME;
+                    string typeString = selectedType != null ? selectedType.FullName : ReflectionUtil.NULL_TYPE_NAME;
 
-                    if (!typeString.Equals(TypeUtil.NULL_TYPE_NAME))
+                    if (!typeString.Equals(ReflectionUtil.NULL_TYPE_NAME))
                     {
-                        selectedType = TypeUtil.GetTypeFromName(typeString);
+                        selectedType = ReflectionUtil.GetTypeFromName(typeString);
 
                         if (!selectedType.IsAssignableTo(SCRIPTOBJ_TYPE) || selectedType.IsAbstract)
                         {
@@ -80,7 +80,7 @@ namespace Expanse.Tools
 
                 // Object field
                 {
-                    string typeDisplayName = string.Format("{0} (Type)", selectedType != null ? selectedType.Name : TypeUtil.NULL_TYPE_NAME);
+                    string typeDisplayName = string.Format("{0} (Type)", selectedType != null ? selectedType.Name : ReflectionUtil.NULL_TYPE_NAME);
 
                     EditorGUILayout.LabelField(typeDisplayName, EditorStyles.objectField);
                 }

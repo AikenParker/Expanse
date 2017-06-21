@@ -41,7 +41,7 @@ namespace Expanse.Misc
             popupWindow.selectedType = currentType;
             popupWindow.selectedTypeChanged = selectedTypeChanged;
 
-            popupWindow.allTypes = TypeUtil.AllTypes;
+            popupWindow.allTypes = ReflectionUtil.Types;
 
             if (baseType != null)
             {
@@ -86,7 +86,7 @@ namespace Expanse.Misc
                 {
                     Type type = allTypes[i];
 
-                    string typeName = type != null ? type.FullName : TypeUtil.NULL_TYPE_NAME;
+                    string typeName = type != null ? type.FullName : ReflectionUtil.NULL_TYPE_NAME;
                     string typeNameLower = typeName.ToLower();
 
                     bool isSelected = selectedType == type;

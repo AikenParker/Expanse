@@ -9,7 +9,13 @@ namespace Expanse.Utilities
     /// </summary>
     public static class SortingOrderUtil
     {
+        /// <summary>
+        /// Collection that contains all specified sorting order names.
+        /// </summary>
         public static string[] SortingOrderNames { get; private set; }
+        /// <summary>
+        /// Collection that contains all specified sorting order IDs.
+        /// </summary>
         public static int[] SortingOrderIDs { get; private set; }
 
         private static readonly PropertyInfo sortingOrderNamesProperty, sortingOrderIDsProperty;

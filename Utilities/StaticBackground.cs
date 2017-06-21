@@ -2,6 +2,9 @@
 
 namespace Expanse.Utilities
 {
+    /// <summary>
+    /// Resizing component that can scale a sprite renderer to fit specifically within the view bounds of a camera.
+    /// </summary>
     [RequireComponent(typeof(SpriteRenderer))]
     public class StaticBackground : MonoBehaviour
     {
@@ -27,6 +30,9 @@ namespace Expanse.Utilities
             InvalidateTransform();
         }
 
+        /// <summary>
+        /// Updates the transform position and scale.
+        /// </summary>
         public void InvalidateTransform()
         {
             if (SpriteRenderer.sprite == null || Camera == null)

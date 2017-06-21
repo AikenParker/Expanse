@@ -10,14 +10,15 @@ namespace Expanse.Utilities
     /// </summary>
     public static class EditorUtil
     {
-        static bool prevGuiEnabled;
-        static Color prevGuiColor;
-        static Color prevGuiContentColor;
-        static Color prevGuiBackgroundColor;
+        private static bool prevGuiEnabled;
+        private static Color prevGuiColor;
+        private static Color prevGuiContentColor;
+        private static Color prevGuiBackgroundColor;
 
         /// <summary>
         /// Set the enabled state of the GUI.
         /// </summary>
+        /// <param name="enabled">State value to set the GUI in.</param>
         public static void SetGuiEnabled(bool enabled)
         {
             prevGuiEnabled = GUI.enabled;
@@ -35,6 +36,7 @@ namespace Expanse.Utilities
         /// <summary>
         /// Set the color of the GUI.
         /// </summary>
+        /// <param name="color">Color value to set the GUI in.</param>
         public static void SetGuiColor(Color color)
         {
             prevGuiColor = GUI.color;
@@ -52,6 +54,7 @@ namespace Expanse.Utilities
         /// <summary>
         /// Set the content color of the GUI.
         /// </summary>
+        /// <param name="color">Color value to set the GUIContent in.</param>
         public static void SetGuiContentColor(Color color)
         {
             prevGuiContentColor = GUI.contentColor;
@@ -69,6 +72,7 @@ namespace Expanse.Utilities
         /// <summary>
         /// Set the background color of the GUI.
         /// </summary>
+        /// <param name="color">Color value to the GUIBackground in.</param>
         public static void SetGuiBackgroundColor(Color color)
         {
             prevGuiBackgroundColor = GUI.backgroundColor;
@@ -96,6 +100,8 @@ namespace Expanse.Utilities
         /// <summary>
         /// Gets a standardized GUIContent of a serialized property.
         /// </summary>
+        /// <param name="source">Serialized property to get a GUIContent.</param>
+        /// <returns>Returns a new GUIContent to be used with the serialized property.</returns>
         public static GUIContent GetGUIContent(SerializedProperty source)
         {
             GUIContent guiContent = new GUIContent();
@@ -108,6 +114,8 @@ namespace Expanse.Utilities
         /// <summary>
         /// Draws a default inspector script field to replicate Unity.
         /// </summary>
+        /// <typeparam name="T">Type of the MonoBehaviour script.</typeparam>
+        /// <param name="target">Target object instance.</param>
         public static void DrawInspectorScriptField<T>(T target) where T : MonoBehaviour
         {
             SetGuiEnabled(false);
@@ -120,6 +128,8 @@ namespace Expanse.Utilities
         /// <summary>
         /// Draws an inspector editor script field.
         /// </summary>
+        /// <typeparam name="T">Type of the Editor script.</typeparam>
+        /// <param name="target">Target object instance.</param>
         public static void DrawInspectorEditorScriptField<T>(T target) where T : Editor
         {
             SetGuiEnabled(false);

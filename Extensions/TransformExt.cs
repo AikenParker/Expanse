@@ -1,4 +1,5 @@
-﻿using Expanse.Utilities;
+﻿using System;
+using Expanse.Utilities;
 using UnityEngine;
 
 namespace Expanse.Extensions
@@ -11,8 +12,13 @@ namespace Expanse.Extensions
         /// <summary>
         /// Destroys all game objects parented to a transform.
         /// </summary>
+        /// <param name="source">Source Transform component.</param>
+        /// <param name="immediate">If true DestroyImmediate() is used instead of Destroy().</param>
         public static void DestroyAllChildren(this Transform source, bool immediate = false)
         {
+            if (source == null)
+                throw new ArgumentNullException("source");
+
             for (int i = source.childCount - 1; i >= 0; i--)
             {
                 if (immediate)
@@ -25,8 +31,17 @@ namespace Expanse.Extensions
         /// <summary>
         /// Detaches all game objects parented to a transform.
         /// </summary>
+        /// <param name="source">Source Transform component.</param>
+        /// <param name="newParent">Transform component of the new parent.</param>
+        /// <param name="worldPositionStays">If true the world position of the children will not change.</param>
         public static void DetachAllChildren(this Transform source, Transform newParent = null, bool worldPositionStays = true)
         {
+            if (source == null)
+                throw new ArgumentNullException("source");
+
+            if (newParent == null)
+                throw new ArgumentNullException("newParent");
+
             for (int i = source.childCount - 1; i >= 0; i--)
             {
                 source.GetChild(i).SetParent(newParent, worldPositionStays);
@@ -36,8 +51,12 @@ namespace Expanse.Extensions
         /// <summary>
         /// Resets the position, rotation and scale to default values.
         /// </summary>
+        /// <param name="source">Source Transform component.</param>
         public static void Reset(this Transform source)
         {
+            if (source == null)
+                throw new ArgumentNullException("source");
+
             source.localPosition = Vector3.zero;
             source.localRotation = Quaternion.identity;
             source.localScale = Vector3.one;
@@ -46,6 +65,9 @@ namespace Expanse.Extensions
         /// <summary>
         /// Performs a breadth-first search to find a deep child transform with name.
         /// </summary>
+        /// <param name="parent">Root parent to search under.</param>
+        /// <param name="name">Name of the child game object to find.</param>
+        /// <returns>Returns the transform of the child game object with name.</returns>
         public static Transform FindDeepChildByBreadth(this Transform parent, string name)
         {
             return TransformUtil.FindDeepChildByBreadth(parent, name);
@@ -54,6 +76,9 @@ namespace Expanse.Extensions
         /// <summary>
         /// Performs a depth-first search to find a deep child transform with name.
         /// </summary>
+        /// <param name="parent">Root parent to search under.</param>
+        /// <param name="name">Name of the child game object to find.</param>
+        /// <returns>Returns the transform of the child game object with name.</returns>
         public static Transform FindDeepChildByDepth(this Transform parent, string name)
         {
             return TransformUtil.FindDeepChildByDepth(parent, name);
@@ -62,13 +87,21 @@ namespace Expanse.Extensions
         /// <summary>
         /// Sets the position and rotation to that of another transform.
         /// </summary>
-        public static void CopyFrom(this Transform transform, Transform other, bool copyParent)
+        /// <param name="source">Source Transform component to apply values to..</param>
+        /// <param name="other">Other transform component to copy the values from.</param>
+        /// <param name="copyParent">If true the parent of other is also applied to the source transform.</param>
+        public static void CopyFrom(this Transform source, Transform other, bool copyParent)
         {
-            if (copyParent)
-                transform.SetParent(other.parent, true);
+            if (source == null)
+                throw new ArgumentNullException("transform");
 
-            transform.position = other.position;
-            transform.rotation = other.rotation;
+            if (other == null)
+                throw new ArgumentNullException("other");
+
+            if (copyParent)
+                source.SetParent(other.parent, true);
+
+            source.SetPositionAndRotation(other.position, other.rotation);
         }
 
         #region Position
@@ -76,6 +109,8 @@ namespace Expanse.Extensions
         /// <summary>
         /// Sets the X position of a transform.
         /// </summary>
+        /// <param name="transform">Source Transform component.</param>
+        /// <param name="value">X position value to set.</param>
         public static void SetPosX(this Transform transform, float value)
         {
             Vector3 position = transform.position;
@@ -86,6 +121,8 @@ namespace Expanse.Extensions
         /// <summary>
         /// Adds to the X position of a transform.
         /// </summary>
+        /// <param name="transform">Source Transform component.</param>
+        /// <param name="value">X position value to add.</param>
         public static float AddPosX(this Transform transform, float value)
         {
             Vector3 position = transform.position;
@@ -97,6 +134,8 @@ namespace Expanse.Extensions
         /// <summary>
         /// Gets the X position of a transform.
         /// </summary>
+        /// <param name="transform">Source Transform component.</param>
+        /// <returns>Returns the X position value.</returns>
         public static float GetPosX(this Transform transform)
         {
             return transform.position.x;
@@ -105,6 +144,8 @@ namespace Expanse.Extensions
         /// <summary>
         /// Sets the Y position of a transform.
         /// </summary>
+        /// <param name="transform">Source Transform component.</param>
+        /// <param name="value">Y position value to set.</param>
         public static void SetPosY(this Transform transform, float value)
         {
             Vector3 position = transform.position;
@@ -115,6 +156,8 @@ namespace Expanse.Extensions
         /// <summary>
         /// Adds to the Y position of a transform.
         /// </summary>
+        /// <param name="transform">Source Transform component.</param>
+        /// <param name="value">Y position value to add.</param>
         public static float AddPosY(this Transform transform, float value)
         {
             Vector3 position = transform.position;
@@ -126,6 +169,8 @@ namespace Expanse.Extensions
         /// <summary>
         /// Gets the Y position of a transform.
         /// </summary>
+        /// <param name="transform">Source Transform component.</param>
+        /// <returns>Returns the Y position value.</returns>
         public static float GetPosY(this Transform transform)
         {
             return transform.position.y;
@@ -134,6 +179,8 @@ namespace Expanse.Extensions
         /// <summary>
         /// Sets the Z position of a transform.
         /// </summary>
+        /// <param name="transform">Source Transform component.</param>
+        /// <param name="value">Z position value to set.</param>
         public static void SetPosZ(this Transform transform, float value)
         {
             Vector3 position = transform.position;
@@ -144,6 +191,8 @@ namespace Expanse.Extensions
         /// <summary>
         /// Adds to the Z position of a transform.
         /// </summary>
+        /// <param name="transform">Source Transform component.</param>
+        /// <param name="value">Z positon value to add.</param>
         public static float AddPosZ(this Transform transform, float value)
         {
             Vector3 position = transform.position;
@@ -155,6 +204,8 @@ namespace Expanse.Extensions
         /// <summary>
         /// Gets the Z position of a transform.
         /// </summary>
+        /// <param name="transform">Source Transform component.</param>
+        /// <returns>Returns the Z position value.</returns>
         public static float GetPosZ(this Transform transform)
         {
             return transform.position.z;
@@ -167,6 +218,8 @@ namespace Expanse.Extensions
         /// <summary>
         /// Sets the local X position of a transform.
         /// </summary>
+        /// <param name="transform">Source Transform component.</param>
+        /// <param name="value">X local position value to set.</param>
         public static void SetLocalPosX(this Transform transform, float value)
         {
             Vector3 localPosition = transform.localPosition;
@@ -177,6 +230,8 @@ namespace Expanse.Extensions
         /// <summary>
         /// Adds to the local X position of a transform.
         /// </summary>
+        /// <param name="transform">Source Transform component.</param>
+        /// <param name="value">X local position value to add.</param>
         public static float AddLocalPosX(this Transform transform, float value)
         {
             Vector3 localPosition = transform.localPosition;
@@ -188,6 +243,8 @@ namespace Expanse.Extensions
         /// <summary>
         /// Gets the local X position of a transform.
         /// </summary>
+        /// <param name="transform">Source Transform component.</param>
+        /// <returns>Returns the X local position value.</returns>
         public static float GetLocalPosX(this Transform transform)
         {
             return transform.localPosition.x;
@@ -196,6 +253,8 @@ namespace Expanse.Extensions
         /// <summary>
         /// Sets the local Y position of a transform.
         /// </summary>
+        /// <param name="transform">Source Transform component.</param>
+        /// <param name="value">Y local position value to set.</param>
         public static void SetLocalPosY(this Transform transform, float value)
         {
             Vector3 localPosition = transform.localPosition;
@@ -206,6 +265,8 @@ namespace Expanse.Extensions
         /// <summary>
         /// Adds to the local Y position of a transform.
         /// </summary>
+        /// <param name="transform">Source Transform component.</param>
+        /// <param name="value">Y local position value to add.</param>
         public static float AddLocalPosY(this Transform transform, float value)
         {
             Vector3 localPosition = transform.localPosition;
@@ -217,6 +278,8 @@ namespace Expanse.Extensions
         /// <summary>
         /// Gets the local Y position of a transform.
         /// </summary>
+        /// <param name="transform">Source Transform component.</param>
+        /// <returns>Returns the Y local position value.</returns>
         public static float GetLocalPosY(this Transform transform)
         {
             return transform.localPosition.y;
@@ -225,6 +288,8 @@ namespace Expanse.Extensions
         /// <summary>
         /// Sets the local Z position of a transform.
         /// </summary>
+        /// <param name="transform">Source Transform component.</param>
+        /// <param name="value">Z local position value to set.</param>
         public static void SetLocalPosZ(this Transform transform, float value)
         {
             Vector3 localPosition = transform.localPosition;
@@ -235,6 +300,8 @@ namespace Expanse.Extensions
         /// <summary>
         /// Adds to the local Z position of a transform.
         /// </summary>
+        /// <param name="transform">Source Transform component.</param>
+        /// <param name="value">Z local position value to add.</param>
         public static float AddLocalPosZ(this Transform transform, float value)
         {
             Vector3 localPosition = transform.localPosition;
@@ -246,6 +313,8 @@ namespace Expanse.Extensions
         /// <summary>
         /// Gets the local Z position of a transform.
         /// </summary>
+        /// <param name="transform">Source Transform component.</param>
+        /// <returns>Returns the Z local position value.</returns>
         public static float GetLocalPosZ(this Transform transform)
         {
             return transform.localPosition.z;
@@ -258,6 +327,8 @@ namespace Expanse.Extensions
         /// <summary>
         /// Sets the X Euler Angle of a transform.
         /// </summary>
+        /// <param name="transform">Source Transform component.</param>
+        /// <param name="value">X euler value to set.</param>
         public static void SetEulerX(this Transform transform, float value)
         {
             Vector3 eulerAngles = transform.eulerAngles;
@@ -268,6 +339,8 @@ namespace Expanse.Extensions
         /// <summary>
         /// Adds to the X Euler Angle of a transform.
         /// </summary>
+        /// <param name="transform">Source Transform component.</param>
+        /// <param name="value">X euler value to add.</param>
         public static float AddEulerX(this Transform transform, float value)
         {
             Vector3 eulerAngles = transform.eulerAngles;
@@ -279,6 +352,8 @@ namespace Expanse.Extensions
         /// <summary>
         /// Gets the X Euler Angle of a transform.
         /// </summary>
+        /// <param name="transform">Source Transform component.</param>
+        /// <returns>Returns the X euler value.</returns>
         public static float GetEulerX(this Transform transform)
         {
             return transform.eulerAngles.x;
@@ -287,6 +362,8 @@ namespace Expanse.Extensions
         /// <summary>
         /// Sets the Y Euler Angle of a transform.
         /// </summary>
+        /// <param name="transform">Source Transform component.</param>
+        /// <param name="value">Y euler value to set.</param>
         public static void SetEulerY(this Transform transform, float value)
         {
             Vector3 eulerAngles = transform.eulerAngles;
@@ -297,6 +374,8 @@ namespace Expanse.Extensions
         /// <summary>
         /// Adds to the Y Euler Angle of a transform.
         /// </summary>
+        /// <param name="transform">Source Transform component.</param>
+        /// <param name="value">Y euler value to add.</param>
         public static float AddEulerY(this Transform transform, float value)
         {
             Vector3 eulerAngles = transform.eulerAngles;
@@ -308,6 +387,8 @@ namespace Expanse.Extensions
         /// <summary>
         /// Gets the Y Euler Angle of a transform.
         /// </summary>
+        /// <param name="transform">Source Transform component.</param>
+        /// <returns>Returns the Y euler value.</returns>
         public static float GetEulerY(this Transform transform)
         {
             return transform.eulerAngles.y;
@@ -316,6 +397,8 @@ namespace Expanse.Extensions
         /// <summary>
         /// Sets the Z Euler Angle of a transform.
         /// </summary>
+        /// <param name="transform">Source Transform component.</param>
+        /// <param name="value">Z euler value to set.</param>
         public static void SetEulerZ(this Transform transform, float value)
         {
             Vector3 eulerAngles = transform.eulerAngles;
@@ -326,6 +409,8 @@ namespace Expanse.Extensions
         /// <summary>
         /// Adds to the Z Euler Angle of a transform.
         /// </summary>
+        /// <param name="transform">Source Transform component.</param>
+        /// <param name="value">Z euler value to add.</param>
         public static float AddEulerZ(this Transform transform, float value)
         {
             Vector3 eulerAngles = transform.eulerAngles;
@@ -337,6 +422,8 @@ namespace Expanse.Extensions
         /// <summary>
         /// Gets the Z Euler Angle of a transform.
         /// </summary>
+        /// <param name="transform">Source Transform component.</param>
+        /// <returns>Returns the Z euler value.</returns>
         public static float GetEulerZ(this Transform transform)
         {
             return transform.eulerAngles.z;
@@ -349,6 +436,8 @@ namespace Expanse.Extensions
         /// <summary>
         /// Sets the local X Euler Angle of a transform.
         /// </summary>
+        /// <param name="transform">Source Transform component.</param>
+        /// <param name="value">X local euler value to set.</param>
         public static void SetLocalEulerX(this Transform transform, float value)
         {
             Vector3 localEulerAngles = transform.localEulerAngles;
@@ -359,6 +448,8 @@ namespace Expanse.Extensions
         /// <summary>
         /// Adds to the local X Euler Angle of a transform.
         /// </summary>
+        /// <param name="transform">Source Transform component.</param>
+        /// <param name="value">X local euler value to add.</param>
         public static float AddLocalEulerX(this Transform transform, float value)
         {
             Vector3 localEulerAngles = transform.localEulerAngles;
@@ -370,6 +461,8 @@ namespace Expanse.Extensions
         /// <summary>
         /// Gets the local X Euler Angle of a transform.
         /// </summary>
+        /// <param name="transform">Source Transform component.</param>
+        /// <returns>Returns the X local euler value.</returns>
         public static float GetLocalEulerX(this Transform transform)
         {
             return transform.localEulerAngles.x;
@@ -378,6 +471,8 @@ namespace Expanse.Extensions
         /// <summary>
         /// Sets the local Y Euler Angle of a transform.
         /// </summary>
+        /// <param name="transform">Source Transform component.</param>
+        /// <param name="value">Y local euler value to set.</param>
         public static void SetLocalEulerY(this Transform transform, float value)
         {
             Vector3 localEulerAngles = transform.localEulerAngles;
@@ -388,6 +483,8 @@ namespace Expanse.Extensions
         /// <summary>
         /// Adds to the local Y Euler Angle of a transform.
         /// </summary>
+        /// <param name="transform">Source Transform component.</param>
+        /// <param name="value">Y local euler value to add.</param>
         public static float AddLocalEulerY(this Transform transform, float value)
         {
             Vector3 localEulerAngles = transform.localEulerAngles;
@@ -399,6 +496,8 @@ namespace Expanse.Extensions
         /// <summary>
         /// Gets the local Y Euler Angle of a transform.
         /// </summary>
+        /// <param name="transform">Source Transform component.</param>
+        /// <returns>Returns the Y local euler value.</returns>
         public static float GetLocalEulerY(this Transform transform)
         {
             return transform.localEulerAngles.y;
@@ -407,6 +506,8 @@ namespace Expanse.Extensions
         /// <summary>
         /// Sets the local Z Euler Angle of a transform.
         /// </summary>
+        /// <param name="transform">Source Transform component.</param>
+        /// <param name="value">Z local euler value to set.</param>
         public static void SetLocalEulerZ(this Transform transform, float value)
         {
             Vector3 localEulerAngles = transform.localEulerAngles;
@@ -417,6 +518,8 @@ namespace Expanse.Extensions
         /// <summary>
         /// Adds to the local Z Euler Angle of a transform.
         /// </summary>
+        /// <param name="transform">Source Transform component.</param>
+        /// <param name="value">Z local euler value to add.</param>
         public static float AddLocalEulerZ(this Transform transform, float value)
         {
             Vector3 localEulerAngles = transform.localEulerAngles;
@@ -428,6 +531,8 @@ namespace Expanse.Extensions
         /// <summary>
         /// Gets the local Z Euler Angle of a transform.
         /// </summary>
+        /// <param name="transform">Source Transform component.</param>
+        /// <returns>Returns the Z local euler value.</returns>
         public static float GetLocalEulerZ(this Transform transform)
         {
             return transform.localEulerAngles.z;
@@ -440,6 +545,8 @@ namespace Expanse.Extensions
         /// <summary>
         /// Sets the local X scale of a transform.
         /// </summary>
+        /// <param name="transform">Source Transform component.</param>
+        /// <param name="value">X local scale value to set.</param>
         public static void SetLocalScaleX(this Transform transform, float value)
         {
             Vector3 localScale = transform.localScale;
@@ -450,6 +557,8 @@ namespace Expanse.Extensions
         /// <summary>
         /// Adds to the local X scale of a transform.
         /// </summary>
+        /// <param name="transform">Source Transform component.</param>
+        /// <param name="value">X local scale value to add.</param>
         public static float AddLocalScaleX(this Transform transform, float value)
         {
             Vector3 localScale = transform.localScale;
@@ -461,6 +570,8 @@ namespace Expanse.Extensions
         /// <summary>
         /// Gets the local X scale of a transform.
         /// </summary>
+        /// <param name="transform">Source Transform component.</param>
+        /// <returns>Returns the X local scale value.</returns>
         public static float GetLocalScaleX(this Transform transform)
         {
             return transform.localScale.x;
@@ -469,6 +580,8 @@ namespace Expanse.Extensions
         /// <summary>
         /// Sets the local Y scale of a transform.
         /// </summary>
+        /// <param name="transform">Source Transform component.</param>
+        /// <param name="value">Y local scale value to set.</param>
         public static void SetLocalScaleY(this Transform transform, float value)
         {
             Vector3 localScale = transform.localScale;
@@ -479,6 +592,8 @@ namespace Expanse.Extensions
         /// <summary>
         /// Adds to the local Y scale of a transform.
         /// </summary>
+        /// <param name="transform">Source Transform component.</param>
+        /// <param name="value">Y local scale value to add.</param>
         public static float AddLocalScaleY(this Transform transform, float value)
         {
             Vector3 localScale = transform.localScale;
@@ -490,6 +605,8 @@ namespace Expanse.Extensions
         /// <summary>
         /// Gets the local Y scale of a transform.
         /// </summary>
+        /// <param name="transform">Source Transform component.</param>
+        /// <returns>Returns the Y local scale value.</returns>
         public static float GetLocalScaleY(this Transform transform)
         {
             return transform.localScale.y;
@@ -498,6 +615,8 @@ namespace Expanse.Extensions
         /// <summary>
         /// Sets the local Z scale of a transform.
         /// </summary>
+        /// <param name="transform">Source Transform component.</param>
+        /// <param name="value">Z local scale value to set.</param>
         public static void SetLocalScaleZ(this Transform transform, float value)
         {
             Vector3 localScale = transform.localScale;
@@ -508,6 +627,8 @@ namespace Expanse.Extensions
         /// <summary>
         /// Adds to the local Z scale of a transform.
         /// </summary>
+        /// <param name="transform">Source Transform component.</param>
+        /// <param name="value">Z local scale value to add.</param>
         public static float AddLocalScaleZ(this Transform transform, float value)
         {
             Vector3 localScale = transform.localScale;
@@ -519,6 +640,8 @@ namespace Expanse.Extensions
         /// <summary>
         /// Gets the local Z scale of a transform.
         /// </summary>
+        /// <param name="transform">Source Transform component.</param>
+        /// <returns>Returns the Z local scale value.</returns>
         public static float GetLocalScaleZ(this Transform transform)
         {
             return transform.localScale.z;

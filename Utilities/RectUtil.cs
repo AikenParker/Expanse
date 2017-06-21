@@ -8,8 +8,11 @@ namespace Expanse.Utilities
     public static class RectUtil
     {
         /// <summary>
-        /// Returns a Rect that encapsulates a and b.
+        /// Gets a Rect value that fits two other Rect values.
         /// </summary>
+        /// <param name="a">First Rect value parameter.</param>
+        /// <param name="b">Second Rect value parameter.</param>
+        /// <returns>Returns a new Rect that can fit both A and B Rects.</returns>
         public static Rect MaxRect(Rect a, Rect b)
         {
             float xMin = Mathf.Min(a.xMin, b.xMin);
@@ -28,16 +31,21 @@ namespace Expanse.Utilities
         }
 
         /// <summary>
-        /// Returns the area of a Rect.
+        /// Calculates the area of a Rect.
         /// </summary>
+        /// <param name="rect">Source Rect value.</param>
+        /// <returns>Returns the area of a Rect.</returns>
         public static float GetArea(Rect rect)
         {
             return rect.width * rect.height;
         }
 
         /// <summary>
-        /// Returns true if Rect A is within Rect B.
+        /// Determines if Rect A is within Rect B.
         /// </summary>
+        /// <param name="a">Within Rect to compare.</param>
+        /// <param name="b">Outside Rect to compare.</param>
+        /// <returns>Returns true if Rect A is within Rect B.</returns>
         public static bool IsWithin(Rect a, Rect b)
         {
             return a.xMin >= b.xMin && a.xMax <= b.xMax && a.yMin >= b.yMin && a.yMax <= b.yMax;

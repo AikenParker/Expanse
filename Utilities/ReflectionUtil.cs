@@ -9,6 +9,8 @@ namespace Expanse.Utilities
     /// </summary>
     public static class ReflectionUtil
     {
+        public const string NULL_TYPE_NAME = "null";
+
         private static Assembly[] assemblies;
         private static Type[] types;
 
@@ -72,6 +74,25 @@ namespace Expanse.Utilities
 
                 return types;
             }
+        }
+
+        /// <summary>
+        /// Gets a Type from a full type name.
+        /// </summary>
+        /// <param name="typeName">Full name of the type to get.</param>
+        /// <returns>Returns the type from a full name.</returns>
+        public static Type GetTypeFromName(string typeName)
+        {
+            if (typeName.Equals(NULL_TYPE_NAME))
+                return null;
+
+            for (int i = 1; i < Types.Length; i++)
+            {
+                if (Types[i].FullName.Equals(typeName))
+                    return Types[i];
+            }
+
+            return null;
         }
 
         /// <summary>

@@ -11,50 +11,58 @@ namespace Expanse.Utilities
     {
         /// <summary>
         /// Converts a primitive value type into a byte array.
-        /// Avoid in production code as it boxes the value type.
+        /// <para>Avoid in production code as it boxes the value type.</para>
         /// </summary>
-        public static byte[] GetBytes<T>(T obj) where T : struct, IConvertible, IComparable, IComparable<T>
+        /// <typeparam name="T">Type of the value to get the bytes of.</typeparam>
+        /// <param name="value">Value to get bytes of.</param>
+        /// <returns>Returns a new byte array representing the value given.</returns>
+        public static byte[] GetBytes<T>(T value) where T : struct, IConvertible, IComparable, IComparable<T>
         {
-            if (obj is bool)
-                return BitConverter.GetBytes((bool)(object)obj);
+            if (value is bool)
+                return BitConverter.GetBytes((bool)(object)value);
 
-            if (obj is char)
-                return BitConverter.GetBytes((char)(object)obj);
+            if (value is char)
+                return BitConverter.GetBytes((char)(object)value);
 
-            if (obj is double)
-                return BitConverter.GetBytes((double)(object)obj);
+            if (value is double)
+                return BitConverter.GetBytes((double)(object)value);
 
-            if (obj is float)
-                return BitConverter.GetBytes((float)(object)obj);
+            if (value is float)
+                return BitConverter.GetBytes((float)(object)value);
 
-            if (obj is int)
-                return BitConverter.GetBytes((int)(object)obj);
+            if (value is int)
+                return BitConverter.GetBytes((int)(object)value);
 
-            if (obj is long)
-                return BitConverter.GetBytes((long)(object)obj);
+            if (value is long)
+                return BitConverter.GetBytes((long)(object)value);
 
-            if (obj is short)
-                return BitConverter.GetBytes((short)(object)obj);
+            if (value is short)
+                return BitConverter.GetBytes((short)(object)value);
 
-            if (obj is uint)
-                return BitConverter.GetBytes((uint)(object)obj);
+            if (value is uint)
+                return BitConverter.GetBytes((uint)(object)value);
 
-            if (obj is ulong)
-                return BitConverter.GetBytes((ulong)(object)obj);
+            if (value is ulong)
+                return BitConverter.GetBytes((ulong)(object)value);
 
-            if (obj is ushort)
-                return BitConverter.GetBytes((ushort)(object)obj);
+            if (value is ushort)
+                return BitConverter.GetBytes((ushort)(object)value);
 
             throw new UnsupportedException("Unable to convert type to bytes. " + typeof(T).ToString());
         }
 
         /// <summary>
         /// Converts a primitive value type into a byte array.
-        /// Avoid in production code as it boxes the value type.
+        /// <para>Avoid in production code as it boxes the value type.</para>
         /// </summary>
-        public static int GetBytes<T>(T obj, byte[] array, int offset) where T : struct, IConvertible, IComparable, IComparable<T>
+        /// <typeparam name="T">Type of the value to get the bytes of.</typeparam>
+        /// <param name="value">Value to get bytes of.</param>
+        /// <param name="array">Byte array to write the bytes into.</param>
+        /// <param name="offset">Index in the byte array to start writin gbytes into.</param>
+        /// <returns>Returns the position in the byte array where the value data ends.</returns>
+        public static int GetBytes<T>(T value, byte[] array, int offset) where T : struct, IConvertible, IComparable, IComparable<T>
         {
-            byte[] data = GetBytes(obj);
+            byte[] data = GetBytes(value);
             int length = data.Length;
 
             for (int i = 0; i < length; i++)
@@ -70,6 +78,10 @@ namespace Expanse.Utilities
         /// Gets the bytes of an int and sets it into a byte array at offset.
         /// Returns the new position (offset + length).
         /// </summary>
+        /// <param name="value">Int value to get bytes of.</param>
+        /// <param name="array">Byte array to write the bytes into.</param>
+        /// <param name="offset">Index in the byte array to start writin gbytes into.</param>
+        /// <returns>Returns the position in the byte array where the value data ends.</returns>
         public static unsafe int GetBytes(int value, byte[] array, int offset)
         {
             fixed (byte* ptr = &array[offset])
@@ -81,6 +93,10 @@ namespace Expanse.Utilities
         /// Gets the bytes of a bool and sets it into a byte array at offset.
         /// Returns the new position (offset + length).
         /// </summary>
+        /// <param name="value">Bool value to get bytes of.</param>
+        /// <param name="array">Byte array to write the bytes into.</param>
+        /// <param name="offset">Index in the byte array to start writin gbytes into.</param>
+        /// <returns>Returns the position in the byte array where the value data ends.</returns>
         public static unsafe int GetBytes(bool value, byte[] array, int offset)
         {
             fixed (byte* ptr = &array[offset])
@@ -92,6 +108,10 @@ namespace Expanse.Utilities
         /// Gets the bytes of a float and sets it into a byte array at offset.
         /// Returns the new position (offset + length).
         /// </summary>
+        /// <param name="value">Float value to get bytes of.</param>
+        /// <param name="array">Byte array to write the bytes into.</param>
+        /// <param name="offset">Index in the byte array to start writin gbytes into.</param>
+        /// <returns>Returns the position in the byte array where the value data ends.</returns>
         public static unsafe int GetBytes(float value, byte[] array, int offset)
         {
             fixed (byte* ptr = &array[offset])
@@ -103,6 +123,10 @@ namespace Expanse.Utilities
         /// Gets the bytes of a double and sets it into a byte array at offset.
         /// Returns the new position (offset + length).
         /// </summary>
+        /// <param name="value">Double value to get bytes of.</param>
+        /// <param name="array">Byte array to write the bytes into.</param>
+        /// <param name="offset">Index in the byte array to start writin gbytes into.</param>
+        /// <returns>Returns the position in the byte array where the value data ends.</returns>
         public static unsafe int GetBytes(double value, byte[] array, int offset)
         {
             fixed (byte* ptr = &array[offset])
@@ -114,6 +138,10 @@ namespace Expanse.Utilities
         /// Gets the bytes of a char and sets it into a byte array at offset.
         /// Returns the new position (offset + length).
         /// </summary>
+        /// <param name="value">Char value to get bytes of.</param>
+        /// <param name="array">Byte array to write the bytes into.</param>
+        /// <param name="offset">Index in the byte array to start writin gbytes into.</param>
+        /// <returns>Returns the position in the byte array where the value data ends.</returns>
         public static unsafe int GetBytes(char value, byte[] array, int offset)
         {
             fixed (byte* ptr = &array[offset])
@@ -125,6 +153,10 @@ namespace Expanse.Utilities
         /// Gets the bytes of a short and sets it into a byte array at offset.
         /// Returns the new position (offset + length).
         /// </summary>
+        /// <param name="value">Short value to get bytes of.</param>
+        /// <param name="array">Byte array to write the bytes into.</param>
+        /// <param name="offset">Index in the byte array to start writin gbytes into.</param>
+        /// <returns>Returns the position in the byte array where the value data ends.</returns>
         public static unsafe int GetBytes(short value, byte[] array, int offset)
         {
             fixed (byte* ptr = &array[offset])
@@ -136,6 +168,10 @@ namespace Expanse.Utilities
         /// Gets the bytes of a long and sets it into a byte array at offset.
         /// Returns the new position (offset + length).
         /// </summary>
+        /// <param name="value">Long value to get bytes of.</param>
+        /// <param name="array">Byte array to write the bytes into.</param>
+        /// <param name="offset">Index in the byte array to start writin gbytes into.</param>
+        /// <returns>Returns the position in the byte array where the value data ends.</returns>
         public static unsafe int GetBytes(long value, byte[] array, int offset)
         {
             fixed (byte* ptr = &array[offset])
@@ -147,6 +183,10 @@ namespace Expanse.Utilities
         /// Gets the bytes of a uint and sets it into a byte array at offset.
         /// Returns the new position (offset + length).
         /// </summary>
+        /// <param name="value">Uint value to get bytes of.</param>
+        /// <param name="array">Byte array to write the bytes into.</param>
+        /// <param name="offset">Index in the byte array to start writin gbytes into.</param>
+        /// <returns>Returns the position in the byte array where the value data ends.</returns>
         public static unsafe int GetBytes(uint value, byte[] array, int offset)
         {
             fixed (byte* ptr = &array[offset])
@@ -158,6 +198,10 @@ namespace Expanse.Utilities
         /// Gets the bytes of a ushort and sets it into a byte array at offset.
         /// Returns the new position (offset + length).
         /// </summary>
+        /// <param name="value">Ushort value to get bytes of.</param>
+        /// <param name="array">Byte array to write the bytes into.</param>
+        /// <param name="offset">Index in the byte array to start writin gbytes into.</param>
+        /// <returns>Returns the position in the byte array where the value data ends.</returns>
         public static unsafe int GetBytes(ushort value, byte[] array, int offset)
         {
             fixed (byte* ptr = &array[offset])
@@ -169,6 +213,10 @@ namespace Expanse.Utilities
         /// Gets the bytes of a ulong and sets it into a byte array at offset.
         /// Returns the new position (offset + length).
         /// </summary>
+        /// <param name="value">Ulong value to get bytes of.</param>
+        /// <param name="array">Byte array to write the bytes into.</param>
+        /// <param name="offset">Index in the byte array to start writin gbytes into.</param>
+        /// <returns>Returns the position in the byte array where the value data ends.</returns>
         public static unsafe int GetBytes(ulong value, byte[] array, int offset)
         {
             fixed (byte* ptr = &array[offset])
@@ -180,6 +228,10 @@ namespace Expanse.Utilities
         /// Gets the bytes of a byte and sets it into a byte array at offset.
         /// Returns the new position (offset + length).
         /// </summary>
+        /// <param name="value">Byte value to get bytes of.</param>
+        /// <param name="array">Byte array to write the bytes into.</param>
+        /// <param name="offset">Index in the byte array to start writin gbytes into.</param>
+        /// <returns>Returns the position in the byte array where the value data ends.</returns>
         public static unsafe int GetBytes(byte value, byte[] array, int offset)
         {
             fixed (byte* ptr = &array[offset])
@@ -191,6 +243,10 @@ namespace Expanse.Utilities
         /// Gets the bytes of an sbyte and sets it into a byte array at offset.
         /// Returns the new position (offset + length).
         /// </summary>
+        /// <param name="value">Sbyte value to get bytes of.</param>
+        /// <param name="array">Byte array to write the bytes into.</param>
+        /// <param name="offset">Index in the byte array to start writin gbytes into.</param>
+        /// <returns>Returns the position in the byte array where the value data ends.</returns>
         public static unsafe int GetBytes(sbyte value, byte[] array, int offset)
         {
             fixed (byte* ptr = &array[offset])
@@ -202,6 +258,10 @@ namespace Expanse.Utilities
         /// Gets the bytes of a decimal and sets it into a byte array at offset.
         /// Returns the new position (offset + length).
         /// </summary>
+        /// <param name="value">Decimal value to get bytes of.</param>
+        /// <param name="array">Byte array to write the bytes into.</param>
+        /// <param name="offset">Index in the byte array to start writin gbytes into.</param>
+        /// <returns>Returns the position in the byte array where the value data ends.</returns>
         public static unsafe int GetBytes(decimal value, byte[] array, int offset)
         {
             fixed (byte* ptr = &array[offset])
@@ -214,39 +274,43 @@ namespace Expanse.Utilities
         /// Converts a byte array into a primitive value type.
         /// Avoid in production code as it boxes the value type.
         /// </summary>
-        public static T GetValue<T>(byte[] data) where T : struct, IConvertible, IComparable, IComparable<T>
+        /// <typeparam name="T">Type of the value to get.</typeparam>
+        /// <param name="data">Byte array to get the value from.</param>
+        /// <param name="offset">Offset in the byte array to get the value from.</param>
+        /// <returns>Returns the value convertered from the byte array.</returns>
+        public static T GetValue<T>(byte[] data, int offset = 0) where T : struct, IConvertible, IComparable, IComparable<T>
         {
             Type type = typeof(T);
 
             if (type.IsAssignableTo(typeof(bool)))
-                return (T)(object)BitConverter.ToBoolean(data, 0);
+                return (T)(object)BitConverter.ToBoolean(data, offset);
 
             if (type.IsAssignableTo(typeof(char)))
-                return (T)(object)BitConverter.ToChar(data, 0);
+                return (T)(object)BitConverter.ToChar(data, offset);
 
             if (type.IsAssignableTo(typeof(double)))
-                return (T)(object)BitConverter.ToDouble(data, 0);
+                return (T)(object)BitConverter.ToDouble(data, offset);
 
             if (type.IsAssignableTo(typeof(float)))
-                return (T)(object)BitConverter.ToSingle(data, 0);
+                return (T)(object)BitConverter.ToSingle(data, offset);
 
             if (type.IsAssignableTo(typeof(int)))
-                return (T)(object)BitConverter.ToInt32(data, 0);
+                return (T)(object)BitConverter.ToInt32(data, offset);
 
             if (type.IsAssignableTo(typeof(long)))
-                return (T)(object)BitConverter.ToInt64(data, 0);
+                return (T)(object)BitConverter.ToInt64(data, offset);
 
             if (type.IsAssignableTo(typeof(short)))
-                return (T)(object)BitConverter.ToInt16(data, 0);
+                return (T)(object)BitConverter.ToInt16(data, offset);
 
             if (type.IsAssignableTo(typeof(uint)))
-                return (T)(object)BitConverter.ToUInt32(data, 0);
+                return (T)(object)BitConverter.ToUInt32(data, offset);
 
             if (type.IsAssignableTo(typeof(ulong)))
-                return (T)(object)BitConverter.ToUInt64(data, 0);
+                return (T)(object)BitConverter.ToUInt64(data, offset);
 
             if (type.IsAssignableTo(typeof(ushort)))
-                return (T)(object)BitConverter.ToUInt16(data, 0);
+                return (T)(object)BitConverter.ToUInt16(data, offset);
 
             throw new UnsupportedException("Unable to convert data to type. " + typeof(T).ToString());
         }
@@ -254,35 +318,74 @@ namespace Expanse.Utilities
         /// <summary>
         /// Gets a string composed of '0's and '1's that represent the byte binary value.
         /// </summary>
+        /// <param name="data">Byte value to get the binary text from.</param>
+        /// <param name="betweenBit">String to insert between each bit character.</param>
+        /// <returns>Returns a binary string representing a byte.</returns>
         public static string GetBinaryText(byte data, string betweenBit = "")
         {
-            StringBuilder binaryStr = new StringBuilder(8 * 2);
+            // TODO: Allow specification of Endian type.
+
+            int betweenBitLength = string.IsNullOrEmpty(betweenBit) ? 0 : betweenBit.Length;
+            char[] binaryCharArr = new char[8 + (7 * betweenBitLength)];
+            int position = 0;
 
             for (int i = 0; i < 8; i++)
             {
-                binaryStr.Append(data.GetBit(i) ? "1" : "0");
+                binaryCharArr[position++] = data.GetBit(i) ? '1' : '0';
 
-                binaryStr.Append(betweenBit);
+                if (betweenBitLength > 0 && i <= 7)
+                {
+                    for (int j = 0; j < betweenBitLength; j++)
+                    {
+                        binaryCharArr[position++] = betweenBit[j];
+                    }
+                }
             }
 
-            return binaryStr.ToString().Trim();
+            return new string(binaryCharArr);
         }
 
         /// <summary>
         /// Gets a string composed of '0's and '1's that represent the byte array binary value.
         /// </summary>
+        /// <param name="data">Byte value to get the binary text from.</param>
+        /// <param name="betweenBit">String to insert between each bit character.</param>
+        /// <param name="betweenByte">String to insert between each byte representation.</param>
+        /// <returns>Returns a binary string representing a byte.</returns>
         public static string GetBinaryText(byte[] data, string betweenBit = "", string betweenByte = " ")
         {
-            StringBuilder binaryStr = new StringBuilder(data.Length * 8 * 2);
+            if (data == null)
+                throw new ArgumentNullException("data");
 
-            for (int i = 0; i < data.Length * 8; i++)
+            // TODO: Allow specification of Endian type.
+
+            int betweenBitLength = string.IsNullOrEmpty(betweenBit) ? 0 : betweenBit.Length;
+            int betweenByteLength = string.IsNullOrEmpty(betweenByte) ? 0 : betweenByte.Length;
+            char[] binaryCharArr = new char[(data.Length * (8 + (7 * betweenBitLength))) + ((data.Length - 1) * betweenByteLength)];
+            int position = 0;
+
+            for (int i = 0; i < data.Length; i++)
             {
-                binaryStr.Append(data.GetBit(i) ? "1" : "0");
+                for (int j = 0; j < 8; j++)
+                {
+                    binaryCharArr[position++] = data.GetBit(i) ? '1' : '0';
 
-                binaryStr.Append(i % 8 != 7 ? betweenBit : betweenByte);
+                    if (betweenBitLength > 0 && j <= 7)
+                    {
+                        for (int k = 0; k < betweenBitLength; k++)
+                        {
+                            binaryCharArr[position++] = betweenBit[k];
+                        }
+                    }
+                }
+
+                for (int j = 0; j < betweenByteLength; j++)
+                {
+                    binaryCharArr[position++] = betweenByte[j];
+                }
             }
 
-            return binaryStr.ToString().Trim();
+            return new string(binaryCharArr);
         }
     }
 }
