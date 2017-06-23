@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System;
 using Expanse.Extensions;
+using System.Collections.Generic;
 
 namespace Expanse.Utilities
 {
@@ -18,13 +19,13 @@ namespace Expanse.Utilities
         public static Vector4 Create(float value, DimensionFlags4D dims = DimensionFlags4D.XYZW)
         {
             Vector4 vec = Vector4.zero;
-            if (dims.HasFlag(DimensionFlags4D.X))
+            if ((dims & DimensionFlags4D.X) != 0)
                 vec.x = value;
-            if (dims.HasFlag(DimensionFlags4D.Y))
+            if ((dims & DimensionFlags4D.Y) != 0)
                 vec.y = value;
-            if (dims.HasFlag(DimensionFlags4D.Z))
+            if ((dims & DimensionFlags4D.Z) != 0)
                 vec.z = value;
-            if (dims.HasFlag(DimensionFlags4D.W))
+            if ((dims & DimensionFlags4D.W) != 0)
                 vec.w = value;
 
             return vec;
@@ -51,6 +52,103 @@ namespace Expanse.Utilities
         public static float AngleBetweenThreePoints(Vector4 a, Vector4 b, Vector4 c)
         {
             return AngleBetweenTwoPoints(a - c, b - c);
+        }
+
+        /// <summary>
+        /// Converts a Vector4 into Vector3 by ignoring a selected dimension value.
+        /// </summary>
+        /// <param name="source">Source Vector value.</param>
+        /// <param name="ignoreDim">Component dimension to ignore when converting.</param>
+        /// <returns>Returns a Vector3 from a Vector4.</returns>
+        public static Vector3 ToVector3(Vector4 source, DimensionTypes4D ignoreDim = DimensionTypes4D.W)
+        {
+            switch (ignoreDim)
+            {
+                case DimensionTypes4D.W:
+                    return new Vector3(source.x, source.y, source.z);
+                case DimensionTypes4D.Z:
+                    return new Vector3(source.x, source.y, source.w);
+                case DimensionTypes4D.Y:
+                    return new Vector3(source.x, source.w, source.z);
+                case DimensionTypes4D.X:
+                    return new Vector3(source.w, source.y, source.z);
+                default:
+                    throw new InvalidArgumentException("ignoreDim");
+            }
+        }
+
+        /// <summary>
+        /// Calculates the total length of a set of Vectors by added the distance to eachother sequentially.
+        /// </summary>
+        /// <param name="source">List of Vector values.</param>
+        /// <returns>Returns the total length of a list of Vectors.</returns>
+        public static float CalculateTotalLength(IList<Vector4> source)
+        {
+            if (source == null)
+                throw new NullReferenceException("source");
+
+            float totalLength = 0f;
+
+            for (int i = 1; i < source.Count; i++)
+            {
+                totalLength += (source[i - 1] - source[i]).magnitude;
+            }
+
+            return totalLength;
+        }
+
+        /// <summary>
+        /// Calculates the average Vector from a set of Vectors.
+        /// </summary>
+        /// <param name="source">List of Vector values.</param>
+        /// <returns>Returns the average Vector value.</returns>
+        public static Vector4 Average(IList<Vector4> source)
+        {
+            if (source == null)
+                throw new NullReferenceException("source");
+
+            float x = 0, y = 0, z = 0, w = 0;
+
+            for (int i = 0; i < source.Count; i++)
+            {
+                Vector4 vec = source[i];
+
+                x += vec.x;
+                y += vec.y;
+                z += vec.z;
+                z += vec.w;
+            }
+
+            return new Vector4(x, y, z, w);
+        }
+
+        /// <summary>
+        /// Calculates the average Vector from a set of Vectors selected from another set.
+        /// </summary>
+        /// <param name="source">List of values to get a Vector value from.</param>
+        /// <param name="selector">Selects from T to get a Vector value.</param>
+        /// <returns>Returns the average Vector value.</returns>
+        public static Vector4 Average<T>(IList<T> source, Func<T, Vector4> selector)
+        {
+            if (source == null)
+                throw new NullReferenceException("source");
+
+            if (selector == null)
+                throw new NullReferenceException("selector");
+
+            float x = 0, y = 0, z = 0, w = 0;
+
+            for (int i = 0; i < source.Count; i++)
+            {
+                Vector4 vec = selector(source[i]);
+
+                x += vec.x;
+                y += vec.y;
+                z += vec.z;
+                w += vec.w;
+            }
+
+            return new Vector4(x, y, z, w);
         }
     }
 

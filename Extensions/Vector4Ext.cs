@@ -1,7 +1,6 @@
 ﻿using UnityEngine;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using Expanse.Utilities;
 
 namespace Expanse.Extensions
@@ -14,15 +13,18 @@ namespace Expanse.Extensions
         /// <summary>
         /// Returns the same Vector with selected components zeroed out.
         /// </summary>
+        /// <param name="source">Source Vector value to zero.</param>
+        /// <param name="dims">Component dimensions to zero.</param>
+        /// <returns>Returns a new Vector with zeroed out component values.</returns>
         public static Vector4 ZeroValues(this Vector4 source, DimensionFlags4D dims)
         {
-            if (dims.HasFlag(DimensionFlags4D.X))
+            if ((dims & DimensionFlags4D.X) != 0)
                 source.x = 0;
-            if (dims.HasFlag(DimensionFlags4D.Y))
+            if ((dims & DimensionFlags4D.Y) != 0)
                 source.y = 0;
-            if (dims.HasFlag(DimensionFlags4D.Z))
+            if ((dims & DimensionFlags4D.Z) != 0)
                 source.z = 0;
-            if (dims.HasFlag(DimensionFlags4D.W))
+            if ((dims & DimensionFlags4D.W) != 0)
                 source.w = 0;
 
             return source;
@@ -31,15 +33,19 @@ namespace Expanse.Extensions
         /// <summary>
         /// Sets selected components of a Vector to a value.
         /// </summary>
+        /// <param name="source">Source Vector value to set.</param>
+        /// <param name="value">Value to set to selected components on the Vector.</param>
+        /// <param name="dims">Components dimensions to set.</param>
+        /// <returns>Returns a new Vector with set component values.</returns>
         public static Vector4 SetValues(this Vector4 source, float value, DimensionFlags4D dims = DimensionFlags4D.XYZW)
         {
-            if (dims.HasFlag(DimensionFlags4D.X))
+            if ((dims & DimensionFlags4D.X) != 0)
                 source.x = value;
-            if (dims.HasFlag(DimensionFlags4D.Y))
+            if ((dims & DimensionFlags4D.Y) != 0)
                 source.y = value;
-            if (dims.HasFlag(DimensionFlags4D.Z))
+            if ((dims & DimensionFlags4D.Z) != 0)
                 source.z = value;
-            if (dims.HasFlag(DimensionFlags4D.W))
+            if ((dims & DimensionFlags4D.W) != 0)
                 source.w = value;
 
             return source;
@@ -48,6 +54,9 @@ namespace Expanse.Extensions
         /// <summary>
         /// Creates a new Vector with set X.
         /// </summary>
+        /// <param name="source">Source Vector value.</param>
+        /// <param name="x">Value to set the X component to.</param>
+        /// <returns>Returns a new Vector value with X component set.</returns>
         public static Vector4 WithX(this Vector4 source, float x)
         {
             return new Vector4(x, source.y, source.z, source.w);
@@ -56,6 +65,9 @@ namespace Expanse.Extensions
         /// <summary>
         /// Creates a new Vector with set Y.
         /// </summary>
+        /// <param name="source">Source Vector value.</param>
+        /// <param name="y">Value to set the Y component to.</param>
+        /// <returns>Returns a new Vector value with the Y component set.</returns>
         public static Vector4 WithY(this Vector4 source, float y)
         {
             return new Vector4(source.x, y, source.z, source.w);
@@ -64,6 +76,9 @@ namespace Expanse.Extensions
         /// <summary>
         /// Creates a new Vector with set Z.
         /// </summary>
+        /// <param name="source">Source Vector value.</param>
+        /// <param name="z">Value to set the Z component to.</param>
+        /// <returns>Returns a new Vector value with the Z component set.</returns>
         public static Vector4 WithZ(this Vector4 source, float z)
         {
             return new Vector4(source.x, source.y, z, source.w);
@@ -72,6 +87,9 @@ namespace Expanse.Extensions
         /// <summary>
         /// Creates a new Vector with set W.
         /// </summary>
+        /// <param name="source">Source Vector value.</param>
+        /// <param name="w">Value to set the W component to.</param>
+        /// <returns>Returns a new Vector value with the W component set.</returns>
         public static Vector4 WithW(this Vector4 source, float w)
         {
             return new Vector4(source.x, source.y, source.z, w);
@@ -80,79 +98,43 @@ namespace Expanse.Extensions
         /// <summary>
         /// Converts a Vector4 into Vector3 by ignoring a selected dimension value.
         /// </summary>
+        /// <param name="source">Source Vector value.</param>
+        /// <param name="ignoreDim">Component dimension to ignore when converting.</param>
+        /// <returns>Returns a Vector3 from a Vector4.</returns>
         public static Vector3 ToVector3(this Vector4 source, DimensionTypes4D ignoreDim = DimensionTypes4D.W)
         {
-            switch (ignoreDim)
-            {
-                case DimensionTypes4D.W:
-                    return new Vector3(source.x, source.y, source.z);
-                case DimensionTypes4D.Z:
-                    return new Vector3(source.x, source.y, source.w);
-                case DimensionTypes4D.Y:
-                    return new Vector3(source.x, source.w, source.z);
-                case DimensionTypes4D.X:
-                    return new Vector3(source.w, source.y, source.z);
-                default:
-                    throw new InvalidArgumentException("ignoreDim");
-            }
+            return Vector4Util.ToVector3(source, ignoreDim);
         }
 
         /// <summary>
         /// Calculates the total length of a set of Vectors by added the distance to eachother sequentially.
         /// </summary>
+        /// <param name="source">List of Vector values.</param>
+        /// <returns>Returns the total length of a list of Vectors.</returns>
         public static float CalculateTotalLength(this IList<Vector4> source)
         {
-            if (source == null)
-                throw new NullReferenceException("source");
-
-            float totalLength = 0f;
-
-            for (int i = 1; i < source.Count; i++)
-            {
-                totalLength += (source[i - 1] - source[i]).magnitude;
-            }
-
-            return totalLength;
+            return Vector4Util.CalculateTotalLength(source);
         }
 
         /// <summary>
         /// Calculates the average Vector from a set of Vectors.
         /// </summary>
-        public static Vector4 Average(this IEnumerable<Vector4> source)
+        /// <param name="source">List of Vector values.</param>
+        /// <returns>Returns the average Vector value.</returns>
+        public static Vector4 Average(this IList<Vector4> source)
         {
-            if (source == null)
-                throw new NullReferenceException("source");
-
-            Vector4 sum = Vector4.zero;
-            long count = 0;
-
-            checked
-            {
-                foreach (Vector4 elem in source)
-                {
-                    sum += elem;
-                    count++;
-                }
-            }
-
-            if (count > 0)
-                return sum / count;
-
-            return Vector4.zero;
+            return Vector4Util.Average(source);
         }
 
         /// <summary>
         /// Calculates the average Vector from a set of Vectors selected from another set.
         /// </summary>
-        public static Vector4 Average<T>(this IEnumerable<T> source, Func<T, Vector4> selector)
+        /// <param name="source">List of values to get a Vector value from.</param>
+        /// <param name="selector">Selects from T to get a Vector value.</param>
+        /// <returns>Returns the average Vector value.</returns>
+        public static Vector4 Average<T>(this IList<T> source, Func<T, Vector4> selector)
         {
-            if (source == null)
-                throw new NullReferenceException("source");
-
-            if (selector == null)
-                throw new NullReferenceException("selector");
-
-            return source.Select(selector).Average();
+            return Vector4Util.Average(source, selector);
         }
     }
 }

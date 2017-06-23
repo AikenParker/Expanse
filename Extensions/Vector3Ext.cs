@@ -1,7 +1,6 @@
 ﻿using UnityEngine;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using Expanse.Utilities;
 
 namespace Expanse.Extensions
@@ -12,15 +11,18 @@ namespace Expanse.Extensions
     public static class Vector3Ext
     {
         /// <summary>
-        /// Returns the same Vector with selected components zeroed out.
+        /// Gets the same Vector with selected components zeroed out.
         /// </summary>
+        /// <param name="source">Source Vector value to zero.</param>
+        /// <param name="dims">Component dimensions to zero.</param>
+        /// <returns>Returns a new Vector with zeroed out component values.</returns>
         public static Vector3 ZeroValues(this Vector3 source, DimensionFlags3D dims)
         {
-            if (dims.HasFlag(DimensionFlags3D.X))
+            if ((dims & DimensionFlags3D.X) != 0)
                 source.x = 0;
-            if (dims.HasFlag(DimensionFlags3D.Y))
+            if ((dims & DimensionFlags3D.Y) != 0)
                 source.y = 0;
-            if (dims.HasFlag(DimensionFlags3D.Z))
+            if ((dims & DimensionFlags3D.Z) != 0)
                 source.z = 0;
 
             return source;
@@ -29,13 +31,17 @@ namespace Expanse.Extensions
         /// <summary>
         /// Sets selected components of a Vector to a value.
         /// </summary>
+        /// <param name="source">Source Vector value to set.</param>
+        /// <param name="value">Value to set to selected components on the Vector.</param>
+        /// <param name="dims">Components dimensions to set.</param>
+        /// <returns>Returns a new Vector with set component values.</returns>
         public static Vector3 SetValues(this Vector3 source, float value, DimensionFlags3D dims = DimensionFlags3D.XYZ)
         {
-            if (dims.HasFlag(DimensionFlags3D.X))
+            if ((dims & DimensionFlags3D.X) != 0)
                 source.x = value;
-            if (dims.HasFlag(DimensionFlags3D.Y))
+            if ((dims & DimensionFlags3D.Y) != 0)
                 source.y = value;
-            if (dims.HasFlag(DimensionFlags3D.Z))
+            if ((dims & DimensionFlags3D.Z) != 0)
                 source.z = value;
 
             return source;
@@ -44,6 +50,9 @@ namespace Expanse.Extensions
         /// <summary>
         /// Creates a new Vector with set X.
         /// </summary>
+        /// <param name="source">Source Vector value.</param>
+        /// <param name="x">Value to set the X component to.</param>
+        /// <returns>Returns a new Vector value with X component set.</returns>
         public static Vector3 WithX(this Vector3 source, float x)
         {
             return new Vector3(x, source.y, source.z);
@@ -52,6 +61,9 @@ namespace Expanse.Extensions
         /// <summary>
         /// Creates a new Vector with set Y.
         /// </summary>
+        /// <param name="source">Source Vector value.</param>
+        /// <param name="y">Value to set the Y component to.</param>
+        /// <returns>Returns a new Vector value with the Y component set.</returns>
         public static Vector3 WithY(this Vector3 source, float y)
         {
             return new Vector3(source.x, y, source.z);
@@ -60,6 +72,9 @@ namespace Expanse.Extensions
         /// <summary>
         /// Creates a new Vector with set Z.
         /// </summary>
+        /// <param name="source">Source Vector value.</param>
+        /// <param name="z">Value to set the Z component to.</param>
+        /// <returns>Returns a new Vector value with the Z component set.</returns>
         public static Vector3 WithZ(this Vector3 source, float z)
         {
             return new Vector3(source.x, source.y, z);
@@ -68,97 +83,54 @@ namespace Expanse.Extensions
         /// <summary>
         /// Converts a Vector3 into Vector2 by ignoring a selected dimension value.
         /// </summary>
+        /// <param name="source">Source Vector value.</param>
+        /// <param name="ignoreDim">Component dimension to ignore when converting.</param>
+        /// <returns>Returns a Vector2 from a Vector3.</returns>
         public static Vector2 ToVector2(this Vector3 source, DimensionTypes3D ignoreDim = DimensionTypes3D.Z)
         {
-            switch (ignoreDim)
-            {
-                case DimensionTypes3D.Z:
-                    return new Vector2(source.x, source.y);
-                case DimensionTypes3D.Y:
-                    return new Vector2(source.x, source.z);
-                case DimensionTypes3D.X:
-                    return new Vector2(source.y, source.z);
-                default:
-                    throw new InvalidArgumentException("ignoreDim");
-            }
+            return Vector3Util.ToVector2(source, ignoreDim);
         }
 
         /// <summary>
         /// Converts a Vector3 into Vector4 by ignoring a selected dimension value.
         /// </summary>
+        /// <param name="source">Source Vector value.</param>
+        /// <param name="ignoreDim">Component dimension to leave zeroed when converting.</param>
+        /// <returns>Returns a Vector4 from a Vector3.</returns>
         public static Vector4 ToVector4(this Vector3 source, DimensionTypes4D ignoreDim = DimensionTypes4D.W)
         {
-            switch (ignoreDim)
-            {
-                case DimensionTypes4D.W:
-                    return new Vector4(source.x, source.y, source.z, 0f);
-                case DimensionTypes4D.Z:
-                    return new Vector4(source.x, source.y, 0f, source.z);
-                case DimensionTypes4D.Y:
-                    return new Vector4(source.x, 0f, source.z, source.y);
-                case DimensionTypes4D.X:
-                    return new Vector4(0f, source.y, source.z, source.x);
-                default:
-                    throw new InvalidArgumentException("ignoreDim");
-            }
+            return Vector3Util.ToVector4(source, ignoreDim);
         }
 
         /// <summary>
         /// Calculates the total length of a set of Vectors by added the distance to eachother sequentially.
         /// </summary>
+        /// <param name="source">List of Vector values.</param>
+        /// <returns>Returns the total length of a list of Vectors.</returns>
         public static float CalculateTotalLength(this IList<Vector3> source)
         {
-            if (source == null)
-                throw new NullReferenceException("source");
-
-            float totalLength = 0f;
-
-            for (int i = 1; i < source.Count; i++)
-            {
-                totalLength += (source[i - 1] - source[i]).magnitude;
-            }
-
-            return totalLength;
+            return Vector3Util.CalculateTotalLength(source);
         }
 
         /// <summary>
         /// Calculates the average Vector from a set of Vectors.
         /// </summary>
-        public static Vector3 Average(this IEnumerable<Vector3> source)
+        /// <param name="source">List of Vector values.</param>
+        /// <returns>Returns the average Vector value.</returns>
+        public static Vector3 Average(this IList<Vector3> source)
         {
-            if (source == null)
-                throw new NullReferenceException("source");
-
-            Vector3 sum = Vector3.zero;
-            long count = 0;
-
-            checked
-            {
-                foreach (Vector3 elem in source)
-                {
-                    sum += elem;
-                    count++;
-                }
-            }
-
-            if (count > 0)
-                return sum / count;
-
-            return Vector3.zero;
+            return Vector3Util.Average(source);
         }
 
         /// <summary>
         /// Calculates the average Vector from a set of Vectors selected from another set.
         /// </summary>
-        public static Vector3 Average<T>(this IEnumerable<T> source, Func<T, Vector3> selector)
+        /// <param name="source">List of values to get a Vector value from.</param>
+        /// <param name="selector">Selects from T to get a Vector value.</param>
+        /// <returns>Returns the average Vector value.</returns>
+        public static Vector3 Average<T>(this IList<T> source, Func<T, Vector3> selector)
         {
-            if (source == null)
-                throw new NullReferenceException("source");
-
-            if (selector == null)
-                throw new NullReferenceException("selector");
-
-            return source.Select(selector).Average();
+            return Vector3Util.Average(source, selector);
         }
     }
 }

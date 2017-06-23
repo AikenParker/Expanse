@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System;
 using Expanse.Extensions;
+using System.Collections.Generic;
 
 namespace Expanse.Utilities
 {
@@ -105,6 +106,97 @@ namespace Expanse.Utilities
         public static Vector2 DegreeToVector2(float degree)
         {
             return DegreeToVector2(degree, Vector2.right);
+        }
+
+        /// <summary>
+        /// Converts a Vector2 into Vector3 by ignoring a selected dimension value.
+        /// </summary>
+        /// <param name="source">Source Vector value.</param>
+        /// <param name="ignoreDim">Component dimension to leave zeroed when converting.</param>
+        /// <returns>Returns a Vector3 from a Vector2.</returns>
+        public static Vector3 ToVector3(Vector2 source, DimensionTypes3D ignoreDim = DimensionTypes3D.Z)
+        {
+            switch (ignoreDim)
+            {
+                case DimensionTypes3D.Z:
+                    return new Vector3(source.x, source.y, 0f);
+                case DimensionTypes3D.Y:
+                    return new Vector3(source.x, 0f, source.y);
+                case DimensionTypes3D.X:
+                    return new Vector3(0f, source.y, source.x);
+                default:
+                    throw new InvalidArgumentException("ignoreDim");
+            }
+        }
+
+        /// <summary>
+        /// Calculates the total length of a set of Vectors by added the distance to eachother sequentially.
+        /// </summary>
+        /// <param name="source">List of Vector values.</param>
+        /// <returns>Returns the total length of a list of Vectors.</returns>
+        public static float CalculateTotalLength(IList<Vector2> source)
+        {
+            if (source == null)
+                throw new NullReferenceException("source");
+
+            float totalLength = 0f;
+
+            for (int i = 1; i < source.Count; i++)
+            {
+                totalLength += (source[i - 1] - source[i]).magnitude;
+            }
+
+            return totalLength;
+        }
+
+        /// <summary>
+        /// Calculates the average Vector from a set of Vectors.
+        /// </summary>
+        /// <param name="source">List of Vector values.</param>
+        /// <returns>Returns the average Vector value.</returns>
+        public static Vector2 Average(IList<Vector2> source)
+        {
+            if (source == null)
+                throw new NullReferenceException("source");
+
+            float x = 0, y = 0;
+
+            for (int i = 0; i < source.Count; i++)
+            {
+                Vector2 vec = source[i];
+
+                x += vec.x;
+                y += vec.y;
+            }
+
+            return new Vector2(x, y);
+        }
+
+        /// <summary>
+        /// Calculates the average Vector from a set of Vectors selected from another set.
+        /// </summary>
+        /// <param name="source">List of values to get a Vector value from.</param>
+        /// <param name="selector">Selects from T to get a Vector value.</param>
+        /// <returns>Returns the average Vector value.</returns>
+        public static Vector2 Average<T>(IList<T> source, Func<T, Vector2> selector)
+        {
+            if (source == null)
+                throw new NullReferenceException("source");
+
+            if (selector == null)
+                throw new NullReferenceException("selector");
+
+            float x = 0, y = 0;
+
+            for (int i = 0; i < source.Count; i++)
+            {
+                Vector2 vec = selector(source[i]);
+
+                x += vec.x;
+                y += vec.y;
+            }
+
+            return new Vector2(x, y);
         }
     }
 
