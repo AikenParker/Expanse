@@ -12,29 +12,60 @@ namespace Expanse.Extensions
         /// <summary>
         /// Determines if all objects in souce are not equal to one another.
         /// </summary>
+        /// <typeparam name="T">Type of the source sequence.</typeparam>
+        /// <param name="source">Source sequence.</param>
+        /// <returns>Returns true if all elements in source are unique.</returns>
         public static bool IsUnique<T>(this IEnumerable<T> source)
         {
             if (source == null)
                 throw new ArgumentNullException("source");
 
-            return source.Distinct().Count() != source.Count();
+            uint sourceCount = 0, distinctCount = 0;
+
+            foreach (var elem in source)
+                sourceCount++;
+
+            foreach (var elem in source.Distinct())
+                distinctCount++;
+
+            return sourceCount != distinctCount;
         }
 
         /// <summary>
         /// Returns true if all items do not equal null.
         /// </summary>
+        /// <typeparam name="T">Type of the source sequence.</typeparam>
+        /// <param name="source">Source sequence.</param>
+        /// <returns>Returns true if all elements do not equal null.</returns>
         public static bool All<T>(this IEnumerable<T> source)
+            where T : class
         {
-            return All(source, (x) => x != null);
+            if (source == null)
+                throw new ArgumentNullException("source");
+
+            foreach (T elem in source)
+            {
+                if (elem.Equals(null))
+                    return false;
+            }
+
+            return true;
         }
 
         /// <summary>
         /// Returns true if all items meet a condition.
         /// </summary>
+        /// <typeparam name="T">Type of the source sequence.</typeparam>
+        /// <param name="source">Source sequence.</param>
+        /// <param name="predicate">Predicate used to test source elements.</param>
+        /// <returns>Returns true if all elements in source meet the predicate.</returns>
         public static bool All<T>(this IEnumerable<T> source, Func<T, bool> predicate)
         {
             if (source == null)
                 throw new ArgumentNullException("source");
+
+            if (predicate == null)
+                throw new ArgumentNullException("predicate");
 
             foreach (T elem in source)
             {
@@ -46,22 +77,15 @@ namespace Expanse.Extensions
         }
 
         /// <summary>
-        /// Returns the maximal element of the given sequence, based on
-        /// the given projection.
+        /// Returns the maximal element of the given sequence, based on the given projection.
         /// </summary>
-        /// <remarks>
-        /// If more than one element has the maximal projected value, the first
-        /// one encountered will be returned. This overload uses the default comparer
-        /// for the projected type. This operator uses immediate execution, but
-        /// only buffers a single result (the current maximal element).
-        /// </remarks>
-        /// <typeparam name="TSource">Type of the source sequence</typeparam>
-        /// <typeparam name="TKey">Type of the projected element</typeparam>
-        /// <param name="source">Source sequence</param>
-        /// <param name="selector">Selector to use to pick the results to compare</param>
+        /// <typeparam name="TSource">Type of the source sequence.</typeparam>
+        /// <typeparam name="TKey">Type of the projected element.</typeparam>
+        /// <param name="source">Source sequence.</param>
+        /// <param name="selector">Selector to use to pick the results to compare.</param>
         /// <returns>The maximal element, according to the projection.</returns>
-        /// <exception cref="ArgumentNullException"><paramref name="source"/> or <paramref name="selector"/> is null</exception>
-        /// <exception cref="InvalidOperationException"><paramref name="source"/> is empty</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="source"/> or <paramref name="selector"/> is null.</exception>
+        /// <exception cref="InvalidOperationException"><paramref name="source"/> is empty.</exception>
         public static TSource MaxBy<TSource, TKey>(this IEnumerable<TSource> source,
             Func<TSource, TKey> selector)
         {
@@ -69,23 +93,16 @@ namespace Expanse.Extensions
         }
 
         /// <summary>
-        /// Returns the maximal element of the given sequence, based on
-        /// the given projection and the specified comparer for projected values. 
+        /// Returns the maximal element of the given sequence, based on the given projection and the specified comparer for projected values. 
         /// </summary>
-        /// <remarks>
-        /// If more than one element has the maximal projected value, the first
-        /// one encountered will be returned. This operator uses immediate execution, but
-        /// only buffers a single result (the current maximal element).
-        /// </remarks>
-        /// <typeparam name="TSource">Type of the source sequence</typeparam>
-        /// <typeparam name="TKey">Type of the projected element</typeparam>
-        /// <param name="source">Source sequence</param>
-        /// <param name="selector">Selector to use to pick the results to compare</param>
-        /// <param name="comparer">Comparer to use to compare projected values</param>
+        /// <typeparam name="TSource">Type of the source sequence.</typeparam>
+        /// <typeparam name="TKey">Type of the projected element.</typeparam>
+        /// <param name="source">Source sequence.</param>
+        /// <param name="selector">Selector to use to pick the results to compare.</param>
+        /// <param name="comparer">Comparer to use to compare projected values.</param>
         /// <returns>The maximal element, according to the projection.</returns>
-        /// <exception cref="ArgumentNullException"><paramref name="source"/>, <paramref name="selector"/> 
-        /// or <paramref name="comparer"/> is null</exception>
-        /// <exception cref="InvalidOperationException"><paramref name="source"/> is empty</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="source"/>, <paramref name="selector"/> or <paramref name="comparer"/> is null.</exception>
+        /// <exception cref="InvalidOperationException"><paramref name="source"/> is empty.</exception>
         public static TSource MaxBy<TSource, TKey>(this IEnumerable<TSource> source,
             Func<TSource, TKey> selector, IComparer<TKey> comparer)
         {
@@ -116,22 +133,15 @@ namespace Expanse.Extensions
         }
 
         /// <summary>
-        /// Returns the minimal element of the given sequence, based on
-        /// the given projection.
+        /// Returns the minimal element of the given sequence, based on the given projection.
         /// </summary>
-        /// <remarks>
-        /// If more than one element has the minimal projected value, the first
-        /// one encountered will be returned. This overload uses the default comparer
-        /// for the projected type. This operator uses immediate execution, but
-        /// only buffers a single result (the current minimal element).
-        /// </remarks>
-        /// <typeparam name="TSource">Type of the source sequence</typeparam>
-        /// <typeparam name="TKey">Type of the projected element</typeparam>
-        /// <param name="source">Source sequence</param>
-        /// <param name="selector">Selector to use to pick the results to compare</param>
+        /// <typeparam name="TSource">Type of the source sequence.</typeparam>
+        /// <typeparam name="TKey">Type of the projected element.</typeparam>
+        /// <param name="source">Source sequence.</param>
+        /// <param name="selector">Selector to use to pick the results to compare.</param>
         /// <returns>The minimal element, according to the projection.</returns>
-        /// <exception cref="ArgumentNullException"><paramref name="source"/> or <paramref name="selector"/> is null</exception>
-        /// <exception cref="InvalidOperationException"><paramref name="source"/> is empty</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="source"/> or <paramref name="selector"/> is null.</exception>
+        /// <exception cref="InvalidOperationException"><paramref name="source"/> is empty.</exception>
         public static TSource MinBy<TSource, TKey>(this IEnumerable<TSource> source,
             Func<TSource, TKey> selector)
         {
@@ -139,23 +149,16 @@ namespace Expanse.Extensions
         }
 
         /// <summary>
-        /// Returns the minimal element of the given sequence, based on
-        /// the given projection and the specified comparer for projected values.
+        /// Returns the minimal element of the given sequence, based on the given projection and the specified comparer for projected values.
         /// </summary>
-        /// <remarks>
-        /// If more than one element has the minimal projected value, the first
-        /// one encountered will be returned. This operator uses immediate execution, but
-        /// only buffers a single result (the current minimal element).
-        /// </remarks>
-        /// <typeparam name="TSource">Type of the source sequence</typeparam>
-        /// <typeparam name="TKey">Type of the projected element</typeparam>
-        /// <param name="source">Source sequence</param>
-        /// <param name="selector">Selector to use to pick the results to compare</param>
-        /// <param name="comparer">Comparer to use to compare projected values</param>
+        /// <typeparam name="TSource">Type of the source sequence.</typeparam>
+        /// <typeparam name="TKey">Type of the projected element.</typeparam>
+        /// <param name="source">Source sequence.</param>
+        /// <param name="selector">Selector to use to pick the results to compare.</param>
+        /// <param name="comparer">Comparer to use to compare projected values.</param>
         /// <returns>The minimal element, according to the projection.</returns>
-        /// <exception cref="ArgumentNullException"><paramref name="source"/>, <paramref name="selector"/> 
-        /// or <paramref name="comparer"/> is null</exception>
-        /// <exception cref="InvalidOperationException"><paramref name="source"/> is empty</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="source"/>, <paramref name="selector"/> or <paramref name="comparer"/> is null.</exception>
+        /// <exception cref="InvalidOperationException"><paramref name="source"/> is empty.</exception>
         public static TSource MinBy<TSource, TKey>(this IEnumerable<TSource> source,
             Func<TSource, TKey> selector, IComparer<TKey> comparer)
         {

@@ -4,14 +4,21 @@ using System.Collections.Generic;
 namespace Expanse.Extensions
 {
     /// <summary>
-    /// A collection of T[] related LINQ-like extension methods.
+    /// A collection of System.Array related LINQ-like extension methods.
     /// </summary>
     public static class ArrayLinq
     {
         /// <summary>
-        /// Returns a new array where items are casted from one type to another. Faster than Cast<>().ToArray().
+        /// Returns a new array where items are casted from one type to another.
+        /// <para>Faster than Cast().ToArray().</para>
         /// </summary>
+        /// <typeparam name="TInput">Array input type.</typeparam>
+        /// <typeparam name="TOutput">Array output type.</typeparam>
+        /// <param name="list">Source input list.</param>
+        /// <returns>Returns a new array of type <typeparamref name="TOutput"/></returns>
         public static TOutput[] CastToArray<TInput, TOutput>(this IList<TInput> list)
+            where TInput : class
+            where TOutput : class
         {
             if (list == null)
                 throw new ArgumentNullException("source");
@@ -22,15 +29,20 @@ namespace Expanse.Extensions
 
             for (int i = 0; i < count; i++)
             {
-                output[i] = (TOutput)(object)list[i];
+                output[i] = list[i] as TOutput;
             }
-
             return output;
         }
 
         /// <summary>
-        /// Returns a new array where items are selected from another list. Faster than Select<>().ToArray().
+        /// Returns a new array where items are selected from another list.
+        /// <para>Faster than Select().ToArray().</para>
         /// </summary>
+        /// <typeparam name="TInput">Array input type.</typeparam>
+        /// <typeparam name="TOutput">Array output type.</typeparam>
+        /// <param name="list">Source input list.</param>
+        /// <param name="selector">Selects items of type <typeparamref name="TOutput"/> from input list.</param>
+        /// <returns>Returns a new array of type <typeparamref name="TOutput"/></returns>
         public static TOutput[] SelectToArray<TInput, TOutput>(this IList<TInput> list, Func<TInput, TOutput> selector)
         {
             if (list == null)
@@ -54,8 +66,14 @@ namespace Expanse.Extensions
         }
 
         /// <summary>
-        /// Returns a new array where items are selected from another list of lists. Faster than SelectMany<>().ToArray().
+        /// Returns a new array where items are selected from another list of lists.
+        /// <para>Faster than SelectMany().ToArray().</para>
         /// </summary>
+        /// <typeparam name="TInput">Array input type.</typeparam>
+        /// <typeparam name="TOutput">Array output type.</typeparam>
+        /// <param name="list">Source input list.</param>
+        /// <param name="selector">Selects lists of items of type <typeparamref name="TOutput"/> from input list.</param>
+        /// <returns>Returns a new array of type <typeparamref name="TOutput"/></returns>
         public static TOutput[] SelectManyToArray<TInput, TOutput>(this IList<TInput> list, Func<TInput, IList<TOutput>> selector)
         {
             if (list == null)
@@ -91,5 +109,94 @@ namespace Expanse.Extensions
 
             return output;
         }
+
+#if UNSAFE
+        /// <summary>
+        /// Unsafely creates a new array where items from another list meet some criteria.
+        /// <para>Less allocation than Where().ToArray() but may be slower or faster.</para>
+        /// </summary>
+        /// <typeparam name="T">Array input type,</typeparam>
+        /// <param name="list">Source input list.</param>
+        /// <param name="predicate">Condition to be met before adding to array.</param>
+        /// <returns>Returns a new array with items from a list that met a specified condition.</returns>
+        public unsafe static T[] UnsafeWhereToArray<T>(this IList<T> list, Func<T, bool> predicate)
+        {
+            if (list == null)
+                throw new ArgumentNullException("source");
+
+            if (predicate == null)
+                throw new ArgumentNullException("predicate");
+
+            int totalCount = list.Count;
+            int count = 0;
+
+            int* indicies = stackalloc int[totalCount];
+
+            for (int i = 0; i < totalCount; i++)
+            {
+                T item = list[i];
+
+                if (predicate(item))
+                {
+                    indicies[count++] = i;
+                }
+            }
+
+            T[] output = new T[count];
+
+            for (int i = 0; i < count; i++)
+            {
+                int index = indicies[i];
+                T item = list[index];
+                output[i] = item;
+            }
+
+            return output;
+        }
+
+        /// <summary>
+        /// Unsafely creates a new array where items are casted from one type to another.
+        /// <para>Less allocation than OfType().ToArray() but may be slower or faster.</para>
+        /// </summary>
+        /// <typeparam name="TInput">List input type.</typeparam>
+        /// <typeparam name="TOutput">List output type.</typeparam>
+        /// <param name="list">Source input list.</param>
+        /// <returns>Returns a new array where items are casted from one type to another.</returns>
+        public unsafe static TOutput[] UnsafeOfTypeToArray<TInput, TOutput>(this IList<TInput> list)
+            where TInput : class
+            where TOutput : class
+        {
+            if (list == null)
+                throw new ArgumentNullException("source");
+
+            int totalCount = list.Count;
+            int count = 0;
+
+            int* indicies = stackalloc int[totalCount];
+
+            for (int i = 0; i < totalCount; i++)
+            {
+                TInput elem = list[i];
+                TOutput item = elem as TOutput;
+
+                if (item != null)
+                {
+                    indicies[count++] = i;
+                }
+            }
+
+            TOutput[] output = new TOutput[count];
+
+            for (int i = 0; i < count; i++)
+            {
+                int index = indicies[i];
+                TInput elem = list[index];
+                TOutput item = elem as TOutput;
+                output[i] = item;
+            }
+
+            return output;
+        }
+#endif
     }
 }
