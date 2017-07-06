@@ -12,7 +12,7 @@ namespace Expanse.Extensions
         /// Determines if a list contains a value.
         /// </summary>
         /// <typeparam name="T">Type of sequence.</typeparam>
-        /// <param name="list">Source list of elements</param>
+        /// <param name="list">Source list of elements.</param>
         /// <param name="value">Value to check for in list.</param>
         /// <returns>Returns true if a list contains a value.</returns>
         public static bool ContainsValue<T>(this IList<T> list, T value) where T : IEquatable<T>
@@ -487,7 +487,7 @@ namespace Expanse.Extensions
 #if UNSAFE
         /// <summary>
         /// Unsafely creates a new list where items from another list meet some criteria.
-        /// 
+        /// <para>Less allocation than WhereToList() but may be slower or faster.</para>
         /// </summary>
         /// <typeparam name="T">List input type.</typeparam>
         /// <param name="list">Source input list.</param>
@@ -523,6 +523,47 @@ namespace Expanse.Extensions
                 int index = indicies[i];
                 T item = list[index];
                 output.Add(item);
+            }
+
+            return output;
+        }
+
+        /// <summary>
+        /// Unsafely creates a new list of ints where ints from another list meet some criteria.
+        /// <para>Less allocation than WhereToList() but may be slower or faster.</para>
+        /// </summary>
+        /// <typeparam name="T">List input type.</typeparam>
+        /// <param name="list">Source input list.</param>
+        /// <param name="predicate">Condition to be met before adding to list.</param>
+        /// <returns>Returns a new list with items from a list that met a specified condition.</returns>
+        public unsafe static List<int> UnsafeWhereToList(this IList<int> list, Func<int, bool> predicate)
+        {
+            if (list == null)
+                throw new ArgumentNullException("source");
+
+            if (predicate == null)
+                throw new ArgumentNullException("predicate");
+
+            int totalCount = list.Count;
+            int count = 0;
+
+            int* ints = stackalloc int[totalCount];
+
+            for (int i = 0; i < totalCount; i++)
+            {
+                int item = list[i];
+
+                if (predicate(item))
+                {
+                    ints[count++] = item;
+                }
+            }
+
+            List<int> output = new List<int>(count);
+
+            for (int i = 0; i < count; i++)
+            {
+                output.Add(ints[i]);
             }
 
             return output;

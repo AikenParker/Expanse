@@ -2,16 +2,30 @@
 
 namespace Expanse.Misc
 {
+    /// <summary>
+    /// Collection of keycode constants for various platform specific controllers.
+    /// </summary>
     public static class InputConstants
     {
+        /// <summary>
+        /// Maximum amount of joysticks buttons.
+        /// </summary>
         public const int JOYSTICK_BUTTON_COUNT = 20;
 
-        // controllerIndex 0 = Any
+        /// <summary>
+        /// Gets a specfic controller keycode.
+        /// </summary>
+        /// <param name="key">Base keycode to get. E.g. InputConstants.PlayStation.CROSS</param>
+        /// <param name="controllerIndex">Controller index for specific keycode. (0 = Any)</param>
+        /// <returns>Returns the keycode for a specific controller.</returns>
         public static KeyCode ForJoystick(KeyCode key, int controllerIndex)
         {
             return key + (controllerIndex * JOYSTICK_BUTTON_COUNT);
         }
 
+        /// <summary>
+        /// Keycode constants for a standard DualShock PlayStation controller gamepad.
+        /// </summary>
         public static class PlayStation
         {
             public const KeyCode CROSS = KeyCode.JoystickButton0;
@@ -26,7 +40,10 @@ namespace Expanse.Misc
             public const KeyCode R3 = KeyCode.JoystickButton9;
         }
 
-        public static class XBox
+        /// <summary>
+        /// Keycode constants for a standard Xbox controller gamepad.
+        /// </summary>
+        public static class Xbox
         {
             public const KeyCode A = KeyCode.JoystickButton0;
             public const KeyCode B = KeyCode.JoystickButton1;
@@ -40,6 +57,9 @@ namespace Expanse.Misc
             public const KeyCode RIGHT_STICK = KeyCode.JoystickButton9;
         }
 
+        /// <summary>
+        /// Keycode constants for standard Android buttons.
+        /// </summary>
         public static class Android
         {
             public const KeyCode HOME = KeyCode.Home;

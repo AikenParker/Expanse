@@ -155,6 +155,88 @@ namespace Expanse.Extensions
         }
 
         /// <summary>
+        /// Unsafely creates a new array of ints where ints from another list meet some criteria.
+        /// <para>Less allocation than Where().ToArray() but may be slower or faster.</para>
+        /// </summary>
+        /// <typeparam name="T">Array input type,</typeparam>
+        /// <param name="list">Source input list.</param>
+        /// <param name="predicate">Condition to be met before adding to array.</param>
+        /// <returns>Returns a new array with items from a list that met a specified condition.</returns>
+        public unsafe static int[] UnsafeWhereToArray(this IList<int> list, Func<int, bool> predicate)
+        {
+            if (list == null)
+                throw new ArgumentNullException("source");
+
+            if (predicate == null)
+                throw new ArgumentNullException("predicate");
+
+            int totalCount = list.Count;
+            int count = 0;
+
+            int* ints = stackalloc int[totalCount];
+
+            for (int i = 0; i < totalCount; i++)
+            {
+                int item = list[i];
+
+                if (predicate(item))
+                {
+                    ints[count++] = item;
+                }
+            }
+
+            int[] output = new int[count];
+
+            for (int i = 0; i < count; i++)
+            {
+                output[i] = ints[i];
+            }
+
+            return output;
+        }
+
+        /// <summary>
+        /// Unsafely creates a new array of float where float from another list meet some criteria.
+        /// <para>Less allocation than Where().ToArray() but may be slower or faster.</para>
+        /// </summary>
+        /// <typeparam name="T">Array input type,</typeparam>
+        /// <param name="list">Source input list.</param>
+        /// <param name="predicate">Condition to be met before adding to array.</param>
+        /// <returns>Returns a new array with items from a list that met a specified condition.</returns>
+        public unsafe static float[] UnsafeWhereToArray(this IList<float> list, Func<float, bool> predicate)
+        {
+            if (list == null)
+                throw new ArgumentNullException("source");
+
+            if (predicate == null)
+                throw new ArgumentNullException("predicate");
+
+            int totalCount = list.Count;
+            int count = 0;
+
+            float* floats = stackalloc float[totalCount];
+
+            for (int i = 0; i < totalCount; i++)
+            {
+                float item = list[i];
+
+                if (predicate(item))
+                {
+                    floats[count++] = item;
+                }
+            }
+
+            float[] output = new float[count];
+
+            for (int i = 0; i < count; i++)
+            {
+                output[i] = floats[i];
+            }
+
+            return output;
+        }
+
+        /// <summary>
         /// Unsafely creates a new array where items are casted from one type to another.
         /// <para>Less allocation than OfType().ToArray() but may be slower or faster.</para>
         /// </summary>
