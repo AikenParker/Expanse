@@ -14,10 +14,6 @@ using Expanse.Motion;
 using Expanse.Utilities;
 using Expanse.Extensions;
 
-#if ODIN_INSPECTOR
-using Sirenix.OdinInspector;
-#endif
-
 #endregion
 
 namespace NAMESPACE

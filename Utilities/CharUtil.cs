@@ -1,4 +1,6 @@
-﻿namespace Expanse.Utilities
+﻿using System;
+
+namespace Expanse.Utilities
 {
     /// <summary>
     /// Collection of System.Char related utility functionality.
