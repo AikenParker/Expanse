@@ -8,6 +8,9 @@ namespace Expanse
     /// </summary>
     public class CryptoRNG : IRandomNumberGenerator
     {
+        protected readonly byte[] byteCache32 = new byte[4];
+        protected readonly byte[] byteCache64 = new byte[8];
+
         /// <summary>
         /// Creates a new Random wrapper using CryptoRNG.
         /// </summary>
@@ -25,11 +28,9 @@ namespace Expanse
 
         double IRandomNumberGenerator.NextDouble()
         {
-            byte[] bytes = new byte[8];
+            rng.GetBytes(byteCache64);
 
-            rng.GetBytes(bytes);
-
-            ulong @ulong = BitConverter.ToUInt64(bytes, 0) / (1 << 11);
+            ulong @ulong = BitConverter.ToUInt64(byteCache64, 0) / (1 << 11);
 
             double value = @ulong / (double)(1UL << 0x35);
 
@@ -38,13 +39,11 @@ namespace Expanse
 
         int IRandomNumberGenerator.NextInt()
         {
-            byte[] bytes = new byte[4];
+            rng.GetBytes(byteCache32);
 
-            rng.GetBytes(bytes);
+            byteCache32.SetBit(31, false);
 
-            bytes.SetBit(31, false);
-
-            return BitConverter.ToInt32(bytes, 0);
+            return BitConverter.ToInt32(byteCache32, 0);
         }
 
         int IRandomNumberGenerator.NextInt(int max)
@@ -52,13 +51,11 @@ namespace Expanse
             if (max == 0)
                 return 0;
 
-            byte[] bytes = new byte[4];
+            rng.GetBytes(byteCache32);
 
-            rng.GetBytes(bytes);
+            byteCache32.SetBit(31, max < 0);
 
-            bytes.SetBit(31, max < 0);
-
-            int value = BitConverter.ToInt32(bytes, 0) % max;
+            int value = BitConverter.ToInt32(byteCache32, 0) % max;
 
             return value;
         }
@@ -72,13 +69,11 @@ namespace Expanse
             if (range == 0)
                 return min;
 
-            byte[] bytes = new byte[4];
+            rng.GetBytes(byteCache32);
 
-            rng.GetBytes(bytes);
+            byteCache32.SetBit(31, diff < 0);
 
-            bytes.SetBit(31, diff < 0);
-
-            int value = BitConverter.ToInt32(bytes, 0) % range;
+            int value = BitConverter.ToInt32(byteCache32, 0) % range;
 
             return value + min;
         }
