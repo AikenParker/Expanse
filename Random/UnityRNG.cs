@@ -1,27 +1,27 @@
 ﻿using System;
 using Expanse.Extensions;
 
-namespace Expanse
+namespace Expanse.Random
 {
     /// <summary>
     /// Generates random numbers using UnityEngine.Random.
     /// </summary>
-    public class UnityRNG : IRandomNumberGenerator
+    public class UnityRNG : IRNG
     {
         /// <summary>
         /// Creates a new Random wrapper using UnityRNG.
         /// </summary>
-        public static Random CreateNew()
+        public static RNG CreateNew()
         {
-            return new Random(new UnityRNG());
+            return new RNG(new UnityRNG());
         }
 
         /// <summary>
         /// Creates a new Random wrapper using UnityRNG.
         /// </summary>
-        public static Random CreateNew(int seed)
+        public static RNG CreateNew(int seed)
         {
-            return new Random(new UnityRNG(seed));
+            return new RNG(new UnityRNG(seed));
         }
 
         protected UnityEngine.Random.State rngState;
@@ -37,7 +37,11 @@ namespace Expanse
             UnityEngine.Random.state = prevState;
         }
 
-        double IRandomNumberGenerator.NextDouble()
+        /// <summary>
+        /// Generates the next random double value between 0 and 1.
+        /// </summary>
+        /// <returns>Returns the next random double value between 0 and 1.</returns>
+        public double NextDouble()
         {
             UnityEngine.Random.State prevState = UnityEngine.Random.state;
             UnityEngine.Random.state = rngState;
@@ -50,7 +54,11 @@ namespace Expanse
             return value;
         }
 
-        int IRandomNumberGenerator.NextInt()
+        /// <summary>
+        /// Generates the next random int value between 0 and Int32.MaxValue.
+        /// </summary>
+        /// <returns>Returns the next random int value between 0 and Int32.MaxValue.</returns>
+        public int NextInt()
         {
             UnityEngine.Random.State prevState = UnityEngine.Random.state;
             UnityEngine.Random.state = rngState;
@@ -63,7 +71,12 @@ namespace Expanse
             return value;
         }
 
-        int IRandomNumberGenerator.NextInt(int max)
+        /// <summary>
+        /// Generates the next random int value between 0 and max.
+        /// </summary>
+        /// <param name="max">Maximum specified int value. (Exclusive)</param>
+        /// <returns>Returns the next random int value between 0 and max.</returns>
+        public int NextInt(int max)
         {
             UnityEngine.Random.State prevState = UnityEngine.Random.state;
             UnityEngine.Random.state = rngState;
@@ -76,7 +89,13 @@ namespace Expanse
             return value;
         }
 
-        int IRandomNumberGenerator.NextInt(int min, int max)
+        /// <summary>
+        /// Generates the next random int value between min and max.
+        /// </summary>
+        /// <param name="min">Maximum specified int value. (Inclusive)</param>
+        /// <param name="max">Maximum specified int value. (Exclusive)</param>
+        /// <returns>Generates the next random int value between min and max.</returns>
+        public int NextInt(int min, int max)
         {
             UnityEngine.Random.State prevState = UnityEngine.Random.state;
             UnityEngine.Random.state = rngState;
@@ -89,7 +108,11 @@ namespace Expanse
             return value;
         }
 
-        void IRandomNumberGenerator.NextBytes(byte[] data)
+        /// <summary>
+        /// Generates the next byte values from the random number generator.
+        /// </summary>
+        /// <param name="data">Byte array to set the random bytes into.</param>
+        public void NextBytes(byte[] data)
         {
             UnityEngine.Random.State prevState = UnityEngine.Random.state;
             UnityEngine.Random.state = rngState;

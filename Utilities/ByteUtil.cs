@@ -326,7 +326,9 @@ namespace Expanse.Utilities
             // TODO: Allow specification of Endian type.
 
             int betweenBitLength = string.IsNullOrEmpty(betweenBit) ? 0 : betweenBit.Length;
+
             char[] binaryCharArr = new char[8 + (7 * betweenBitLength)];
+
             int position = 0;
 
             for (int i = 0; i < 8; i++)
@@ -359,16 +361,20 @@ namespace Expanse.Utilities
 
             // TODO: Allow specification of Endian type.
 
+            int dataLength = data.Length;
+
             int betweenBitLength = string.IsNullOrEmpty(betweenBit) ? 0 : betweenBit.Length;
             int betweenByteLength = string.IsNullOrEmpty(betweenByte) ? 0 : betweenByte.Length;
-            char[] binaryCharArr = new char[(data.Length * (8 + (7 * betweenBitLength))) + ((data.Length - 1) * betweenByteLength)];
+
+            char[] binaryCharArr = new char[(dataLength * 8) + (betweenBitLength * 7 * dataLength) + (betweenByteLength * (dataLength - 1))];
+
             int position = 0;
 
-            for (int i = 0; i < data.Length; i++)
+            for (int i = 0; i < dataLength; i++)
             {
                 for (int j = 0; j < 8; j++)
                 {
-                    binaryCharArr[position++] = data.GetBit(i) ? '1' : '0';
+                    binaryCharArr[position++] = data.GetBit(i + j) ? '1' : '0';
 
                     if (betweenBitLength > 0 && j <= 7)
                     {
@@ -379,9 +385,12 @@ namespace Expanse.Utilities
                     }
                 }
 
-                for (int j = 0; j < betweenByteLength; j++)
+                if (i != dataLength - 1)
                 {
-                    binaryCharArr[position++] = betweenByte[j];
+                    for (int j = 0; j < betweenByteLength; j++)
+                    {
+                        binaryCharArr[position++] = betweenByte[j];
+                    }
                 }
             }
 

@@ -3,28 +3,28 @@ using System.Collections.Generic;
 using Expanse.Utilities;
 using UnityEngine;
 
-namespace Expanse
+namespace Expanse.Random
 {
     /// <summary>
     /// Interface supported RNG wrapper that provides a collection of random related functionality.
     /// </summary>
-    public class Random
+    public class RNG
     {
-        protected IRandomNumberGenerator rng;
+        protected IRNG rng;
 
         /// <summary>
-        /// Random utility instance that wraps a UnityRNG instance.
+        /// Random utility instance that wraps a StatelessUnityRNG instance.
         /// </summary>
-        public Random()
+        public RNG()
         {
-            this.rng = new UnityRNG();
+            this.rng = new StatelessUnityRNG();
         }
 
         /// <summary>
         /// Random utility instance that wraps an RNG.
         /// </summary>
         /// <param name="rng">UnityRNG (default), SystemRNG, CryptoRNG</param>
-        public Random(IRandomNumberGenerator rng)
+        public RNG(IRNG rng)
         {
             this.rng = rng;
         }
@@ -191,7 +191,18 @@ namespace Expanse
         /// <returns>Returns a random normalized Vector2.</returns>
         public Vector2 Vector2()
         {
-            return new Vector2(Float(-1, 1), Float(-1, 1)).normalized;
+            float x = Float() - 0.5f;
+            float y = Float() - 0.5f;
+
+            float magnitude = Mathf.Sqrt(x * x + y * y);
+
+            if (magnitude == 0)
+                return new Vector2(0, 0);
+
+            x /= magnitude;
+            y /= magnitude;
+
+            return new Vector2(x, y);
         }
 
         /// <summary>
@@ -201,7 +212,23 @@ namespace Expanse
         /// <returns>Returns a random Vector2 with a magnitude between 0 and maxMagnitude.</returns>
         public Vector2 Vector2(float maxMagnitude)
         {
-            return new Vector2(Float(-1, 1), Float(-1, 1)).normalized * Float(maxMagnitude);
+            float x = Float() - 0.5f;
+            float y = Float() - 0.5f;
+
+            float magnitude = Mathf.Sqrt(x * x + y * y);
+
+            if (magnitude == 0)
+                return new Vector2(0, 0);
+
+            x /= magnitude;
+            y /= magnitude;
+
+            float newMagnitude = Float(maxMagnitude);
+
+            x *= newMagnitude;
+            y *= newMagnitude;
+
+            return new Vector2(x, y);
         }
 
         /// <summary>
@@ -212,10 +239,23 @@ namespace Expanse
         /// <returns>Returns a random Vector2 with a magnitude between aMagnitude and bMagnitude.</returns>
         public Vector2 Vector2(float aMagnitude, float bMagnitude)
         {
-            float minMagnitude = Mathf.Min(aMagnitude, bMagnitude);
-            float maxMagnitude = Mathf.Max(aMagnitude, bMagnitude);
+            float x = Float() - 0.5f;
+            float y = Float() - 0.5f;
 
-            return new Vector2(Float(-1, 1), Float(-1, 1)).normalized * Float(minMagnitude, maxMagnitude);
+            float magnitude = Mathf.Sqrt(x * x + y * y);
+
+            if (magnitude == 0)
+                return new Vector2(0, 0);
+
+            x /= magnitude;
+            y /= magnitude;
+
+            float newMagnitude = Float(aMagnitude, bMagnitude);
+
+            x *= newMagnitude;
+            y *= newMagnitude;
+
+            return new Vector2(x, y);
         }
 
         /// <summary>
@@ -231,7 +271,7 @@ namespace Expanse
             float magnitude = Mathf.Sqrt(x * x + y * y + z * z);
 
             if (magnitude == 0)
-                return new Vector3(x, y, z);
+                return new Vector3(0, 0, 0);
 
             x /= magnitude;
             y /= magnitude;
@@ -254,7 +294,7 @@ namespace Expanse
             float magnitude = Mathf.Sqrt(x * x + y * y + z * z);
 
             if (magnitude == 0)
-                return new Vector3(x, y, z);
+                return new Vector3(0, 0, 0);
 
             x /= magnitude;
             y /= magnitude;
@@ -284,7 +324,7 @@ namespace Expanse
             float magnitude = Mathf.Sqrt(x * x + y * y + z * z);
 
             if (magnitude == 0)
-                return new Vector3(x, y, z);
+                return new Vector3(0, 0, 0);
 
             x /= magnitude;
             y /= magnitude;
@@ -305,7 +345,22 @@ namespace Expanse
         /// <returns>Returns a random normalized Vector4.</returns>
         public Vector4 Vector4()
         {
-            return new Vector4(Float(-1, 1), Float(-1, 1), Float(-1, 1), Float(-1, 1)).normalized;
+            float x = Float() - 0.5f;
+            float y = Float() - 0.5f;
+            float z = Float() - 0.5f;
+            float w = Float() - 0.5f;
+
+            float magnitude = Mathf.Sqrt(x * x + y * y + z * z + w * w);
+
+            if (magnitude == 0)
+                return new Vector4(0, 0, 0, 0);
+
+            x /= magnitude;
+            y /= magnitude;
+            z /= magnitude;
+            w /= magnitude;
+
+            return new Vector4(x, y, z, w);
         }
 
         /// <summary>
@@ -315,7 +370,29 @@ namespace Expanse
         /// <returns>Returns a random Vector2 with a magnitude between 0 and maxMagnitude.</returns>
         public Vector4 Vector4(float maxMagnitude)
         {
-            return new Vector4(Float(-1, 1), Float(-1, 1), Float(-1, 1), Float(-1, 1)).normalized * Float(maxMagnitude);
+            float x = Float() - 0.5f;
+            float y = Float() - 0.5f;
+            float z = Float() - 0.5f;
+            float w = Float() - 0.5f;
+
+            float magnitude = Mathf.Sqrt(x * x + y * y + z * z + w * w);
+
+            if (magnitude == 0)
+                return new Vector4(0, 0, 0, 0);
+
+            x /= magnitude;
+            y /= magnitude;
+            z /= magnitude;
+            w /= magnitude;
+
+            float newMagnitude = Float(maxMagnitude);
+
+            x *= newMagnitude;
+            y *= newMagnitude;
+            z *= newMagnitude;
+            w *= newMagnitude;
+
+            return new Vector4(x, y, z, w);
         }
 
         /// <summary>
@@ -326,10 +403,29 @@ namespace Expanse
         /// <returns>Returns a random Vector4 with a magnitude between aMagnitude and bMagnitude.</returns>
         public Vector4 Vector4(float aMagnitude, float bMagnitude)
         {
-            float minMagnitude = Mathf.Min(aMagnitude, bMagnitude);
-            float maxMagnitude = Mathf.Max(aMagnitude, bMagnitude);
+            float x = Float() - 0.5f;
+            float y = Float() - 0.5f;
+            float z = Float() - 0.5f;
+            float w = Float() - 0.5f;
 
-            return new Vector4(Float(-1, 1), Float(-1, 1), Float(-1, 1), Float(-1, 1)).normalized * Float(minMagnitude, maxMagnitude);
+            float magnitude = Mathf.Sqrt(x * x + y * y + z * z + w * w);
+
+            if (magnitude == 0)
+                return new Vector4(0, 0, 0, 0);
+
+            x /= magnitude;
+            y /= magnitude;
+            z /= magnitude;
+            w /= magnitude;
+
+            float newMagnitude = Float(aMagnitude, bMagnitude);
+
+            x *= newMagnitude;
+            y *= newMagnitude;
+            z *= newMagnitude;
+            w *= newMagnitude;
+
+            return new Vector4(x, y, z, w);
         }
 
         /// <summary>
@@ -441,6 +537,64 @@ namespace Expanse
 
                 throw new UnexpectedException("An element should have been returned by now");
             }
+        }
+
+        /// <summary>
+        /// Returns a weighted random element in a list.
+        /// </summary>
+        /// <remarks>Weights below 0 are counted as 0.</remarks>
+        /// <remarks>If total weight of the list is 0 a random element is returned.</remarks>
+        /// <typeparam name="T">Type of list.</typeparam>
+        /// <param name="elements">Source list of elements.</param>
+        /// <param name="weights">Coresponding list of element weights.</param>
+        /// <returns>Returns a weighted random element in a list.</returns>
+        public T WeightedElement<T>(IList<T> elements, IList<float> weights)
+        {
+            if (elements == null)
+                throw new ArgumentNullException("elements");
+
+            if (weights == null)
+                throw new ArgumentNullException("weights");
+
+            int listCount = elements.Count;
+
+            if (listCount == 0)
+                throw new InvalidArgumentException("elements must have at least 1 element");
+
+            if (listCount != weights.Count)
+                throw new InvalidArgumentException("elements count must equal weights count");
+
+            float totalWeight = 0;
+
+            for (int i = 0; i < listCount; i++)
+            {
+                float weight = weights[i];
+
+                if (weight > 0)
+                    totalWeight += weights[i];
+            }
+
+            if (totalWeight == 0)
+                return Element(elements);
+
+            float randomVal = Float(totalWeight);
+
+            float currentWeight = 0f;
+
+            for (int i = 0; i < listCount; i++)
+            {
+                float weight = weights[i];
+
+                if (weight > 0)
+                {
+                    currentWeight += weight;
+
+                    if (currentWeight >= randomVal)
+                        return elements[i];
+                }
+            }
+
+            throw new UnexpectedException("An element should have been returned by now");
         }
 
         /// <summary>

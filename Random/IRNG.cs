@@ -1,6 +1,6 @@
-﻿namespace Expanse
+﻿namespace Expanse.Random
 {
-    public interface IRandomNumberGenerator
+    public interface IRNG
     {
         /// <summary>
         /// Returns a random double between 0 and 1.

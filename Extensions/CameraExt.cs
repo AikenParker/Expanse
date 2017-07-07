@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using UnityEngine;
+using Expanse.Random;
 
 namespace Expanse.Extensions
 {
@@ -56,7 +57,7 @@ namespace Expanse.Extensions
         /// <param name="frequency">Time between each shake.</param>
         /// <param name="rng">Random number generator to use.</param>
         /// <returns>Returns a coroutine that shakes a camera.</returns>
-        public static IEnumerator Co_BasicShake(this Camera camera, float strength, float duration, float frequency, Random rng = null)
+        public static IEnumerator Co_BasicShake(this Camera camera, float strength, float duration, float frequency, RNG rng = null)
         {
             rng = rng ?? RandomUtil.Instance;
 

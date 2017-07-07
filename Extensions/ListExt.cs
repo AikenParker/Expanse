@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Expanse.Random;
 
 namespace Expanse.Extensions
 {
@@ -523,7 +524,7 @@ namespace Expanse.Extensions
         /// <typeparam name="T">Type of the list elements.</typeparam>
         /// <param name="list">Source list.</param>
         /// <param name="rng">Random number generator to use.</param>
-        public static void Shuffle<T>(this IList<T> list, Random rng = null)
+        public static void Shuffle<T>(this IList<T> list, RNG rng = null)
         {
             if (list == null)
                 throw new ArgumentNullException("list");

@@ -2,21 +2,21 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Expanse
+namespace Expanse.Random
 {
     /// <summary>
     /// Thread-safe static utility methods for Expanse.Random.
     /// </summary>
     public static class RandomUtil
     {
-        private static Random instance = new Random();
+        private static RNG instance = new RNG();
 
         private readonly static object @lock = new object();
 
         /// <summary>
         /// Global static instance of Random.
         /// </summary>
-        public static Random Instance
+        public static RNG Instance
         {
             get { return instance; }
             set
@@ -389,6 +389,23 @@ namespace Expanse
             lock (@lock)
             {
                 return instance.WeightedElement(list, weightSelector);
+            }
+        }
+
+        /// <summary>
+        /// Returns a weighted random element in a list.
+        /// </summary>
+        /// <remarks>Weights below 0 are counted as 0.</remarks>
+        /// <remarks>If total weight of the list is 0 a random element is returned.</remarks>
+        /// <typeparam name="T">Type of list.</typeparam>
+        /// <param name="elements">Source list of elements.</param>
+        /// <param name="weights">Coresponding list of element weights.</param>
+        /// <returns>Returns a weighted random element in a list.</returns>
+        public static T WeightedElement<T>(IList<T> elements, IList<float> weights)
+        {
+            lock (@lock)
+            {
+                return instance.WeightedElement(elements, weights);
             }
         }
 

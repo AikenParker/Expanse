@@ -1,4 +1,5 @@
 ﻿using System;
+using Expanse.Random;
 using Expanse.Utilities;
 using UnityEngine;
 
@@ -130,7 +131,7 @@ namespace Expanse
         public float CurrentTime { get; private set; }
         public float TotalPassedTime { get; private set; }
         public bool IsRandomized { get; set; }
-        public Random Randomizer { get; set; }
+        public RNG Randomizer { get; set; }
         public float MinDuration { get; set; }
         public float MaxDuration { get; set; }
         public bool IsPlaying { get; set; }

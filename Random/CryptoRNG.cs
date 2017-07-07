@@ -1,12 +1,12 @@
 ﻿using System;
 using Expanse.Extensions;
 
-namespace Expanse
+namespace Expanse.Random
 {
     /// <summary>
     /// Generates random numbers using System.Security.Cryptography.RNGCryptoServiceProvider.
     /// </summary>
-    public class CryptoRNG : IRandomNumberGenerator
+    public class CryptoRNG : IRNG
     {
         protected readonly byte[] byteCache32 = new byte[4];
         protected readonly byte[] byteCache64 = new byte[8];
@@ -14,9 +14,9 @@ namespace Expanse
         /// <summary>
         /// Creates a new Random wrapper using CryptoRNG.
         /// </summary>
-        public static Random CreateNew()
+        public static RNG CreateNew()
         {
-            return new Random(new CryptoRNG());
+            return new RNG(new CryptoRNG());
         }
 
         protected System.Security.Cryptography.RNGCryptoServiceProvider rng;
@@ -26,7 +26,11 @@ namespace Expanse
             rng = new System.Security.Cryptography.RNGCryptoServiceProvider();
         }
 
-        double IRandomNumberGenerator.NextDouble()
+        /// <summary>
+        /// Generates the next random double value between 0 and 1.
+        /// </summary>
+        /// <returns>Returns the next random double value between 0 and 1.</returns>
+        public double NextDouble()
         {
             rng.GetBytes(byteCache64);
 
@@ -37,7 +41,11 @@ namespace Expanse
             return value;
         }
 
-        int IRandomNumberGenerator.NextInt()
+        /// <summary>
+        /// Generates the next random int value between 0 and Int32.MaxValue.
+        /// </summary>
+        /// <returns>Returns the next random int value between 0 and Int32.MaxValue.</returns>
+        public int NextInt()
         {
             rng.GetBytes(byteCache32);
 
@@ -46,7 +54,12 @@ namespace Expanse
             return BitConverter.ToInt32(byteCache32, 0);
         }
 
-        int IRandomNumberGenerator.NextInt(int max)
+        /// <summary>
+        /// Generates the next random int value between 0 and max.
+        /// </summary>
+        /// <param name="max">Maximum specified int value. (Exclusive)</param>
+        /// <returns>Returns the next random int value between 0 and max.</returns>
+        public int NextInt(int max)
         {
             if (max == 0)
                 return 0;
@@ -60,7 +73,13 @@ namespace Expanse
             return value;
         }
 
-        int IRandomNumberGenerator.NextInt(int min, int max)
+        /// <summary>
+        /// Generates the next random int value between min and max.
+        /// </summary>
+        /// <param name="min">Maximum specified int value. (Inclusive)</param>
+        /// <param name="max">Maximum specified int value. (Exclusive)</param>
+        /// <returns>Generates the next random int value between min and max.</returns>
+        public int NextInt(int min, int max)
         {
             int diff = max - min;
             int mask = diff >> 31;
@@ -78,7 +97,11 @@ namespace Expanse
             return value + min;
         }
 
-        void IRandomNumberGenerator.NextBytes(byte[] data)
+        /// <summary>
+        /// Generates the next byte values from the random number generator.
+        /// </summary>
+        /// <param name="data">Byte array to set the random bytes into.</param>
+        public void NextBytes(byte[] data)
         {
             rng.GetBytes(data);
         }

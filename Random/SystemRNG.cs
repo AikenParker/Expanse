@@ -1,26 +1,26 @@
 ﻿using System;
 
-namespace Expanse
+namespace Expanse.Random
 {
     /// <summary>
     /// Generates random numbers using System.Random.
     /// </summary>
-    public class SystemRNG : IRandomNumberGenerator
+    public class SystemRNG : IRNG
     {
         /// <summary>
         /// Creates a new Random wrapper using SystemRNG.
         /// </summary>
-        public static Random CreateNew()
+        public static RNG CreateNew()
         {
-            return new Random(new SystemRNG());
+            return new RNG(new SystemRNG());
         }
 
         /// <summary>
         /// Creates a new Random wrapper using SystemRNG.
         /// </summary>
-        public static Random CreateNew(int seed)
+        public static RNG CreateNew(int seed)
         {
-            return new Random(new SystemRNG(seed));
+            return new RNG(new SystemRNG(seed));
         }
 
         protected System.Random rng;
@@ -32,27 +32,50 @@ namespace Expanse
             rng = new System.Random(seed);
         }
 
-        double IRandomNumberGenerator.NextDouble()
+        /// <summary>
+        /// Generates the next random double value between 0 and 1.
+        /// </summary>
+        /// <returns>Returns the next random double value between 0 and 1.</returns>
+        public double NextDouble()
         {
             return rng.NextDouble();
         }
 
-        int IRandomNumberGenerator.NextInt()
+        /// <summary>
+        /// Generates the next random int value between 0 and Int32.MaxValue.
+        /// </summary>
+        /// <returns>Returns the next random int value between 0 and Int32.MaxValue.</returns>
+        public int NextInt()
         {
             return rng.Next();
         }
 
-        int IRandomNumberGenerator.NextInt(int max)
+        /// <summary>
+        /// Generates the next random int value between 0 and max.
+        /// </summary>
+        /// <param name="max">Maximum specified int value. (Exclusive)</param>
+        /// <returns>Returns the next random int value between 0 and max.</returns>
+        public int NextInt(int max)
         {
             return rng.Next(max);
         }
 
-        int IRandomNumberGenerator.NextInt(int min, int max)
+        /// <summary>
+        /// Generates the next random int value between min and max.
+        /// </summary>
+        /// <param name="min">Maximum specified int value. (Inclusive)</param>
+        /// <param name="max">Maximum specified int value. (Exclusive)</param>
+        /// <returns>Generates the next random int value between min and max.</returns>
+        public int NextInt(int min, int max)
         {
             return rng.Next(min, max);
         }
 
-        void IRandomNumberGenerator.NextBytes(byte[] data)
+        /// <summary>
+        /// Generates the next byte values from the random number generator.
+        /// </summary>
+        /// <param name="data">Byte array to set the random bytes into.</param>
+        public void NextBytes(byte[] data)
         {
             rng.NextBytes(data);
         }
