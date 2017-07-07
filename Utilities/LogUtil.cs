@@ -161,14 +161,14 @@ namespace Expanse.Utilities
         /// <summary>
         /// Logs a collection of objects.
         /// </summary>
-        /// <typeparam name="Input">Type of the objects that gets input.</typeparam>
-        /// <typeparam name="Output">Type of the objects that gets logged.</typeparam>
+        /// <typeparam name="TInput">Type of the objects that gets input.</typeparam>
+        /// <typeparam name="TOutput">Type of the objects that gets logged.</typeparam>
         /// <param name="source">Source objects to be logged.</param>
         /// <param name="logFormat">Describes the formatting of the log.</param>
         /// <param name="logType">Type of log.</param>
         /// <param name="selector">Converts the input object into the output object.</param>
         [Conditional(CONDITIONAL), DebuggerHidden]
-        public static void LogIterator<Input, Output>(IEnumerable<Input> source, string logFormat = null, LogType logType = LogType.Log, Func<Input, Output> selector = null)
+        public static void LogIterator<TInput, TOutput>(IEnumerable<TInput> source, string logFormat = null, LogType logType = LogType.Log, Func<TInput, TOutput> selector = null)
         {
             if (source == null)
                 throw new ArgumentNullException("source");
@@ -190,13 +190,20 @@ namespace Expanse.Utilities
             {
                 StringBuilder logBuilder = new StringBuilder(sourceCount);
 
-                foreach (Input item in source)
+                foreach (TInput item in source)
                 {
                     string message = logFormat;
 
                     if (containsItemFormatTag)
                     {
-                        string sourceStr = item != null ? (hasSelector ? selector(item).ToString() : item.ToString()) : nullFormatTag;
+                        string sourceStr = item != null ? item.ToString() : nullFormatTag;
+
+                        if (hasSelector)
+                        {
+                            TOutput outputItem = selector(item);
+
+                            sourceStr = outputItem != null ? outputItem.ToString() : nullFormatTag;
+                        }
 
                         message = message.Replace(itemFormatTag, sourceStr);
                     }
@@ -209,7 +216,7 @@ namespace Expanse.Utilities
 
                     if (containsTypeFormatTag)
                     {
-                        string typeStr = item != null ? item.GetType().FullName : (hasSelector ? typeof(Output).FullName : typeof(Input).FullName);
+                        string typeStr = item != null ? item.GetType().FullName : (hasSelector ? typeof(TOutput).FullName : typeof(TInput).FullName);
                         message = message.Replace(typeFormatTag, typeStr);
                     }
 
@@ -227,13 +234,20 @@ namespace Expanse.Utilities
             }
             else
             {
-                foreach (Input item in source)
+                foreach (TInput item in source)
                 {
                     string message = logFormat;
 
                     if (containsItemFormatTag)
                     {
-                        string sourceStr = item != null ? (hasSelector ? selector(item).ToString() : item.ToString()) : nullFormatTag;
+                        string sourceStr = item != null ? item.ToString() : nullFormatTag;
+
+                        if (hasSelector)
+                        {
+                            TOutput outputItem = selector(item);
+
+                            sourceStr = outputItem != null ? outputItem.ToString() : nullFormatTag;
+                        }
 
                         message = message.Replace(itemFormatTag, sourceStr);
                     }
@@ -246,7 +260,7 @@ namespace Expanse.Utilities
 
                     if (containsTypeFormatTag)
                     {
-                        string typeStr = item != null ? item.GetType().FullName : (hasSelector ? typeof(Output).FullName : typeof(Input).FullName);
+                        string typeStr = item != null ? item.GetType().FullName : (hasSelector ? typeof(TOutput).FullName : typeof(TInput).FullName);
                         message = message.Replace(typeFormatTag, typeStr);
                     }
 
@@ -266,14 +280,14 @@ namespace Expanse.Utilities
         /// <summary>
         /// Logs an object.
         /// </summary>
-        /// <typeparam name="Input">Type of the object that gets input.</typeparam>
-        /// <typeparam name="Output">Type of the object that gets logged.</typeparam>
+        /// <typeparam name="TInput">Type of the object that gets input.</typeparam>
+        /// <typeparam name="TOutput">Type of the object that gets logged.</typeparam>
         /// <param name="source">Source object to be logged.</param>
         /// <param name="logFormat">Describes the formatting of the log.</param>
         /// <param name="logType">Type of log.</param>
         /// <param name="selector">Converts the input object into the output object.</param>
         [Conditional(CONDITIONAL), DebuggerHidden]
-        public static void Log<Input, Output>(Input source, string logFormat = null, LogType logType = LogType.Log, Func<Input, Output> selector = null)
+        public static void Log<TInput, TOutput>(TInput source, string logFormat = null, LogType logType = LogType.Log, Func<TInput, TOutput> selector = null)
         {
             logFormat = logFormat ?? DefaultLogFormat;
 
@@ -282,14 +296,22 @@ namespace Expanse.Utilities
             if (message.Contains(itemFormatTag))
             {
                 bool hasSelector = selector != null;
-                string sourceStr = source != null ? (hasSelector ? selector(source).ToString() : source.ToString()) : nullFormatTag;
+
+                string sourceStr = source != null ? source.ToString() : nullFormatTag;
+
+                if (hasSelector)
+                {
+                    TOutput outputItem = selector(source);
+
+                    sourceStr = outputItem != null ? outputItem.ToString() : nullFormatTag;
+                }
 
                 message = message.Replace(itemFormatTag, sourceStr);
             }
 
             if (message.Contains(typeFormatTag))
             {
-                string typeStr = selector != null ? typeof(Output).FullName : typeof(Input).FullName;
+                string typeStr = selector != null ? typeof(TOutput).FullName : typeof(TInput).FullName;
                 message = message.Replace(typeFormatTag, typeStr);
             }
 
@@ -305,12 +327,12 @@ namespace Expanse.Utilities
         /// <summary>
         /// Logs a serialization of a collection object. (Unity Json serializer is default)
         /// </summary>
-        /// <typeparam name="Input">Type of the objects that gets input.</typeparam>
+        /// <typeparam name="TInput">Type of the objects that gets input.</typeparam>
         /// <param name="source">Source objects to be logged.</param>
         /// <param name="serializer">Serializes the source objects into a string to be logged.</param>
         /// <param name="logType">Type of log.</param>
         [Conditional(CONDITIONAL), DebuggerHidden]
-        public static void LogSerializationIterator<Input>(IEnumerable<Input> source, IStringSerializer serializer = null, LogType logType = LogType.Log)
+        public static void LogSerializationIterator<TInput>(IEnumerable<TInput> source, IStringSerializer serializer = null, LogType logType = LogType.Log)
         {
             serializer = serializer ?? new UnityJsonUtilitySerializer(true);
 
@@ -318,7 +340,7 @@ namespace Expanse.Utilities
             {
                 StringBuilder logBuilder = new StringBuilder(source.Count());
 
-                foreach (Input item in source)
+                foreach (TInput item in source)
                 {
                     string message = serializer.Serialize(item);
 
@@ -329,7 +351,7 @@ namespace Expanse.Utilities
             }
             else
             {
-                foreach (Input item in source)
+                foreach (TInput item in source)
                 {
                     string message = serializer.Serialize(item);
 
@@ -341,12 +363,12 @@ namespace Expanse.Utilities
         /// <summary>
         /// Logs a serialization of an object. (Unity Json serializer is default)
         /// </summary>
-        /// <typeparam name="Input">Type of the object that gets input.</typeparam>
+        /// <typeparam name="TInput">Type of the object that gets input.</typeparam>
         /// <param name="source">Source object to be logged.</param>
         /// <param name="serializer">Serializes the source object into a string to be logged.</param>
         /// <param name="logType">Type of log.</param>
         [Conditional(CONDITIONAL), DebuggerHidden]
-        public static void LogSerialization<Input>(Input source, IStringSerializer serializer = null, LogType logType = LogType.Log)
+        public static void LogSerialization<TInput>(TInput source, IStringSerializer serializer = null, LogType logType = LogType.Log)
         {
             serializer = serializer ?? new UnityJsonUtilitySerializer(true);
 

@@ -224,7 +224,20 @@ namespace Expanse
         /// <returns>Returns a random normalized Vector3.</returns>
         public Vector3 Vector3()
         {
-            return new Vector3(Float(-1, 1), Float(-1, 1), Float(-1, 1)).normalized;
+            float x = Float() - 0.5f;
+            float y = Float() - 0.5f;
+            float z = Float() - 0.5f;
+
+            float magnitude = Mathf.Sqrt(x * x + y * y + z * z);
+
+            if (magnitude == 0)
+                return new Vector3(x, y, z);
+
+            x /= magnitude;
+            y /= magnitude;
+            z /= magnitude;
+
+            return new Vector3(x, y, z);
         }
 
         /// <summary>
@@ -234,7 +247,26 @@ namespace Expanse
         /// <returns>Returns a random Vector2 with a magnitude between 0 and maxMagnitude.</returns>
         public Vector3 Vector3(float maxMagnitude)
         {
-            return new Vector3(Float(-1, 1), Float(-1, 1), Float(-1, 1)).normalized * Float(maxMagnitude);
+            float x = Float() - 0.5f;
+            float y = Float() - 0.5f;
+            float z = Float() - 0.5f;
+
+            float magnitude = Mathf.Sqrt(x * x + y * y + z * z);
+
+            if (magnitude == 0)
+                return new Vector3(x, y, z);
+
+            x /= magnitude;
+            y /= magnitude;
+            z /= magnitude;
+
+            float newMagnitude = Float(maxMagnitude);
+
+            x *= newMagnitude;
+            y *= newMagnitude;
+            z *= newMagnitude;
+
+            return new Vector3(x, y, z);
         }
 
         /// <summary>
@@ -245,10 +277,26 @@ namespace Expanse
         /// <returns>Returns a random Vector3 with a magnitude between aMagnitude and bMagnitude.</returns>
         public Vector3 Vector3(float aMagnitude, float bMagnitude)
         {
-            float minMagnitude = Mathf.Min(aMagnitude, bMagnitude);
-            float maxMagnitude = Mathf.Max(aMagnitude, bMagnitude);
+            float x = Float() - 0.5f;
+            float y = Float() - 0.5f;
+            float z = Float() - 0.5f;
 
-            return new Vector3(Float(-1, 1), Float(-1, 1), Float(-1, 1)).normalized * Float(minMagnitude, maxMagnitude);
+            float magnitude = Mathf.Sqrt(x * x + y * y + z * z);
+
+            if (magnitude == 0)
+                return new Vector3(x, y, z);
+
+            x /= magnitude;
+            y /= magnitude;
+            z /= magnitude;
+
+            float newMagnitude = Float(aMagnitude, bMagnitude);
+
+            x *= newMagnitude;
+            y *= newMagnitude;
+            z *= newMagnitude;
+
+            return new Vector3(x, y, z);
         }
 
         /// <summary>
