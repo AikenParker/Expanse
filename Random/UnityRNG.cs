@@ -11,6 +11,7 @@ namespace Expanse.Random
         /// <summary>
         /// Creates a new Random wrapper using UnityRNG.
         /// </summary>
+        /// <returns>Returns a new Random wrapper using UnityRNG.</returns>
         public static RNG CreateNew()
         {
             return new RNG(new UnityRNG());

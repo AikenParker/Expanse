@@ -15,6 +15,29 @@ namespace Expanse.Random
     /// <see cref=">https://bitbucket.org/rstarkov/demoxorshift/src/002604952fec024be698f8167050b03c85af2f81/Xorshift.cs?at=default&fileviewer=file-view-default"/>
     public class XorShiftRNG : IRNG
     {
+        /// <summary>
+        /// Creates a new Random wrapper using XorShiftRNG.
+        /// </summary>
+        /// <param name="seed1">First seed value.</param>
+        /// <param name="seed2">Second seed value.</param>
+        /// <param name="seed3">Third seed value.</param>
+        /// <param name="seed4">Fourth seed value.</param>
+        /// <returns>Returns a new Random wrapper using XorShiftRNG.</returns>
+        public static RNG CreateNew(uint seed1, uint seed2, uint seed3, uint seed4)
+        {
+            return new RNG(new XorShiftRNG(seed1, seed2, seed3, seed4));
+        }
+
+        /// <summary>
+        /// Creates a new Random wrapper using XorShiftRNG.
+        /// </summary>
+        /// <param name="seeder">RNG used to generate the seed for this RNG.</param>
+        /// <returns>Returns a new Random wrapper using XorShiftRNG.</returns>
+        public static RNG CreateNew(IRNG seeder)
+        {
+            return new RNG(new XorShiftRNG(seeder));
+        }
+
         protected readonly byte[] byteCache32 = new byte[4];
         protected readonly byte[] byteCache64 = new byte[8];
 
@@ -28,12 +51,6 @@ namespace Expanse.Random
 
         private Queue<byte> bytes = new Queue<byte>();
         private int byteCount = 0;
-
-        /// <summary>
-        /// Creates a constant seeded XorShiftRNG instance.
-        /// </summary>
-        [Obsolete("Constant seed")]
-        public XorShiftRNG() { }
 
         /// <summary>
         /// Creates a specifically seeded XorShiftRNG instance.

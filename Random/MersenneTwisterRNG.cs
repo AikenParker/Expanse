@@ -8,6 +8,24 @@ namespace Expanse.Random
     /// <see cref=">https://en.wikipedia.org/wiki/Mersenne_Twister"/>
     public class MersenneTwisterRNG : IRNG
     {
+        /// <summary>
+        /// Creates a new Random wrapper using MersenneTwisterRNG.
+        /// </summary>
+        /// <returns>Returns a new Random wrapper using MersenneTwisterRNG.</returns>
+        public static RNG CreateNew()
+        {
+            return new RNG(new MersenneTwisterRNG());
+        }
+
+        /// <summary>
+        /// Creates a new Random wrapper using MersenneTwisterRNG.
+        /// </summary>
+        /// <returns>Returns a new Random wrapper using MersenneTwisterRNG.</returns>
+        public static RNG CreateNew(ulong seed)
+        {
+            return new RNG(new MersenneTwisterRNG(seed));
+        }
+
         private const int W = 64;
         private const ulong N = 312;
         private const ulong M = 156;
