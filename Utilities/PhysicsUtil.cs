@@ -12,13 +12,19 @@ namespace Expanse.Utilities
         /// Multi-use collider array buffer for use in non-allocating physics methods.
         /// Note: Iterate over the non-alloc result count instead of colliderBuffer.Length
         /// </summary>
-        public static Collider[] colliderBuffer = new Collider[50];
+        public static Collider[] colliderBuffer = new Collider[20];
 
         /// <summary>
         /// Multi-use raycasthit array buffer for use in non-allocating physics methods.
         /// Note: Iterate over the non-alloc result count instead of raycastHitBuffer.Length
         /// </summary>
-        public static RaycastHit[] raycastHitBuffer = new RaycastHit[50];
+        public static RaycastHit[] raycastHitBuffer = new RaycastHit[20];
+
+        /// <summary>
+        /// Multi-use 2D collider array buffer for use in non-allocating physics methods.
+        /// Note: Iterate over the non-alloc result count instead of colliderBuffer.Length
+        /// </summary>
+        public static Collider2D[] collider2DBuffer = new Collider2D[20];
 
         /// <summary>
         /// Sets the ignore status between all colliders in a collection.
