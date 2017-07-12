@@ -10,6 +10,7 @@ namespace Expanse.Random
         /// <summary>
         /// Creates a new Random wrapper using SystemRNG.
         /// </summary>
+        /// <returns>Returns a new Random wrapper using SystemRNG.</returns>
         public static RNG CreateNew()
         {
             return new RNG(new SystemRNG());
@@ -18,6 +19,8 @@ namespace Expanse.Random
         /// <summary>
         /// Creates a new Random wrapper using SystemRNG.
         /// </summary>
+        /// <param name="seed">Seed value to set the RNG to.</param>
+        /// <returns>Returns a new Random wrapper using SystemRNG.</returns>
         public static RNG CreateNew(int seed)
         {
             return new RNG(new SystemRNG(seed));

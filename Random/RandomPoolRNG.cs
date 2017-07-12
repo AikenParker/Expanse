@@ -145,7 +145,7 @@ namespace Expanse.Random
 
             index += sizeof(double);
 
-            double value = (@ulong / (1 << 11)) / (double)(1UL << 0x35);
+            double value = @ulong / (double)ulong.MaxValue;
 
             return value;
         }
