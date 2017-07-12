@@ -343,16 +343,16 @@ namespace Expanse
             {
                 case UpdateModes.Update:
                 case UpdateModes.UnscaledUpdate:
-                    CBR.UnsubscribeToUpdate(this);
+                    CBR.UnsubscribeFromUpdate(this);
                     break;
 
                 case UpdateModes.LateUpdate:
                 case UpdateModes.UnscaledLateUpdate:
-                    CBR.UnsubscribeToLateUpdate(this);
+                    CBR.UnsubscribeFromLateUpdate(this);
                     break;
 
                 case UpdateModes.FixedUpdate:
-                    CBR.UnsubscribeToFixedUpdate(this);
+                    CBR.UnsubscribeFromFixedUpdate(this);
                     break;
             }
         }
@@ -556,7 +556,7 @@ namespace Expanse
             get
             {
                 if (IsRandomized)
-                    Duration = (Randomizer ?? RandomUtil.Instance).Float(MinDuration, MaxDuration);
+                    Duration = (Randomizer ?? Random.RandomUtil.Instance).Float(MinDuration, MaxDuration);
 
                 return Duration;
             }

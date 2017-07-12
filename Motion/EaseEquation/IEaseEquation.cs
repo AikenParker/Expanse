@@ -24,6 +24,12 @@
         public static readonly Quintic.EaseIn QuinticIn = new Quintic.EaseIn();
         public static readonly Quintic.EaseOut QuinticOut = new Quintic.EaseOut();
         public static readonly Quintic.EaseInOut QuinticInOut = new Quintic.EaseInOut();
+        public static readonly Sextic.EaseIn SexticIn = new Sextic.EaseIn();
+        public static readonly Sextic.EaseOut SexticOut = new Sextic.EaseOut();
+        public static readonly Sextic.EaseInOut SexticInOut = new Sextic.EaseInOut();
+        public static readonly Septic.EaseIn HepticIn = new Septic.EaseIn();
+        public static readonly Septic.EaseOut HepticOut = new Septic.EaseOut();
+        public static readonly Septic.EaseInOut HepticInOut = new Septic.EaseInOut();
         public static readonly Sinusoidal.EaseIn SinusoidalIn = new Sinusoidal.EaseIn();
         public static readonly Sinusoidal.EaseOut SinusoidalOut = new Sinusoidal.EaseOut();
         public static readonly Sinusoidal.EaseInOut SinusoidalInOut = new Sinusoidal.EaseInOut();

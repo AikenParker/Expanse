@@ -136,7 +136,7 @@ namespace Expanse.Random
         {
             ulong value = NextUlong();
 
-            return (value / (1 << 11)) / (double)(1UL << 0x35);
+            return value / (double)ulong.MaxValue;
         }
 
         /// <summary>

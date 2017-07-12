@@ -14,6 +14,7 @@ namespace Expanse.Random
         /// <summary>
         /// Creates a new Random wrapper using CryptoRNG.
         /// </summary>
+        /// <returns>Returns a new Random wrapper using CryptoRNG.</returns>
         public static RNG CreateNew()
         {
             return new RNG(new CryptoRNG());
@@ -36,7 +37,7 @@ namespace Expanse.Random
 
             ulong @ulong = BitConverter.ToUInt64(byteCache64, 0) / (1 << 11);
 
-            double value = @ulong / (double)(1UL << 0x35);
+            double value = @ulong / (double)ulong.MaxValue;
 
             return value;
         }

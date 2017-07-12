@@ -71,7 +71,7 @@ namespace Expanse
 
             CallBackRelay instance = GlobalCBR;
 
-            return instance.UnsubscribeToUpdate(updateObj);
+            return instance.UnsubscribeFromUpdate(updateObj);
         }
 
         /// <summary>
@@ -98,7 +98,7 @@ namespace Expanse
 
             CallBackRelay instance = GlobalCBR;
 
-            return instance.UnsubscribeToFixedUpdate(updateObj);
+            return instance.UnsubscribeFromFixedUpdate(updateObj);
         }
 
         /// <summary>
@@ -125,7 +125,7 @@ namespace Expanse
 
             CallBackRelay instance = GlobalCBR;
 
-            return instance.UnsubscribeToLateUpdate(updateObj);
+            return instance.UnsubscribeFromLateUpdate(updateObj);
         }
 
         #endregion
@@ -165,7 +165,7 @@ namespace Expanse
         /// <summary>
         /// Unsubsribe an update object from the update list.
         /// </summary>
-        public bool UnsubscribeToUpdate(IUpdate updateObj)
+        public bool UnsubscribeFromUpdate(IUpdate updateObj)
         {
             return UpdateList.RemoveFirst(x => x.updateObj == updateObj);
         }
@@ -179,10 +179,10 @@ namespace Expanse
                 FixedUpdateList.Add(new CallBackRelayUpdateContainer(updateObj));
         }
 
-        // <summary>
+        /// <summary>
         /// Unsubsribe an update object from the fixed update list.
         /// </summary>
-        public bool UnsubscribeToFixedUpdate(IUpdate updateObj)
+        public bool UnsubscribeFromFixedUpdate(IUpdate updateObj)
         {
             return FixedUpdateList.RemoveFirst(x => x.updateObj == updateObj);
         }
@@ -196,12 +196,24 @@ namespace Expanse
                 LateUpdateList.Add(new CallBackRelayUpdateContainer(updateObj));
         }
 
-        // <summary>
+        /// <summary>
         /// Unsubsribe an update object from the late update list.
         /// </summary>
-        public bool UnsubscribeToLateUpdate(IUpdate updateObj)
+        public bool UnsubscribeFromLateUpdate(IUpdate updateObj)
         {
             return LateUpdateList.RemoveFirst(x => x.updateObj == updateObj);
+        }
+
+        /// <summary>
+        /// Unsubscribe an update object from any update list.
+        /// </summary>
+        /// <param name="updateObj">Update object instance to remove from any update list.</param>
+        /// <returns>Returns true if an object was removed from any update list.</returns>
+        public bool Unsubscribe(IUpdate updateObj)
+        {
+            return UnsubscribeFromUpdate(updateObj) ||
+                UnsubscribeFromFixedUpdate(updateObj) ||
+                UnsubscribeFromLateUpdate(updateObj);
         }
 
         #endregion

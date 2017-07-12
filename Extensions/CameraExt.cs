@@ -59,7 +59,7 @@ namespace Expanse.Extensions
         /// <returns>Returns a coroutine that shakes a camera.</returns>
         public static IEnumerator Co_BasicShake(this Camera camera, float strength, float duration, float frequency, RNG rng = null)
         {
-            rng = rng ?? RandomUtil.Instance;
+            rng = rng ?? Random.RandomUtil.Instance;
 
             float StartTime = TimeManager.Time;
 
