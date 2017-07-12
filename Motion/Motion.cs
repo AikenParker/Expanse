@@ -205,16 +205,16 @@ namespace Expanse.Motion
             {
                 case UpdateModes.Update:
                 case UpdateModes.UnscaledUpdate:
-                    cbr.UnsubscribeToUpdate(this);
+                    cbr.UnsubscribeFromUpdate(this);
                     break;
 
                 case UpdateModes.LateUpdate:
                 case UpdateModes.UnscaledLateUpdate:
-                    cbr.UnsubscribeToLateUpdate(this);
+                    cbr.UnsubscribeFromLateUpdate(this);
                     break;
 
                 case UpdateModes.FixedUpdate:
-                    cbr.UnsubscribeToFixedUpdate(this);
+                    cbr.UnsubscribeFromFixedUpdate(this);
                     break;
             }
         }
