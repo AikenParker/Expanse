@@ -570,6 +570,47 @@ namespace Expanse.Extensions
         }
 
         /// <summary>
+        /// Unsafely creates a new list of float where float from another list meet some criteria.
+        /// <para>Less allocation than WhereToList() but may be slower or faster.</para>
+        /// </summary>
+        /// <typeparam name="T">Array input type,</typeparam>
+        /// <param name="list">Source input list.</param>
+        /// <param name="predicate">Condition to be met before adding to array.</param>
+        /// <returns>Returns a new list with items from a list that met a specified condition.</returns>
+        public unsafe static List<float> UnsafeWhereToList(this IList<float> list, Func<float, bool> predicate)
+        {
+            if (list == null)
+                throw new ArgumentNullException("source");
+
+            if (predicate == null)
+                throw new ArgumentNullException("predicate");
+
+            int totalCount = list.Count;
+            int count = 0;
+
+            float* floats = stackalloc float[totalCount];
+
+            for (int i = 0; i < totalCount; i++)
+            {
+                float item = list[i];
+
+                if (predicate(item))
+                {
+                    floats[count++] = item;
+                }
+            }
+
+            List<float> output = new List<float>(count);
+
+            for (int i = 0; i < count; i++)
+            {
+                output.Add(floats[i]);
+            }
+
+            return output;
+        }
+
+        /// <summary>
         /// Unsafely creates a new list where items are casted from one type to another.
         /// <para>Less allocation than OfTypeToList() but may be slower or faster.</para>
         /// </summary>

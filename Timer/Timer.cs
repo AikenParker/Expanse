@@ -127,30 +127,98 @@ namespace Expanse
         private CallBackRelay callBackRelay;
         private bool deactivateOnLoad;
 
+        /// <summary>
+        /// Duration of the timer in seconds.
+        /// </summary>
         public float Duration { get; set; }
+        /// <summary>
+        /// Time passed in seconds for this iteration of this timer.
+        /// </summary>
         public float CurrentTime { get; private set; }
+        /// <summary>
+        /// Total time passed in seconds for the entire lifespan of this timer.
+        /// </summary>
         public float TotalPassedTime { get; private set; }
+        /// <summary>
+        /// If true the duration is randomized between every iteration of this timer.
+        /// </summary>
         public bool IsRandomized { get; set; }
+        /// <summary>
+        /// RNG responsible for providing the randomized duration.
+        /// </summary>
         public RNG Randomizer { get; set; }
+        /// <summary>
+        /// Minimum duration time in seconds this timer can be if randomized.
+        /// </summary>
         public float MinDuration { get; set; }
+        /// <summary>
+        /// Maximum duration time in seconds this timer can be if randomized.
+        /// </summary>
         public float MaxDuration { get; set; }
+        /// <summary>
+        /// Is true if this timer is not paused and currently playing.
+        /// </summary>
         public bool IsPlaying { get; set; }
+        /// <summary>
+        /// Multiplicative factor at which this timer passes time.
+        /// </summary>
         public float PlaybackRate { get; set; }
+        /// <summary>
+        /// Defines the behaviour to perform upon this timer completing.
+        /// </summary>
         public TimerCompletionModes CompletionMode { get; set; }
+        /// <summary>
+        /// Amount of remaining iterations this timer will perform.
+        /// </summary>
         public int Repeats { get; set; }
+        /// <summary>
+        /// If true the timer will continue even if the attached game object and MonoBehaviour is destroyed.
+        /// </summary>
         public bool IsUnsafe { get; private set; }
+        /// <summary>
+        /// If true the timer will continue even if the attached game object or MonoBehaviour is disabled.
+        /// </summary>
         public bool AlwaysPlay { get; set; }
 
+        /// <summary>
+        /// The attached game object for this timer.
+        /// <para>Usually the game object responsible for creating this timer.</para>
+        /// </summary>
         public GameObject AttachedGameObject { get; set; }
+        /// <summary>
+        /// The attached MonoBehaviour for this timer.
+        /// <para>Usually the MonoBehaviour responsible for creating this timer.</para>
+        /// </summary>
         public MonoBehaviour AttachedMonoBehaviour { get; set; }
 
+        /// <summary>
+        /// Event invoked when this timer is deactivated for any reason.
+        /// </summary>
         public event Action Deactivated;
+        /// <summary>
+        /// Event invoked when this timer completes or returns to the start. (If reversing)
+        /// </summary>
         public event Action CompletedOrReturned;
+        /// <summary>
+        /// Event invoked when this timer completes.
+        /// </summary>
         public event Action Completed;
+        /// <summary>
+        /// Event invoked when this timer returns to the start. (If reversing)
+        /// </summary>
         public event Action Returned;
 
+        /// <summary>
+        /// Amount of times this timer has completed or returned.
+        /// </summary>
         public int CompleteOrReturnCount { get; private set; }
+        /// <summary>
+        /// Amount of times this timer has completed.
+        /// </summary>
         public int CompleteCount { get; private set; }
+        /// <summary>
+        /// Amount of times this timer has returned.
+        /// </summary>
         public int ReturnCount { get; private set; }
 
         void IUpdate.OnUpdate(float deltaTime)
@@ -197,6 +265,9 @@ namespace Expanse
             }
         }
 
+        /// <summary>
+        /// Sets the current state of this timer to playing.
+        /// </summary>
         public void Play()
         {
             ThrowIfInactive();
@@ -204,6 +275,9 @@ namespace Expanse
             IsPlaying = true;
         }
 
+        /// <summary>
+        /// Sets the current state of this timer to not playing.
+        /// </summary>
         public void Stop()
         {
             ThrowIfInactive();
