@@ -35,6 +35,45 @@ namespace Expanse.Utilities
         }
 
         /// <summary>
+        /// Determines if an int value is a power of two.
+        /// </summary>
+        /// <param name="value">Int value to check.</param>
+        /// <returns>Returns true if int value is power of two.</returns>
+        public static bool IsPowerOfTwo(int value)
+        {
+            return (value & (value - 1)) == 0;
+        }
+
+        /// <summary>
+        /// Calculates the next power of two value.
+        /// </summary>
+        /// <param name="value">Source int value.</param>
+        /// <returns>Returns the next power of two value.</returns>
+        public static int NextPowerOfTwo(int value)
+        {
+            value--;
+            value |= value >> 1;
+            value |= value >> 2;
+            value |= value >> 4;
+            value |= value >> 8;
+            value |= value >> 16;
+            value++;
+
+            return value;
+        }
+
+        /// <summary>
+        /// Calculates the absolute value of an int without branching.
+        /// </summary>
+        /// <param name="value">Source int value.</param>
+        /// <returns>Returns the absolute value of an int.</returns>
+        public static int Abs(int value)
+        {
+            int mask = value >> sizeof(int) * 8 - 1;
+            return (value + mask) ^ mask;
+        }
+
+        /// <summary>
         /// Determines if 2 angles are equal to eachother within a value of tolerance.
         /// </summary>
         /// <param name="angleA">First angle to compare.</param>
