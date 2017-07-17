@@ -1,16 +1,15 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace Expanse.Misc
 {
     /// <summary>
-    /// Simple single-state finite state machine.
+    /// Base FSM class.
     /// </summary>
-    /// <typeparam name="T">Type of the target object.</typeparam>
-    public class FSM<T> : IUpdate where T : class
+    /// <typeparam name="TTarget">Type of the target object.</typeparam>
+    public abstract class FSM<TTarget> : IUpdate
+        where TTarget : class
     {
-        protected readonly T target;
-        protected State state;
+        protected readonly TTarget target;
 
         protected CallBackRelay cbr;
         protected MonoBehaviour attachedMonoBehaviour;
@@ -18,7 +17,7 @@ namespace Expanse.Misc
         /// <summary>
         /// Target object the FSM is attached to.
         /// </summary>
-        public T Target
+        public TTarget Target
         {
             get { return target; }
         }
@@ -27,7 +26,7 @@ namespace Expanse.Misc
         /// Creates a new FSM that will require manual updating.
         /// </summary>
         /// <param name="target">Target object this FSM is attached to.</param>
-        public FSM(T target)
+        public FSM(TTarget target)
         {
             this.target = target;
         }
@@ -41,7 +40,7 @@ namespace Expanse.Misc
         /// </remarks>
         /// <param name="target">Target object this FSM is attached to.</param>
         /// <param name="cbr">CallBackRelay instance to subscribe to.</param>
-        public FSM(T target, CallBackRelay cbr)
+        public FSM(TTarget target, CallBackRelay cbr)
         {
             this.target = target;
 
@@ -62,7 +61,7 @@ namespace Expanse.Misc
         /// <param name="target">Target object this FSM is attached to.</param>
         /// <param name="cbr">CallBackRelay instance to subscribe to.</param>
         /// <param name="attachedMonoBehaviour">Attached MonoBehaviour instance.</param>
-        public FSM(T target, CallBackRelay cbr, MonoBehaviour attachedMonoBehaviour)
+        public FSM(TTarget target, CallBackRelay cbr, MonoBehaviour attachedMonoBehaviour)
         {
             this.target = target;
 
@@ -77,47 +76,10 @@ namespace Expanse.Misc
         }
 
         /// <summary>
-        /// Sets the current state of the FSM.
-        /// </summary>
-        /// <typeparam name="TState">Type of the new state to add.</typeparam>
-        /// <param name="onBeforeStartup">Callback invoked on new state before Startup() is called.</param>
-        public virtual void SetState<TState>(Action<TState> onBeforeStartup = null)
-            where TState : State, new()
-        {
-            RemoveState();
-
-            TState state = new TState();
-
-            state.Initialize(this, target);
-
-            if (onBeforeStartup != null)
-                onBeforeStartup(state);
-
-            state.Startup();
-
-            this.state = state;
-        }
-
-        /// <summary>
-        /// Removes and shutdowns the current state.
-        /// </summary>
-        public virtual void RemoveState()
-        {
-            if (!HasState)
-                return;
-
-            state.Shutdown();
-
-            state = null;
-        }
-
-        /// <summary>
         /// Shutdowns the current state and unsubscribes from the CBR if it needs to.
         /// </summary>
-        public void Shutdown()
+        public virtual void Shutdown()
         {
-            RemoveState();
-
             if (cbr != null)
             {
                 cbr.Unsubscribe(this);
@@ -128,13 +90,7 @@ namespace Expanse.Misc
         /// Updates the current state.
         /// </summary>
         /// <param name="deltaTime">Time between this update and the last update.</param>
-        public virtual void OnUpdate(float deltaTime)
-        {
-            if (HasState)
-            {
-                state.Update(deltaTime);
-            }
-        }
+        public abstract void OnUpdate(float deltaTime);
 
         /// <summary>
         /// Returns true if this FSM has a target.
@@ -145,12 +101,9 @@ namespace Expanse.Misc
         }
 
         /// <summary>
-        /// Returns true if this FSM as a current state.
+        /// Returns true if this FSM has a current state.
         /// </summary>
-        public bool HasState
-        {
-            get { return state != null; }
-        }
+        public abstract bool HasState { get; }
 
         /// <summary>
         /// Will this update even if the attached MonoBehaviour is destroyed or non-existent?
@@ -185,60 +138,6 @@ namespace Expanse.Misc
 
                 else return null;
             }
-        }
-
-        /// <summary>
-        /// Base state class for an FSM with type T.
-        /// </summary>
-        public abstract class State
-        {
-            private bool isInitialized;
-            protected FSM<T> owningFSM;
-            protected T target;
-
-            /// <summary>
-            /// Initializes the state by setting the target object.
-            /// </summary>
-            /// <remarks>
-            /// Automatically called by the FSM.
-            /// </remarks>
-            /// <param name="owningFSM">The FSM this state is attached to.</param>
-            /// <param name="target">Target object to set.</param>
-            public void Initialize(FSM<T> owningFSM, T target)
-            {
-                if (isInitialized)
-                    return;
-
-                isInitialized = true;
-
-                this.owningFSM = owningFSM;
-                this.target = target;
-            }
-
-            /// <summary>
-            /// Called once when the state is added by the FSM.
-            /// </summary>
-            /// <remarks>
-            /// Automatically called by the FSM.
-            /// </remarks>
-            public virtual void Startup() { }
-
-            /// <summary>
-            /// Called whenever the FSM is updated.
-            /// </summary>
-            /// <remarks>
-            /// Automatically called by the FSM.
-            /// </remarks>
-            /// <param name="deltaTime">Time between this update and the last update.</param>
-            public virtual void Update(float deltaTime) { }
-
-            /// <summary>
-            /// Called once when the state is removed by the FSM.
-            /// </summary>
-            /// <remarks>
-            /// Automatically called by the FSM.
-            /// </remarks>
-            public virtual void Shutdown() { }
         }
     }
 }
