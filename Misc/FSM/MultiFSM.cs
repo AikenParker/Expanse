@@ -187,8 +187,6 @@ namespace Expanse.Misc
         public TState GetState<TState>()
             where TState : State<TTarget>
         {
-            Type tState = typeof(TState);
-
             for (int i = 0; i < stateList.Count; i++)
             {
                 State<TTarget> state = stateList[i];
