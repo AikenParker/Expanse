@@ -348,72 +348,129 @@ namespace Expanse.Serialization
 
         public static SerializationType GetSerializationType(Type type)
         {
-            // Replace with type switching when available
-            if (type == typeof(int))
-                return SerializationType.Int32;
-            else if (type == typeof(string))
-                return SerializationType.String;
-            else if (type == typeof(byte))
-                return SerializationType.Byte;
-            else if (type == typeof(sbyte))
-                return SerializationType.SByte;
-            else if (type == typeof(short))
-                return SerializationType.Int16;
-            else if (type == typeof(long))
-                return SerializationType.Int64;
-            else if (type == typeof(ushort))
-                return SerializationType.UInt16;
-            else if (type == typeof(uint))
-                return SerializationType.UInt32;
-            else if (type == typeof(ulong))
-                return SerializationType.UInt64;
-            else if (type == typeof(Half))
-                return SerializationType.Half;
-            else if (type == typeof(float))
-                return SerializationType.Single;
-            else if (type == typeof(double))
-                return SerializationType.Double;
-            else if (type == typeof(char))
-                return SerializationType.Char;
-            else if (type == typeof(decimal))
-                return SerializationType.Decimal;
-            else if (type == typeof(DateTime))
-                return SerializationType.DateTime;
-            else if (type == typeof(DateTimeOffset))
-                return SerializationType.DateTimeOffset;
-            else if (type == typeof(TimeSpan))
-                return SerializationType.TimeSpan;
-            else if (type == typeof(Vector2))
-                return SerializationType.Vector2;
-            else if (type == typeof(Vector3))
-                return SerializationType.Vector3;
-            else if (type == typeof(Vector4))
-                return SerializationType.Vector4;
-            else if (type == typeof(Quaternion))
-                return SerializationType.Quaternion;
-            else if (type == typeof(Rect))
-                return SerializationType.Rect;
-            else if (type == typeof(Bounds))
-                return SerializationType.Bounds;
-            else if (type == typeof(IntVector2))
-                return SerializationType.IntVector2;
-            else if (type == typeof(IntVector3))
-                return SerializationType.IntVector3;
-            else if (type == typeof(IntVector4))
-                return SerializationType.IntVector4;
-            else if (type.IsArray)
-            {
-                Type elementType = type.GetElementType();
-                SerializationType elementSerializationType = GetSerializationType(elementType);
-            }
-            else if (type.IsGenericType)
-            {
+            // TODO: Replace with type switching when available
 
+            if (type.IsValueType)
+            {
+                if (type == typeof(int))
+                    return SerializationType.Int32;
+                else if (type == typeof(byte))
+                    return SerializationType.Byte;
+                else if (type == typeof(sbyte))
+                    return SerializationType.SByte;
+                else if (type == typeof(short))
+                    return SerializationType.Int16;
+                else if (type == typeof(long))
+                    return SerializationType.Int64;
+                else if (type == typeof(ushort))
+                    return SerializationType.UInt16;
+                else if (type == typeof(uint))
+                    return SerializationType.UInt32;
+                else if (type == typeof(ulong))
+                    return SerializationType.UInt64;
+                else if (type == typeof(Half))
+                    return SerializationType.Half;
+                else if (type == typeof(float))
+                    return SerializationType.Single;
+                else if (type == typeof(double))
+                    return SerializationType.Double;
+                else if (type == typeof(char))
+                    return SerializationType.Char;
+                else if (type == typeof(decimal))
+                    return SerializationType.Decimal;
+                else if (type == typeof(DateTime))
+                    return SerializationType.DateTime;
+                else if (type == typeof(DateTimeOffset))
+                    return SerializationType.DateTimeOffset;
+                else if (type == typeof(TimeSpan))
+                    return SerializationType.TimeSpan;
+                else if (type == typeof(Vector2))
+                    return SerializationType.Vector2;
+                else if (type == typeof(Vector3))
+                    return SerializationType.Vector3;
+                else if (type == typeof(Vector4))
+                    return SerializationType.Vector4;
+                else if (type == typeof(Quaternion))
+                    return SerializationType.Quaternion;
+                else if (type == typeof(Rect))
+                    return SerializationType.Rect;
+                else if (type == typeof(Bounds))
+                    return SerializationType.Bounds;
+                else if (type == typeof(IntVector2))
+                    return SerializationType.IntVector2;
+                else if (type == typeof(IntVector3))
+                    return SerializationType.IntVector3;
+                else if (type == typeof(IntVector4))
+                    return SerializationType.IntVector4;
+                else // If the ValueType is not supported consider it an Object
+                    return SerializationType.Object;
             }
             else
-                return SerializationType.Object;
+            {
+                if (type == typeof(string))
+                    return SerializationType.String;
+                else if (type.IsArray)
+                {
+                    Type elementType = type.GetElementType();
 
-            return SerializationType.None;
+                    if (elementType.IsClass)
+                        return SerializationType.ObjectArray;
+                    else
+                    {
+                        SerializationType elementSerializationType = GetSerializationType(elementType);
+
+                        if (elementSerializationType == SerializationType.Object)
+                            return SerializationType.ObjectArray;
+                        else
+                            return SerializationType.PrimitiveArray;
+                    }
+                }
+                else if (type.IsGenericType)
+                {
+                    Type typeDefinition = type.GetGenericTypeDefinition();
+
+                    if (typeDefinition == typeof(List<>))
+                    {
+                        Type[] genericParameters = type.GetGenericArguments();
+                        Type elementType = genericParameters[0];
+
+                        if (elementType.IsClass)
+                            return SerializationType.ObjectList;
+                        else
+                        {
+                            SerializationType elementSerializationType = GetSerializationType(elementType);
+
+                            if (elementSerializationType == SerializationType.Object)
+                                return SerializationType.ObjectList;
+                            else
+                                return SerializationType.PrimitiveList;
+                        }
+                    }
+                    else if (typeDefinition == typeof(Nullable<>))
+                    {
+                        Type[] genericParameters = type.GetGenericArguments();
+                        Type elementType = genericParameters[0];
+
+                        if (elementType.IsClass)
+                            return SerializationType.ObjectNullable;
+                        else
+                        {
+                            SerializationType elementSerializationType = GetSerializationType(elementType);
+
+                            if (elementSerializationType == SerializationType.Object)
+                                return SerializationType.ObjectNullable;
+                            else
+                                return SerializationType.PrimitiveNullable;
+                        }
+                    }
+                    else
+                        return SerializationType.Object;
+                }
+                else
+                    return SerializationType.Object;
+            }
+
+            throw new UnexpectedException();
         }
 
         public abstract class CustomTypeResolver
