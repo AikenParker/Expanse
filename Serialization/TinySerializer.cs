@@ -207,7 +207,7 @@ namespace Expanse.Serialization.TinySerialization
                             fixed (byte* byteBufferPtr = &buffer[offset])
                             {
                                 short* bufferPtr = (short*)byteBufferPtr;
-                                bufferPtr[0] = value;
+                                *bufferPtr = value;
                             }
                         }
                         break;
@@ -221,7 +221,7 @@ namespace Expanse.Serialization.TinySerialization
                             fixed (byte* byteBufferPtr = &buffer[offset])
                             {
                                 int* bufferPtr = (int*)byteBufferPtr;
-                                bufferPtr[0] = value;
+                                *bufferPtr = value;
                             }
                         }
                         break;
@@ -235,7 +235,7 @@ namespace Expanse.Serialization.TinySerialization
                             fixed (byte* byteBufferPtr = &buffer[offset])
                             {
                                 long* bufferPtr = (long*)byteBufferPtr;
-                                bufferPtr[0] = value;
+                                *bufferPtr = value;
                             }
                         }
                         break;
@@ -249,7 +249,7 @@ namespace Expanse.Serialization.TinySerialization
                             fixed (byte* byteBufferPtr = &buffer[offset])
                             {
                                 ushort* bufferPtr = (ushort*)byteBufferPtr;
-                                bufferPtr[0] = value;
+                                *bufferPtr = value;
                             }
                         }
                         break;
@@ -263,7 +263,7 @@ namespace Expanse.Serialization.TinySerialization
                             fixed (byte* byteBufferPtr = &buffer[offset])
                             {
                                 uint* bufferPtr = (uint*)byteBufferPtr;
-                                bufferPtr[0] = value;
+                                *bufferPtr = value;
                             }
                         }
                         break;
@@ -277,7 +277,7 @@ namespace Expanse.Serialization.TinySerialization
                             fixed (byte* byteBufferPtr = &buffer[offset])
                             {
                                 ulong* bufferPtr = (ulong*)byteBufferPtr;
-                                bufferPtr[0] = value;
+                                *bufferPtr = value;
                             }
                         }
                         break;
@@ -291,7 +291,7 @@ namespace Expanse.Serialization.TinySerialization
                             fixed (byte* byteBufferPtr = &buffer[offset])
                             {
                                 ushort* bufferPtr = (ushort*)byteBufferPtr;
-                                bufferPtr[0] = value.value;
+                                *bufferPtr = value.value;
                             }
                         }
                         break;
@@ -305,7 +305,7 @@ namespace Expanse.Serialization.TinySerialization
                             fixed (byte* byteBufferPtr = &buffer[offset])
                             {
                                 float* bufferPtr = (float*)byteBufferPtr;
-                                bufferPtr[0] = value;
+                                *bufferPtr = value;
                             }
                         }
                         break;
@@ -319,7 +319,7 @@ namespace Expanse.Serialization.TinySerialization
                             fixed (byte* byteBufferPtr = &buffer[offset])
                             {
                                 double* bufferPtr = (double*)byteBufferPtr;
-                                bufferPtr[0] = value;
+                                *bufferPtr = value;
                             }
                         }
                         break;
@@ -333,7 +333,7 @@ namespace Expanse.Serialization.TinySerialization
                             fixed (byte* byteBufferPtr = &buffer[offset])
                             {
                                 char* bufferPtr = (char*)byteBufferPtr;
-                                bufferPtr[0] = value;
+                                *bufferPtr = value;
                             }
                         }
                         break;
@@ -347,7 +347,7 @@ namespace Expanse.Serialization.TinySerialization
                             fixed (byte* byteBufferPtr = &buffer[offset])
                             {
                                 decimal* bufferPtr = (decimal*)byteBufferPtr;
-                                bufferPtr[0] = value;
+                                *bufferPtr = value;
                             }
                         }
                         break;
@@ -361,7 +361,7 @@ namespace Expanse.Serialization.TinySerialization
                             fixed (byte* byteBufferPtr = &buffer[offset])
                             {
                                 long* bufferPtr = (long*)byteBufferPtr;
-                                bufferPtr[0] = value.Ticks;
+                                *bufferPtr = value.Ticks;
                             }
                         }
                         break;
@@ -375,7 +375,7 @@ namespace Expanse.Serialization.TinySerialization
                             fixed (byte* byteBufferPtr = &buffer[offset])
                             {
                                 long* bufferPtr = (long*)byteBufferPtr;
-                                bufferPtr[0] = value.Ticks;
+                                *bufferPtr = value.Ticks;
                             }
                         }
                         break;
@@ -389,7 +389,7 @@ namespace Expanse.Serialization.TinySerialization
                             fixed (byte* byteBufferPtr = &buffer[offset])
                             {
                                 long* bufferPtr = (long*)byteBufferPtr;
-                                bufferPtr[0] = value.Ticks;
+                                *bufferPtr = value.Ticks;
                             }
                         }
                         break;
@@ -404,8 +404,8 @@ namespace Expanse.Serialization.TinySerialization
                             {
                                 float* bufferPtr = (float*)byteBufferPtr;
 
-                                bufferPtr[0] = value.x;
-                                bufferPtr[1] = value.y;
+                                *bufferPtr++ = value.x;
+                                *bufferPtr++ = value.y;
                             }
                         }
                         break;
@@ -420,9 +420,9 @@ namespace Expanse.Serialization.TinySerialization
                             {
                                 float* bufferPtr = (float*)byteBufferPtr;
 
-                                bufferPtr[0] = value.x;
-                                bufferPtr[1] = value.y;
-                                bufferPtr[2] = value.z;
+                                *bufferPtr++ = value.x;
+                                *bufferPtr++ = value.y;
+                                *bufferPtr++ = value.z;
                             }
                         }
                         break;
@@ -437,10 +437,10 @@ namespace Expanse.Serialization.TinySerialization
                             {
                                 float* bufferPtr = (float*)byteBufferPtr;
 
-                                bufferPtr[0] = value.x;
-                                bufferPtr[1] = value.y;
-                                bufferPtr[2] = value.z;
-                                bufferPtr[3] = value.w;
+                                *bufferPtr++ = value.x;
+                                *bufferPtr++ = value.y;
+                                *bufferPtr++ = value.z;
+                                *bufferPtr++ = value.w;
                             }
                         }
                         break;
@@ -455,10 +455,10 @@ namespace Expanse.Serialization.TinySerialization
                             {
                                 float* bufferPtr = (float*)byteBufferPtr;
 
-                                bufferPtr[0] = value.x;
-                                bufferPtr[1] = value.y;
-                                bufferPtr[2] = value.z;
-                                bufferPtr[3] = value.w;
+                                *bufferPtr++ = value.x;
+                                *bufferPtr++ = value.y;
+                                *bufferPtr++ = value.z;
+                                *bufferPtr++ = value.w;
                             }
                         }
                         break;
@@ -473,10 +473,10 @@ namespace Expanse.Serialization.TinySerialization
                             {
                                 float* bufferPtr = (float*)byteBufferPtr;
 
-                                bufferPtr[0] = value.x;
-                                bufferPtr[1] = value.y;
-                                bufferPtr[2] = value.width;
-                                bufferPtr[3] = value.height;
+                                *bufferPtr++ = value.x;
+                                *bufferPtr++ = value.y;
+                                *bufferPtr++ = value.width;
+                                *bufferPtr++ = value.height;
                             }
                         }
                         break;
@@ -493,15 +493,15 @@ namespace Expanse.Serialization.TinySerialization
 
                                 Vector3 center = value.center;
 
-                                bufferPtr[0] = center.x;
-                                bufferPtr[1] = center.y;
-                                bufferPtr[2] = center.z;
+                                *bufferPtr++ = center.x;
+                                *bufferPtr++ = center.y;
+                                *bufferPtr++ = center.z;
 
                                 Vector3 size = value.size;
 
-                                bufferPtr[3] = size.x;
-                                bufferPtr[4] = size.y;
-                                bufferPtr[5] = size.z;
+                                *bufferPtr++ = size.x;
+                                *bufferPtr++ = size.y;
+                                *bufferPtr++ = size.z;
                             }
                         }
                         break;
@@ -516,8 +516,8 @@ namespace Expanse.Serialization.TinySerialization
                             {
                                 float* bufferPtr = (float*)byteBufferPtr;
 
-                                bufferPtr[0] = value.x;
-                                bufferPtr[1] = value.y;
+                                *bufferPtr++ = value.x;
+                                *bufferPtr++ = value.y;
                             }
                         }
                         break;
@@ -532,9 +532,9 @@ namespace Expanse.Serialization.TinySerialization
                             {
                                 float* bufferPtr = (float*)byteBufferPtr;
 
-                                bufferPtr[0] = value.x;
-                                bufferPtr[1] = value.y;
-                                bufferPtr[2] = value.z;
+                                *bufferPtr++ = value.x;
+                                *bufferPtr++ = value.y;
+                                *bufferPtr++ = value.z;
                             }
                         }
                         break;
@@ -549,10 +549,10 @@ namespace Expanse.Serialization.TinySerialization
                             {
                                 float* bufferPtr = (float*)byteBufferPtr;
 
-                                bufferPtr[0] = value.x;
-                                bufferPtr[1] = value.y;
-                                bufferPtr[2] = value.z;
-                                bufferPtr[3] = value.w;
+                                *bufferPtr++ = value.x;
+                                *bufferPtr++ = value.y;
+                                *bufferPtr++ = value.z;
+                                *bufferPtr++ = value.w;
                             }
                         }
                         break;
