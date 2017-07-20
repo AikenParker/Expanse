@@ -50,5 +50,14 @@
         /// <param name="offset">Offset to write into the buffer.</param>
         /// <returns>Returns the length of the serialized data plus the offset.</returns>
         int Serialize<TSource>(TSource obj, ref byte[] buffer, int offset);
+
+        /// <summary>
+        /// Deserializes data into a target object.
+        /// </summary>
+        /// <typeparam name="TTarget">Type of the target object.</typeparam>
+        /// <param name="data">Serialized object data.</param>
+        /// <param name="offset">Offset at which the target data is.</param>
+        /// <returns>Returns a deserialized instance object.</returns>
+        TTarget Deserialize<TTarget>(byte[] data, int offset);
     }
 }

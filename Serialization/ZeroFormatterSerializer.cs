@@ -14,6 +14,11 @@ namespace Expanse.Serialization
             return ZeroFormatter.ZeroFormatterSerializer.Deserialize<TTarget>(data);
         }
 
+        public TTarget Deserialize<TTarget>(byte[] data, int offset)
+        {
+            throw new NotImplementedException();
+        }
+
         public byte[] Serialize<TSource>(TSource obj)
         {
             return ZeroFormatter.ZeroFormatterSerializer.Serialize(obj);

@@ -35,6 +35,17 @@ namespace Expanse.Serialization
             }
         }
 
+        public TTarget Deserialize<TTarget>(byte[] data, int offset)
+        {
+            using (var ms = new MemoryStream(data, offset, data.Length - offset, false))
+            {
+                if (unsafeDeserialize)
+                    return (TTarget)binaryFormatter.UnsafeDeserialize(ms, null);
+                else
+                    return (TTarget)binaryFormatter.Deserialize(ms);
+            }
+        }
+
         public byte[] Serialize<TSource>(TSource obj)
         {
             using (var ms = new MemoryStream())
@@ -46,12 +57,22 @@ namespace Expanse.Serialization
 
         public int Serialize<TSource>(TSource obj, ref byte[] buffer)
         {
-            throw new NotImplementedException();
+            using (var ms = new MemoryStream(buffer, true))
+            {
+                binaryFormatter.Serialize(ms, obj);
+            }
+
+            return buffer.Length;
         }
 
         public int Serialize<TSource>(TSource obj, ref byte[] buffer, int offset)
         {
-            throw new NotImplementedException();
+            using (var ms = new MemoryStream(buffer, offset, buffer.Length - offset))
+            {
+                binaryFormatter.Serialize(ms, obj);
+            }
+
+            return buffer.Length;
         }
 
         public bool UnsafeDeserialize

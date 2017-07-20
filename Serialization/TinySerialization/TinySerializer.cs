@@ -54,6 +54,11 @@ namespace Expanse.Serialization.TinySerialization
             throw new NotImplementedException();
         }
 
+        public TTarget Deserialize<TTarget>(byte[] data, int offset)
+        {
+            throw new NotImplementedException();
+        }
+
         public byte[] Serialize<TSource>(TSource obj)
         {
             int dataSize = SerializeIntoBuffer(obj, 0);
