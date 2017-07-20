@@ -180,8 +180,8 @@ namespace Expanse.Serialization.TinySerialization
 
                             byte value = CastTo<byte>.From(obj, emitValueTypeCaster);
 
-                            fixed (byte* bufferPtr = buffer)
-                                bufferPtr[offset] = value;
+                            fixed (byte* bufferPtr = &buffer[offset])
+                                *bufferPtr = value;
                         }
                         break;
                     case SerializationType.SByte:
@@ -191,10 +191,10 @@ namespace Expanse.Serialization.TinySerialization
 
                             sbyte value = CastTo<sbyte>.From(obj, emitValueTypeCaster);
 
-                            fixed (byte* byteBufferPtr = buffer)
+                            fixed (byte* byteBufferPtr = &buffer[offset])
                             {
                                 sbyte* bufferPtr = (sbyte*)byteBufferPtr;
-                                bufferPtr[offset] = value;
+                                *bufferPtr = value;
                             }
                         }
                         break;
@@ -406,7 +406,7 @@ namespace Expanse.Serialization.TinySerialization
                                 float* bufferPtr = (float*)byteBufferPtr;
 
                                 *bufferPtr++ = value.x;
-                                *bufferPtr++ = value.y;
+                                *bufferPtr = value.y;
                             }
                         }
                         break;
@@ -423,7 +423,7 @@ namespace Expanse.Serialization.TinySerialization
 
                                 *bufferPtr++ = value.x;
                                 *bufferPtr++ = value.y;
-                                *bufferPtr++ = value.z;
+                                *bufferPtr = value.z;
                             }
                         }
                         break;
@@ -441,7 +441,7 @@ namespace Expanse.Serialization.TinySerialization
                                 *bufferPtr++ = value.x;
                                 *bufferPtr++ = value.y;
                                 *bufferPtr++ = value.z;
-                                *bufferPtr++ = value.w;
+                                *bufferPtr = value.w;
                             }
                         }
                         break;
@@ -459,7 +459,7 @@ namespace Expanse.Serialization.TinySerialization
                                 *bufferPtr++ = value.x;
                                 *bufferPtr++ = value.y;
                                 *bufferPtr++ = value.z;
-                                *bufferPtr++ = value.w;
+                                *bufferPtr = value.w;
                             }
                         }
                         break;
@@ -477,7 +477,7 @@ namespace Expanse.Serialization.TinySerialization
                                 *bufferPtr++ = value.x;
                                 *bufferPtr++ = value.y;
                                 *bufferPtr++ = value.width;
-                                *bufferPtr++ = value.height;
+                                *bufferPtr = value.height;
                             }
                         }
                         break;
@@ -502,7 +502,7 @@ namespace Expanse.Serialization.TinySerialization
 
                                 *bufferPtr++ = size.x;
                                 *bufferPtr++ = size.y;
-                                *bufferPtr++ = size.z;
+                                *bufferPtr = size.z;
                             }
                         }
                         break;
@@ -515,10 +515,10 @@ namespace Expanse.Serialization.TinySerialization
 
                             fixed (byte* byteBufferPtr = &buffer[offset])
                             {
-                                float* bufferPtr = (float*)byteBufferPtr;
+                                int* bufferPtr = (int*)byteBufferPtr;
 
                                 *bufferPtr++ = value.x;
-                                *bufferPtr++ = value.y;
+                                *bufferPtr = value.y;
                             }
                         }
                         break;
@@ -531,11 +531,11 @@ namespace Expanse.Serialization.TinySerialization
 
                             fixed (byte* byteBufferPtr = &buffer[offset])
                             {
-                                float* bufferPtr = (float*)byteBufferPtr;
+                                int* bufferPtr = (int*)byteBufferPtr;
 
                                 *bufferPtr++ = value.x;
                                 *bufferPtr++ = value.y;
-                                *bufferPtr++ = value.z;
+                                *bufferPtr = value.z;
                             }
                         }
                         break;
@@ -548,12 +548,12 @@ namespace Expanse.Serialization.TinySerialization
 
                             fixed (byte* byteBufferPtr = &buffer[offset])
                             {
-                                float* bufferPtr = (float*)byteBufferPtr;
+                                int* bufferPtr = (int*)byteBufferPtr;
 
                                 *bufferPtr++ = value.x;
                                 *bufferPtr++ = value.y;
                                 *bufferPtr++ = value.z;
-                                *bufferPtr++ = value.w;
+                                *bufferPtr = value.w;
                             }
                         }
                         break;
@@ -918,7 +918,7 @@ namespace Expanse.Serialization.TinySerialization
 
                                             fixed (byte* byteBufferPtr = &buffer[offset + lengthSize])
                                             {
-                                                float* bufferPtr = (float*)byteBufferPtr;
+                                                int* bufferPtr = (int*)byteBufferPtr;
 
                                                 fixed (IntVector2* valuePtr = value)
                                                 {
@@ -936,7 +936,7 @@ namespace Expanse.Serialization.TinySerialization
 
                                             fixed (byte* byteBufferPtr = &buffer[offset + lengthSize])
                                             {
-                                                float* bufferPtr = (float*)byteBufferPtr;
+                                                int* bufferPtr = (int*)byteBufferPtr;
 
                                                 fixed (IntVector3* valuePtr = value)
                                                 {
@@ -955,7 +955,7 @@ namespace Expanse.Serialization.TinySerialization
 
                                             fixed (byte* byteBufferPtr = &buffer[offset + lengthSize])
                                             {
-                                                float* bufferPtr = (float*)byteBufferPtr;
+                                                int* bufferPtr = (int*)byteBufferPtr;
 
                                                 fixed (IntVector4* valuePtr = value)
                                                 {
@@ -1299,7 +1299,7 @@ namespace Expanse.Serialization.TinySerialization
 
                                             fixed (byte* byteBufferPtr = &buffer[offset + lengthSize])
                                             {
-                                                float* bufferPtr = (float*)byteBufferPtr;
+                                                int* bufferPtr = (int*)byteBufferPtr;
 
                                                 IntVector2 elementValue = value[i];
 
@@ -1314,7 +1314,7 @@ namespace Expanse.Serialization.TinySerialization
 
                                             fixed (byte* byteBufferPtr = &buffer[offset + lengthSize])
                                             {
-                                                float* bufferPtr = (float*)byteBufferPtr;
+                                                int* bufferPtr = (int*)byteBufferPtr;
 
                                                 IntVector3 elementValue = value[i];
 
@@ -1330,7 +1330,7 @@ namespace Expanse.Serialization.TinySerialization
 
                                             fixed (byte* byteBufferPtr = &buffer[offset + lengthSize])
                                             {
-                                                float* bufferPtr = (float*)byteBufferPtr;
+                                                int* bufferPtr = (int*)byteBufferPtr;
 
                                                 IntVector4 elementValue = value[i];
 
@@ -1342,9 +1342,766 @@ namespace Expanse.Serialization.TinySerialization
                                         }
                                         break;
                                     default:
-                                        throw new UnsupportedException("elementSerializationType for array is not supported: " + elementSerializationType);
+                                        throw new UnsupportedException("elementSerializationType for list is not supported: " + elementSerializationType);
                                 }
                             }
+                        }
+                        break;
+                    case SerializationType.PrimitiveNullable:
+                        {
+                            Type[] genericParameters = tSource.GetGenericArguments();
+                            Type elementType = genericParameters[0];
+                            SerializationType elementSerializationType = TinySerializerUtil.GetSerializationType(elementType);
+                            int elementSize = TinySerializerUtil.GetPrimitiveTypeSize(elementSerializationType);
+
+                            switch (elementSerializationType)
+                            {
+                                case SerializationType.Byte:
+                                    {
+                                        byte? value = CastTo<byte?>.From(obj, emitValueTypeCaster);
+                                        bool hasValue = value.HasValue;
+
+                                        if (hasValue)
+                                        {
+                                            dataSize = sizeof(byte) + elementSize;
+                                            EnsureBufferSize(offset + dataSize);
+
+                                            fixed (byte* bufferPtr = &buffer[offset])
+                                            {
+                                                *bufferPtr = 1;
+                                                bufferPtr[1] = value.Value;
+                                            }
+                                        }
+                                        else
+                                        {
+                                            dataSize = sizeof(byte);
+                                            EnsureBufferSize(offset + dataSize);
+
+                                            fixed (byte* bufferPtr = &buffer[offset])
+                                                *bufferPtr = 0;
+                                        }
+                                    }
+                                    break;
+                                case SerializationType.SByte:
+                                    {
+                                        sbyte? value = CastTo<sbyte?>.From(obj, emitValueTypeCaster);
+                                        bool hasValue = value.HasValue;
+
+                                        if (hasValue)
+                                        {
+                                            dataSize = sizeof(byte) + elementSize;
+                                            EnsureBufferSize(offset + dataSize);
+
+                                            fixed (byte* byteBufferPtr = &buffer[offset])
+                                            {
+                                                *byteBufferPtr = 1;
+                                                sbyte* bufferPtr = (sbyte*)&byteBufferPtr[1];
+                                                *bufferPtr = value.Value;
+                                            }
+                                        }
+                                        else
+                                        {
+                                            dataSize = sizeof(byte);
+                                            EnsureBufferSize(offset + dataSize);
+
+                                            fixed (byte* bufferPtr = &buffer[offset])
+                                                *bufferPtr = 0;
+                                        }
+                                    }
+                                    break;
+                                case SerializationType.Int16:
+                                    {
+                                        short? value = CastTo<short?>.From(obj, emitValueTypeCaster);
+                                        bool hasValue = value.HasValue;
+
+                                        if (hasValue)
+                                        {
+                                            dataSize = sizeof(byte) + elementSize;
+                                            EnsureBufferSize(offset + dataSize);
+
+                                            fixed (byte* byteBufferPtr = &buffer[offset])
+                                            {
+                                                *byteBufferPtr = 1;
+                                                short* bufferPtr = (short*)&byteBufferPtr[1];
+                                                *bufferPtr = value.Value;
+                                            }
+                                        }
+                                        else
+                                        {
+                                            dataSize = sizeof(byte);
+                                            EnsureBufferSize(offset + dataSize);
+
+                                            fixed (byte* bufferPtr = &buffer[offset])
+                                                *bufferPtr = 0;
+                                        }
+                                    }
+                                    break;
+                                case SerializationType.Int32:
+                                    {
+                                        int? value = CastTo<int?>.From(obj, emitValueTypeCaster);
+                                        bool hasValue = value.HasValue;
+
+                                        if (hasValue)
+                                        {
+                                            dataSize = sizeof(byte) + elementSize;
+                                            EnsureBufferSize(offset + dataSize);
+
+                                            fixed (byte* byteBufferPtr = &buffer[offset])
+                                            {
+                                                *byteBufferPtr = 1;
+                                                int* bufferPtr = (int*)&byteBufferPtr[1];
+                                                *bufferPtr = value.Value;
+                                            }
+                                        }
+                                        else
+                                        {
+                                            dataSize = sizeof(byte);
+                                            EnsureBufferSize(offset + dataSize);
+
+                                            fixed (byte* bufferPtr = &buffer[offset])
+                                                *bufferPtr = 0;
+                                        }
+                                    }
+                                    break;
+                                case SerializationType.Int64:
+                                    {
+                                        long? value = CastTo<long?>.From(obj, emitValueTypeCaster);
+                                        bool hasValue = value.HasValue;
+
+                                        if (hasValue)
+                                        {
+                                            dataSize = sizeof(byte) + elementSize;
+                                            EnsureBufferSize(offset + dataSize);
+
+                                            fixed (byte* byteBufferPtr = &buffer[offset])
+                                            {
+                                                *byteBufferPtr = 1;
+                                                long* bufferPtr = (long*)&byteBufferPtr[1];
+                                                *bufferPtr = value.Value;
+                                            }
+                                        }
+                                        else
+                                        {
+                                            dataSize = sizeof(byte);
+                                            EnsureBufferSize(offset + dataSize);
+
+                                            fixed (byte* bufferPtr = &buffer[offset])
+                                                *bufferPtr = 0;
+                                        }
+                                    }
+                                    break;
+                                case SerializationType.UInt16:
+                                    {
+                                        ushort? value = CastTo<ushort?>.From(obj, emitValueTypeCaster);
+                                        bool hasValue = value.HasValue;
+
+                                        if (hasValue)
+                                        {
+                                            dataSize = sizeof(byte) + elementSize;
+                                            EnsureBufferSize(offset + dataSize);
+
+                                            fixed (byte* byteBufferPtr = &buffer[offset])
+                                            {
+                                                *byteBufferPtr = 1;
+                                                ushort* bufferPtr = (ushort*)&byteBufferPtr[1];
+                                                *bufferPtr = value.Value;
+                                            }
+                                        }
+                                        else
+                                        {
+                                            dataSize = sizeof(byte);
+                                            EnsureBufferSize(offset + dataSize);
+
+                                            fixed (byte* bufferPtr = &buffer[offset])
+                                                *bufferPtr = 0;
+                                        }
+                                    }
+                                    break;
+                                case SerializationType.UInt32:
+                                    {
+                                        uint? value = CastTo<uint?>.From(obj, emitValueTypeCaster);
+                                        bool hasValue = value.HasValue;
+
+                                        if (hasValue)
+                                        {
+                                            dataSize = sizeof(byte) + elementSize;
+                                            EnsureBufferSize(offset + dataSize);
+
+                                            fixed (byte* byteBufferPtr = &buffer[offset])
+                                            {
+                                                *byteBufferPtr = 1;
+                                                uint* bufferPtr = (uint*)&byteBufferPtr[1];
+                                                *bufferPtr = value.Value;
+                                            }
+                                        }
+                                        else
+                                        {
+                                            dataSize = sizeof(byte);
+                                            EnsureBufferSize(offset + dataSize);
+
+                                            fixed (byte* bufferPtr = &buffer[offset])
+                                                *bufferPtr = 0;
+                                        }
+                                    }
+                                    break;
+                                case SerializationType.UInt64:
+                                    {
+                                        ulong? value = CastTo<ulong?>.From(obj, emitValueTypeCaster);
+                                        bool hasValue = value.HasValue;
+
+                                        if (hasValue)
+                                        {
+                                            dataSize = sizeof(byte) + elementSize;
+                                            EnsureBufferSize(offset + dataSize);
+
+                                            fixed (byte* byteBufferPtr = &buffer[offset])
+                                            {
+                                                *byteBufferPtr = 1;
+                                                ulong* bufferPtr = (ulong*)&byteBufferPtr[1];
+                                                *bufferPtr = value.Value;
+                                            }
+                                        }
+                                        else
+                                        {
+                                            dataSize = sizeof(byte);
+                                            EnsureBufferSize(offset + dataSize);
+
+                                            fixed (byte* bufferPtr = &buffer[offset])
+                                                *bufferPtr = 0;
+                                        }
+                                    }
+                                    break;
+                                case SerializationType.Half:
+                                    {
+                                        Half? value = CastTo<Half?>.From(obj, emitValueTypeCaster);
+                                        bool hasValue = value.HasValue;
+
+                                        if (hasValue)
+                                        {
+                                            dataSize = sizeof(byte) + elementSize;
+                                            EnsureBufferSize(offset + dataSize);
+
+                                            fixed (byte* byteBufferPtr = &buffer[offset])
+                                            {
+                                                *byteBufferPtr = 1;
+                                                ushort* bufferPtr = (ushort*)&byteBufferPtr[1];
+                                                *bufferPtr = value.Value.value;
+                                            }
+                                        }
+                                        else
+                                        {
+                                            dataSize = sizeof(byte);
+                                            EnsureBufferSize(offset + dataSize);
+
+                                            fixed (byte* bufferPtr = &buffer[offset])
+                                                *bufferPtr = 0;
+                                        }
+                                    }
+                                    break;
+                                case SerializationType.Single:
+                                    {
+                                        float? value = CastTo<float?>.From(obj, emitValueTypeCaster);
+                                        bool hasValue = value.HasValue;
+
+                                        if (hasValue)
+                                        {
+                                            dataSize = sizeof(byte) + elementSize;
+                                            EnsureBufferSize(offset + dataSize);
+
+                                            fixed (byte* byteBufferPtr = &buffer[offset])
+                                            {
+                                                *byteBufferPtr = 1;
+                                                float* bufferPtr = (float*)&byteBufferPtr[1];
+                                                *bufferPtr = value.Value;
+                                            }
+                                        }
+                                        else
+                                        {
+                                            dataSize = sizeof(byte);
+                                            EnsureBufferSize(offset + dataSize);
+
+                                            fixed (byte* bufferPtr = &buffer[offset])
+                                                *bufferPtr = 0;
+                                        }
+                                    }
+                                    break;
+                                case SerializationType.Double:
+                                    {
+                                        double? value = CastTo<double?>.From(obj, emitValueTypeCaster);
+                                        bool hasValue = value.HasValue;
+
+                                        if (hasValue)
+                                        {
+                                            dataSize = sizeof(byte) + elementSize;
+                                            EnsureBufferSize(offset + dataSize);
+
+                                            fixed (byte* byteBufferPtr = &buffer[offset])
+                                            {
+                                                *byteBufferPtr = 1;
+                                                double* bufferPtr = (double*)&byteBufferPtr[1];
+                                                *bufferPtr = value.Value;
+                                            }
+                                        }
+                                        else
+                                        {
+                                            dataSize = sizeof(byte);
+                                            EnsureBufferSize(offset + dataSize);
+
+                                            fixed (byte* bufferPtr = &buffer[offset])
+                                                *bufferPtr = 0;
+                                        }
+                                    }
+                                    break;
+                                case SerializationType.Char:
+                                    {
+                                        char? value = CastTo<char?>.From(obj, emitValueTypeCaster);
+                                        bool hasValue = value.HasValue;
+
+                                        if (hasValue)
+                                        {
+                                            dataSize = sizeof(byte) + elementSize;
+                                            EnsureBufferSize(offset + dataSize);
+
+                                            fixed (byte* byteBufferPtr = &buffer[offset])
+                                            {
+                                                *byteBufferPtr = 1;
+                                                char* bufferPtr = (char*)&byteBufferPtr[1];
+                                                *bufferPtr = value.Value;
+                                            }
+                                        }
+                                        else
+                                        {
+                                            dataSize = sizeof(byte);
+                                            EnsureBufferSize(offset + dataSize);
+
+                                            fixed (byte* bufferPtr = &buffer[offset])
+                                                *bufferPtr = 0;
+                                        }
+                                    }
+                                    break;
+                                case SerializationType.Decimal:
+                                    {
+                                        decimal? value = CastTo<decimal?>.From(obj, emitValueTypeCaster);
+                                        bool hasValue = value.HasValue;
+
+                                        if (hasValue)
+                                        {
+                                            dataSize = sizeof(byte) + elementSize;
+                                            EnsureBufferSize(offset + dataSize);
+
+                                            fixed (byte* byteBufferPtr = &buffer[offset])
+                                            {
+                                                *byteBufferPtr = 1;
+                                                decimal* bufferPtr = (decimal*)&byteBufferPtr[1];
+                                                *bufferPtr = value.Value;
+                                            }
+                                        }
+                                        else
+                                        {
+                                            dataSize = sizeof(byte);
+                                            EnsureBufferSize(offset + dataSize);
+
+                                            fixed (byte* bufferPtr = &buffer[offset])
+                                                *bufferPtr = 0;
+                                        }
+                                    }
+                                    break;
+                                case SerializationType.DateTime:
+                                    {
+                                        DateTime? value = CastTo<DateTime?>.From(obj, emitValueTypeCaster);
+                                        bool hasValue = value.HasValue;
+
+                                        if (hasValue)
+                                        {
+                                            dataSize = sizeof(byte) + elementSize;
+                                            EnsureBufferSize(offset + dataSize);
+
+                                            fixed (byte* byteBufferPtr = &buffer[offset])
+                                            {
+                                                *byteBufferPtr = 1;
+                                                long* bufferPtr = (long*)&byteBufferPtr[1];
+                                                *bufferPtr = value.Value.Ticks;
+                                            }
+                                        }
+                                        else
+                                        {
+                                            dataSize = sizeof(byte);
+                                            EnsureBufferSize(offset + dataSize);
+
+                                            fixed (byte* bufferPtr = &buffer[offset])
+                                                *bufferPtr = 0;
+                                        }
+                                    }
+                                    break;
+                                case SerializationType.DateTimeOffset:
+                                    {
+                                        DateTimeOffset? value = CastTo<DateTimeOffset?>.From(obj, emitValueTypeCaster);
+                                        bool hasValue = value.HasValue;
+
+                                        if (hasValue)
+                                        {
+                                            dataSize = sizeof(byte) + elementSize;
+                                            EnsureBufferSize(offset + dataSize);
+
+                                            fixed (byte* byteBufferPtr = &buffer[offset])
+                                            {
+                                                *byteBufferPtr = 1;
+                                                long* bufferPtr = (long*)&byteBufferPtr[1];
+                                                *bufferPtr = value.Value.Ticks;
+                                            }
+                                        }
+                                        else
+                                        {
+                                            dataSize = sizeof(byte);
+                                            EnsureBufferSize(offset + dataSize);
+
+                                            fixed (byte* bufferPtr = &buffer[offset])
+                                                *bufferPtr = 0;
+                                        }
+                                    }
+                                    break;
+                                case SerializationType.TimeSpan:
+                                    {
+                                        TimeSpan? value = CastTo<TimeSpan?>.From(obj, emitValueTypeCaster);
+                                        bool hasValue = value.HasValue;
+
+                                        if (hasValue)
+                                        {
+                                            dataSize = sizeof(byte) + elementSize;
+                                            EnsureBufferSize(offset + dataSize);
+
+                                            fixed (byte* byteBufferPtr = &buffer[offset])
+                                            {
+                                                *byteBufferPtr = 1;
+                                                long* bufferPtr = (long*)&byteBufferPtr[1];
+                                                *bufferPtr = value.Value.Ticks;
+                                            }
+                                        }
+                                        else
+                                        {
+                                            dataSize = sizeof(byte);
+                                            EnsureBufferSize(offset + dataSize);
+
+                                            fixed (byte* bufferPtr = &buffer[offset])
+                                                *bufferPtr = 0;
+                                        }
+                                    }
+                                    break;
+                                case SerializationType.Vector2:
+                                    {
+                                        Vector2? value = CastTo<Vector2?>.From(obj, emitValueTypeCaster);
+                                        bool hasValue = value.HasValue;
+
+                                        if (hasValue)
+                                        {
+                                            dataSize = sizeof(byte) + elementSize;
+                                            EnsureBufferSize(offset + dataSize);
+
+                                            fixed (byte* byteBufferPtr = &buffer[offset])
+                                            {
+                                                *byteBufferPtr = 1;
+
+                                                float* bufferPtr = (float*)&byteBufferPtr[1];
+
+                                                Vector2 actualValue = value.Value;
+
+                                                *bufferPtr++ = actualValue.x;
+                                                *bufferPtr = actualValue.y;
+                                            }
+                                        }
+                                        else
+                                        {
+                                            dataSize = sizeof(byte);
+                                            EnsureBufferSize(offset + dataSize);
+
+                                            fixed (byte* bufferPtr = &buffer[offset])
+                                                *bufferPtr = 0;
+                                        }
+                                    }
+                                    break;
+                                case SerializationType.Vector3:
+                                    {
+                                        Vector3? value = CastTo<Vector3?>.From(obj, emitValueTypeCaster);
+                                        bool hasValue = value.HasValue;
+
+                                        if (hasValue)
+                                        {
+                                            dataSize = sizeof(byte) + elementSize;
+                                            EnsureBufferSize(offset + dataSize);
+
+                                            fixed (byte* byteBufferPtr = &buffer[offset])
+                                            {
+                                                *byteBufferPtr = 1;
+
+                                                float* bufferPtr = (float*)&byteBufferPtr[1];
+
+                                                Vector3 actualValue = value.Value;
+
+                                                *bufferPtr++ = actualValue.x;
+                                                *bufferPtr++ = actualValue.y;
+                                                *bufferPtr = actualValue.z;
+                                            }
+                                        }
+                                        else
+                                        {
+                                            dataSize = sizeof(byte);
+                                            EnsureBufferSize(offset + dataSize);
+
+                                            fixed (byte* bufferPtr = &buffer[offset])
+                                                *bufferPtr = 0;
+                                        }
+                                    }
+                                    break;
+                                case SerializationType.Vector4:
+                                    {
+                                        Vector4? value = CastTo<Vector4?>.From(obj, emitValueTypeCaster);
+                                        bool hasValue = value.HasValue;
+
+                                        if (hasValue)
+                                        {
+                                            dataSize = sizeof(byte) + elementSize;
+                                            EnsureBufferSize(offset + dataSize);
+
+                                            fixed (byte* byteBufferPtr = &buffer[offset])
+                                            {
+                                                *byteBufferPtr = 1;
+
+                                                float* bufferPtr = (float*)&byteBufferPtr[1];
+
+                                                Vector4 actualValue = value.Value;
+
+                                                *bufferPtr++ = actualValue.x;
+                                                *bufferPtr++ = actualValue.y;
+                                                *bufferPtr++ = actualValue.z;
+                                                *bufferPtr = actualValue.w;
+                                            }
+                                        }
+                                        else
+                                        {
+                                            dataSize = sizeof(byte);
+                                            EnsureBufferSize(offset + dataSize);
+
+                                            fixed (byte* bufferPtr = &buffer[offset])
+                                                *bufferPtr = 0;
+                                        }
+                                    }
+                                    break;
+                                case SerializationType.Quaternion:
+                                    {
+                                        Quaternion? value = CastTo<Quaternion?>.From(obj, emitValueTypeCaster);
+                                        bool hasValue = value.HasValue;
+
+                                        if (hasValue)
+                                        {
+                                            dataSize = sizeof(byte) + elementSize;
+                                            EnsureBufferSize(offset + dataSize);
+
+                                            fixed (byte* byteBufferPtr = &buffer[offset])
+                                            {
+                                                *byteBufferPtr = 1;
+
+                                                float* bufferPtr = (float*)&byteBufferPtr[1];
+
+                                                Quaternion actualValue = value.Value;
+
+                                                *bufferPtr++ = actualValue.x;
+                                                *bufferPtr++ = actualValue.y;
+                                                *bufferPtr++ = actualValue.z;
+                                                *bufferPtr = actualValue.w;
+                                            }
+                                        }
+                                        else
+                                        {
+                                            dataSize = sizeof(byte);
+                                            EnsureBufferSize(offset + dataSize);
+
+                                            fixed (byte* bufferPtr = &buffer[offset])
+                                                *bufferPtr = 0;
+                                        }
+                                    }
+                                    break;
+                                case SerializationType.Rect:
+                                    {
+                                        Rect? value = CastTo<Rect?>.From(obj, emitValueTypeCaster);
+                                        bool hasValue = value.HasValue;
+
+                                        if (hasValue)
+                                        {
+                                            dataSize = sizeof(byte) + elementSize;
+                                            EnsureBufferSize(offset + dataSize);
+
+                                            fixed (byte* byteBufferPtr = &buffer[offset])
+                                            {
+                                                *byteBufferPtr = 1;
+
+                                                float* bufferPtr = (float*)&byteBufferPtr[1];
+
+                                                Rect actualValue = value.Value;
+
+                                                *bufferPtr++ = actualValue.x;
+                                                *bufferPtr++ = actualValue.y;
+                                                *bufferPtr++ = actualValue.width;
+                                                *bufferPtr = actualValue.height;
+                                            }
+                                        }
+                                        else
+                                        {
+                                            dataSize = sizeof(byte);
+                                            EnsureBufferSize(offset + dataSize);
+
+                                            fixed (byte* bufferPtr = &buffer[offset])
+                                                *bufferPtr = 0;
+                                        }
+                                    }
+                                    break;
+                                case SerializationType.Bounds:
+                                    {
+                                        Bounds? value = CastTo<Bounds?>.From(obj, emitValueTypeCaster);
+                                        bool hasValue = value.HasValue;
+
+                                        if (hasValue)
+                                        {
+                                            dataSize = sizeof(byte) + elementSize;
+                                            EnsureBufferSize(offset + dataSize);
+
+                                            fixed (byte* byteBufferPtr = &buffer[offset])
+                                            {
+                                                *byteBufferPtr = 1;
+
+                                                float* bufferPtr = (float*)&byteBufferPtr[1];
+
+                                                Bounds actualValue = value.Value;
+
+                                                Vector3 center = actualValue.center;
+
+                                                *bufferPtr++ = center.x;
+                                                *bufferPtr++ = center.y;
+                                                *bufferPtr++ = center.z;
+
+                                                Vector3 size = actualValue.size;
+
+                                                *bufferPtr++ = size.x;
+                                                *bufferPtr++ = size.y;
+                                                *bufferPtr = size.z;
+                                            }
+                                        }
+                                        else
+                                        {
+                                            dataSize = sizeof(byte);
+                                            EnsureBufferSize(offset + dataSize);
+
+                                            fixed (byte* bufferPtr = &buffer[offset])
+                                                *bufferPtr = 0;
+                                        }
+                                    }
+                                    break;
+                                case SerializationType.IntVector2:
+                                    {
+                                        IntVector2? value = CastTo<IntVector2?>.From(obj, emitValueTypeCaster);
+                                        bool hasValue = value.HasValue;
+
+                                        if (hasValue)
+                                        {
+                                            dataSize = sizeof(byte) + elementSize;
+                                            EnsureBufferSize(offset + dataSize);
+
+                                            fixed (byte* byteBufferPtr = &buffer[offset])
+                                            {
+                                                *byteBufferPtr = 1;
+
+                                                int* bufferPtr = (int*)&byteBufferPtr[1];
+
+                                                IntVector2 actualValue = value.Value;
+
+                                                *bufferPtr++ = actualValue.x;
+                                                *bufferPtr = actualValue.y;
+                                            }
+                                        }
+                                        else
+                                        {
+                                            dataSize = sizeof(byte);
+                                            EnsureBufferSize(offset + dataSize);
+
+                                            fixed (byte* bufferPtr = &buffer[offset])
+                                                *bufferPtr = 0;
+                                        }
+                                    }
+                                    break;
+                                case SerializationType.IntVector3:
+                                    {
+                                        IntVector3? value = CastTo<IntVector3?>.From(obj, emitValueTypeCaster);
+                                        bool hasValue = value.HasValue;
+
+                                        if (hasValue)
+                                        {
+                                            dataSize = sizeof(byte) + elementSize;
+                                            EnsureBufferSize(offset + dataSize);
+
+                                            fixed (byte* byteBufferPtr = &buffer[offset])
+                                            {
+                                                *byteBufferPtr = 1;
+
+                                                int* bufferPtr = (int*)&byteBufferPtr[1];
+
+                                                IntVector3 actualValue = value.Value;
+
+                                                *bufferPtr++ = actualValue.x;
+                                                *bufferPtr++ = actualValue.y;
+                                                *bufferPtr = actualValue.z;
+                                            }
+                                        }
+                                        else
+                                        {
+                                            dataSize = sizeof(byte);
+                                            EnsureBufferSize(offset + dataSize);
+
+                                            fixed (byte* bufferPtr = &buffer[offset])
+                                                *bufferPtr = 0;
+                                        }
+                                    }
+                                    break;
+                                case SerializationType.IntVector4:
+                                    {
+                                        IntVector4? value = CastTo<IntVector4?>.From(obj, emitValueTypeCaster);
+                                        bool hasValue = value.HasValue;
+
+                                        if (hasValue)
+                                        {
+                                            dataSize = sizeof(byte) + elementSize;
+                                            EnsureBufferSize(offset + dataSize);
+
+                                            fixed (byte* byteBufferPtr = &buffer[offset])
+                                            {
+                                                *byteBufferPtr = 1;
+
+                                                int* bufferPtr = (int*)&byteBufferPtr[1];
+
+                                                IntVector4 actualValue = value.Value;
+
+                                                *bufferPtr++ = actualValue.x;
+                                                *bufferPtr++ = actualValue.y;
+                                                *bufferPtr++ = actualValue.z;
+                                                *bufferPtr = actualValue.w;
+                                            }
+                                        }
+                                        else
+                                        {
+                                            dataSize = sizeof(byte);
+                                            EnsureBufferSize(offset + dataSize);
+
+                                            fixed (byte* bufferPtr = &buffer[offset])
+                                                *bufferPtr = 0;
+                                        }
+                                    }
+                                    break;
+                                default:
+                                    throw new UnsupportedException("elementSerializationType for nullable is not supported: " + elementSerializationType);
+                            }
+                        }
+                        break;
+                    case SerializationType.Object:
+                        {
+
                         }
                         break;
                     case SerializationType.ObjectArray:
@@ -1357,17 +2114,7 @@ namespace Expanse.Serialization.TinySerialization
 
                         }
                         break;
-                    case SerializationType.PrimitiveNullable:
-                        {
-
-                        }
-                        break;
                     case SerializationType.ObjectNullable:
-                        {
-
-                        }
-                        break;
-                    case SerializationType.Object:
                         {
 
                         }

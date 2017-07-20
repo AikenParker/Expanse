@@ -67,6 +67,26 @@ namespace Expanse.Serialization.TinySerialization
                     return SerializationType.IntVector3;
                 else if (type == typeof(IntVector4))
                     return SerializationType.IntVector4;
+
+                if (type.IsGenericType)
+                {
+                    Type typeDefinition = type.GetGenericTypeDefinition();
+
+                    if (typeDefinition == typeof(Nullable<>))
+                    {
+                        // TODO: Cache generic params
+
+                        Type[] genericParameters = type.GetGenericArguments();
+                        Type elementType = genericParameters[0];
+
+                        SerializationType elementSerializationType = GetSerializationType(elementType);
+
+                        if (IsSerializationTypePrimitive(elementSerializationType))
+                            return SerializationType.PrimitiveNullable;
+                        else
+                            return SerializationType.ObjectNullable;
+                    }
+                }
             }
             else
             {
@@ -76,6 +96,8 @@ namespace Expanse.Serialization.TinySerialization
                 }
                 else if (type.IsArray)
                 {
+                    // TODO: Check array rank
+
                     Type elementType = type.GetElementType();
 
                     if (elementType.IsClass)
@@ -97,6 +119,7 @@ namespace Expanse.Serialization.TinySerialization
                     if (typeDefinition == typeof(List<>))
                     {
                         // TODO: Cache generic params
+
                         Type[] genericParameters = type.GetGenericArguments();
                         Type elementType = genericParameters[0];
 
@@ -115,20 +138,11 @@ namespace Expanse.Serialization.TinySerialization
                     else if (typeDefinition == typeof(Nullable<>))
                     {
                         // TODO: Cache generic params
+
                         Type[] genericParameters = type.GetGenericArguments();
                         Type elementType = genericParameters[0];
 
-                        if (elementType.IsClass)
-                            return SerializationType.ObjectNullable;
-                        else
-                        {
-                            SerializationType elementSerializationType = GetSerializationType(elementType);
-
-                            if (IsSerializationTypePrimitive(elementSerializationType))
-                                return SerializationType.PrimitiveNullable;
-                            else
-                                return SerializationType.ObjectNullable;
-                        }
+                        return SerializationType.ObjectNullable;
                     }
                 }
             }
