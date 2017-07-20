@@ -363,6 +363,9 @@ namespace Expanse.Utilities
 
             int dataLength = data.Length;
 
+            if (dataLength == 0)
+                return string.Empty;
+
             int betweenBitLength = string.IsNullOrEmpty(betweenBit) ? 0 : betweenBit.Length;
             int betweenByteLength = string.IsNullOrEmpty(betweenByte) ? 0 : betweenByte.Length;
 

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using Expanse.Misc;
 using Expanse.Utilities;
@@ -167,14 +168,14 @@ namespace Expanse.Serialization.TinySerialization
             {
                 int dataSize = 0;
 
-                SerializationType serializationType = GetSerializationType(tSource);
+                SerializationType serializationType = TinySerializerUtil.GetSerializationType(tSource);
                 bool emitValueTypeCaster = true;
 
                 switch (serializationType)
                 {
                     case SerializationType.Byte:
                         {
-                            dataSize = GetPrimitiveTypeSize(serializationType);
+                            dataSize = TinySerializerUtil.GetPrimitiveTypeSize(serializationType);
                             EnsureBufferSize(dataSize + offset);
 
                             byte value = CastTo<byte>.From(obj, emitValueTypeCaster);
@@ -185,7 +186,7 @@ namespace Expanse.Serialization.TinySerialization
                         break;
                     case SerializationType.SByte:
                         {
-                            dataSize = GetPrimitiveTypeSize(serializationType);
+                            dataSize = TinySerializerUtil.GetPrimitiveTypeSize(serializationType);
                             EnsureBufferSize(dataSize + offset);
 
                             sbyte value = CastTo<sbyte>.From(obj, emitValueTypeCaster);
@@ -199,7 +200,7 @@ namespace Expanse.Serialization.TinySerialization
                         break;
                     case SerializationType.Int16:
                         {
-                            dataSize = GetPrimitiveTypeSize(serializationType);
+                            dataSize = TinySerializerUtil.GetPrimitiveTypeSize(serializationType);
                             EnsureBufferSize(dataSize + offset);
 
                             short value = CastTo<short>.From(obj, emitValueTypeCaster);
@@ -213,7 +214,7 @@ namespace Expanse.Serialization.TinySerialization
                         break;
                     case SerializationType.Int32:
                         {
-                            dataSize = GetPrimitiveTypeSize(serializationType);
+                            dataSize = TinySerializerUtil.GetPrimitiveTypeSize(serializationType);
                             EnsureBufferSize(dataSize + offset);
 
                             int value = CastTo<int>.From(obj, emitValueTypeCaster);
@@ -227,7 +228,7 @@ namespace Expanse.Serialization.TinySerialization
                         break;
                     case SerializationType.Int64:
                         {
-                            dataSize = GetPrimitiveTypeSize(serializationType);
+                            dataSize = TinySerializerUtil.GetPrimitiveTypeSize(serializationType);
                             EnsureBufferSize(dataSize + offset);
 
                             long value = CastTo<long>.From(obj, emitValueTypeCaster);
@@ -241,7 +242,7 @@ namespace Expanse.Serialization.TinySerialization
                         break;
                     case SerializationType.UInt16:
                         {
-                            dataSize = GetPrimitiveTypeSize(serializationType);
+                            dataSize = TinySerializerUtil.GetPrimitiveTypeSize(serializationType);
                             EnsureBufferSize(dataSize + offset);
 
                             ushort value = CastTo<ushort>.From(obj, emitValueTypeCaster);
@@ -255,7 +256,7 @@ namespace Expanse.Serialization.TinySerialization
                         break;
                     case SerializationType.UInt32:
                         {
-                            dataSize = GetPrimitiveTypeSize(serializationType);
+                            dataSize = TinySerializerUtil.GetPrimitiveTypeSize(serializationType);
                             EnsureBufferSize(dataSize + offset);
 
                             uint value = CastTo<uint>.From(obj, emitValueTypeCaster);
@@ -269,7 +270,7 @@ namespace Expanse.Serialization.TinySerialization
                         break;
                     case SerializationType.UInt64:
                         {
-                            dataSize = GetPrimitiveTypeSize(serializationType);
+                            dataSize = TinySerializerUtil.GetPrimitiveTypeSize(serializationType);
                             EnsureBufferSize(dataSize + offset);
 
                             ulong value = CastTo<ulong>.From(obj, emitValueTypeCaster);
@@ -283,7 +284,7 @@ namespace Expanse.Serialization.TinySerialization
                         break;
                     case SerializationType.Half:
                         {
-                            dataSize = GetPrimitiveTypeSize(serializationType);
+                            dataSize = TinySerializerUtil.GetPrimitiveTypeSize(serializationType);
                             EnsureBufferSize(dataSize + offset);
 
                             Half value = CastTo<Half>.From(obj, emitValueTypeCaster);
@@ -297,7 +298,7 @@ namespace Expanse.Serialization.TinySerialization
                         break;
                     case SerializationType.Single:
                         {
-                            dataSize = GetPrimitiveTypeSize(serializationType);
+                            dataSize = TinySerializerUtil.GetPrimitiveTypeSize(serializationType);
                             EnsureBufferSize(dataSize + offset);
 
                             float value = CastTo<float>.From(obj, emitValueTypeCaster);
@@ -311,7 +312,7 @@ namespace Expanse.Serialization.TinySerialization
                         break;
                     case SerializationType.Double:
                         {
-                            dataSize = GetPrimitiveTypeSize(serializationType);
+                            dataSize = TinySerializerUtil.GetPrimitiveTypeSize(serializationType);
                             EnsureBufferSize(dataSize + offset);
 
                             double value = CastTo<double>.From(obj, emitValueTypeCaster);
@@ -325,7 +326,7 @@ namespace Expanse.Serialization.TinySerialization
                         break;
                     case SerializationType.Char:
                         {
-                            dataSize = GetPrimitiveTypeSize(serializationType);
+                            dataSize = TinySerializerUtil.GetPrimitiveTypeSize(serializationType);
                             EnsureBufferSize(dataSize + offset);
 
                             char value = CastTo<char>.From(obj, emitValueTypeCaster);
@@ -339,7 +340,7 @@ namespace Expanse.Serialization.TinySerialization
                         break;
                     case SerializationType.Decimal:
                         {
-                            dataSize = GetPrimitiveTypeSize(serializationType);
+                            dataSize = TinySerializerUtil.GetPrimitiveTypeSize(serializationType);
                             EnsureBufferSize(dataSize + offset);
 
                             decimal value = CastTo<decimal>.From(obj, emitValueTypeCaster);
@@ -353,7 +354,7 @@ namespace Expanse.Serialization.TinySerialization
                         break;
                     case SerializationType.DateTime:
                         {
-                            dataSize = GetPrimitiveTypeSize(serializationType);
+                            dataSize = TinySerializerUtil.GetPrimitiveTypeSize(serializationType);
                             EnsureBufferSize(dataSize + offset);
 
                             DateTime value = CastTo<DateTime>.From(obj, emitValueTypeCaster);
@@ -367,7 +368,7 @@ namespace Expanse.Serialization.TinySerialization
                         break;
                     case SerializationType.DateTimeOffset:
                         {
-                            dataSize = GetPrimitiveTypeSize(serializationType);
+                            dataSize = TinySerializerUtil.GetPrimitiveTypeSize(serializationType);
                             EnsureBufferSize(dataSize + offset);
 
                             DateTimeOffset value = CastTo<DateTimeOffset>.From(obj, emitValueTypeCaster);
@@ -381,7 +382,7 @@ namespace Expanse.Serialization.TinySerialization
                         break;
                     case SerializationType.TimeSpan:
                         {
-                            dataSize = GetPrimitiveTypeSize(serializationType);
+                            dataSize = TinySerializerUtil.GetPrimitiveTypeSize(serializationType);
                             EnsureBufferSize(dataSize + offset);
 
                             TimeSpan value = CastTo<TimeSpan>.From(obj, emitValueTypeCaster);
@@ -395,7 +396,7 @@ namespace Expanse.Serialization.TinySerialization
                         break;
                     case SerializationType.Vector2:
                         {
-                            dataSize = GetPrimitiveTypeSize(serializationType);
+                            dataSize = TinySerializerUtil.GetPrimitiveTypeSize(serializationType);
                             EnsureBufferSize(dataSize + offset);
 
                             Vector2 value = CastTo<Vector2>.From(obj, emitValueTypeCaster);
@@ -411,7 +412,7 @@ namespace Expanse.Serialization.TinySerialization
                         break;
                     case SerializationType.Vector3:
                         {
-                            dataSize = GetPrimitiveTypeSize(serializationType);
+                            dataSize = TinySerializerUtil.GetPrimitiveTypeSize(serializationType);
                             EnsureBufferSize(dataSize + offset);
 
                             Vector3 value = CastTo<Vector3>.From(obj, emitValueTypeCaster);
@@ -428,7 +429,7 @@ namespace Expanse.Serialization.TinySerialization
                         break;
                     case SerializationType.Vector4:
                         {
-                            dataSize = GetPrimitiveTypeSize(serializationType);
+                            dataSize = TinySerializerUtil.GetPrimitiveTypeSize(serializationType);
                             EnsureBufferSize(dataSize + offset);
 
                             Vector4 value = CastTo<Vector4>.From(obj, emitValueTypeCaster);
@@ -446,7 +447,7 @@ namespace Expanse.Serialization.TinySerialization
                         break;
                     case SerializationType.Quaternion:
                         {
-                            dataSize = GetPrimitiveTypeSize(serializationType);
+                            dataSize = TinySerializerUtil.GetPrimitiveTypeSize(serializationType);
                             EnsureBufferSize(dataSize + offset);
 
                             Quaternion value = CastTo<Quaternion>.From(obj, emitValueTypeCaster);
@@ -464,7 +465,7 @@ namespace Expanse.Serialization.TinySerialization
                         break;
                     case SerializationType.Rect:
                         {
-                            dataSize = GetPrimitiveTypeSize(serializationType);
+                            dataSize = TinySerializerUtil.GetPrimitiveTypeSize(serializationType);
                             EnsureBufferSize(dataSize + offset);
 
                             Rect value = CastTo<Rect>.From(obj, emitValueTypeCaster);
@@ -482,7 +483,7 @@ namespace Expanse.Serialization.TinySerialization
                         break;
                     case SerializationType.Bounds:
                         {
-                            dataSize = GetPrimitiveTypeSize(serializationType);
+                            dataSize = TinySerializerUtil.GetPrimitiveTypeSize(serializationType);
                             EnsureBufferSize(dataSize + offset);
 
                             Bounds value = CastTo<Bounds>.From(obj, emitValueTypeCaster);
@@ -507,7 +508,7 @@ namespace Expanse.Serialization.TinySerialization
                         break;
                     case SerializationType.IntVector2:
                         {
-                            dataSize = GetPrimitiveTypeSize(serializationType);
+                            dataSize = TinySerializerUtil.GetPrimitiveTypeSize(serializationType);
                             EnsureBufferSize(dataSize + offset);
 
                             IntVector2 value = CastTo<IntVector2>.From(obj, emitValueTypeCaster);
@@ -523,7 +524,7 @@ namespace Expanse.Serialization.TinySerialization
                         break;
                     case SerializationType.IntVector3:
                         {
-                            dataSize = GetPrimitiveTypeSize(serializationType);
+                            dataSize = TinySerializerUtil.GetPrimitiveTypeSize(serializationType);
                             EnsureBufferSize(dataSize + offset);
 
                             IntVector3 value = CastTo<IntVector3>.From(obj, emitValueTypeCaster);
@@ -540,7 +541,7 @@ namespace Expanse.Serialization.TinySerialization
                         break;
                     case SerializationType.IntVector4:
                         {
-                            dataSize = GetPrimitiveTypeSize(serializationType);
+                            dataSize = TinySerializerUtil.GetPrimitiveTypeSize(serializationType);
                             EnsureBufferSize(dataSize + offset);
 
                             IntVector4 value = CastTo<IntVector4>.From(obj, emitValueTypeCaster);
@@ -569,8 +570,8 @@ namespace Expanse.Serialization.TinySerialization
 
                             int elementCount = hasValue ? length : 0;
                             Type elementType = tSource.GetElementType();
-                            SerializationType elementSerializationType = GetSerializationType(elementType);
-                            int elementSize = GetPrimitiveTypeSize(elementSerializationType);
+                            SerializationType elementSerializationType = TinySerializerUtil.GetSerializationType(elementType);
+                            int elementSize = TinySerializerUtil.GetPrimitiveTypeSize(elementSerializationType);
 
                             int lengthSize = sizeof(int);
                             dataSize = lengthSize + (elementCount * elementSize);
@@ -976,7 +977,374 @@ namespace Expanse.Serialization.TinySerialization
                         break;
                     case SerializationType.PrimitiveList:
                         {
+                            IList baseValue = CastTo<IList>.From(obj, false);
+                            bool hasValue = baseValue != null;
+                            int length = hasValue ? baseValue.Count : -1;
 
+                            int elementCount = hasValue ? length : 0;
+                            Type[] genericParameters = tSource.GetGenericArguments();
+                            Type elementType = genericParameters[0];
+                            SerializationType elementSerializationType = TinySerializerUtil.GetSerializationType(elementType);
+                            int elementSize = TinySerializerUtil.GetPrimitiveTypeSize(elementSerializationType);
+
+                            int lengthSize = sizeof(int);
+                            dataSize = lengthSize + (elementCount * elementSize);
+                            EnsureBufferSize(dataSize + offset);
+
+                            fixed (byte* bufferPtr = buffer)
+                            {
+                                int* intBufferPtr = (int*)bufferPtr;
+                                intBufferPtr[offset] = length;
+                            }
+
+                            for (int i = 0; i < elementCount; i++)
+                            {
+                                switch (elementSerializationType)
+                                {
+                                    case SerializationType.Byte:
+                                        {
+                                            List<byte> value = (List<byte>)baseValue;
+
+                                            fixed (byte* bufferPtr = &buffer[offset + lengthSize])
+                                                bufferPtr[i] = value[i];
+                                        }
+                                        break;
+                                    case SerializationType.SByte:
+                                        {
+                                            List<sbyte> value = (List<sbyte>)baseValue;
+
+                                            fixed (byte* byteBufferPtr = &buffer[offset + lengthSize])
+                                            {
+                                                sbyte* bufferPtr = (sbyte*)byteBufferPtr;
+
+                                                bufferPtr[i] = value[i];
+                                            }
+                                        }
+                                        break;
+                                    case SerializationType.Int16:
+                                        {
+                                            List<short> value = (List<short>)baseValue;
+
+                                            fixed (byte* byteBufferPtr = &buffer[offset + lengthSize])
+                                            {
+                                                short* bufferPtr = (short*)byteBufferPtr;
+
+                                                bufferPtr[i] = value[i];
+                                            }
+                                        }
+                                        break;
+                                    case SerializationType.Int32:
+                                        {
+                                            List<int> value = (List<int>)baseValue;
+
+                                            fixed (byte* byteBufferPtr = &buffer[offset + lengthSize])
+                                            {
+                                                int* bufferPtr = (int*)byteBufferPtr;
+
+                                                bufferPtr[i] = value[i];
+                                            }
+                                        }
+                                        break;
+                                    case SerializationType.Int64:
+                                        {
+                                            List<long> value = (List<long>)baseValue;
+
+                                            fixed (byte* byteBufferPtr = &buffer[offset + lengthSize])
+                                            {
+                                                long* bufferPtr = (long*)byteBufferPtr;
+
+                                                bufferPtr[i] = value[i];
+                                            }
+                                        }
+                                        break;
+                                    case SerializationType.UInt16:
+                                        {
+                                            List<ushort> value = (List<ushort>)baseValue;
+
+                                            fixed (byte* byteBufferPtr = &buffer[offset + lengthSize])
+                                            {
+                                                ushort* bufferPtr = (ushort*)byteBufferPtr;
+
+                                                bufferPtr[i] = value[i];
+                                            }
+                                        }
+                                        break;
+                                    case SerializationType.UInt32:
+                                        {
+                                            List<uint> value = (List<uint>)baseValue;
+
+                                            fixed (byte* byteBufferPtr = &buffer[offset + lengthSize])
+                                            {
+                                                uint* bufferPtr = (uint*)byteBufferPtr;
+
+                                                bufferPtr[i] = value[i];
+                                            }
+                                        }
+                                        break;
+                                    case SerializationType.UInt64:
+                                        {
+                                            List<ulong> value = (List<ulong>)baseValue;
+
+                                            fixed (byte* byteBufferPtr = &buffer[offset + lengthSize])
+                                            {
+                                                ulong* bufferPtr = (ulong*)byteBufferPtr;
+
+                                                bufferPtr[i] = value[i];
+                                            }
+                                        }
+                                        break;
+                                    case SerializationType.Half:
+                                        {
+                                            List<Half> value = (List<Half>)baseValue;
+
+                                            fixed (byte* byteBufferPtr = &buffer[offset + lengthSize])
+                                            {
+                                                ushort* bufferPtr = (ushort*)byteBufferPtr;
+
+                                                bufferPtr[i] = value[i].value;
+                                            }
+                                        }
+                                        break;
+                                    case SerializationType.Single:
+                                        {
+                                            List<float> value = (List<float>)baseValue;
+
+                                            fixed (byte* byteBufferPtr = &buffer[offset + lengthSize])
+                                            {
+                                                float* bufferPtr = (float*)byteBufferPtr;
+
+                                                bufferPtr[i] = value[i];
+                                            }
+                                        }
+                                        break;
+                                    case SerializationType.Double:
+                                        {
+                                            List<double> value = (List<double>)baseValue;
+
+                                            fixed (byte* byteBufferPtr = &buffer[offset + lengthSize])
+                                            {
+                                                double* bufferPtr = (double*)byteBufferPtr;
+
+                                                bufferPtr[i] = value[i];
+                                            }
+                                        }
+                                        break;
+                                    case SerializationType.Char:
+                                        {
+                                            List<char> value = (List<char>)baseValue;
+
+                                            fixed (byte* byteBufferPtr = &buffer[offset + lengthSize])
+                                            {
+                                                char* bufferPtr = (char*)byteBufferPtr;
+
+                                                bufferPtr[i] = value[i];
+                                            }
+                                        }
+                                        break;
+                                    case SerializationType.Decimal:
+                                        {
+                                            List<decimal> value = (List<decimal>)baseValue;
+
+                                            fixed (byte* byteBufferPtr = &buffer[offset + lengthSize])
+                                            {
+                                                decimal* bufferPtr = (decimal*)byteBufferPtr;
+
+                                                bufferPtr[i] = value[i];
+                                            }
+                                        }
+                                        break;
+                                    case SerializationType.DateTime:
+                                        {
+                                            List<DateTime> value = (List<DateTime>)baseValue;
+
+                                            fixed (byte* byteBufferPtr = &buffer[offset + lengthSize])
+                                            {
+                                                long* bufferPtr = (long*)byteBufferPtr;
+
+                                                bufferPtr[i] = value[i].Ticks;
+                                            }
+                                        }
+                                        break;
+                                    case SerializationType.DateTimeOffset:
+                                        {
+                                            List<DateTimeOffset> value = (List<DateTimeOffset>)baseValue;
+
+                                            fixed (byte* byteBufferPtr = &buffer[offset + lengthSize])
+                                            {
+                                                long* bufferPtr = (long*)byteBufferPtr;
+
+                                                bufferPtr[i] = value[i].Ticks;
+                                            }
+                                        }
+                                        break;
+                                    case SerializationType.TimeSpan:
+                                        {
+                                            List<TimeSpan> value = (List<TimeSpan>)baseValue;
+
+                                            fixed (byte* byteBufferPtr = &buffer[offset + lengthSize])
+                                            {
+                                                long* bufferPtr = (long*)byteBufferPtr;
+
+                                                bufferPtr[i] = value[i].Ticks;
+                                            }
+                                        }
+                                        break;
+                                    case SerializationType.Vector2:
+                                        {
+                                            List<Vector2> value = (List<Vector2>)baseValue;
+
+                                            fixed (byte* byteBufferPtr = &buffer[offset + lengthSize])
+                                            {
+                                                float* bufferPtr = (float*)byteBufferPtr;
+
+                                                Vector2 elementValue = value[i];
+
+                                                bufferPtr[(i * 2) + 0] = elementValue.x;
+                                                bufferPtr[(i * 2) + 1] = elementValue.y;
+                                            }
+                                        }
+                                        break;
+                                    case SerializationType.Vector3:
+                                        {
+                                            List<Vector3> value = (List<Vector3>)baseValue;
+
+                                            fixed (byte* byteBufferPtr = &buffer[offset + lengthSize])
+                                            {
+                                                float* bufferPtr = (float*)byteBufferPtr;
+
+                                                Vector3 elementValue = value[i];
+
+                                                bufferPtr[(i * 3) + 0] = elementValue.x;
+                                                bufferPtr[(i * 3) + 1] = elementValue.y;
+                                                bufferPtr[(i * 3) + 2] = elementValue.z;
+                                            }
+                                        }
+                                        break;
+                                    case SerializationType.Vector4:
+                                        {
+                                            List<Vector4> value = (List<Vector4>)baseValue;
+
+                                            fixed (byte* byteBufferPtr = &buffer[offset + lengthSize])
+                                            {
+                                                float* bufferPtr = (float*)byteBufferPtr;
+
+                                                Vector4 elementValue = value[i];
+
+                                                bufferPtr[(i * 4) + 0] = elementValue.x;
+                                                bufferPtr[(i * 4) + 1] = elementValue.y;
+                                                bufferPtr[(i * 4) + 2] = elementValue.z;
+                                                bufferPtr[(i * 4) + 3] = elementValue.w;
+                                            }
+                                        }
+                                        break;
+                                    case SerializationType.Quaternion:
+                                        {
+                                            List<Quaternion> value = (List<Quaternion>)baseValue;
+
+                                            fixed (byte* byteBufferPtr = &buffer[offset + lengthSize])
+                                            {
+                                                float* bufferPtr = (float*)byteBufferPtr;
+
+                                                Quaternion elementValue = value[i];
+
+                                                bufferPtr[(i * 4) + 0] = elementValue.x;
+                                                bufferPtr[(i * 4) + 1] = elementValue.y;
+                                                bufferPtr[(i * 4) + 2] = elementValue.z;
+                                                bufferPtr[(i * 4) + 3] = elementValue.w;
+                                            }
+                                        }
+                                        break;
+                                    case SerializationType.Rect:
+                                        {
+                                            List<Rect> value = (List<Rect>)baseValue;
+
+                                            fixed (byte* byteBufferPtr = &buffer[offset + lengthSize])
+                                            {
+                                                float* bufferPtr = (float*)byteBufferPtr;
+
+                                                Rect elementValue = value[i];
+
+                                                bufferPtr[(i * 4) + 0] = elementValue.x;
+                                                bufferPtr[(i * 4) + 1] = elementValue.y;
+                                                bufferPtr[(i * 4) + 2] = elementValue.width;
+                                                bufferPtr[(i * 4) + 3] = elementValue.height;
+                                            }
+                                        }
+                                        break;
+                                    case SerializationType.Bounds:
+                                        {
+                                            List<Bounds> value = (List<Bounds>)baseValue;
+
+                                            fixed (byte* byteBufferPtr = &buffer[offset + lengthSize])
+                                            {
+                                                float* bufferPtr = (float*)byteBufferPtr;
+
+                                                Bounds elementValue = value[i];
+
+                                                Vector3 center = elementValue.center;
+                                                Vector3 size = elementValue.size;
+
+                                                bufferPtr[(i * 6) + 0] = center.x;
+                                                bufferPtr[(i * 6) + 1] = center.y;
+                                                bufferPtr[(i * 6) + 2] = center.z;
+                                                bufferPtr[(i * 6) + 3] = size.x;
+                                                bufferPtr[(i * 6) + 4] = size.y;
+                                                bufferPtr[(i * 6) + 5] = size.z;
+                                            }
+                                        }
+                                        break;
+                                    case SerializationType.IntVector2:
+                                        {
+                                            List<IntVector2> value = (List<IntVector2>)baseValue;
+
+                                            fixed (byte* byteBufferPtr = &buffer[offset + lengthSize])
+                                            {
+                                                float* bufferPtr = (float*)byteBufferPtr;
+
+                                                IntVector2 elementValue = value[i];
+
+                                                bufferPtr[(i * 2) + 0] = elementValue.x;
+                                                bufferPtr[(i * 2) + 1] = elementValue.y;
+                                            }
+                                        }
+                                        break;
+                                    case SerializationType.IntVector3:
+                                        {
+                                            List<IntVector3> value = (List<IntVector3>)baseValue;
+
+                                            fixed (byte* byteBufferPtr = &buffer[offset + lengthSize])
+                                            {
+                                                float* bufferPtr = (float*)byteBufferPtr;
+
+                                                IntVector3 elementValue = value[i];
+
+                                                bufferPtr[(i * 3) + 0] = elementValue.x;
+                                                bufferPtr[(i * 3) + 1] = elementValue.y;
+                                                bufferPtr[(i * 3) + 2] = elementValue.z;
+                                            }
+                                        }
+                                        break;
+                                    case SerializationType.IntVector4:
+                                        {
+                                            List<IntVector4> value = (List<IntVector4>)baseValue;
+
+                                            fixed (byte* byteBufferPtr = &buffer[offset + lengthSize])
+                                            {
+                                                float* bufferPtr = (float*)byteBufferPtr;
+
+                                                IntVector4 elementValue = value[i];
+
+                                                bufferPtr[(i * 4) + 0] = elementValue.x;
+                                                bufferPtr[(i * 4) + 1] = elementValue.y;
+                                                bufferPtr[(i * 4) + 2] = elementValue.z;
+                                                bufferPtr[(i * 4) + 3] = elementValue.w;
+                                            }
+                                        }
+                                        break;
+                                    default:
+                                        throw new UnsupportedException("elementSerializationType for array is not supported: " + elementSerializationType);
+                                }
+                            }
                         }
                         break;
                     case SerializationType.ObjectArray:
@@ -1031,246 +1399,6 @@ namespace Expanse.Serialization.TinySerialization
                 bufferSize = newBufferSize;
                 buffer = newBuffer;
             }
-        }
-
-        public static SerializationType GetSerializationType(Type type)
-        {
-            // TODO: Replace with type switching when available
-
-            if (type.IsValueType)
-            {
-                if (type.IsEnum)
-                    type = Enum.GetUnderlyingType(type);
-
-                if (type == typeof(int))
-                    return SerializationType.Int32;
-                else if (type == typeof(byte))
-                    return SerializationType.Byte;
-                else if (type == typeof(sbyte))
-                    return SerializationType.SByte;
-                else if (type == typeof(short))
-                    return SerializationType.Int16;
-                else if (type == typeof(long))
-                    return SerializationType.Int64;
-                else if (type == typeof(ushort))
-                    return SerializationType.UInt16;
-                else if (type == typeof(uint))
-                    return SerializationType.UInt32;
-                else if (type == typeof(ulong))
-                    return SerializationType.UInt64;
-                else if (type == typeof(Half))
-                    return SerializationType.Half;
-                else if (type == typeof(float))
-                    return SerializationType.Single;
-                else if (type == typeof(double))
-                    return SerializationType.Double;
-                else if (type == typeof(char))
-                    return SerializationType.Char;
-                else if (type == typeof(decimal))
-                    return SerializationType.Decimal;
-                else if (type == typeof(DateTime))
-                    return SerializationType.DateTime;
-                else if (type == typeof(DateTimeOffset))
-                    return SerializationType.DateTimeOffset;
-                else if (type == typeof(TimeSpan))
-                    return SerializationType.TimeSpan;
-                else if (type == typeof(Vector2))
-                    return SerializationType.Vector2;
-                else if (type == typeof(Vector3))
-                    return SerializationType.Vector3;
-                else if (type == typeof(Vector4))
-                    return SerializationType.Vector4;
-                else if (type == typeof(Quaternion))
-                    return SerializationType.Quaternion;
-                else if (type == typeof(Rect))
-                    return SerializationType.Rect;
-                else if (type == typeof(Bounds))
-                    return SerializationType.Bounds;
-                else if (type == typeof(IntVector2))
-                    return SerializationType.IntVector2;
-                else if (type == typeof(IntVector3))
-                    return SerializationType.IntVector3;
-                else if (type == typeof(IntVector4))
-                    return SerializationType.IntVector4;
-            }
-            else
-            {
-                if (type == typeof(string))
-                {
-                    return SerializationType.String;
-                }
-                else if (type.IsArray)
-                {
-                    Type elementType = type.GetElementType();
-
-                    if (elementType.IsClass)
-                        return SerializationType.ObjectArray;
-                    else
-                    {
-                        SerializationType elementSerializationType = GetSerializationType(elementType);
-
-                        if (IsSerializationTypePrimitive(elementSerializationType))
-                            return SerializationType.PrimitiveArray;
-                        else
-                            return SerializationType.ObjectArray;
-                    }
-                }
-                else if (type.IsGenericType)
-                {
-                    Type typeDefinition = type.GetGenericTypeDefinition();
-
-                    if (typeDefinition == typeof(List<>))
-                    {
-                        Type[] genericParameters = type.GetGenericArguments();
-                        Type elementType = genericParameters[0];
-
-                        if (elementType.IsClass)
-                            return SerializationType.ObjectList;
-                        else
-                        {
-                            SerializationType elementSerializationType = GetSerializationType(elementType);
-
-                            if (IsSerializationTypePrimitive(elementSerializationType))
-                                return SerializationType.PrimitiveList;
-                            else
-                                return SerializationType.ObjectList;
-                        }
-                    }
-                    else if (typeDefinition == typeof(Nullable<>))
-                    {
-                        Type[] genericParameters = type.GetGenericArguments();
-                        Type elementType = genericParameters[0];
-
-                        if (elementType.IsClass)
-                            return SerializationType.ObjectNullable;
-                        else
-                        {
-                            SerializationType elementSerializationType = GetSerializationType(elementType);
-
-                            if (IsSerializationTypePrimitive(elementSerializationType))
-                                return SerializationType.PrimitiveNullable;
-                            else
-                                return SerializationType.ObjectNullable;
-                        }
-                    }
-                }
-            }
-
-            return SerializationType.Object;
-        }
-
-        public static bool IsSerializationTypePrimitive(SerializationType serializationType)
-        {
-            return serializationType != SerializationType.None && serializationType != SerializationType.Object &&
-                serializationType != SerializationType.String && serializationType != SerializationType.ObjectArray &&
-                serializationType != SerializationType.ObjectList && serializationType != SerializationType.ObjectNullable &&
-                serializationType != SerializationType.PrimitiveNullable && serializationType != SerializationType.PrimitiveArray &&
-                serializationType != SerializationType.PrimitiveList;
-        }
-
-        public static int GetPrimitiveTypeSize(SerializationType serializationType)
-        {
-            switch (serializationType)
-            {
-                case SerializationType.Byte:
-                    return sizeof(byte);
-                case SerializationType.SByte:
-                    return sizeof(sbyte);
-                case SerializationType.Int16:
-                    return sizeof(short);
-                case SerializationType.Int32:
-                    return sizeof(int);
-                case SerializationType.Int64:
-                    return sizeof(long);
-                case SerializationType.UInt16:
-                    return sizeof(ushort);
-                case SerializationType.UInt32:
-                    return sizeof(uint);
-                case SerializationType.UInt64:
-                    return sizeof(ulong);
-                case SerializationType.Half:
-                    return sizeof(ushort);
-                case SerializationType.Single:
-                    return sizeof(float);
-                case SerializationType.Double:
-                    return sizeof(double);
-                case SerializationType.Char:
-                    return sizeof(char);
-                case SerializationType.Decimal:
-                    return sizeof(decimal);
-                case SerializationType.DateTime:
-                    return sizeof(long);
-                case SerializationType.DateTimeOffset:
-                    return sizeof(long);
-                case SerializationType.TimeSpan:
-                    return sizeof(long);
-                case SerializationType.Vector2:
-                    return sizeof(float) * 2;
-                case SerializationType.Vector3:
-                    return sizeof(float) * 3;
-                case SerializationType.Vector4:
-                    return sizeof(float) * 4;
-                case SerializationType.Quaternion:
-                    return sizeof(float) * 4;
-                case SerializationType.Rect:
-                    return sizeof(float) * 4;
-                case SerializationType.Bounds:
-                    return sizeof(float) * 6;
-                case SerializationType.IntVector2:
-                    return sizeof(int) * 2;
-                case SerializationType.IntVector3:
-                    return sizeof(int) * 3;
-                case SerializationType.IntVector4:
-                    return sizeof(int) * 4;
-            }
-
-            throw new InvalidArgumentException("serializationType must be a primitive serialization type.");
-        }
-
-        public abstract class CustomTypeResolver
-        {
-            public readonly Type type;
-            public abstract int GetSize(object obj); // Warning: structs get boxed (Replace with Span)
-            public abstract void Deserialize(byte* data, int offset);
-            public abstract void Serialize(byte* data, int offset);
-        }
-
-        public enum SerializationType : byte
-        {
-            None = 0,
-            Object,
-            String,
-            Byte,
-            SByte,
-            Int16,
-            Int32,
-            Int64,
-            UInt16,
-            UInt32,
-            UInt64,
-            Half,
-            Single,
-            Double,
-            Char,
-            Decimal,
-            DateTime,
-            DateTimeOffset,
-            TimeSpan,
-            Vector2,
-            Vector3,
-            Vector4,
-            Quaternion,
-            Rect,
-            Bounds,
-            IntVector2,
-            IntVector3,
-            IntVector4,
-            PrimitiveArray,
-            PrimitiveList,
-            ObjectArray,
-            ObjectList,
-            PrimitiveNullable,
-            ObjectNullable
         }
     }
 }
