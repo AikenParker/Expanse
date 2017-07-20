@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 
@@ -23,24 +24,34 @@ namespace Expanse.Serialization
             binaryFormatter = new BinaryFormatter(selector, context);
         }
 
-        public T Deserialize<T>(byte[] data) where T : new()
+        public TTarget Deserialize<TTarget>(byte[] data) where TTarget : new()
         {
             using (var ms = new MemoryStream(data))
             {
                 if (unsafeDeserialize)
-                    return (T)binaryFormatter.UnsafeDeserialize(ms, null);
+                    return (TTarget)binaryFormatter.UnsafeDeserialize(ms, null);
                 else
-                    return (T)binaryFormatter.Deserialize(ms);
+                    return (TTarget)binaryFormatter.Deserialize(ms);
             }
         }
 
-        public byte[] Serialize<T>(T obj)
+        public byte[] Serialize<TSource>(TSource obj)
         {
             using (var ms = new MemoryStream())
             {
                 binaryFormatter.Serialize(ms, obj);
                 return ms.ToArray();
             }
+        }
+
+        public int Serialize<TSource>(TSource obj, ref byte[] buffer)
+        {
+            throw new NotImplementedException();
+        }
+
+        public int Serialize<TSource>(TSource obj, ref byte[] buffer, int offset)
+        {
+            throw new NotImplementedException();
         }
 
         public bool UnsafeDeserialize

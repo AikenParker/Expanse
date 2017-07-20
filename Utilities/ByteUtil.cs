@@ -374,7 +374,7 @@ namespace Expanse.Utilities
             {
                 for (int j = 0; j < 8; j++)
                 {
-                    binaryCharArr[position++] = data.GetBit(i + j) ? '1' : '0';
+                    binaryCharArr[position++] = data.GetBit((i * 8) + j) ? '1' : '0';
 
                     if (betweenBitLength > 0 && j <= 7)
                     {

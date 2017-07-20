@@ -9,14 +9,24 @@ namespace Expanse.Serialization
     /// </summary>
     public class ZeroFormatterSerializer : IByteSerializer
     {
-        public T Deserialize<T>(byte[] data) where T : new()
+        public TTarget Deserialize<TTarget>(byte[] data) where TTarget : new()
         {
-            return ZeroFormatter.ZeroFormatterSerializer.Deserialize<T>(data);
+            return ZeroFormatter.ZeroFormatterSerializer.Deserialize<TTarget>(data);
         }
 
-        public byte[] Serialize<T>(T obj)
+        public byte[] Serialize<TSource>(TSource obj)
         {
             return ZeroFormatter.ZeroFormatterSerializer.Serialize(obj);
+        }
+
+        public int Serialize<TSource>(TSource obj, ref byte[] buffer)
+        {
+            throw new NotImplementedException();
+        }
+
+        public int Serialize<TSource>(TSource obj, ref byte[] buffer, int offset)
+        {
+            throw new NotImplementedException();
         }
     }
 }
