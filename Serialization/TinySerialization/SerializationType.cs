@@ -7,6 +7,7 @@
         String,
         Byte,
         SByte,
+        Bool,
         Int16,
         Int32,
         Int64,

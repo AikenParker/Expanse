@@ -198,6 +198,20 @@ namespace Expanse.Serialization.TinySerialization
                             }
                         }
                         break;
+                    case SerializationType.Bool:
+                        {
+                            dataSize = TinySerializerUtil.GetPrimitiveTypeSize(serializationType);
+                            EnsureBufferSize(dataSize + offset);
+
+                            bool value = CastTo<bool>.From(obj, emitValueTypeCaster);
+
+                            fixed (byte* byteBufferPtr = &buffer[offset])
+                            {
+                                bool* bufferPtr = (bool*)byteBufferPtr;
+                                *bufferPtr = value;
+                            }
+                        }
+                        break;
                     case SerializationType.Int16:
                         {
                             dataSize = TinySerializerUtil.GetPrimitiveTypeSize(serializationType);
@@ -604,6 +618,19 @@ namespace Expanse.Serialization.TinySerialization
                                                 sbyte* bufferPtr = (sbyte*)byteBufferPtr;
 
                                                 fixed (sbyte* valuePtr = value)
+                                                    bufferPtr[i] = valuePtr[i];
+                                            }
+                                        }
+                                        break;
+                                    case SerializationType.Bool:
+                                        {
+                                            bool[] value = (bool[])baseValue;
+
+                                            fixed (byte* byteBufferPtr = &buffer[offset + lengthSize])
+                                            {
+                                                bool* bufferPtr = (bool*)byteBufferPtr;
+
+                                                fixed (bool* valuePtr = value)
                                                     bufferPtr[i] = valuePtr[i];
                                             }
                                         }
@@ -1021,6 +1048,18 @@ namespace Expanse.Serialization.TinySerialization
                                             }
                                         }
                                         break;
+                                    case SerializationType.Bool:
+                                        {
+                                            List<bool> value = (List<bool>)baseValue;
+
+                                            fixed (byte* byteBufferPtr = &buffer[offset + lengthSize])
+                                            {
+                                                bool* bufferPtr = (bool*)byteBufferPtr;
+
+                                                bufferPtr[i] = value[i];
+                                            }
+                                        }
+                                        break;
                                     case SerializationType.Int16:
                                         {
                                             List<short> value = (List<short>)baseValue;
@@ -1407,6 +1446,29 @@ namespace Expanse.Serialization.TinySerialization
                                             fixed (byte* bufferPtr = &buffer[offset])
                                                 *bufferPtr = 0;
                                         }
+                                    }
+                                    break;
+                                case SerializationType.Bool:
+                                    {
+                                        bool? value = CastTo<bool?>.From(obj, emitValueTypeCaster);
+                                        bool hasValue = value.HasValue;
+
+                                        byte data;
+                                        if (hasValue)
+                                        {
+                                            bool actualValue = value.Value;
+                                            data = actualValue ? (byte)2 : (byte)1;
+                                        }
+                                        else
+                                        {
+                                            data = 0;
+                                        }
+
+                                        dataSize = sizeof(bool);
+                                        EnsureBufferSize(offset + dataSize);
+
+                                        fixed (byte* bufferPtr = buffer)
+                                            *bufferPtr = data;
                                     }
                                     break;
                                 case SerializationType.Int16:

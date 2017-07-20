@@ -23,6 +23,8 @@ namespace Expanse.Serialization.TinySerialization
                     return SerializationType.Byte;
                 else if (type == typeof(sbyte))
                     return SerializationType.SByte;
+                else if (type == typeof(bool))
+                    return SerializationType.Bool;
                 else if (type == typeof(short))
                     return SerializationType.Int16;
                 else if (type == typeof(long))
@@ -138,10 +140,6 @@ namespace Expanse.Serialization.TinySerialization
                     else if (typeDefinition == typeof(Nullable<>))
                     {
                         // TODO: Cache generic params
-
-                        Type[] genericParameters = type.GetGenericArguments();
-                        Type elementType = genericParameters[0];
-
                         return SerializationType.ObjectNullable;
                     }
                 }
@@ -167,6 +165,8 @@ namespace Expanse.Serialization.TinySerialization
                     return sizeof(byte);
                 case SerializationType.SByte:
                     return sizeof(sbyte);
+                case SerializationType.Bool:
+                    return sizeof(bool);
                 case SerializationType.Int16:
                     return sizeof(short);
                 case SerializationType.Int32:
