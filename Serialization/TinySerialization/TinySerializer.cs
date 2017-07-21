@@ -578,7 +578,37 @@ namespace Expanse.Serialization.TinySerialization
                         break;
                     case SerializationType.String:
                         {
+                            // TODO: Allow various/custom string encodings
 
+                            string value = CastTo<string>.From(obj, false);
+                            bool hasValue = value != null;
+                            int length = hasValue ? value.Length : -1;
+
+                            int charCount = hasValue ? length : 0;
+                            int charSize = sizeof(char);
+
+                            int lengthSize = sizeof(int);
+                            dataSize = lengthSize + (charCount * charSize);
+                            EnsureBufferSize(offset + dataSize);
+
+                            fixed (byte* bufferPtr = buffer)
+                            {
+                                int* intBufferPtr = (int*)&bufferPtr[offset];
+                                *intBufferPtr++ = length;
+
+                                if (hasValue)
+                                {
+                                    char* charBufferPtr = (char*)intBufferPtr;
+
+                                    fixed (char* charValuePtr = value)
+                                    {
+                                        for (int i = 0; i < charCount; i++)
+                                        {
+                                            *charBufferPtr++ = charValuePtr[i];
+                                        }
+                                    }
+                                }
+                            }
                         }
                         break;
                     case SerializationType.PrimitiveArray:
@@ -594,12 +624,12 @@ namespace Expanse.Serialization.TinySerialization
 
                             int lengthSize = sizeof(int);
                             dataSize = lengthSize + (elementCount * elementSize);
-                            EnsureBufferSize(dataSize + offset);
+                            EnsureBufferSize(offset + dataSize);
 
                             fixed (byte* bufferPtr = buffer)
                             {
-                                int* intBufferPtr = (int*)bufferPtr;
-                                intBufferPtr[offset] = length;
+                                int* intBufferPtr = (int*)&bufferPtr[offset];
+                                *intBufferPtr = length;
                             }
 
                             for (int i = 0; i < elementCount; i++)
@@ -1025,8 +1055,8 @@ namespace Expanse.Serialization.TinySerialization
 
                             fixed (byte* bufferPtr = buffer)
                             {
-                                int* intBufferPtr = (int*)bufferPtr;
-                                intBufferPtr[offset] = length;
+                                int* intBufferPtr = (int*)&bufferPtr[offset];
+                                *intBufferPtr = length;
                             }
 
                             for (int i = 0; i < elementCount; i++)
@@ -2168,24 +2198,20 @@ namespace Expanse.Serialization.TinySerialization
                         break;
                     case SerializationType.Object:
                         {
-
+                            throw new NotImplementedException();
                         }
-                        break;
                     case SerializationType.ObjectArray:
                         {
-
+                            throw new NotImplementedException();
                         }
-                        break;
                     case SerializationType.ObjectList:
                         {
-
+                            throw new NotImplementedException();
                         }
-                        break;
                     case SerializationType.ObjectNullable:
                         {
-
+                            throw new NotImplementedException();
                         }
-                        break;
                     default:
                         throw new UnsupportedException("Unsupported serialization type: " + serializationType);
                 }

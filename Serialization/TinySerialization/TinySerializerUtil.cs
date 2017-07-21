@@ -19,55 +19,55 @@ namespace Expanse.Serialization.TinySerialization
 
                 if (type == typeof(int))
                     return SerializationType.Int32;
-                else if (type == typeof(byte))
+                if (type == typeof(byte))
                     return SerializationType.Byte;
-                else if (type == typeof(sbyte))
+                if (type == typeof(sbyte))
                     return SerializationType.SByte;
-                else if (type == typeof(bool))
+                if (type == typeof(bool))
                     return SerializationType.Bool;
-                else if (type == typeof(short))
+                if (type == typeof(short))
                     return SerializationType.Int16;
-                else if (type == typeof(long))
+                if (type == typeof(long))
                     return SerializationType.Int64;
-                else if (type == typeof(ushort))
+                if (type == typeof(ushort))
                     return SerializationType.UInt16;
-                else if (type == typeof(uint))
+                if (type == typeof(uint))
                     return SerializationType.UInt32;
-                else if (type == typeof(ulong))
+                if (type == typeof(ulong))
                     return SerializationType.UInt64;
-                else if (type == typeof(Half))
+                if (type == typeof(Half))
                     return SerializationType.Half;
-                else if (type == typeof(float))
+                if (type == typeof(float))
                     return SerializationType.Single;
-                else if (type == typeof(double))
+                if (type == typeof(double))
                     return SerializationType.Double;
-                else if (type == typeof(char))
+                if (type == typeof(char))
                     return SerializationType.Char;
-                else if (type == typeof(decimal))
+                if (type == typeof(decimal))
                     return SerializationType.Decimal;
-                else if (type == typeof(DateTime))
+                if (type == typeof(DateTime))
                     return SerializationType.DateTime;
-                else if (type == typeof(DateTimeOffset))
+                if (type == typeof(DateTimeOffset))
                     return SerializationType.DateTimeOffset;
-                else if (type == typeof(TimeSpan))
+                if (type == typeof(TimeSpan))
                     return SerializationType.TimeSpan;
-                else if (type == typeof(Vector2))
+                if (type == typeof(Vector2))
                     return SerializationType.Vector2;
-                else if (type == typeof(Vector3))
+                if (type == typeof(Vector3))
                     return SerializationType.Vector3;
-                else if (type == typeof(Vector4))
+                if (type == typeof(Vector4))
                     return SerializationType.Vector4;
-                else if (type == typeof(Quaternion))
+                if (type == typeof(Quaternion))
                     return SerializationType.Quaternion;
-                else if (type == typeof(Rect))
+                if (type == typeof(Rect))
                     return SerializationType.Rect;
-                else if (type == typeof(Bounds))
+                if (type == typeof(Bounds))
                     return SerializationType.Bounds;
-                else if (type == typeof(IntVector2))
+                if (type == typeof(IntVector2))
                     return SerializationType.IntVector2;
-                else if (type == typeof(IntVector3))
+                if (type == typeof(IntVector3))
                     return SerializationType.IntVector3;
-                else if (type == typeof(IntVector4))
+                if (type == typeof(IntVector4))
                     return SerializationType.IntVector4;
 
                 if (type.IsGenericType)
@@ -96,7 +96,7 @@ namespace Expanse.Serialization.TinySerialization
                 {
                     return SerializationType.String;
                 }
-                else if (type.IsArray)
+                if (type.IsArray)
                 {
                     // TODO: Check array rank
 
@@ -110,11 +110,11 @@ namespace Expanse.Serialization.TinySerialization
 
                         if (IsSerializationTypePrimitive(elementSerializationType))
                             return SerializationType.PrimitiveArray;
-                        else
-                            return SerializationType.ObjectArray;
+
+                        return SerializationType.ObjectArray;
                     }
                 }
-                else if (type.IsGenericType)
+                if (type.IsGenericType)
                 {
                     Type typeDefinition = type.GetGenericTypeDefinition();
 
@@ -133,13 +133,12 @@ namespace Expanse.Serialization.TinySerialization
 
                             if (IsSerializationTypePrimitive(elementSerializationType))
                                 return SerializationType.PrimitiveList;
-                            else
-                                return SerializationType.ObjectList;
+
+                            return SerializationType.ObjectList;
                         }
                     }
                     else if (typeDefinition == typeof(Nullable<>))
                     {
-                        // TODO: Cache generic params
                         return SerializationType.ObjectNullable;
                     }
                 }
@@ -157,6 +156,7 @@ namespace Expanse.Serialization.TinySerialization
                 serializationType != SerializationType.PrimitiveList;
         }
 
+        // Potentially remove this and replace with constants
         public static int GetPrimitiveTypeSize(SerializationType serializationType)
         {
             switch (serializationType)

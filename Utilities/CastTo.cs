@@ -1,4 +1,11 @@
-﻿using System;
+﻿#region AOT_ONLY_DEFINE
+#define AOT_ONLY
+#if (UNITY_EDITOR || UNITY_STANDALONE || UNITY_ANDROID) && !ENABLE_IL2CPP
+#undef AOT_ONLY
+#endif
+#endregion
+
+using System;
 using System.Linq.Expressions;
 
 namespace Expanse.Utilities
@@ -25,11 +32,9 @@ namespace Expanse.Utilities
         /// <returns>Returns a casted instance of type <see cref="TTarget"/>.</returns>
         public static TTarget From<TSource>(TSource source, bool emitCaster = false)
         {
-#if UNSAFE
+#if !AOT_ONLY
             if (emitCaster)
-            {
                 return Cache<TSource>.caster(source);
-            }
             else
 #endif
             {
@@ -37,7 +42,7 @@ namespace Expanse.Utilities
             }
         }
 
-#if UNSAFE
+#if !AOT_ONLY
         /// <summary>
         /// Responsible for caching the casting delegate from <see cref="TSource"/> to <see cref="TTarget"/>.
         /// </summary>
