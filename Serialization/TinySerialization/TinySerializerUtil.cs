@@ -17,64 +17,64 @@ namespace Expanse.Serialization.TinySerialization
                 if (type.IsEnum)
                     type = Enum.GetUnderlyingType(type);
 
-                if (type == typeof(int))
+                if (type == SerializationTypeValues.Int32)
                     return SerializationType.Int32;
-                if (type == typeof(byte))
+                if (type == SerializationTypeValues.Byte)
                     return SerializationType.Byte;
-                if (type == typeof(sbyte))
+                if (type == SerializationTypeValues.SByte)
                     return SerializationType.SByte;
-                if (type == typeof(bool))
+                if (type == SerializationTypeValues.Bool)
                     return SerializationType.Bool;
-                if (type == typeof(short))
+                if (type == SerializationTypeValues.Int16)
                     return SerializationType.Int16;
-                if (type == typeof(long))
+                if (type == SerializationTypeValues.Int64)
                     return SerializationType.Int64;
-                if (type == typeof(ushort))
+                if (type == SerializationTypeValues.UInt16)
                     return SerializationType.UInt16;
-                if (type == typeof(uint))
+                if (type == SerializationTypeValues.UInt32)
                     return SerializationType.UInt32;
-                if (type == typeof(ulong))
+                if (type == SerializationTypeValues.UInt64)
                     return SerializationType.UInt64;
-                if (type == typeof(Half))
+                if (type == SerializationTypeValues.Half)
                     return SerializationType.Half;
-                if (type == typeof(float))
+                if (type == SerializationTypeValues.Single)
                     return SerializationType.Single;
-                if (type == typeof(double))
+                if (type == SerializationTypeValues.Double)
                     return SerializationType.Double;
-                if (type == typeof(char))
+                if (type == SerializationTypeValues.Char)
                     return SerializationType.Char;
-                if (type == typeof(decimal))
+                if (type == SerializationTypeValues.Decimal)
                     return SerializationType.Decimal;
-                if (type == typeof(DateTime))
+                if (type == SerializationTypeValues.DateTime)
                     return SerializationType.DateTime;
-                if (type == typeof(DateTimeOffset))
+                if (type == SerializationTypeValues.DateTimeOffset)
                     return SerializationType.DateTimeOffset;
-                if (type == typeof(TimeSpan))
+                if (type == SerializationTypeValues.TimeSpan)
                     return SerializationType.TimeSpan;
-                if (type == typeof(Vector2))
+                if (type == SerializationTypeValues.Vector2)
                     return SerializationType.Vector2;
-                if (type == typeof(Vector3))
+                if (type == SerializationTypeValues.Vector3)
                     return SerializationType.Vector3;
-                if (type == typeof(Vector4))
+                if (type == SerializationTypeValues.Vector4)
                     return SerializationType.Vector4;
-                if (type == typeof(Quaternion))
+                if (type == SerializationTypeValues.Quaternion)
                     return SerializationType.Quaternion;
-                if (type == typeof(Rect))
+                if (type == SerializationTypeValues.Rect)
                     return SerializationType.Rect;
-                if (type == typeof(Bounds))
+                if (type == SerializationTypeValues.Bounds)
                     return SerializationType.Bounds;
-                if (type == typeof(IntVector2))
+                if (type == SerializationTypeValues.IntVector2)
                     return SerializationType.IntVector2;
-                if (type == typeof(IntVector3))
+                if (type == SerializationTypeValues.IntVector3)
                     return SerializationType.IntVector3;
-                if (type == typeof(IntVector4))
+                if (type == SerializationTypeValues.IntVector4)
                     return SerializationType.IntVector4;
 
                 if (type.IsGenericType)
                 {
                     Type typeDefinition = type.GetGenericTypeDefinition();
 
-                    if (typeDefinition == typeof(Nullable<>))
+                    if (typeDefinition == SerializationTypeValues.UnboundNullable)
                     {
                         // TODO: Cache generic params
 
@@ -118,7 +118,7 @@ namespace Expanse.Serialization.TinySerialization
                 {
                     Type typeDefinition = type.GetGenericTypeDefinition();
 
-                    if (typeDefinition == typeof(List<>))
+                    if (typeDefinition == SerializationTypeValues.UnboundList)
                     {
                         // TODO: Cache generic params
 
@@ -137,7 +137,7 @@ namespace Expanse.Serialization.TinySerialization
                             return SerializationType.ObjectList;
                         }
                     }
-                    else if (typeDefinition == typeof(Nullable<>))
+                    else if (typeDefinition == SerializationTypeValues.UnboundNullable)
                     {
                         return SerializationType.ObjectNullable;
                     }
