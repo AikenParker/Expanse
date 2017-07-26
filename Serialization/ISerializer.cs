@@ -58,6 +58,6 @@
         /// <param name="data">Serialized object data.</param>
         /// <param name="offset">Offset at which the target data is.</param>
         /// <returns>Returns a deserialized instance object.</returns>
-        TTarget Deserialize<TTarget>(byte[] data, int offset);
+        TTarget Deserialize<TTarget>(byte[] data, int offset) where TTarget : new();
     }
 }

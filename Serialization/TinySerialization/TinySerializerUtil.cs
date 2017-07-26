@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 using Expanse.Utilities;
 
 namespace Expanse.Serialization.TinySerialization
@@ -136,6 +137,9 @@ namespace Expanse.Serialization.TinySerialization
             return SerializationType.Object;
         }
 
+#if NET_4_6
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
         public static bool IsSerializationTypePrimitive(SerializationType serializationType)
         {
             return serializationType != SerializationType.None && serializationType != SerializationType.Object &&
@@ -145,6 +149,9 @@ namespace Expanse.Serialization.TinySerialization
                 serializationType != SerializationType.PrimitiveList;
         }
 
+#if NET_4_6
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
         public static int GetPrimitiveTypeSize(SerializationType serializationType)
         {
             switch (serializationType)
@@ -204,6 +211,18 @@ namespace Expanse.Serialization.TinySerialization
             }
 
             throw new InvalidArgumentException("serializationType must be a primitive serialization type.");
+        }
+
+#if NET_4_6
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+        public static int GetPrefixLengthSize(int length)
+        {
+            if (length < sbyte.MaxValue)
+                return 2;
+            else if (length < short.MaxValue)
+                return 3;
+            return 4;
         }
     }
 }

@@ -8,6 +8,8 @@ namespace Expanse.Serialization.TinySerialization
         public int typeHashCode;
         public SerializationType serializationType;
         public bool isValueType;
+        public bool isPrimitiveType;
+        public int primitiveSize;
         public bool isArray;
         public int arrayRank;
         public bool isGenericType;
@@ -15,13 +17,17 @@ namespace Expanse.Serialization.TinySerialization
         public Type[] genericArguments;
         public Type elementType;
         public SerializationType elementSerializationType;
+        public bool isElementPrimitiveType;
+        public int elementPrimitiveSize;
 
-        public SimpleTypeInfo(Type type, int typeHashCode, SerializationType serializationType, bool isValueType, bool isArray, int arrayRank, bool isGenericType, Type genericTypeDefinition, Type[] genericArguments, Type elementType, SerializationType elementSerializationType)
+        public SimpleTypeInfo(Type type, int typeHashCode, SerializationType serializationType, bool isValueType, bool isPrimitiveType, int primitiveSize, bool isArray, int arrayRank, bool isGenericType, Type genericTypeDefinition, Type[] genericArguments, Type elementType, SerializationType elementSerializationType, bool isElementPrimitiveType, int elementPrimitiveSize)
         {
             this.type = type;
             this.typeHashCode = typeHashCode;
             this.serializationType = serializationType;
             this.isValueType = isValueType;
+            this.isPrimitiveType = isPrimitiveType;
+            this.primitiveSize = primitiveSize;
             this.isArray = isArray;
             this.arrayRank = arrayRank;
             this.isGenericType = isGenericType;
@@ -29,6 +35,8 @@ namespace Expanse.Serialization.TinySerialization
             this.genericArguments = genericArguments;
             this.elementType = elementType;
             this.elementSerializationType = elementSerializationType;
+            this.isElementPrimitiveType = isElementPrimitiveType;
+            this.elementPrimitiveSize = elementPrimitiveSize;
         }
 
         public static SimpleTypeInfo GetInfo(Type type)
@@ -44,6 +52,7 @@ namespace Expanse.Serialization.TinySerialization
             bool isGenericType = type.IsGenericType;
             Type genericTypeDefinition = isGenericType ? type.GetGenericTypeDefinition() : null;
             Type[] genericArguments = isGenericType ? type.GetGenericArguments() : null;
+            bool hasElement = isGenericType || isArray;
             Type elementType = isGenericType ? genericArguments[0] : (isArray ? type.GetElementType() : null);
             SerializationType elementSerializationType = isGenericType || isArray ? TinySerializerUtil.GetSerializationType(elementType) : SerializationType.None;
 
@@ -143,7 +152,13 @@ namespace Expanse.Serialization.TinySerialization
                 }
             }
 
-            return new SimpleTypeInfo(type, typeHashCode, serializationType, isValueType, isArray, arrayRank, isGenericType, genericTypeDefinition, genericArguments, elementType, elementSerializationType);
+            bool isPrimitiveType = isValueType ? TinySerializerUtil.IsSerializationTypePrimitive(serializationType) : false;
+            int primitiveSize = isPrimitiveType ? TinySerializerUtil.GetPrimitiveTypeSize(serializationType) : 0;
+
+            bool isElementPrimitiveType = hasElement ? TinySerializerUtil.IsSerializationTypePrimitive(elementSerializationType) : false;
+            int elementPrimitiveSize = hasElement ? TinySerializerUtil.GetPrimitiveTypeSize(elementSerializationType) : 0;
+
+            return new SimpleTypeInfo(type, typeHashCode, serializationType, isValueType, isPrimitiveType, primitiveSize, isArray, arrayRank, isGenericType, genericTypeDefinition, genericArguments, elementType, elementSerializationType, isElementPrimitiveType, elementPrimitiveSize);
         }
     }
 

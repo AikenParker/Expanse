@@ -14,7 +14,7 @@ namespace Expanse.Serialization
             return ZeroFormatter.ZeroFormatterSerializer.Deserialize<TTarget>(data);
         }
 
-        public TTarget Deserialize<TTarget>(byte[] data, int offset)
+        public TTarget Deserialize<TTarget>(byte[] data, int offset) where TTarget : new()
         {
             throw new NotImplementedException();
         }

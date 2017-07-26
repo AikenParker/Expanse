@@ -14,7 +14,7 @@ namespace Expanse.Serialization.TinySerialization
         private byte[] buffer;
         private int bufferSize;
 
-        private TinySerializerSettings settings = new TinySerializerSettings();
+        private TinySerializerSettings settings = TinySerializerSettings.Default;
 
         private List<CustomTypeResolver> customTypeResolvers;
 
@@ -62,7 +62,7 @@ namespace Expanse.Serialization.TinySerialization
             throw new NotImplementedException();
         }
 
-        public TTarget Deserialize<TTarget>(byte[] data, int offset)
+        public TTarget Deserialize<TTarget>(byte[] data, int offset) where TTarget : new()
         {
             throw new NotImplementedException();
         }
@@ -182,7 +182,7 @@ namespace Expanse.Serialization.TinySerialization
             {
                 int dataSize = 0;
 
-                bool emitValueTypeCaster = true;
+                bool emitValueTypeCaster = settings.emitValueTypeCasters;
 
                 switch (simpleTypeInfo.serializationType)
                 {
@@ -591,6 +591,9 @@ namespace Expanse.Serialization.TinySerialization
                             int length = hasValue ? value.Length : -1;
                             int lengthSize = sizeof(int);
 
+                            if (settings.variablePrefixLengthSize)
+                                lengthSize = TinySerializerUtil.GetPrefixLengthSize(length);
+
                             int charCount = hasValue ? length : 0;
 
                             Encoding systemEncoding = null;
@@ -604,14 +607,29 @@ namespace Expanse.Serialization.TinySerialization
                                         dataSize = lengthSize + (charCount * charSize);
                                         EnsureBufferSize(offset + dataSize);
 
-                                        fixed (byte* bufferPtr = buffer)
+                                        fixed (byte* bufferPtr = &buffer[offset])
                                         {
-                                            int* intBufferPtr = (int*)&bufferPtr[offset];
-                                            *intBufferPtr++ = length;
+                                            switch (lengthSize)
+                                            {
+                                                case 2:
+                                                    sbyte* sbyteBufferPtr = (sbyte*)bufferPtr;
+                                                    *sbyteBufferPtr = (sbyte)length;
+                                                    break;
+
+                                                case 3:
+                                                    short* shortBufferPtr = (short*)bufferPtr;
+                                                    *shortBufferPtr = (short)length;
+                                                    break;
+
+                                                case 4:
+                                                    int* intBufferPtr = (int*)bufferPtr;
+                                                    *intBufferPtr = length;
+                                                    break;
+                                            }
 
                                             if (hasValue)
                                             {
-                                                char* charBufferPtr = (char*)intBufferPtr;
+                                                char* charBufferPtr = (char*)&bufferPtr[lengthSize];
 
                                                 fixed (char* charValuePtr = value)
                                                 {
@@ -631,14 +649,29 @@ namespace Expanse.Serialization.TinySerialization
                                         dataSize = lengthSize + (charCount * charSize);
                                         EnsureBufferSize(offset + dataSize);
 
-                                        fixed (byte* bufferPtr = buffer)
+                                        fixed (byte* bufferPtr = &buffer[offset])
                                         {
-                                            int* intBufferPtr = (int*)&bufferPtr[offset];
-                                            *intBufferPtr++ = length;
+                                            switch (lengthSize)
+                                            {
+                                                case 2:
+                                                    sbyte* sbyteBufferPtr = (sbyte*)bufferPtr;
+                                                    *sbyteBufferPtr = (sbyte)length;
+                                                    break;
+
+                                                case 3:
+                                                    short* shortBufferPtr = (short*)bufferPtr;
+                                                    *shortBufferPtr = (short)length;
+                                                    break;
+
+                                                case 4:
+                                                    int* intBufferPtr = (int*)bufferPtr;
+                                                    *intBufferPtr = length;
+                                                    break;
+                                            }
 
                                             if (hasValue)
                                             {
-                                                byte* byteBufferPtr = (byte*)intBufferPtr;
+                                                byte* byteBufferPtr = &bufferPtr[lengthSize];
 
                                                 fixed (char* charValuePtr = value)
                                                 {
@@ -707,13 +740,27 @@ namespace Expanse.Serialization.TinySerialization
                                                 dataSize = lengthSize + byteCount;
                                                 EnsureBufferSize(offset + dataSize);
 
-                                                fixed (byte* bufferPtr = buffer)
+                                                fixed (byte* bufferPtr = &buffer[offset])
                                                 {
-                                                    int* intBufferPtr = (int*)&bufferPtr[offset];
-                                                    *intBufferPtr++ = length;
+                                                    switch (lengthSize)
+                                                    {
+                                                        case 2:
+                                                            sbyte* sbyteBufferPtr = (sbyte*)bufferPtr;
+                                                            *sbyteBufferPtr = (sbyte)length;
+                                                            break;
 
-                                                    byte* byteBufferPtr = (byte*)intBufferPtr;
+                                                        case 3:
+                                                            short* shortBufferPtr = (short*)bufferPtr;
+                                                            *shortBufferPtr = (short)length;
+                                                            break;
 
+                                                        case 4:
+                                                            int* intBufferPtr = (int*)bufferPtr;
+                                                            *intBufferPtr = length;
+                                                            break;
+                                                    }
+
+                                                    byte* byteBufferPtr = &bufferPtr[lengthSize];
                                                     systemEncoding.GetBytes(charValuePtr, charCount, byteBufferPtr, byteCount);
                                                 }
                                             }
@@ -722,8 +769,23 @@ namespace Expanse.Serialization.TinySerialization
                                         {
                                             fixed (byte* bufferPtr = buffer)
                                             {
-                                                int* intBufferPtr = (int*)&bufferPtr[offset];
-                                                *intBufferPtr++ = length;
+                                                switch (lengthSize)
+                                                {
+                                                    case 2:
+                                                        sbyte* sbyteBufferPtr = (sbyte*)bufferPtr;
+                                                        *sbyteBufferPtr = (sbyte)length;
+                                                        break;
+
+                                                    case 3:
+                                                        short* shortBufferPtr = (short*)bufferPtr;
+                                                        *shortBufferPtr = (short)length;
+                                                        break;
+
+                                                    case 4:
+                                                        int* intBufferPtr = (int*)bufferPtr;
+                                                        *intBufferPtr = length;
+                                                        break;
+                                                }
                                             }
                                         }
                                     }
@@ -738,19 +800,37 @@ namespace Expanse.Serialization.TinySerialization
                             Array baseValue = CastTo<Array>.From(obj, false);
                             bool hasValue = baseValue != null;
                             int length = hasValue ? baseValue.Length : -1;
+                            int lengthSize = sizeof(int);
 
                             int elementCount = hasValue ? length : 0;
                             SerializationType elementSerializationType = simpleTypeInfo.elementSerializationType;
-                            int elementSize = TinySerializerUtil.GetPrimitiveTypeSize(elementSerializationType);
+                            int elementSize = simpleTypeInfo.elementPrimitiveSize;
 
-                            int lengthSize = sizeof(int);
+                            if (settings.variablePrefixLengthSize)
+                                lengthSize = TinySerializerUtil.GetPrefixLengthSize(length);
+
                             dataSize = lengthSize + (elementCount * elementSize);
                             EnsureBufferSize(offset + dataSize);
 
-                            fixed (byte* bufferPtr = buffer)
+                            fixed (byte* bufferPtr = &buffer[offset])
                             {
-                                int* intBufferPtr = (int*)&bufferPtr[offset];
-                                *intBufferPtr = length;
+                                switch (lengthSize)
+                                {
+                                    case 2:
+                                        sbyte* sbyteBufferPtr = (sbyte*)bufferPtr;
+                                        *sbyteBufferPtr = (sbyte)length;
+                                        break;
+
+                                    case 3:
+                                        short* shortBufferPtr = (short*)bufferPtr;
+                                        *shortBufferPtr = (short)length;
+                                        break;
+
+                                    case 4:
+                                        int* intBufferPtr = (int*)bufferPtr;
+                                        *intBufferPtr = length;
+                                        break;
+                                }
                             }
 
                             for (int i = 0; i < elementCount; i++)
@@ -1163,19 +1243,37 @@ namespace Expanse.Serialization.TinySerialization
                             IList baseValue = CastTo<IList>.From(obj, false);
                             bool hasValue = baseValue != null;
                             int length = hasValue ? baseValue.Count : -1;
+                            int lengthSize = sizeof(int);
 
                             int elementCount = hasValue ? length : 0;
                             SerializationType elementSerializationType = simpleTypeInfo.elementSerializationType;
-                            int elementSize = TinySerializerUtil.GetPrimitiveTypeSize(elementSerializationType);
+                            int elementSize = simpleTypeInfo.elementPrimitiveSize;
 
-                            int lengthSize = sizeof(int);
+                            if (settings.variablePrefixLengthSize)
+                                lengthSize = TinySerializerUtil.GetPrefixLengthSize(length);
+
                             dataSize = lengthSize + (elementCount * elementSize);
                             EnsureBufferSize(dataSize + offset);
 
-                            fixed (byte* bufferPtr = buffer)
+                            fixed (byte* bufferPtr = &buffer[offset])
                             {
-                                int* intBufferPtr = (int*)&bufferPtr[offset];
-                                *intBufferPtr = length;
+                                switch (lengthSize)
+                                {
+                                    case 2:
+                                        sbyte* sbyteBufferPtr = (sbyte*)bufferPtr;
+                                        *sbyteBufferPtr = (sbyte)length;
+                                        break;
+
+                                    case 3:
+                                        short* shortBufferPtr = (short*)bufferPtr;
+                                        *shortBufferPtr = (short)length;
+                                        break;
+
+                                    case 4:
+                                        int* intBufferPtr = (int*)bufferPtr;
+                                        *intBufferPtr = length;
+                                        break;
+                                }
                             }
 
                             for (int i = 0; i < elementCount; i++)
@@ -1543,7 +1641,7 @@ namespace Expanse.Serialization.TinySerialization
                     case SerializationType.PrimitiveNullable:
                         {
                             SerializationType elementSerializationType = simpleTypeInfo.elementSerializationType;
-                            int elementSize = TinySerializerUtil.GetPrimitiveTypeSize(elementSerializationType);
+                            int elementSize = simpleTypeInfo.elementPrimitiveSize;
 
                             switch (elementSerializationType)
                             {

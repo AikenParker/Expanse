@@ -1,24 +1,57 @@
 ﻿namespace Expanse.Serialization.TinySerialization
 {
-    public sealed class TinySerializerSettings
+    public struct TinySerializerSettings
     {
-        public bool supportCyclicReferences = false;
-        public bool requireTypeSerializableAttribute = false;
+        public bool supportCyclicReferences;
+        public bool requireTypeSerializableAttribute;
 
-        public bool serializeFields = true;
-        public bool allowPrivateFields = true;
-        public bool ignoreObsoleteFields = false;
-        public bool checkFieldSerializableAttribute = false;
-        public bool checkFieldNonSerializableAttribute = false;
+        public bool serializeFields;
+        public bool allowPrivateFields;
+        public bool ignoreObsoleteFields;
+        public bool checkFieldSerializableAttribute;
+        public bool checkFieldNonSerializableAttribute;
 
-        public bool serializeProperties = false;
-        public bool allowPrivateProperties = true;
-        public bool ignoreAutoProperties = true;
-        public bool ignoreObsoleteProperties = false;
-        public bool checkPropertySerialzableAttribute = false;
-        public bool checkPropertyNonSerializableAttribute = false;
+        public bool serializeProperties;
+        public bool allowPrivateProperties;
+        public bool ignoreAutoProperties;
+        public bool ignoreObsoleteProperties;
+        public bool checkPropertySerialzableAttribute;
+        public bool checkPropertyNonSerializableAttribute;
 
-        public StringEncodeType defaultStringEncodeType = StringEncodeType.Byte;
-        public bool checkStringEncodeTypeOverrideAttribute = false;
+        public bool emitValueTypeCasters;
+        public bool variablePrefixLengthSize;
+        public StringEncodeType defaultStringEncodeType;
+        public bool checkStringEncodeTypeOverrideAttribute;
+
+        public static TinySerializerSettings Default
+        {
+            get
+            {
+                TinySerializerSettings defaultSettings = new TinySerializerSettings();
+
+                defaultSettings.supportCyclicReferences = false;
+                defaultSettings.requireTypeSerializableAttribute = false;
+
+                defaultSettings.serializeFields = true;
+                defaultSettings.allowPrivateFields = true;
+                defaultSettings.ignoreObsoleteFields = false;
+                defaultSettings.checkFieldSerializableAttribute = false;
+                defaultSettings.checkFieldNonSerializableAttribute = false;
+
+                defaultSettings.serializeProperties = false;
+                defaultSettings.allowPrivateProperties = true;
+                defaultSettings.ignoreAutoProperties = true;
+                defaultSettings.ignoreObsoleteProperties = false;
+                defaultSettings.checkPropertySerialzableAttribute = false;
+                defaultSettings.checkPropertyNonSerializableAttribute = false;
+
+                defaultSettings.emitValueTypeCasters = true;
+                defaultSettings.variablePrefixLengthSize = true;
+                defaultSettings.defaultStringEncodeType = StringEncodeType.Byte;
+                defaultSettings.checkStringEncodeTypeOverrideAttribute = false;
+
+                return defaultSettings;
+            }
+        }
     }
 }

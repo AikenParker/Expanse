@@ -35,7 +35,7 @@ namespace Expanse.Serialization
             }
         }
 
-        public TTarget Deserialize<TTarget>(byte[] data, int offset)
+        public TTarget Deserialize<TTarget>(byte[] data, int offset) where TTarget : new()
         {
             using (var ms = new MemoryStream(data, offset, data.Length - offset, false))
             {
