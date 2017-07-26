@@ -714,7 +714,7 @@ namespace Expanse.Serialization.TinySerialization
 
                                                     byte* byteBufferPtr = (byte*)intBufferPtr;
 
-                                                    systemEncoding.GetBytes(charValuePtr, charCount, byteBufferPtr, 0);
+                                                    systemEncoding.GetBytes(charValuePtr, charCount, byteBufferPtr, byteCount);
                                                 }
                                             }
                                         }

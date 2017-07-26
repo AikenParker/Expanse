@@ -40,7 +40,7 @@ namespace Expanse.Serialization.TinySerialization
 
             int typeHashCode = type.GetHashCode();
             bool isArray = type.IsArray;
-            int arrayRank = isArray ? 0 : type.GetArrayRank();
+            int arrayRank = isArray ? type.GetArrayRank() : 0;
             bool isGenericType = type.IsGenericType;
             Type genericTypeDefinition = isGenericType ? type.GetGenericTypeDefinition() : null;
             Type[] genericArguments = isGenericType ? type.GetGenericArguments() : null;
