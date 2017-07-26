@@ -110,6 +110,36 @@ namespace Expanse.Serialization.TinySerialization
         }
     }
 
+    public static class SerializationTypeSizes
+    {
+        public const int BYTE = sizeof(byte);
+        public const int SBYTE = sizeof(sbyte);
+        public const int BOOL = sizeof(bool);
+        public const int INT16 = sizeof(short);
+        public const int INT32 = sizeof(int);
+        public const int INT64 = sizeof(long);
+        public const int UINT16 = sizeof(ushort);
+        public const int UINT32 = sizeof(uint);
+        public const int UINT64 = sizeof(ulong);
+        public const int HALF = sizeof(ushort);
+        public const int SINGLE = sizeof(float);
+        public const int DOUBLE = sizeof(double);
+        public const int CHAR = sizeof(char);
+        public const int DECIMAL = sizeof(decimal);
+        public const int DATE_TIME = sizeof(long);
+        public const int DATE_TIME_OFFSET = sizeof(long);
+        public const int TIME_SPAN = sizeof(long);
+        public const int VECTOR2 = sizeof(float) * 2;
+        public const int VECTOR3 = sizeof(float) * 3;
+        public const int VECTOR4 = sizeof(float) * 4;
+        public const int QUATERNION = sizeof(float) * 4;
+        public const int RECT = sizeof(float) * 4;
+        public const int BOUNDS = sizeof(float) * 6;
+        public const int INT_VECTOR2 = sizeof(int) * 2;
+        public const int INT_VECTOR3 = sizeof(int) * 3;
+        public const int INT_VECTOR4 = sizeof(int) * 4;
+    }
+
     public static class SerializationTypeHashCodes
     {
         public static readonly int String;

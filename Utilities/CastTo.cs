@@ -25,7 +25,6 @@ namespace Expanse.Utilities
         /// This does not cause boxing for value types.
         /// Useful in generic methods.
         /// </summary>
-
         /// <typeparam name="TSource">Source type to cast from. Usually a generic type.</typeparam>
         /// <param name="source">Source object to cast.</param>
         /// <param name="emitCaster">If true a casting delegate will be used and cached.</param>
@@ -49,9 +48,9 @@ namespace Expanse.Utilities
         /// <typeparam name="TSource">Source type.</typeparam>
         private static class Cache<TSource>
         {
-            public static readonly Func<TSource, TTarget> caster = Get();
+            public static readonly Func<TSource, TTarget> caster = GetCaster();
 
-            private static Func<TSource, TTarget> Get()
+            private static Func<TSource, TTarget> GetCaster()
             {
                 var parameter = Expression.Parameter(typeof(TSource), string.Empty);
                 var conversion = Expression.Convert(parameter, typeof(TTarget));

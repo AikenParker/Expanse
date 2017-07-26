@@ -139,6 +139,23 @@ namespace Expanse.Utilities
 
 #if UNSAFE
         /// <summary>
+        /// Sets the length of a string unsafely. (NOT RECOMMENDED)
+        /// </summary>
+        /// <param name="source">Source string value to modify.</param>
+        /// <param name="length">Value to set the string length to.</param>
+        public static unsafe void SetLength(string source, int length)
+        {
+            if (string.IsNullOrEmpty(source))
+                throw new ArgumentNullException("source");
+
+            fixed (char* s = source)
+            {
+                int* sIntPtr = (int*)&s[-2];
+                *sIntPtr = length;
+            }
+        }
+
+        /// <summary>
         /// Replaces all instances of character in a string with another character.
         /// </summary>
         /// <param name="source">Source string value to modify.</param>

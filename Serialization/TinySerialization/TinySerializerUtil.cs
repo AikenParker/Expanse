@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using Expanse.Misc;
 using Expanse.Utilities;
-using UnityEngine;
 
 namespace Expanse.Serialization.TinySerialization
 {
@@ -10,8 +7,6 @@ namespace Expanse.Serialization.TinySerialization
     {
         public static SerializationType GetSerializationType(Type type)
         {
-            // TODO: Replace with type switching when available
-
             if (type.IsValueType)
             {
                 if (type.IsEnum)
@@ -76,8 +71,6 @@ namespace Expanse.Serialization.TinySerialization
 
                     if (typeDefinition == SerializationTypeValues.UnboundNullable)
                     {
-                        // TODO: Cache generic params
-
                         Type[] genericParameters = type.GetGenericArguments();
                         Type elementType = genericParameters[0];
 
@@ -98,8 +91,6 @@ namespace Expanse.Serialization.TinySerialization
                 }
                 if (type.IsArray)
                 {
-                    // TODO: Check array rank
-
                     Type elementType = type.GetElementType();
 
                     if (elementType.IsClass)
@@ -120,8 +111,6 @@ namespace Expanse.Serialization.TinySerialization
 
                     if (typeDefinition == SerializationTypeValues.UnboundList)
                     {
-                        // TODO: Cache generic params
-
                         Type[] genericParameters = type.GetGenericArguments();
                         Type elementType = genericParameters[0];
 
@@ -156,63 +145,62 @@ namespace Expanse.Serialization.TinySerialization
                 serializationType != SerializationType.PrimitiveList;
         }
 
-        // Potentially remove this and replace with constants
         public static int GetPrimitiveTypeSize(SerializationType serializationType)
         {
             switch (serializationType)
             {
                 case SerializationType.Byte:
-                    return sizeof(byte);
+                    return SerializationTypeSizes.BYTE;
                 case SerializationType.SByte:
-                    return sizeof(sbyte);
+                    return SerializationTypeSizes.SBYTE;
                 case SerializationType.Bool:
-                    return sizeof(bool);
+                    return SerializationTypeSizes.BOOL;
                 case SerializationType.Int16:
-                    return sizeof(short);
+                    return SerializationTypeSizes.INT16;
                 case SerializationType.Int32:
-                    return sizeof(int);
+                    return SerializationTypeSizes.INT32;
                 case SerializationType.Int64:
-                    return sizeof(long);
+                    return SerializationTypeSizes.INT64;
                 case SerializationType.UInt16:
-                    return sizeof(ushort);
+                    return SerializationTypeSizes.UINT16;
                 case SerializationType.UInt32:
-                    return sizeof(uint);
+                    return SerializationTypeSizes.UINT32;
                 case SerializationType.UInt64:
-                    return sizeof(ulong);
+                    return SerializationTypeSizes.UINT64;
                 case SerializationType.Half:
-                    return sizeof(ushort);
+                    return SerializationTypeSizes.HALF;
                 case SerializationType.Single:
-                    return sizeof(float);
+                    return SerializationTypeSizes.SINGLE;
                 case SerializationType.Double:
-                    return sizeof(double);
+                    return SerializationTypeSizes.DOUBLE;
                 case SerializationType.Char:
-                    return sizeof(char);
+                    return SerializationTypeSizes.CHAR;
                 case SerializationType.Decimal:
-                    return sizeof(decimal);
+                    return SerializationTypeSizes.DECIMAL;
                 case SerializationType.DateTime:
-                    return sizeof(long);
+                    return SerializationTypeSizes.DATE_TIME;
                 case SerializationType.DateTimeOffset:
-                    return sizeof(long);
+                    return SerializationTypeSizes.DATE_TIME_OFFSET;
                 case SerializationType.TimeSpan:
-                    return sizeof(long);
+                    return SerializationTypeSizes.TIME_SPAN;
                 case SerializationType.Vector2:
-                    return sizeof(float) * 2;
+                    return SerializationTypeSizes.VECTOR2;
                 case SerializationType.Vector3:
-                    return sizeof(float) * 3;
+                    return SerializationTypeSizes.VECTOR3;
                 case SerializationType.Vector4:
-                    return sizeof(float) * 4;
+                    return SerializationTypeSizes.VECTOR4;
                 case SerializationType.Quaternion:
-                    return sizeof(float) * 4;
+                    return SerializationTypeSizes.QUATERNION;
                 case SerializationType.Rect:
-                    return sizeof(float) * 4;
+                    return SerializationTypeSizes.RECT;
                 case SerializationType.Bounds:
-                    return sizeof(float) * 6;
+                    return SerializationTypeSizes.BOUNDS;
                 case SerializationType.IntVector2:
-                    return sizeof(int) * 2;
+                    return SerializationTypeSizes.INT_VECTOR2;
                 case SerializationType.IntVector3:
-                    return sizeof(int) * 3;
+                    return SerializationTypeSizes.INT_VECTOR3;
                 case SerializationType.IntVector4:
-                    return sizeof(int) * 4;
+                    return SerializationTypeSizes.INT_VECTOR4;
             }
 
             throw new InvalidArgumentException("serializationType must be a primitive serialization type.");

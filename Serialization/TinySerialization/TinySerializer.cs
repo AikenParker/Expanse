@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Text;
 using Expanse.Misc;
 using Expanse.Utilities;
 using UnityEngine;
@@ -13,12 +14,19 @@ namespace Expanse.Serialization.TinySerialization
         private byte[] buffer;
         private int bufferSize;
 
+        private TinySerializerSettings settings = new TinySerializerSettings();
+
         private List<CustomTypeResolver> customTypeResolvers;
 
         public TinySerializer(int bufferSize)
         {
             this.bufferSize = bufferSize;
             this.buffer = new byte[bufferSize];
+        }
+
+        public TinySerializer(int bufferSize, TinySerializerSettings settings) : this(bufferSize)
+        {
+            this.settings = settings;
         }
 
         public void AddCustomTypeResolver<T>(CustomTypeResolver customTypeResolver)
@@ -134,12 +142,13 @@ namespace Expanse.Serialization.TinySerialization
 
         private int SerializeIntoBuffer<TSource>(TSource obj, int offset)
         {
-            Type tSource = typeof(TSource);
+            SimpleTypeInfo simpleTypeInfo = SimpleTypeInfo<TSource>.info;
 
             // Check if we should serialize using a custom type resolver
             {
                 if (customTypeResolvers != null)
                 {
+                    Type tSource = simpleTypeInfo.type;
                     CustomTypeResolver customTypeResolver = null;
 
                     for (int i = 0; i < customTypeResolvers.Count; i++)
@@ -161,7 +170,7 @@ namespace Expanse.Serialization.TinySerialization
 
                         fixed (byte* bufferPtr = buffer)
                         {
-                            customTypeResolver.Serialize(bufferPtr, offset);
+                            customTypeResolver.Serialize(obj, bufferPtr, offset);
                         }
 
                         return offset + dataSize;
@@ -173,14 +182,13 @@ namespace Expanse.Serialization.TinySerialization
             {
                 int dataSize = 0;
 
-                SerializationType serializationType = TinySerializerUtil.GetSerializationType(tSource);
                 bool emitValueTypeCaster = true;
 
-                switch (serializationType)
+                switch (simpleTypeInfo.serializationType)
                 {
                     case SerializationType.Byte:
                         {
-                            dataSize = TinySerializerUtil.GetPrimitiveTypeSize(serializationType);
+                            dataSize = SerializationTypeSizes.BYTE;
                             EnsureBufferSize(dataSize + offset);
 
                             byte value = CastTo<byte>.From(obj, emitValueTypeCaster);
@@ -191,7 +199,7 @@ namespace Expanse.Serialization.TinySerialization
                         break;
                     case SerializationType.SByte:
                         {
-                            dataSize = TinySerializerUtil.GetPrimitiveTypeSize(serializationType);
+                            dataSize = SerializationTypeSizes.SBYTE;
                             EnsureBufferSize(dataSize + offset);
 
                             sbyte value = CastTo<sbyte>.From(obj, emitValueTypeCaster);
@@ -205,7 +213,7 @@ namespace Expanse.Serialization.TinySerialization
                         break;
                     case SerializationType.Bool:
                         {
-                            dataSize = TinySerializerUtil.GetPrimitiveTypeSize(serializationType);
+                            dataSize = SerializationTypeSizes.BOOL;
                             EnsureBufferSize(dataSize + offset);
 
                             bool value = CastTo<bool>.From(obj, emitValueTypeCaster);
@@ -219,7 +227,7 @@ namespace Expanse.Serialization.TinySerialization
                         break;
                     case SerializationType.Int16:
                         {
-                            dataSize = TinySerializerUtil.GetPrimitiveTypeSize(serializationType);
+                            dataSize = SerializationTypeSizes.INT16;
                             EnsureBufferSize(dataSize + offset);
 
                             short value = CastTo<short>.From(obj, emitValueTypeCaster);
@@ -233,7 +241,7 @@ namespace Expanse.Serialization.TinySerialization
                         break;
                     case SerializationType.Int32:
                         {
-                            dataSize = TinySerializerUtil.GetPrimitiveTypeSize(serializationType);
+                            dataSize = SerializationTypeSizes.INT32;
                             EnsureBufferSize(dataSize + offset);
 
                             int value = CastTo<int>.From(obj, emitValueTypeCaster);
@@ -247,7 +255,7 @@ namespace Expanse.Serialization.TinySerialization
                         break;
                     case SerializationType.Int64:
                         {
-                            dataSize = TinySerializerUtil.GetPrimitiveTypeSize(serializationType);
+                            dataSize = SerializationTypeSizes.INT64;
                             EnsureBufferSize(dataSize + offset);
 
                             long value = CastTo<long>.From(obj, emitValueTypeCaster);
@@ -261,7 +269,7 @@ namespace Expanse.Serialization.TinySerialization
                         break;
                     case SerializationType.UInt16:
                         {
-                            dataSize = TinySerializerUtil.GetPrimitiveTypeSize(serializationType);
+                            dataSize = SerializationTypeSizes.UINT16;
                             EnsureBufferSize(dataSize + offset);
 
                             ushort value = CastTo<ushort>.From(obj, emitValueTypeCaster);
@@ -275,7 +283,7 @@ namespace Expanse.Serialization.TinySerialization
                         break;
                     case SerializationType.UInt32:
                         {
-                            dataSize = TinySerializerUtil.GetPrimitiveTypeSize(serializationType);
+                            dataSize = SerializationTypeSizes.UINT32;
                             EnsureBufferSize(dataSize + offset);
 
                             uint value = CastTo<uint>.From(obj, emitValueTypeCaster);
@@ -289,7 +297,7 @@ namespace Expanse.Serialization.TinySerialization
                         break;
                     case SerializationType.UInt64:
                         {
-                            dataSize = TinySerializerUtil.GetPrimitiveTypeSize(serializationType);
+                            dataSize = SerializationTypeSizes.UINT64;
                             EnsureBufferSize(dataSize + offset);
 
                             ulong value = CastTo<ulong>.From(obj, emitValueTypeCaster);
@@ -303,7 +311,7 @@ namespace Expanse.Serialization.TinySerialization
                         break;
                     case SerializationType.Half:
                         {
-                            dataSize = TinySerializerUtil.GetPrimitiveTypeSize(serializationType);
+                            dataSize = SerializationTypeSizes.HALF;
                             EnsureBufferSize(dataSize + offset);
 
                             Half value = CastTo<Half>.From(obj, emitValueTypeCaster);
@@ -317,7 +325,7 @@ namespace Expanse.Serialization.TinySerialization
                         break;
                     case SerializationType.Single:
                         {
-                            dataSize = TinySerializerUtil.GetPrimitiveTypeSize(serializationType);
+                            dataSize = SerializationTypeSizes.SINGLE;
                             EnsureBufferSize(dataSize + offset);
 
                             float value = CastTo<float>.From(obj, emitValueTypeCaster);
@@ -331,7 +339,7 @@ namespace Expanse.Serialization.TinySerialization
                         break;
                     case SerializationType.Double:
                         {
-                            dataSize = TinySerializerUtil.GetPrimitiveTypeSize(serializationType);
+                            dataSize = SerializationTypeSizes.DOUBLE;
                             EnsureBufferSize(dataSize + offset);
 
                             double value = CastTo<double>.From(obj, emitValueTypeCaster);
@@ -345,7 +353,7 @@ namespace Expanse.Serialization.TinySerialization
                         break;
                     case SerializationType.Char:
                         {
-                            dataSize = TinySerializerUtil.GetPrimitiveTypeSize(serializationType);
+                            dataSize = SerializationTypeSizes.CHAR;
                             EnsureBufferSize(dataSize + offset);
 
                             char value = CastTo<char>.From(obj, emitValueTypeCaster);
@@ -359,7 +367,7 @@ namespace Expanse.Serialization.TinySerialization
                         break;
                     case SerializationType.Decimal:
                         {
-                            dataSize = TinySerializerUtil.GetPrimitiveTypeSize(serializationType);
+                            dataSize = SerializationTypeSizes.DECIMAL;
                             EnsureBufferSize(dataSize + offset);
 
                             decimal value = CastTo<decimal>.From(obj, emitValueTypeCaster);
@@ -373,7 +381,7 @@ namespace Expanse.Serialization.TinySerialization
                         break;
                     case SerializationType.DateTime:
                         {
-                            dataSize = TinySerializerUtil.GetPrimitiveTypeSize(serializationType);
+                            dataSize = SerializationTypeSizes.DATE_TIME;
                             EnsureBufferSize(dataSize + offset);
 
                             DateTime value = CastTo<DateTime>.From(obj, emitValueTypeCaster);
@@ -387,7 +395,7 @@ namespace Expanse.Serialization.TinySerialization
                         break;
                     case SerializationType.DateTimeOffset:
                         {
-                            dataSize = TinySerializerUtil.GetPrimitiveTypeSize(serializationType);
+                            dataSize = SerializationTypeSizes.DATE_TIME_OFFSET;
                             EnsureBufferSize(dataSize + offset);
 
                             DateTimeOffset value = CastTo<DateTimeOffset>.From(obj, emitValueTypeCaster);
@@ -401,7 +409,7 @@ namespace Expanse.Serialization.TinySerialization
                         break;
                     case SerializationType.TimeSpan:
                         {
-                            dataSize = TinySerializerUtil.GetPrimitiveTypeSize(serializationType);
+                            dataSize = SerializationTypeSizes.TIME_SPAN;
                             EnsureBufferSize(dataSize + offset);
 
                             TimeSpan value = CastTo<TimeSpan>.From(obj, emitValueTypeCaster);
@@ -415,7 +423,7 @@ namespace Expanse.Serialization.TinySerialization
                         break;
                     case SerializationType.Vector2:
                         {
-                            dataSize = TinySerializerUtil.GetPrimitiveTypeSize(serializationType);
+                            dataSize = SerializationTypeSizes.VECTOR2;
                             EnsureBufferSize(dataSize + offset);
 
                             Vector2 value = CastTo<Vector2>.From(obj, emitValueTypeCaster);
@@ -431,7 +439,7 @@ namespace Expanse.Serialization.TinySerialization
                         break;
                     case SerializationType.Vector3:
                         {
-                            dataSize = TinySerializerUtil.GetPrimitiveTypeSize(serializationType);
+                            dataSize = SerializationTypeSizes.VECTOR3;
                             EnsureBufferSize(dataSize + offset);
 
                             Vector3 value = CastTo<Vector3>.From(obj, emitValueTypeCaster);
@@ -448,7 +456,7 @@ namespace Expanse.Serialization.TinySerialization
                         break;
                     case SerializationType.Vector4:
                         {
-                            dataSize = TinySerializerUtil.GetPrimitiveTypeSize(serializationType);
+                            dataSize = SerializationTypeSizes.VECTOR4;
                             EnsureBufferSize(dataSize + offset);
 
                             Vector4 value = CastTo<Vector4>.From(obj, emitValueTypeCaster);
@@ -466,7 +474,7 @@ namespace Expanse.Serialization.TinySerialization
                         break;
                     case SerializationType.Quaternion:
                         {
-                            dataSize = TinySerializerUtil.GetPrimitiveTypeSize(serializationType);
+                            dataSize = SerializationTypeSizes.QUATERNION;
                             EnsureBufferSize(dataSize + offset);
 
                             Quaternion value = CastTo<Quaternion>.From(obj, emitValueTypeCaster);
@@ -484,7 +492,7 @@ namespace Expanse.Serialization.TinySerialization
                         break;
                     case SerializationType.Rect:
                         {
-                            dataSize = TinySerializerUtil.GetPrimitiveTypeSize(serializationType);
+                            dataSize = SerializationTypeSizes.RECT;
                             EnsureBufferSize(dataSize + offset);
 
                             Rect value = CastTo<Rect>.From(obj, emitValueTypeCaster);
@@ -502,7 +510,7 @@ namespace Expanse.Serialization.TinySerialization
                         break;
                     case SerializationType.Bounds:
                         {
-                            dataSize = TinySerializerUtil.GetPrimitiveTypeSize(serializationType);
+                            dataSize = SerializationTypeSizes.BOUNDS;
                             EnsureBufferSize(dataSize + offset);
 
                             Bounds value = CastTo<Bounds>.From(obj, emitValueTypeCaster);
@@ -527,7 +535,7 @@ namespace Expanse.Serialization.TinySerialization
                         break;
                     case SerializationType.IntVector2:
                         {
-                            dataSize = TinySerializerUtil.GetPrimitiveTypeSize(serializationType);
+                            dataSize = SerializationTypeSizes.INT_VECTOR2;
                             EnsureBufferSize(dataSize + offset);
 
                             IntVector2 value = CastTo<IntVector2>.From(obj, emitValueTypeCaster);
@@ -543,7 +551,7 @@ namespace Expanse.Serialization.TinySerialization
                         break;
                     case SerializationType.IntVector3:
                         {
-                            dataSize = TinySerializerUtil.GetPrimitiveTypeSize(serializationType);
+                            dataSize = SerializationTypeSizes.INT_VECTOR3;
                             EnsureBufferSize(dataSize + offset);
 
                             IntVector3 value = CastTo<IntVector3>.From(obj, emitValueTypeCaster);
@@ -560,7 +568,7 @@ namespace Expanse.Serialization.TinySerialization
                         break;
                     case SerializationType.IntVector4:
                         {
-                            dataSize = TinySerializerUtil.GetPrimitiveTypeSize(serializationType);
+                            dataSize = SerializationTypeSizes.INT_VECTOR4;
                             EnsureBufferSize(dataSize + offset);
 
                             IntVector4 value = CastTo<IntVector4>.From(obj, emitValueTypeCaster);
@@ -578,36 +586,150 @@ namespace Expanse.Serialization.TinySerialization
                         break;
                     case SerializationType.String:
                         {
-                            // TODO: Allow various/custom string encodings
-
                             string value = CastTo<string>.From(obj, false);
                             bool hasValue = value != null;
                             int length = hasValue ? value.Length : -1;
+                            int lengthSize = sizeof(int);
 
                             int charCount = hasValue ? length : 0;
-                            int charSize = sizeof(char);
 
-                            int lengthSize = sizeof(int);
-                            dataSize = lengthSize + (charCount * charSize);
-                            EnsureBufferSize(offset + dataSize);
+                            Encoding systemEncoding = null;
 
-                            fixed (byte* bufferPtr = buffer)
+                            switch (settings.defaultStringEncodeType)
                             {
-                                int* intBufferPtr = (int*)&bufferPtr[offset];
-                                *intBufferPtr++ = length;
-
-                                if (hasValue)
-                                {
-                                    char* charBufferPtr = (char*)intBufferPtr;
-
-                                    fixed (char* charValuePtr = value)
+                                case StringEncodeType.Char:
                                     {
-                                        for (int i = 0; i < charCount; i++)
+                                        int charSize = sizeof(char);
+
+                                        dataSize = lengthSize + (charCount * charSize);
+                                        EnsureBufferSize(offset + dataSize);
+
+                                        fixed (byte* bufferPtr = buffer)
                                         {
-                                            *charBufferPtr++ = charValuePtr[i];
+                                            int* intBufferPtr = (int*)&bufferPtr[offset];
+                                            *intBufferPtr++ = length;
+
+                                            if (hasValue)
+                                            {
+                                                char* charBufferPtr = (char*)intBufferPtr;
+
+                                                fixed (char* charValuePtr = value)
+                                                {
+                                                    for (int i = 0; i < charCount; i++)
+                                                    {
+                                                        *charBufferPtr++ = charValuePtr[i];
+                                                    }
+                                                }
+                                            }
                                         }
                                     }
-                                }
+                                    break;
+                                case StringEncodeType.Byte:
+                                    {
+                                        int charSize = sizeof(byte);
+
+                                        dataSize = lengthSize + (charCount * charSize);
+                                        EnsureBufferSize(offset + dataSize);
+
+                                        fixed (byte* bufferPtr = buffer)
+                                        {
+                                            int* intBufferPtr = (int*)&bufferPtr[offset];
+                                            *intBufferPtr++ = length;
+
+                                            if (hasValue)
+                                            {
+                                                byte* byteBufferPtr = (byte*)intBufferPtr;
+
+                                                fixed (char* charValuePtr = value)
+                                                {
+                                                    for (int i = 0; i < charCount; i++)
+                                                    {
+                                                        *byteBufferPtr++ = (byte)charValuePtr[i];
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                    break;
+
+                                case StringEncodeType.Default:
+                                    {
+                                        systemEncoding = Encoding.Default;
+                                        goto Encoding;
+                                    }
+
+                                case StringEncodeType.ASCII:
+                                    {
+                                        systemEncoding = Encoding.ASCII;
+                                        goto Encoding;
+                                    }
+
+                                case StringEncodeType.UTF7:
+                                    {
+                                        systemEncoding = Encoding.UTF7;
+                                        goto Encoding;
+                                    }
+
+                                case StringEncodeType.UTF8:
+                                    {
+                                        systemEncoding = Encoding.UTF8;
+                                        goto Encoding;
+                                    }
+
+                                case StringEncodeType.Unicode:
+                                    {
+                                        systemEncoding = Encoding.Unicode;
+                                        goto Encoding;
+                                    }
+
+                                case StringEncodeType.UTF32:
+                                    {
+                                        systemEncoding = Encoding.UTF32;
+                                        goto Encoding;
+                                    }
+
+                                case StringEncodeType.BigEndianUnicode:
+                                    {
+                                        systemEncoding = Encoding.BigEndianUnicode;
+                                        goto Encoding;
+                                    }
+
+                                    Encoding:
+                                    {
+                                        systemEncoding = systemEncoding ?? Encoding.Default;
+
+                                        if (hasValue)
+                                        {
+                                            fixed (char* charValuePtr = value)
+                                            {
+                                                int byteCount = systemEncoding.GetByteCount(charValuePtr, charCount);
+
+                                                dataSize = lengthSize + byteCount;
+                                                EnsureBufferSize(offset + dataSize);
+
+                                                fixed (byte* bufferPtr = buffer)
+                                                {
+                                                    int* intBufferPtr = (int*)&bufferPtr[offset];
+                                                    *intBufferPtr++ = length;
+
+                                                    byte* byteBufferPtr = (byte*)intBufferPtr;
+
+                                                    systemEncoding.GetBytes(charValuePtr, charCount, byteBufferPtr, 0);
+                                                }
+                                            }
+                                        }
+                                        else
+                                        {
+                                            fixed (byte* bufferPtr = buffer)
+                                            {
+                                                int* intBufferPtr = (int*)&bufferPtr[offset];
+                                                *intBufferPtr++ = length;
+                                            }
+                                        }
+                                    }
+                                    break;
+                                default:
+                                    throw new UnsupportedException("Unsupported string encode type: " + settings.defaultStringEncodeType);
                             }
                         }
                         break;
@@ -618,8 +740,7 @@ namespace Expanse.Serialization.TinySerialization
                             int length = hasValue ? baseValue.Length : -1;
 
                             int elementCount = hasValue ? length : 0;
-                            Type elementType = tSource.GetElementType();
-                            SerializationType elementSerializationType = TinySerializerUtil.GetSerializationType(elementType);
+                            SerializationType elementSerializationType = simpleTypeInfo.elementSerializationType;
                             int elementSize = TinySerializerUtil.GetPrimitiveTypeSize(elementSerializationType);
 
                             int lengthSize = sizeof(int);
@@ -1044,9 +1165,7 @@ namespace Expanse.Serialization.TinySerialization
                             int length = hasValue ? baseValue.Count : -1;
 
                             int elementCount = hasValue ? length : 0;
-                            Type[] genericParameters = tSource.GetGenericArguments();
-                            Type elementType = genericParameters[0];
-                            SerializationType elementSerializationType = TinySerializerUtil.GetSerializationType(elementType);
+                            SerializationType elementSerializationType = simpleTypeInfo.elementSerializationType;
                             int elementSize = TinySerializerUtil.GetPrimitiveTypeSize(elementSerializationType);
 
                             int lengthSize = sizeof(int);
@@ -1423,9 +1542,7 @@ namespace Expanse.Serialization.TinySerialization
                         break;
                     case SerializationType.PrimitiveNullable:
                         {
-                            Type[] genericParameters = tSource.GetGenericArguments();
-                            Type elementType = genericParameters[0];
-                            SerializationType elementSerializationType = TinySerializerUtil.GetSerializationType(elementType);
+                            SerializationType elementSerializationType = simpleTypeInfo.elementSerializationType;
                             int elementSize = TinySerializerUtil.GetPrimitiveTypeSize(elementSerializationType);
 
                             switch (elementSerializationType)
@@ -2213,7 +2330,7 @@ namespace Expanse.Serialization.TinySerialization
                             throw new NotImplementedException();
                         }
                     default:
-                        throw new UnsupportedException("Unsupported serialization type: " + serializationType);
+                        throw new UnsupportedException("Unsupported serialization type: " + simpleTypeInfo.serializationType);
                 }
 
                 return offset + dataSize;
