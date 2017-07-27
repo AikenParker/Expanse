@@ -20,6 +20,7 @@
 
         public bool emitValueTypeCasters;
         public bool variablePrefixLengthSize;
+        public bool compressBoolArray;
         public StringEncodeType defaultStringEncodeType;
         public bool checkStringEncodeTypeOverrideAttribute;
 
@@ -47,6 +48,7 @@
 
                 defaultSettings.emitValueTypeCasters = true;
                 defaultSettings.variablePrefixLengthSize = true;
+                defaultSettings.compressBoolArray = true;
                 defaultSettings.defaultStringEncodeType = StringEncodeType.Byte;
                 defaultSettings.checkStringEncodeTypeOverrideAttribute = false;
 

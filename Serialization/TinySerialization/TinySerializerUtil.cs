@@ -219,10 +219,10 @@ namespace Expanse.Serialization.TinySerialization
         public static int GetPrefixLengthSize(int length)
         {
             if (length < sbyte.MaxValue)
-                return 2;
+                return 1;
             else if (length < short.MaxValue)
                 return 3;
-            return 4;
+            return 5;
         }
     }
 }

@@ -611,20 +611,40 @@ namespace Expanse.Serialization.TinySerialization
                                         {
                                             switch (lengthSize)
                                             {
-                                                case 2:
-                                                    sbyte* sbyteBufferPtr = (sbyte*)bufferPtr;
-                                                    *sbyteBufferPtr = (sbyte)length;
+                                                case 1:
+                                                    {
+                                                        sbyte* sbyteBufferPtr = (sbyte*)bufferPtr;
+                                                        *sbyteBufferPtr = (sbyte)length;
+                                                    }
                                                     break;
 
                                                 case 3:
-                                                    short* shortBufferPtr = (short*)bufferPtr;
-                                                    *shortBufferPtr = (short)length;
+                                                    {
+                                                        sbyte* sbyteBufferPtr = (sbyte*)bufferPtr;
+                                                        *sbyteBufferPtr++ = -2;
+                                                        short* shortBufferPtr = (short*)sbyteBufferPtr;
+                                                        *shortBufferPtr = (short)length;
+                                                    }
                                                     break;
 
                                                 case 4:
-                                                    int* intBufferPtr = (int*)bufferPtr;
-                                                    *intBufferPtr = length;
+                                                    {
+                                                        int* intBufferPtr = (int*)bufferPtr;
+                                                        *intBufferPtr = length;
+                                                    }
                                                     break;
+
+                                                case 5:
+                                                    {
+                                                        sbyte* sbyteBufferPtr = (sbyte*)bufferPtr;
+                                                        *sbyteBufferPtr++ = -4;
+                                                        int* intBufferPtr = (int*)sbyteBufferPtr;
+                                                        *intBufferPtr = length;
+                                                    }
+                                                    break;
+
+                                                default:
+                                                    throw new UnsupportedException("Unsupported length size: " + lengthSize);
                                             }
 
                                             if (hasValue)
@@ -810,431 +830,649 @@ namespace Expanse.Serialization.TinySerialization
                                 lengthSize = TinySerializerUtil.GetPrefixLengthSize(length);
 
                             dataSize = lengthSize + (elementCount * elementSize);
+
+                            int compressedIterations = 0;
+                            bool compressBoolArray = settings.compressBoolArray;
+                            if (compressBoolArray && simpleTypeInfo.elementType == SerializationTypeValues.Bool)
+                            {
+                                compressedIterations = elementCount / 8;
+
+                                if (elementCount % 8 != 0)
+                                    compressedIterations++;
+
+                                dataSize = lengthSize + compressedIterations;
+                            }
+
                             EnsureBufferSize(offset + dataSize);
 
                             fixed (byte* bufferPtr = &buffer[offset])
                             {
                                 switch (lengthSize)
                                 {
-                                    case 2:
-                                        sbyte* sbyteBufferPtr = (sbyte*)bufferPtr;
-                                        *sbyteBufferPtr = (sbyte)length;
+                                    case 1:
+                                        {
+                                            sbyte* sbyteBufferPtr = (sbyte*)bufferPtr;
+                                            *sbyteBufferPtr = (sbyte)length;
+                                        }
                                         break;
 
                                     case 3:
-                                        short* shortBufferPtr = (short*)bufferPtr;
-                                        *shortBufferPtr = (short)length;
+                                        {
+                                            sbyte* sbyteBufferPtr = (sbyte*)bufferPtr;
+                                            *sbyteBufferPtr++ = -2;
+                                            short* shortBufferPtr = (short*)sbyteBufferPtr;
+                                            *shortBufferPtr = (short)length;
+                                        }
                                         break;
 
                                     case 4:
-                                        int* intBufferPtr = (int*)bufferPtr;
-                                        *intBufferPtr = length;
+                                        {
+                                            int* intBufferPtr = (int*)bufferPtr;
+                                            *intBufferPtr = length;
+                                        }
                                         break;
+
+                                    case 5:
+                                        {
+                                            sbyte* sbyteBufferPtr = (sbyte*)bufferPtr;
+                                            *sbyteBufferPtr++ = -4;
+                                            int* intBufferPtr = (int*)sbyteBufferPtr;
+                                            *intBufferPtr = length;
+                                        }
+                                        break;
+
+                                    default:
+                                        throw new UnsupportedException("Unsupported length size: " + lengthSize);
                                 }
                             }
 
-                            for (int i = 0; i < elementCount; i++)
+                            switch (elementSerializationType)
                             {
-                                switch (elementSerializationType)
-                                {
-                                    case SerializationType.Byte:
+                                case SerializationType.Byte:
+                                    {
+                                        fixed (byte* byteBufferPtr = &buffer[offset + lengthSize])
                                         {
                                             byte[] value = (byte[])baseValue;
 
-                                            fixed (byte* bufferPtr = &buffer[offset + lengthSize], valuePtr = value)
-                                                bufferPtr[i] = valuePtr[i];
-                                        }
-                                        break;
-                                    case SerializationType.SByte:
-                                        {
-                                            sbyte[] value = (sbyte[])baseValue;
-
-                                            fixed (byte* byteBufferPtr = &buffer[offset + lengthSize])
+                                            fixed (byte* valuePtr = value)
                                             {
-                                                sbyte* bufferPtr = (sbyte*)byteBufferPtr;
-
-                                                fixed (sbyte* valuePtr = value)
-                                                    bufferPtr[i] = valuePtr[i];
+                                                for (int i = 0; i < elementCount; i++)
+                                                {
+                                                    byteBufferPtr[i] = valuePtr[i];
+                                                }
                                             }
                                         }
-                                        break;
-                                    case SerializationType.Bool:
+                                    }
+                                    break;
+
+                                case SerializationType.SByte:
+                                    {
+                                        fixed (byte* byteBufferPtr = &buffer[offset + lengthSize])
+                                        {
+                                            sbyte* sbyteBufferPtr = (sbyte*)byteBufferPtr;
+
+                                            sbyte[] value = (sbyte[])baseValue;
+
+                                            fixed (sbyte* valuePtr = value)
+                                            {
+                                                for (int i = 0; i < elementCount; i++)
+                                                {
+                                                    sbyteBufferPtr[i] = valuePtr[i];
+                                                }
+                                            }
+                                        }
+                                    }
+                                    break;
+
+                                case SerializationType.Bool:
+                                    {
+                                        fixed (byte* byteBufferPtr = &buffer[offset + lengthSize])
                                         {
                                             bool[] value = (bool[])baseValue;
 
-                                            fixed (byte* byteBufferPtr = &buffer[offset + lengthSize])
+                                            if (compressBoolArray)
                                             {
-                                                bool* bufferPtr = (bool*)byteBufferPtr;
+                                                fixed (bool* valuePtr = value)
+                                                {
+                                                    int index = 0;
+                                                    for (int i = 0; i < compressedIterations; i++)
+                                                    {
+                                                        byte result = 0;
+
+                                                        if (valuePtr[index])
+                                                            result |= (byte)(1 << (7 - index));
+
+                                                        if (++index < elementCount)
+                                                            if (valuePtr[index])
+                                                                result |= (byte)(1 << (7 - index));
+
+                                                        if (++index < elementCount)
+                                                            if (valuePtr[index])
+                                                                result |= (byte)(1 << (7 - index));
+
+                                                        if (++index < elementCount)
+                                                            if (valuePtr[index])
+                                                                result |= (byte)(1 << (7 - index));
+
+                                                        if (++index < elementCount)
+                                                            if (valuePtr[index])
+                                                                result |= (byte)(1 << (7 - index));
+
+                                                        if (++index < elementCount)
+                                                            if (valuePtr[index])
+                                                                result |= (byte)(1 << (7 - index));
+
+                                                        if (++index < elementCount)
+                                                            if (valuePtr[index])
+                                                                result |= (byte)(1 << (7 - index));
+
+                                                        if (++index < elementCount)
+                                                            if (valuePtr[index])
+                                                                result |= (byte)(1 << (7 - index));
+
+                                                        byteBufferPtr[i] = result;
+                                                    }
+                                                }
+                                            }
+                                            else
+                                            {
+                                                bool* boolBufferPtr = (bool*)byteBufferPtr;
 
                                                 fixed (bool* valuePtr = value)
-                                                    bufferPtr[i] = valuePtr[i];
+                                                {
+                                                    for (int i = 0; i < elementCount; i++)
+                                                    {
+                                                        boolBufferPtr[i] = valuePtr[i];
+                                                    }
+                                                }
                                             }
                                         }
-                                        break;
-                                    case SerializationType.Int16:
+                                    }
+                                    break;
+
+                                case SerializationType.Int16:
+                                    {
+                                        fixed (byte* byteBufferPtr = &buffer[offset + lengthSize])
                                         {
+                                            short* shortBufferPtr = (short*)byteBufferPtr;
+
                                             short[] value = (short[])baseValue;
 
-                                            fixed (byte* byteBufferPtr = &buffer[offset + lengthSize])
+                                            fixed (short* valuePtr = value)
                                             {
-                                                short* bufferPtr = (short*)byteBufferPtr;
-
-                                                fixed (short* valuePtr = value)
-                                                    bufferPtr[i] = valuePtr[i];
+                                                for (int i = 0; i < elementCount; i++)
+                                                {
+                                                    shortBufferPtr[i] = valuePtr[i];
+                                                }
                                             }
                                         }
-                                        break;
-                                    case SerializationType.Int32:
+                                    }
+                                    break;
+
+                                case SerializationType.Int32:
+                                    {
+                                        fixed (byte* byteBufferPtr = &buffer[offset + lengthSize])
                                         {
+                                            int* intBufferPtr = (int*)byteBufferPtr;
+
                                             int[] value = (int[])baseValue;
 
-                                            fixed (byte* byteBufferPtr = &buffer[offset + lengthSize])
+                                            fixed (int* valuePtr = value)
                                             {
-                                                int* bufferPtr = (int*)byteBufferPtr;
-
-                                                fixed (int* valuePtr = value)
-                                                    bufferPtr[i] = valuePtr[i];
+                                                for (int i = 0; i < elementCount; i++)
+                                                {
+                                                    intBufferPtr[i] = valuePtr[i];
+                                                }
                                             }
                                         }
-                                        break;
-                                    case SerializationType.Int64:
+                                    }
+                                    break;
+
+                                case SerializationType.Int64:
+                                    {
+                                        fixed (byte* byteBufferPtr = &buffer[offset + lengthSize])
                                         {
-                                            long[] value = (long[])baseValue;
+                                            short* shortBufferPtr = (short*)byteBufferPtr;
 
-                                            fixed (byte* byteBufferPtr = &buffer[offset + lengthSize])
+                                            short[] value = (short[])baseValue;
+
+                                            fixed (short* valuePtr = value)
                                             {
-                                                long* bufferPtr = (long*)byteBufferPtr;
-
-                                                fixed (long* valuePtr = value)
-                                                    bufferPtr[i] = valuePtr[i];
+                                                for (int i = 0; i < elementCount; i++)
+                                                {
+                                                    shortBufferPtr[i] = valuePtr[i];
+                                                }
                                             }
                                         }
-                                        break;
-                                    case SerializationType.UInt16:
+                                    }
+                                    break;
+
+                                case SerializationType.UInt16:
+                                    {
+                                        fixed (byte* byteBufferPtr = &buffer[offset + lengthSize])
                                         {
+                                            ushort* ushortBufferPtr = (ushort*)byteBufferPtr;
+
                                             ushort[] value = (ushort[])baseValue;
 
-                                            fixed (byte* byteBufferPtr = &buffer[offset + lengthSize])
+                                            fixed (ushort* valuePtr = value)
                                             {
-                                                ushort* bufferPtr = (ushort*)byteBufferPtr;
-
-                                                fixed (ushort* valuePtr = value)
-                                                    bufferPtr[i] = valuePtr[i];
+                                                for (int i = 0; i < elementCount; i++)
+                                                {
+                                                    ushortBufferPtr[i] = valuePtr[i];
+                                                }
                                             }
                                         }
-                                        break;
-                                    case SerializationType.UInt32:
+                                    }
+                                    break;
+
+                                case SerializationType.UInt32:
+                                    {
+                                        fixed (byte* byteBufferPtr = &buffer[offset + lengthSize])
                                         {
+                                            uint* uintBufferPtr = (uint*)byteBufferPtr;
+
                                             uint[] value = (uint[])baseValue;
 
-                                            fixed (byte* byteBufferPtr = &buffer[offset + lengthSize])
+                                            fixed (uint* valuePtr = value)
                                             {
-                                                uint* bufferPtr = (uint*)byteBufferPtr;
-
-                                                fixed (uint* valuePtr = value)
-                                                    bufferPtr[i] = valuePtr[i];
+                                                for (int i = 0; i < elementCount; i++)
+                                                {
+                                                    uintBufferPtr[i] = valuePtr[i];
+                                                }
                                             }
                                         }
-                                        break;
-                                    case SerializationType.UInt64:
+                                    }
+                                    break;
+
+                                case SerializationType.UInt64:
+                                    {
+                                        fixed (byte* byteBufferPtr = &buffer[offset + lengthSize])
                                         {
+                                            ulong* ulongBufferPtr = (ulong*)byteBufferPtr;
+
                                             ulong[] value = (ulong[])baseValue;
 
-                                            fixed (byte* byteBufferPtr = &buffer[offset + lengthSize])
+                                            fixed (ulong* valuePtr = value)
                                             {
-                                                ulong* bufferPtr = (ulong*)byteBufferPtr;
-
-                                                fixed (ulong* valuePtr = value)
-                                                    bufferPtr[i] = valuePtr[i];
+                                                for (int i = 0; i < elementCount; i++)
+                                                {
+                                                    ulongBufferPtr[i] = valuePtr[i];
+                                                }
                                             }
                                         }
-                                        break;
-                                    case SerializationType.Half:
+                                    }
+                                    break;
+
+                                case SerializationType.Half:
+                                    {
+                                        fixed (byte* byteBufferPtr = &buffer[offset + lengthSize])
                                         {
+                                            ushort* ushortBufferPtr = (ushort*)byteBufferPtr;
+
                                             Half[] value = (Half[])baseValue;
 
-                                            fixed (byte* byteBufferPtr = &buffer[offset + lengthSize])
+                                            fixed (Half* valuePtr = value)
                                             {
-                                                ushort* bufferPtr = (ushort*)byteBufferPtr;
-
-                                                fixed (Half* valuePtr = value)
-                                                    bufferPtr[i] = valuePtr[i].value;
+                                                for (int i = 0; i < elementCount; i++)
+                                                {
+                                                    ushortBufferPtr[i] = valuePtr[i].value;
+                                                }
                                             }
                                         }
-                                        break;
-                                    case SerializationType.Single:
+                                    }
+                                    break;
+
+                                case SerializationType.Single:
+                                    {
+                                        fixed (byte* byteBufferPtr = &buffer[offset + lengthSize])
                                         {
+                                            float* floatBufferPtr = (float*)byteBufferPtr;
+
                                             float[] value = (float[])baseValue;
 
-                                            fixed (byte* byteBufferPtr = &buffer[offset + lengthSize])
+                                            fixed (float* valuePtr = value)
                                             {
-                                                float* bufferPtr = (float*)byteBufferPtr;
-
-                                                fixed (float* valuePtr = value)
-                                                    bufferPtr[i] = valuePtr[i];
+                                                for (int i = 0; i < elementCount; i++)
+                                                {
+                                                    floatBufferPtr[i] = valuePtr[i];
+                                                }
                                             }
                                         }
-                                        break;
-                                    case SerializationType.Double:
+                                    }
+                                    break;
+
+                                case SerializationType.Double:
+                                    {
+                                        fixed (byte* byteBufferPtr = &buffer[offset + lengthSize])
                                         {
+                                            double* doubleBufferPtr = (double*)byteBufferPtr;
+
                                             double[] value = (double[])baseValue;
 
-                                            fixed (byte* byteBufferPtr = &buffer[offset + lengthSize])
+                                            fixed (double* valuePtr = value)
                                             {
-                                                double* bufferPtr = (double*)byteBufferPtr;
-
-                                                fixed (double* valuePtr = value)
-                                                    bufferPtr[i] = valuePtr[i];
+                                                for (int i = 0; i < elementCount; i++)
+                                                {
+                                                    doubleBufferPtr[i] = valuePtr[i];
+                                                }
                                             }
                                         }
-                                        break;
-                                    case SerializationType.Char:
+                                    }
+                                    break;
+
+                                case SerializationType.Char:
+                                    {
+                                        fixed (byte* byteBufferPtr = &buffer[offset + lengthSize])
                                         {
+                                            char* charBufferPtr = (char*)byteBufferPtr;
+
                                             char[] value = (char[])baseValue;
 
-                                            fixed (byte* byteBufferPtr = &buffer[offset + lengthSize])
+                                            fixed (char* valuePtr = value)
                                             {
-                                                char* bufferPtr = (char*)byteBufferPtr;
-
-                                                fixed (char* valuePtr = value)
-                                                    bufferPtr[i] = valuePtr[i];
+                                                for (int i = 0; i < elementCount; i++)
+                                                {
+                                                    charBufferPtr[i] = valuePtr[i];
+                                                }
                                             }
                                         }
-                                        break;
-                                    case SerializationType.Decimal:
+                                    }
+                                    break;
+
+                                case SerializationType.Decimal:
+                                    {
+                                        fixed (byte* byteBufferPtr = &buffer[offset + lengthSize])
                                         {
+                                            decimal* decimalBufferPtr = (decimal*)byteBufferPtr;
+
                                             decimal[] value = (decimal[])baseValue;
 
-                                            fixed (byte* byteBufferPtr = &buffer[offset + lengthSize])
+                                            fixed (decimal* valuePtr = value)
                                             {
-                                                decimal* bufferPtr = (decimal*)byteBufferPtr;
-
-                                                fixed (decimal* valuePtr = value)
-                                                    bufferPtr[i] = valuePtr[i];
+                                                for (int i = 0; i < elementCount; i++)
+                                                {
+                                                    decimalBufferPtr[i] = valuePtr[i];
+                                                }
                                             }
                                         }
-                                        break;
-                                    case SerializationType.DateTime:
+                                    }
+                                    break;
+
+                                case SerializationType.DateTime:
+                                    {
+                                        fixed (byte* byteBufferPtr = &buffer[offset + lengthSize])
                                         {
+                                            long* longBufferPtr = (long*)byteBufferPtr;
+
                                             DateTime[] value = (DateTime[])baseValue;
 
-                                            fixed (byte* byteBufferPtr = &buffer[offset + lengthSize])
+                                            fixed (DateTime* valuePtr = value)
                                             {
-                                                long* bufferPtr = (long*)byteBufferPtr;
-
-                                                fixed (DateTime* valuePtr = value)
-                                                    bufferPtr[i] = valuePtr[i].Ticks;
+                                                for (int i = 0; i < elementCount; i++)
+                                                {
+                                                    longBufferPtr[i] = valuePtr[i].Ticks;
+                                                }
                                             }
                                         }
-                                        break;
-                                    case SerializationType.DateTimeOffset:
+                                    }
+                                    break;
+
+                                case SerializationType.DateTimeOffset:
+                                    {
+                                        fixed (byte* byteBufferPtr = &buffer[offset + lengthSize])
                                         {
+                                            long* longBufferPtr = (long*)byteBufferPtr;
+
                                             DateTimeOffset[] value = (DateTimeOffset[])baseValue;
 
-                                            fixed (byte* byteBufferPtr = &buffer[offset + lengthSize])
+                                            fixed (DateTimeOffset* valuePtr = value)
                                             {
-                                                long* bufferPtr = (long*)byteBufferPtr;
-
-                                                fixed (DateTimeOffset* valuePtr = value)
-                                                    bufferPtr[i] = valuePtr[i].Ticks;
+                                                for (int i = 0; i < elementCount; i++)
+                                                {
+                                                    longBufferPtr[i] = valuePtr[i].Ticks;
+                                                }
                                             }
                                         }
-                                        break;
-                                    case SerializationType.TimeSpan:
+                                    }
+                                    break;
+
+                                case SerializationType.TimeSpan:
+                                    {
+                                        fixed (byte* byteBufferPtr = &buffer[offset + lengthSize])
                                         {
+                                            long* longBufferPtr = (long*)byteBufferPtr;
+
                                             TimeSpan[] value = (TimeSpan[])baseValue;
 
-                                            fixed (byte* byteBufferPtr = &buffer[offset + lengthSize])
+                                            fixed (TimeSpan* valuePtr = value)
                                             {
-                                                long* bufferPtr = (long*)byteBufferPtr;
-
-                                                fixed (TimeSpan* valuePtr = value)
-                                                    bufferPtr[i] = valuePtr[i].Ticks;
+                                                for (int i = 0; i < elementCount; i++)
+                                                {
+                                                    longBufferPtr[i] = valuePtr[i].Ticks;
+                                                }
                                             }
                                         }
-                                        break;
-                                    case SerializationType.Vector2:
+                                    }
+                                    break;
+
+                                case SerializationType.Vector2:
+                                    {
+                                        fixed (byte* byteBufferPtr = &buffer[offset + lengthSize])
                                         {
+                                            float* floatBufferPtr = (float*)byteBufferPtr;
+
                                             Vector2[] value = (Vector2[])baseValue;
 
-                                            fixed (byte* byteBufferPtr = &buffer[offset + lengthSize])
+                                            fixed (Vector2* valuePtr = value)
                                             {
-                                                float* bufferPtr = (float*)byteBufferPtr;
-
-                                                fixed (Vector2* valuePtr = value)
+                                                for (int i = 0; i < elementCount; i++)
                                                 {
                                                     Vector2 elementValue = valuePtr[i];
 
-                                                    bufferPtr[(i * 2) + 0] = elementValue.x;
-                                                    bufferPtr[(i * 2) + 1] = elementValue.y;
+                                                    floatBufferPtr[(i * 2) + 0] = elementValue.x;
+                                                    floatBufferPtr[(i * 2) + 1] = elementValue.y;
                                                 }
                                             }
                                         }
-                                        break;
-                                    case SerializationType.Vector3:
+                                    }
+                                    break;
+
+                                case SerializationType.Vector3:
+                                    {
+                                        fixed (byte* byteBufferPtr = &buffer[offset + lengthSize])
                                         {
+                                            float* floatBufferPtr = (float*)byteBufferPtr;
+
                                             Vector3[] value = (Vector3[])baseValue;
 
-                                            fixed (byte* byteBufferPtr = &buffer[offset + lengthSize])
+                                            fixed (Vector3* valuePtr = value)
                                             {
-                                                float* bufferPtr = (float*)byteBufferPtr;
-
-                                                fixed (Vector3* valuePtr = value)
+                                                for (int i = 0; i < elementCount; i++)
                                                 {
                                                     Vector3 elementValue = valuePtr[i];
 
-                                                    bufferPtr[(i * 3) + 0] = elementValue.x;
-                                                    bufferPtr[(i * 3) + 1] = elementValue.y;
-                                                    bufferPtr[(i * 3) + 2] = elementValue.z;
+                                                    floatBufferPtr[(i * 3) + 0] = elementValue.x;
+                                                    floatBufferPtr[(i * 3) + 1] = elementValue.y;
+                                                    floatBufferPtr[(i * 3) + 2] = elementValue.z;
                                                 }
                                             }
                                         }
-                                        break;
-                                    case SerializationType.Vector4:
+                                    }
+                                    break;
+
+                                case SerializationType.Vector4:
+                                    {
+                                        fixed (byte* byteBufferPtr = &buffer[offset + lengthSize])
                                         {
+                                            float* floatBufferPtr = (float*)byteBufferPtr;
+
                                             Vector4[] value = (Vector4[])baseValue;
 
-                                            fixed (byte* byteBufferPtr = &buffer[offset + lengthSize])
+                                            fixed (Vector4* valuePtr = value)
                                             {
-                                                float* bufferPtr = (float*)byteBufferPtr;
-
-                                                fixed (Vector4* valuePtr = value)
+                                                for (int i = 0; i < elementCount; i++)
                                                 {
                                                     Vector4 elementValue = valuePtr[i];
 
-                                                    bufferPtr[(i * 4) + 0] = elementValue.x;
-                                                    bufferPtr[(i * 4) + 1] = elementValue.y;
-                                                    bufferPtr[(i * 4) + 2] = elementValue.z;
-                                                    bufferPtr[(i * 4) + 3] = elementValue.w;
+                                                    floatBufferPtr[(i * 4) + 0] = elementValue.x;
+                                                    floatBufferPtr[(i * 4) + 1] = elementValue.y;
+                                                    floatBufferPtr[(i * 4) + 2] = elementValue.z;
+                                                    floatBufferPtr[(i * 4) + 3] = elementValue.w;
                                                 }
                                             }
                                         }
-                                        break;
-                                    case SerializationType.Quaternion:
+                                    }
+                                    break;
+
+                                case SerializationType.Quaternion:
+                                    {
+                                        fixed (byte* byteBufferPtr = &buffer[offset + lengthSize])
                                         {
+                                            float* floatBufferPtr = (float*)byteBufferPtr;
+
                                             Quaternion[] value = (Quaternion[])baseValue;
 
-                                            fixed (byte* byteBufferPtr = &buffer[offset + lengthSize])
+                                            fixed (Quaternion* valuePtr = value)
                                             {
-                                                float* bufferPtr = (float*)byteBufferPtr;
-
-                                                fixed (Quaternion* valuePtr = value)
+                                                for (int i = 0; i < elementCount; i++)
                                                 {
                                                     Quaternion elementValue = valuePtr[i];
 
-                                                    bufferPtr[(i * 4) + 0] = elementValue.x;
-                                                    bufferPtr[(i * 4) + 1] = elementValue.y;
-                                                    bufferPtr[(i * 4) + 2] = elementValue.z;
-                                                    bufferPtr[(i * 4) + 3] = elementValue.w;
+                                                    floatBufferPtr[(i * 4) + 0] = elementValue.x;
+                                                    floatBufferPtr[(i * 4) + 1] = elementValue.y;
+                                                    floatBufferPtr[(i * 4) + 2] = elementValue.z;
+                                                    floatBufferPtr[(i * 4) + 3] = elementValue.w;
                                                 }
                                             }
                                         }
-                                        break;
-                                    case SerializationType.Rect:
+                                    }
+                                    break;
+
+                                case SerializationType.Rect:
+                                    {
+                                        fixed (byte* byteBufferPtr = &buffer[offset + lengthSize])
                                         {
+                                            float* floatBufferPtr = (float*)byteBufferPtr;
+
                                             Rect[] value = (Rect[])baseValue;
 
-                                            fixed (byte* byteBufferPtr = &buffer[offset + lengthSize])
+                                            fixed (Rect* valuePtr = value)
                                             {
-                                                float* bufferPtr = (float*)byteBufferPtr;
-
-                                                fixed (Rect* valuePtr = value)
+                                                for (int i = 0; i < elementCount; i++)
                                                 {
                                                     Rect elementValue = valuePtr[i];
 
-                                                    bufferPtr[(i * 4) + 0] = elementValue.x;
-                                                    bufferPtr[(i * 4) + 1] = elementValue.y;
-                                                    bufferPtr[(i * 4) + 2] = elementValue.width;
-                                                    bufferPtr[(i * 4) + 3] = elementValue.height;
+                                                    floatBufferPtr[(i * 4) + 0] = elementValue.x;
+                                                    floatBufferPtr[(i * 4) + 1] = elementValue.y;
+                                                    floatBufferPtr[(i * 4) + 2] = elementValue.width;
+                                                    floatBufferPtr[(i * 4) + 3] = elementValue.height;
                                                 }
                                             }
                                         }
-                                        break;
-                                    case SerializationType.Bounds:
+                                    }
+                                    break;
+
+                                case SerializationType.Bounds:
+                                    {
+                                        fixed (byte* byteBufferPtr = &buffer[offset + lengthSize])
                                         {
+                                            float* floatBufferPtr = (float*)byteBufferPtr;
+
                                             Bounds[] value = (Bounds[])baseValue;
 
-                                            fixed (byte* byteBufferPtr = &buffer[offset + lengthSize])
+                                            fixed (Bounds* valuePtr = value)
                                             {
-                                                float* bufferPtr = (float*)byteBufferPtr;
-
-                                                fixed (Bounds* valuePtr = value)
+                                                for (int i = 0; i < elementCount; i++)
                                                 {
                                                     Bounds elementValue = valuePtr[i];
 
                                                     Vector3 center = elementValue.center;
                                                     Vector3 size = elementValue.size;
 
-                                                    bufferPtr[(i * 6) + 0] = center.x;
-                                                    bufferPtr[(i * 6) + 1] = center.y;
-                                                    bufferPtr[(i * 6) + 2] = center.z;
-                                                    bufferPtr[(i * 6) + 3] = size.x;
-                                                    bufferPtr[(i * 6) + 4] = size.y;
-                                                    bufferPtr[(i * 6) + 5] = size.z;
+                                                    floatBufferPtr[(i * 6) + 0] = center.x;
+                                                    floatBufferPtr[(i * 6) + 1] = center.y;
+                                                    floatBufferPtr[(i * 6) + 2] = center.z;
+                                                    floatBufferPtr[(i * 6) + 3] = size.x;
+                                                    floatBufferPtr[(i * 6) + 4] = size.y;
+                                                    floatBufferPtr[(i * 6) + 5] = size.z;
                                                 }
                                             }
                                         }
-                                        break;
-                                    case SerializationType.IntVector2:
+                                    }
+                                    break;
+
+                                case SerializationType.IntVector2:
+                                    {
+                                        fixed (byte* byteBufferPtr = &buffer[offset + lengthSize])
                                         {
+                                            int* intBufferPtr = (int*)byteBufferPtr;
+
                                             IntVector2[] value = (IntVector2[])baseValue;
 
-                                            fixed (byte* byteBufferPtr = &buffer[offset + lengthSize])
+                                            fixed (IntVector2* valuePtr = value)
                                             {
-                                                int* bufferPtr = (int*)byteBufferPtr;
-
-                                                fixed (IntVector2* valuePtr = value)
+                                                for (int i = 0; i < elementCount; i++)
                                                 {
                                                     IntVector2 elementValue = valuePtr[i];
 
-                                                    bufferPtr[(i * 2) + 0] = elementValue.x;
-                                                    bufferPtr[(i * 2) + 1] = elementValue.y;
+                                                    intBufferPtr[(i * 2) + 0] = elementValue.x;
+                                                    intBufferPtr[(i * 2) + 1] = elementValue.y;
                                                 }
                                             }
                                         }
-                                        break;
-                                    case SerializationType.IntVector3:
+                                    }
+                                    break;
+
+                                case SerializationType.IntVector3:
+                                    {
+                                        fixed (byte* byteBufferPtr = &buffer[offset + lengthSize])
                                         {
+                                            int* intBufferPtr = (int*)byteBufferPtr;
+
                                             IntVector3[] value = (IntVector3[])baseValue;
 
-                                            fixed (byte* byteBufferPtr = &buffer[offset + lengthSize])
+                                            fixed (IntVector3* valuePtr = value)
                                             {
-                                                int* bufferPtr = (int*)byteBufferPtr;
-
-                                                fixed (IntVector3* valuePtr = value)
+                                                for (int i = 0; i < elementCount; i++)
                                                 {
                                                     IntVector3 elementValue = valuePtr[i];
 
-                                                    bufferPtr[(i * 3) + 0] = elementValue.x;
-                                                    bufferPtr[(i * 3) + 1] = elementValue.y;
-                                                    bufferPtr[(i * 3) + 2] = elementValue.z;
+                                                    intBufferPtr[(i * 3) + 0] = elementValue.x;
+                                                    intBufferPtr[(i * 3) + 1] = elementValue.y;
+                                                    intBufferPtr[(i * 3) + 2] = elementValue.z;
                                                 }
                                             }
                                         }
-                                        break;
-                                    case SerializationType.IntVector4:
+                                    }
+                                    break;
+
+                                case SerializationType.IntVector4:
+                                    {
+                                        fixed (byte* byteBufferPtr = &buffer[offset + lengthSize])
                                         {
+                                            int* intBufferPtr = (int*)byteBufferPtr;
+
                                             IntVector4[] value = (IntVector4[])baseValue;
 
-                                            fixed (byte* byteBufferPtr = &buffer[offset + lengthSize])
+                                            fixed (IntVector4* valuePtr = value)
                                             {
-                                                int* bufferPtr = (int*)byteBufferPtr;
-
-                                                fixed (IntVector4* valuePtr = value)
+                                                for (int i = 0; i < elementCount; i++)
                                                 {
                                                     IntVector4 elementValue = valuePtr[i];
 
-                                                    bufferPtr[(i * 4) + 0] = elementValue.x;
-                                                    bufferPtr[(i * 4) + 1] = elementValue.y;
-                                                    bufferPtr[(i * 4) + 2] = elementValue.z;
-                                                    bufferPtr[(i * 4) + 3] = elementValue.w;
+                                                    intBufferPtr[(i * 4) + 0] = elementValue.x;
+                                                    intBufferPtr[(i * 4) + 1] = elementValue.y;
+                                                    intBufferPtr[(i * 4) + 2] = elementValue.z;
+                                                    intBufferPtr[(i * 4) + 3] = elementValue.w;
                                                 }
                                             }
                                         }
-                                        break;
-                                    default:
-                                        throw new UnsupportedException("elementSerializationType for array is not supported: " + elementSerializationType);
-                                }
+                                    }
+                                    break;
+
+                                default:
+                                    throw new UnsupportedException("elementSerializationType for array is not supported: " + elementSerializationType);
                             }
                         }
                         break;
@@ -1253,388 +1491,568 @@ namespace Expanse.Serialization.TinySerialization
                                 lengthSize = TinySerializerUtil.GetPrefixLengthSize(length);
 
                             dataSize = lengthSize + (elementCount * elementSize);
+
+                            int compressedIterations = 0;
+                            bool compressBoolArray = settings.compressBoolArray;
+                            if (compressBoolArray && simpleTypeInfo.elementType == SerializationTypeValues.Bool)
+                            {
+                                compressedIterations = elementCount / 8;
+
+                                if (elementCount % 8 != 0)
+                                    compressedIterations++;
+
+                                dataSize = lengthSize + compressedIterations;
+                            }
+
                             EnsureBufferSize(dataSize + offset);
 
                             fixed (byte* bufferPtr = &buffer[offset])
                             {
                                 switch (lengthSize)
                                 {
-                                    case 2:
-                                        sbyte* sbyteBufferPtr = (sbyte*)bufferPtr;
-                                        *sbyteBufferPtr = (sbyte)length;
+                                    case 1:
+                                        {
+                                            sbyte* sbyteBufferPtr = (sbyte*)bufferPtr;
+                                            *sbyteBufferPtr = (sbyte)length;
+                                        }
                                         break;
 
                                     case 3:
-                                        short* shortBufferPtr = (short*)bufferPtr;
-                                        *shortBufferPtr = (short)length;
+                                        {
+                                            sbyte* sbyteBufferPtr = (sbyte*)bufferPtr;
+                                            *sbyteBufferPtr++ = -2;
+                                            short* shortBufferPtr = (short*)sbyteBufferPtr;
+                                            *shortBufferPtr = (short)length;
+                                        }
                                         break;
 
                                     case 4:
-                                        int* intBufferPtr = (int*)bufferPtr;
-                                        *intBufferPtr = length;
+                                        {
+                                            int* intBufferPtr = (int*)bufferPtr;
+                                            *intBufferPtr = length;
+                                        }
                                         break;
+
+                                    case 5:
+                                        {
+                                            sbyte* sbyteBufferPtr = (sbyte*)bufferPtr;
+                                            *sbyteBufferPtr++ = -4;
+                                            int* intBufferPtr = (int*)sbyteBufferPtr;
+                                            *intBufferPtr = length;
+                                        }
+                                        break;
+
+                                    default:
+                                        throw new UnsupportedException("Unsupported length size: " + lengthSize);
                                 }
                             }
 
-                            for (int i = 0; i < elementCount; i++)
+                            switch (elementSerializationType)
                             {
-                                switch (elementSerializationType)
-                                {
-                                    case SerializationType.Byte:
+                                case SerializationType.Byte:
+                                    {
+                                        fixed (byte* byteBufferPtr = &buffer[offset + lengthSize])
                                         {
                                             List<byte> value = (List<byte>)baseValue;
 
-                                            fixed (byte* bufferPtr = &buffer[offset + lengthSize])
-                                                bufferPtr[i] = value[i];
-                                        }
-                                        break;
-                                    case SerializationType.SByte:
-                                        {
-                                            List<sbyte> value = (List<sbyte>)baseValue;
-
-                                            fixed (byte* byteBufferPtr = &buffer[offset + lengthSize])
+                                            for (int i = 0; i < elementCount; i++)
                                             {
-                                                sbyte* bufferPtr = (sbyte*)byteBufferPtr;
-
-                                                bufferPtr[i] = value[i];
+                                                byteBufferPtr[i] = value[i];
                                             }
                                         }
-                                        break;
-                                    case SerializationType.Bool:
+                                    }
+                                    break;
+
+                                case SerializationType.SByte:
+                                    {
+                                        fixed (byte* byteBufferPtr = &buffer[offset + lengthSize])
+                                        {
+                                            sbyte* sbyteBufferPtr = (sbyte*)byteBufferPtr;
+
+                                            List<sbyte> value = (List<sbyte>)baseValue;
+
+                                            for (int i = 0; i < elementCount; i++)
+                                            {
+                                                sbyteBufferPtr[i] = value[i];
+                                            }
+                                        }
+                                    }
+                                    break;
+
+                                case SerializationType.Bool:
+                                    {
+                                        fixed (byte* byteBufferPtr = &buffer[offset + lengthSize])
                                         {
                                             List<bool> value = (List<bool>)baseValue;
 
-                                            fixed (byte* byteBufferPtr = &buffer[offset + lengthSize])
+                                            if (compressBoolArray)
                                             {
-                                                bool* bufferPtr = (bool*)byteBufferPtr;
+                                                int index = 0;
+                                                for (int i = 0; i < compressedIterations; i++)
+                                                {
+                                                    byte result = 0;
 
-                                                bufferPtr[i] = value[i];
+                                                    if (value[index])
+                                                        result |= (byte)(1 << (7 - index));
+
+                                                    if (++index < elementCount)
+                                                        if (value[index])
+                                                            result |= (byte)(1 << (7 - index));
+
+                                                    if (++index < elementCount)
+                                                        if (value[index])
+                                                            result |= (byte)(1 << (7 - index));
+
+                                                    if (++index < elementCount)
+                                                        if (value[index])
+                                                            result |= (byte)(1 << (7 - index));
+
+                                                    if (++index < elementCount)
+                                                        if (value[index])
+                                                            result |= (byte)(1 << (7 - index));
+
+                                                    if (++index < elementCount)
+                                                        if (value[index])
+                                                            result |= (byte)(1 << (7 - index));
+
+                                                    if (++index < elementCount)
+                                                        if (value[index])
+                                                            result |= (byte)(1 << (7 - index));
+
+                                                    if (++index < elementCount)
+                                                        if (value[index])
+                                                            result |= (byte)(1 << (7 - index));
+
+                                                    byteBufferPtr[i] = result;
+                                                }
+                                            }
+                                            else
+                                            {
+                                                bool* boolBufferPtr = (bool*)byteBufferPtr;
+
+                                                for (int i = 0; i < elementCount; i++)
+                                                {
+                                                    boolBufferPtr[i] = value[i];
+                                                }
                                             }
                                         }
-                                        break;
-                                    case SerializationType.Int16:
+                                    }
+                                    break;
+
+                                case SerializationType.Int16:
+                                    {
+                                        fixed (byte* byteBufferPtr = &buffer[offset + lengthSize])
                                         {
+                                            short* shortBufferPtr = (short*)byteBufferPtr;
+
                                             List<short> value = (List<short>)baseValue;
 
-                                            fixed (byte* byteBufferPtr = &buffer[offset + lengthSize])
+                                            for (int i = 0; i < elementCount; i++)
                                             {
-                                                short* bufferPtr = (short*)byteBufferPtr;
-
-                                                bufferPtr[i] = value[i];
+                                                shortBufferPtr[i] = value[i];
                                             }
                                         }
-                                        break;
-                                    case SerializationType.Int32:
+                                    }
+                                    break;
+
+                                case SerializationType.Int32:
+                                    {
+                                        fixed (byte* byteBufferPtr = &buffer[offset + lengthSize])
                                         {
+                                            int* intBufferPtr = (int*)byteBufferPtr;
+
                                             List<int> value = (List<int>)baseValue;
 
-                                            fixed (byte* byteBufferPtr = &buffer[offset + lengthSize])
+                                            for (int i = 0; i < elementCount; i++)
                                             {
-                                                int* bufferPtr = (int*)byteBufferPtr;
-
-                                                bufferPtr[i] = value[i];
+                                                intBufferPtr[i] = value[i];
                                             }
                                         }
-                                        break;
-                                    case SerializationType.Int64:
+                                    }
+                                    break;
+
+                                case SerializationType.Int64:
+                                    {
+                                        fixed (byte* byteBufferPtr = &buffer[offset + lengthSize])
                                         {
-                                            List<long> value = (List<long>)baseValue;
+                                            short* shortBufferPtr = (short*)byteBufferPtr;
 
-                                            fixed (byte* byteBufferPtr = &buffer[offset + lengthSize])
+                                            List<short> value = (List<short>)baseValue;
+
+                                            for (int i = 0; i < elementCount; i++)
                                             {
-                                                long* bufferPtr = (long*)byteBufferPtr;
-
-                                                bufferPtr[i] = value[i];
+                                                shortBufferPtr[i] = value[i];
                                             }
                                         }
-                                        break;
-                                    case SerializationType.UInt16:
+                                    }
+                                    break;
+
+                                case SerializationType.UInt16:
+                                    {
+                                        fixed (byte* byteBufferPtr = &buffer[offset + lengthSize])
                                         {
+                                            ushort* ushortBufferPtr = (ushort*)byteBufferPtr;
+
                                             List<ushort> value = (List<ushort>)baseValue;
 
-                                            fixed (byte* byteBufferPtr = &buffer[offset + lengthSize])
+                                            for (int i = 0; i < elementCount; i++)
                                             {
-                                                ushort* bufferPtr = (ushort*)byteBufferPtr;
-
-                                                bufferPtr[i] = value[i];
+                                                ushortBufferPtr[i] = value[i];
                                             }
                                         }
-                                        break;
-                                    case SerializationType.UInt32:
+                                    }
+                                    break;
+
+                                case SerializationType.UInt32:
+                                    {
+                                        fixed (byte* byteBufferPtr = &buffer[offset + lengthSize])
                                         {
+                                            uint* uintBufferPtr = (uint*)byteBufferPtr;
+
                                             List<uint> value = (List<uint>)baseValue;
 
-                                            fixed (byte* byteBufferPtr = &buffer[offset + lengthSize])
+                                            for (int i = 0; i < elementCount; i++)
                                             {
-                                                uint* bufferPtr = (uint*)byteBufferPtr;
-
-                                                bufferPtr[i] = value[i];
+                                                uintBufferPtr[i] = value[i];
                                             }
                                         }
-                                        break;
-                                    case SerializationType.UInt64:
+                                    }
+                                    break;
+
+                                case SerializationType.UInt64:
+                                    {
+                                        fixed (byte* byteBufferPtr = &buffer[offset + lengthSize])
                                         {
+                                            ulong* ulongBufferPtr = (ulong*)byteBufferPtr;
+
                                             List<ulong> value = (List<ulong>)baseValue;
 
-                                            fixed (byte* byteBufferPtr = &buffer[offset + lengthSize])
+                                            for (int i = 0; i < elementCount; i++)
                                             {
-                                                ulong* bufferPtr = (ulong*)byteBufferPtr;
-
-                                                bufferPtr[i] = value[i];
+                                                ulongBufferPtr[i] = value[i];
                                             }
                                         }
-                                        break;
-                                    case SerializationType.Half:
+                                    }
+                                    break;
+
+                                case SerializationType.Half:
+                                    {
+                                        fixed (byte* byteBufferPtr = &buffer[offset + lengthSize])
                                         {
+                                            ushort* ushortBufferPtr = (ushort*)byteBufferPtr;
+
                                             List<Half> value = (List<Half>)baseValue;
 
-                                            fixed (byte* byteBufferPtr = &buffer[offset + lengthSize])
+                                            for (int i = 0; i < elementCount; i++)
                                             {
-                                                ushort* bufferPtr = (ushort*)byteBufferPtr;
-
-                                                bufferPtr[i] = value[i].value;
+                                                ushortBufferPtr[i] = value[i].value;
                                             }
                                         }
-                                        break;
-                                    case SerializationType.Single:
+                                    }
+                                    break;
+
+                                case SerializationType.Single:
+                                    {
+                                        fixed (byte* byteBufferPtr = &buffer[offset + lengthSize])
                                         {
+                                            float* floatBufferPtr = (float*)byteBufferPtr;
+
                                             List<float> value = (List<float>)baseValue;
 
-                                            fixed (byte* byteBufferPtr = &buffer[offset + lengthSize])
+                                            for (int i = 0; i < elementCount; i++)
                                             {
-                                                float* bufferPtr = (float*)byteBufferPtr;
-
-                                                bufferPtr[i] = value[i];
+                                                floatBufferPtr[i] = value[i];
                                             }
                                         }
-                                        break;
-                                    case SerializationType.Double:
+                                    }
+                                    break;
+
+                                case SerializationType.Double:
+                                    {
+                                        fixed (byte* byteBufferPtr = &buffer[offset + lengthSize])
                                         {
+                                            double* doubleBufferPtr = (double*)byteBufferPtr;
+
                                             List<double> value = (List<double>)baseValue;
 
-                                            fixed (byte* byteBufferPtr = &buffer[offset + lengthSize])
+                                            for (int i = 0; i < elementCount; i++)
                                             {
-                                                double* bufferPtr = (double*)byteBufferPtr;
-
-                                                bufferPtr[i] = value[i];
+                                                doubleBufferPtr[i] = value[i];
                                             }
                                         }
-                                        break;
-                                    case SerializationType.Char:
+                                    }
+                                    break;
+
+                                case SerializationType.Char:
+                                    {
+                                        fixed (byte* byteBufferPtr = &buffer[offset + lengthSize])
                                         {
+                                            char* charBufferPtr = (char*)byteBufferPtr;
+
                                             List<char> value = (List<char>)baseValue;
 
-                                            fixed (byte* byteBufferPtr = &buffer[offset + lengthSize])
+                                            for (int i = 0; i < elementCount; i++)
                                             {
-                                                char* bufferPtr = (char*)byteBufferPtr;
-
-                                                bufferPtr[i] = value[i];
+                                                charBufferPtr[i] = value[i];
                                             }
                                         }
-                                        break;
-                                    case SerializationType.Decimal:
+                                    }
+                                    break;
+
+                                case SerializationType.Decimal:
+                                    {
+                                        fixed (byte* byteBufferPtr = &buffer[offset + lengthSize])
                                         {
+                                            decimal* decimalBufferPtr = (decimal*)byteBufferPtr;
+
                                             List<decimal> value = (List<decimal>)baseValue;
 
-                                            fixed (byte* byteBufferPtr = &buffer[offset + lengthSize])
+                                            for (int i = 0; i < elementCount; i++)
                                             {
-                                                decimal* bufferPtr = (decimal*)byteBufferPtr;
-
-                                                bufferPtr[i] = value[i];
+                                                decimalBufferPtr[i] = value[i];
                                             }
                                         }
-                                        break;
-                                    case SerializationType.DateTime:
+                                    }
+                                    break;
+
+                                case SerializationType.DateTime:
+                                    {
+                                        fixed (byte* byteBufferPtr = &buffer[offset + lengthSize])
                                         {
+                                            long* longBufferPtr = (long*)byteBufferPtr;
+
                                             List<DateTime> value = (List<DateTime>)baseValue;
 
-                                            fixed (byte* byteBufferPtr = &buffer[offset + lengthSize])
+                                            for (int i = 0; i < elementCount; i++)
                                             {
-                                                long* bufferPtr = (long*)byteBufferPtr;
-
-                                                bufferPtr[i] = value[i].Ticks;
+                                                longBufferPtr[i] = value[i].Ticks;
                                             }
                                         }
-                                        break;
-                                    case SerializationType.DateTimeOffset:
+                                    }
+                                    break;
+
+                                case SerializationType.DateTimeOffset:
+                                    {
+                                        fixed (byte* byteBufferPtr = &buffer[offset + lengthSize])
                                         {
+                                            long* longBufferPtr = (long*)byteBufferPtr;
+
                                             List<DateTimeOffset> value = (List<DateTimeOffset>)baseValue;
 
-                                            fixed (byte* byteBufferPtr = &buffer[offset + lengthSize])
+                                            for (int i = 0; i < elementCount; i++)
                                             {
-                                                long* bufferPtr = (long*)byteBufferPtr;
-
-                                                bufferPtr[i] = value[i].Ticks;
+                                                longBufferPtr[i] = value[i].Ticks;
                                             }
                                         }
-                                        break;
-                                    case SerializationType.TimeSpan:
+                                    }
+                                    break;
+
+                                case SerializationType.TimeSpan:
+                                    {
+                                        fixed (byte* byteBufferPtr = &buffer[offset + lengthSize])
                                         {
+                                            long* longBufferPtr = (long*)byteBufferPtr;
+
                                             List<TimeSpan> value = (List<TimeSpan>)baseValue;
 
-                                            fixed (byte* byteBufferPtr = &buffer[offset + lengthSize])
+                                            for (int i = 0; i < elementCount; i++)
                                             {
-                                                long* bufferPtr = (long*)byteBufferPtr;
-
-                                                bufferPtr[i] = value[i].Ticks;
+                                                longBufferPtr[i] = value[i].Ticks;
                                             }
                                         }
-                                        break;
-                                    case SerializationType.Vector2:
+                                    }
+                                    break;
+
+                                case SerializationType.Vector2:
+                                    {
+                                        fixed (byte* byteBufferPtr = &buffer[offset + lengthSize])
                                         {
+                                            float* floatBufferPtr = (float*)byteBufferPtr;
+
                                             List<Vector2> value = (List<Vector2>)baseValue;
 
-                                            fixed (byte* byteBufferPtr = &buffer[offset + lengthSize])
+                                            for (int i = 0; i < elementCount; i++)
                                             {
-                                                float* bufferPtr = (float*)byteBufferPtr;
-
                                                 Vector2 elementValue = value[i];
 
-                                                bufferPtr[(i * 2) + 0] = elementValue.x;
-                                                bufferPtr[(i * 2) + 1] = elementValue.y;
+                                                floatBufferPtr[(i * 2) + 0] = elementValue.x;
+                                                floatBufferPtr[(i * 2) + 1] = elementValue.y;
                                             }
                                         }
-                                        break;
-                                    case SerializationType.Vector3:
+                                    }
+                                    break;
+
+                                case SerializationType.Vector3:
+                                    {
+                                        fixed (byte* byteBufferPtr = &buffer[offset + lengthSize])
                                         {
+                                            float* floatBufferPtr = (float*)byteBufferPtr;
+
                                             List<Vector3> value = (List<Vector3>)baseValue;
 
-                                            fixed (byte* byteBufferPtr = &buffer[offset + lengthSize])
+                                            for (int i = 0; i < elementCount; i++)
                                             {
-                                                float* bufferPtr = (float*)byteBufferPtr;
-
                                                 Vector3 elementValue = value[i];
 
-                                                bufferPtr[(i * 3) + 0] = elementValue.x;
-                                                bufferPtr[(i * 3) + 1] = elementValue.y;
-                                                bufferPtr[(i * 3) + 2] = elementValue.z;
+                                                floatBufferPtr[(i * 3) + 0] = elementValue.x;
+                                                floatBufferPtr[(i * 3) + 1] = elementValue.y;
+                                                floatBufferPtr[(i * 3) + 2] = elementValue.z;
                                             }
                                         }
-                                        break;
-                                    case SerializationType.Vector4:
+                                    }
+                                    break;
+
+                                case SerializationType.Vector4:
+                                    {
+                                        fixed (byte* byteBufferPtr = &buffer[offset + lengthSize])
                                         {
+                                            float* floatBufferPtr = (float*)byteBufferPtr;
+
                                             List<Vector4> value = (List<Vector4>)baseValue;
 
-                                            fixed (byte* byteBufferPtr = &buffer[offset + lengthSize])
+                                            for (int i = 0; i < elementCount; i++)
                                             {
-                                                float* bufferPtr = (float*)byteBufferPtr;
-
                                                 Vector4 elementValue = value[i];
 
-                                                bufferPtr[(i * 4) + 0] = elementValue.x;
-                                                bufferPtr[(i * 4) + 1] = elementValue.y;
-                                                bufferPtr[(i * 4) + 2] = elementValue.z;
-                                                bufferPtr[(i * 4) + 3] = elementValue.w;
+                                                floatBufferPtr[(i * 4) + 0] = elementValue.x;
+                                                floatBufferPtr[(i * 4) + 1] = elementValue.y;
+                                                floatBufferPtr[(i * 4) + 2] = elementValue.z;
+                                                floatBufferPtr[(i * 4) + 3] = elementValue.w;
                                             }
                                         }
-                                        break;
-                                    case SerializationType.Quaternion:
+                                    }
+                                    break;
+
+                                case SerializationType.Quaternion:
+                                    {
+                                        fixed (byte* byteBufferPtr = &buffer[offset + lengthSize])
                                         {
+                                            float* floatBufferPtr = (float*)byteBufferPtr;
+
                                             List<Quaternion> value = (List<Quaternion>)baseValue;
 
-                                            fixed (byte* byteBufferPtr = &buffer[offset + lengthSize])
+                                            for (int i = 0; i < elementCount; i++)
                                             {
-                                                float* bufferPtr = (float*)byteBufferPtr;
-
                                                 Quaternion elementValue = value[i];
 
-                                                bufferPtr[(i * 4) + 0] = elementValue.x;
-                                                bufferPtr[(i * 4) + 1] = elementValue.y;
-                                                bufferPtr[(i * 4) + 2] = elementValue.z;
-                                                bufferPtr[(i * 4) + 3] = elementValue.w;
+                                                floatBufferPtr[(i * 4) + 0] = elementValue.x;
+                                                floatBufferPtr[(i * 4) + 1] = elementValue.y;
+                                                floatBufferPtr[(i * 4) + 2] = elementValue.z;
+                                                floatBufferPtr[(i * 4) + 3] = elementValue.w;
                                             }
                                         }
-                                        break;
-                                    case SerializationType.Rect:
+                                    }
+                                    break;
+
+                                case SerializationType.Rect:
+                                    {
+                                        fixed (byte* byteBufferPtr = &buffer[offset + lengthSize])
                                         {
+                                            float* floatBufferPtr = (float*)byteBufferPtr;
+
                                             List<Rect> value = (List<Rect>)baseValue;
 
-                                            fixed (byte* byteBufferPtr = &buffer[offset + lengthSize])
+                                            for (int i = 0; i < elementCount; i++)
                                             {
-                                                float* bufferPtr = (float*)byteBufferPtr;
-
                                                 Rect elementValue = value[i];
 
-                                                bufferPtr[(i * 4) + 0] = elementValue.x;
-                                                bufferPtr[(i * 4) + 1] = elementValue.y;
-                                                bufferPtr[(i * 4) + 2] = elementValue.width;
-                                                bufferPtr[(i * 4) + 3] = elementValue.height;
+                                                floatBufferPtr[(i * 4) + 0] = elementValue.x;
+                                                floatBufferPtr[(i * 4) + 1] = elementValue.y;
+                                                floatBufferPtr[(i * 4) + 2] = elementValue.width;
+                                                floatBufferPtr[(i * 4) + 3] = elementValue.height;
                                             }
                                         }
-                                        break;
-                                    case SerializationType.Bounds:
+                                    }
+                                    break;
+
+                                case SerializationType.Bounds:
+                                    {
+                                        fixed (byte* byteBufferPtr = &buffer[offset + lengthSize])
                                         {
+                                            float* floatBufferPtr = (float*)byteBufferPtr;
+
                                             List<Bounds> value = (List<Bounds>)baseValue;
 
-                                            fixed (byte* byteBufferPtr = &buffer[offset + lengthSize])
+                                            for (int i = 0; i < elementCount; i++)
                                             {
-                                                float* bufferPtr = (float*)byteBufferPtr;
-
                                                 Bounds elementValue = value[i];
 
                                                 Vector3 center = elementValue.center;
                                                 Vector3 size = elementValue.size;
 
-                                                bufferPtr[(i * 6) + 0] = center.x;
-                                                bufferPtr[(i * 6) + 1] = center.y;
-                                                bufferPtr[(i * 6) + 2] = center.z;
-                                                bufferPtr[(i * 6) + 3] = size.x;
-                                                bufferPtr[(i * 6) + 4] = size.y;
-                                                bufferPtr[(i * 6) + 5] = size.z;
+                                                floatBufferPtr[(i * 6) + 0] = center.x;
+                                                floatBufferPtr[(i * 6) + 1] = center.y;
+                                                floatBufferPtr[(i * 6) + 2] = center.z;
+                                                floatBufferPtr[(i * 6) + 3] = size.x;
+                                                floatBufferPtr[(i * 6) + 4] = size.y;
+                                                floatBufferPtr[(i * 6) + 5] = size.z;
                                             }
                                         }
-                                        break;
-                                    case SerializationType.IntVector2:
+                                    }
+                                    break;
+
+                                case SerializationType.IntVector2:
+                                    {
+                                        fixed (byte* byteBufferPtr = &buffer[offset + lengthSize])
                                         {
+                                            int* intBufferPtr = (int*)byteBufferPtr;
+
                                             List<IntVector2> value = (List<IntVector2>)baseValue;
 
-                                            fixed (byte* byteBufferPtr = &buffer[offset + lengthSize])
+                                            for (int i = 0; i < elementCount; i++)
                                             {
-                                                int* bufferPtr = (int*)byteBufferPtr;
-
                                                 IntVector2 elementValue = value[i];
 
-                                                bufferPtr[(i * 2) + 0] = elementValue.x;
-                                                bufferPtr[(i * 2) + 1] = elementValue.y;
+                                                intBufferPtr[(i * 2) + 0] = elementValue.x;
+                                                intBufferPtr[(i * 2) + 1] = elementValue.y;
                                             }
                                         }
-                                        break;
-                                    case SerializationType.IntVector3:
+                                    }
+                                    break;
+
+                                case SerializationType.IntVector3:
+                                    {
+                                        fixed (byte* byteBufferPtr = &buffer[offset + lengthSize])
                                         {
+                                            int* intBufferPtr = (int*)byteBufferPtr;
+
                                             List<IntVector3> value = (List<IntVector3>)baseValue;
 
-                                            fixed (byte* byteBufferPtr = &buffer[offset + lengthSize])
+                                            for (int i = 0; i < elementCount; i++)
                                             {
-                                                int* bufferPtr = (int*)byteBufferPtr;
-
                                                 IntVector3 elementValue = value[i];
 
-                                                bufferPtr[(i * 3) + 0] = elementValue.x;
-                                                bufferPtr[(i * 3) + 1] = elementValue.y;
-                                                bufferPtr[(i * 3) + 2] = elementValue.z;
+                                                intBufferPtr[(i * 3) + 0] = elementValue.x;
+                                                intBufferPtr[(i * 3) + 1] = elementValue.y;
+                                                intBufferPtr[(i * 3) + 2] = elementValue.z;
                                             }
                                         }
-                                        break;
-                                    case SerializationType.IntVector4:
+                                    }
+                                    break;
+
+                                case SerializationType.IntVector4:
+                                    {
+                                        fixed (byte* byteBufferPtr = &buffer[offset + lengthSize])
                                         {
+                                            int* intBufferPtr = (int*)byteBufferPtr;
+
                                             List<IntVector4> value = (List<IntVector4>)baseValue;
 
-                                            fixed (byte* byteBufferPtr = &buffer[offset + lengthSize])
+                                            for (int i = 0; i < elementCount; i++)
                                             {
-                                                int* bufferPtr = (int*)byteBufferPtr;
-
                                                 IntVector4 elementValue = value[i];
 
-                                                bufferPtr[(i * 4) + 0] = elementValue.x;
-                                                bufferPtr[(i * 4) + 1] = elementValue.y;
-                                                bufferPtr[(i * 4) + 2] = elementValue.z;
-                                                bufferPtr[(i * 4) + 3] = elementValue.w;
+                                                intBufferPtr[(i * 4) + 0] = elementValue.x;
+                                                intBufferPtr[(i * 4) + 1] = elementValue.y;
+                                                intBufferPtr[(i * 4) + 2] = elementValue.z;
+                                                intBufferPtr[(i * 4) + 3] = elementValue.w;
                                             }
                                         }
-                                        break;
-                                    default:
-                                        throw new UnsupportedException("elementSerializationType for list is not supported: " + elementSerializationType);
-                                }
+                                    }
+                                    break;
+
+                                default:
+                                    throw new UnsupportedException("elementSerializationType for array is not supported: " + elementSerializationType);
                             }
                         }
                         break;
