@@ -334,7 +334,7 @@ namespace Expanse.Utilities
         [Conditional(CONDITIONAL), DebuggerHidden]
         public static void LogSerializationIterator<TInput>(IEnumerable<TInput> source, IStringSerializer serializer = null, LogType logType = LogType.Log)
         {
-            serializer = serializer ?? new UnityJsonUtilitySerializer(true);
+            serializer = serializer ?? new UnityJsonSerializer(true);
 
             if (CombineIteratorLog)
             {
@@ -370,7 +370,7 @@ namespace Expanse.Utilities
         [Conditional(CONDITIONAL), DebuggerHidden]
         public static void LogSerialization<TInput>(TInput source, IStringSerializer serializer = null, LogType logType = LogType.Log)
         {
-            serializer = serializer ?? new UnityJsonUtilitySerializer(true);
+            serializer = serializer ?? new UnityJsonSerializer(true);
 
             string message = serializer.Serialize(source);
 

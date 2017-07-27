@@ -53,7 +53,7 @@ namespace Expanse.Utilities
         /// <returns>Data structure that contains info regarding the results of the load.</returns>
         public static FileLoadInfo<T> LoadFromFile<T>(string filePath, IStringSerializer serializer = null) where T : new()
         {
-            serializer = serializer ?? new UnityJsonUtilitySerializer(true);
+            serializer = serializer ?? new UnityJsonSerializer(true);
 
             FileLoadInfo<T> loadInfo = new FileLoadInfo<T>()
             {
@@ -115,7 +115,7 @@ namespace Expanse.Utilities
         /// <returns>Data structure that contains info regarding the results of the load.</returns>
         public static IEnumerator Co_LoadFromFileThreaded<T>(string filePath, Action<FileLoadInfo<T>> onComplete, IStringSerializer serializer = null, ThreadPriority priority = ThreadPriority.Normal) where T : new()
         {
-            serializer = serializer ?? new UnityJsonUtilitySerializer(true);
+            serializer = serializer ?? new UnityJsonSerializer(true);
 
             FileLoadInfo<T> loadInfo = new FileLoadInfo<T>()
             {
@@ -188,7 +188,7 @@ namespace Expanse.Utilities
         /// <returns>Data structure that contains info regarding the results of the save.</returns>
         public static FileSaveInfo SaveToFile(object obj, string filePath, IStringSerializer serializer = null)
         {
-            serializer = serializer ?? new UnityJsonUtilitySerializer(true);
+            serializer = serializer ?? new UnityJsonSerializer(true);
 
             FileSaveInfo saveInfo = new FileSaveInfo()
             {
@@ -236,7 +236,7 @@ namespace Expanse.Utilities
         /// <returns>Data structure that contains info regarding the results of the save.</returns>
         public static IEnumerator Co_SaveToFileThreaded(object obj, string filePath, Action<FileSaveInfo> onComplete = null, IStringSerializer serializer = null, ThreadPriority priority = ThreadPriority.Normal)
         {
-            serializer = serializer ?? new UnityJsonUtilitySerializer(true);
+            serializer = serializer ?? new UnityJsonSerializer(true);
 
             FileSaveInfo saveInfo = new FileSaveInfo()
             {
