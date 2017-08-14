@@ -32,7 +32,7 @@ namespace Expanse.Utilities
         /// <param name="createUninitialized">If true an unintialized object is created. <para>Note: This overrides <see cref="emitConstructor"/></para></param>
         /// <returns>Returns an new instance of <see cref="TSource"/></returns>
         public static TSource CreateInstance<TSource>(bool emitConstructor = false, bool createUninitialized = false)
-            where TSource: TTarget, new()
+            where TSource : TTarget, new()
         {
             if (createUninitialized)
             {
@@ -98,14 +98,11 @@ namespace Expanse.Utilities
         /// <typeparam name="TSource">Source type.</typeparam>
         private static class CastCache<TSource>
         {
-            public static readonly Func<TSource, TTarget> caster = GetCaster();
+            public static readonly EmitUtil.TypeCastDelegate<TSource, TTarget> caster = GetCaster();
 
-            private static Func<TSource, TTarget> GetCaster()
+            private static EmitUtil.TypeCastDelegate<TSource, TTarget> GetCaster()
             {
-                var parameter = Expression.Parameter(typeof(TSource), string.Empty);
-                var conversion = Expression.Convert(parameter, targetType);
-
-                return Expression.Lambda<Func<TSource, TTarget>>(conversion, parameter).Compile();
+                return EmitUtil.GenerateTypeCastDelegateExp<TSource, TTarget>();
             }
         }
 #endif

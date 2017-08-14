@@ -10,6 +10,7 @@ using System;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Reflection.Emit;
+using Expanse.Extensions;
 
 namespace Expanse.Utilities
 {
@@ -38,6 +39,14 @@ namespace Expanse.Utilities
         private static readonly Type[] singleTypeArray = new Type[1];
         private static readonly Type[] doubleTypeArray = new Type[2];
 
+        /// <summary>
+        /// Delegate used to cast an object of one type to another.
+        /// </summary>
+        /// <typeparam name="TSource">Type of the source object.</typeparam>
+        /// <typeparam name="TTarget">Type of the target object.</typeparam>
+        /// <param name="source">Source object to be casted.</param>
+        /// <returns>Returns a casted object of Target type.</returns>
+        public delegate TTarget TypeCastDelegate<TSource, TTarget>(TSource source);
         /// <summary>
         /// Delegate used to create new objects using the default constructor.
         /// </summary>
@@ -125,6 +134,71 @@ namespace Expanse.Utilities
         public delegate void PropertySetterDelegateByRef<TSource, TValue>(ref TSource source, TValue value);
 
         #region GENERIC
+
+        /// <summary>
+        /// Generates a delegate that casts an object of source type to target type.
+        /// </summary>
+        /// <typeparam name="TSource">Source type.</typeparam>
+        /// <typeparam name="TTarget">Target type.</typeparam>
+        /// <returns>Returns the delegate that casts an object from one type to another.</returns>
+        public static TypeCastDelegate<TSource, TTarget> GenerateTypeCastDelegate<TSource, TTarget>()
+        {
+            Type tSource = typeof(TSource);
+            Type tTarget = typeof(TTarget);
+
+            singleTypeArray[0] = tSource;
+            string dynamicMethodName = useMeaningfulNames ? "Cast" + tSource.Name + "To" + tTarget.Name : GENERATED_NAME;
+            DynamicMethod casterMethod = new DynamicMethod(dynamicMethodName, tTarget, singleTypeArray, tSource);
+            ILGenerator gen = casterMethod.GetILGenerator();
+
+            gen.Emit(OpCodes.Ldarg_0);
+            if (tSource != tTarget)
+            {
+                if (tSource.IsAssignableFromOrTo(tTarget))
+                {
+                    gen.Emit(OpCodes.Castclass, tTarget);
+                }
+                else
+                {
+                    if (tTarget == typeof(sbyte))
+                        gen.Emit(OpCodes.Conv_I1);
+                    else if (tTarget == typeof(short))
+                        gen.Emit(OpCodes.Conv_I2);
+                    else if (tTarget == typeof(int))
+                        gen.Emit(OpCodes.Conv_I4);
+                    else if (tTarget == typeof(long))
+                        gen.Emit(OpCodes.Conv_I8);
+                    else if (tTarget == typeof(byte))
+                        gen.Emit(OpCodes.Conv_U1);
+                    else if (tTarget == typeof(ushort) || tTarget == typeof(char))
+                        gen.Emit(OpCodes.Conv_U2);
+                    else if (tTarget == typeof(uint))
+                        gen.Emit(OpCodes.Conv_U4);
+                    else if (tTarget == typeof(ulong))
+                        gen.Emit(OpCodes.Conv_U8);
+                }
+            }
+            gen.Emit(OpCodes.Ret);
+
+            return (TypeCastDelegate<TSource, TTarget>)casterMethod.CreateDelegate(typeof(TypeCastDelegate<TSource, TTarget>));
+        }
+
+        /// <summary>
+        /// Generates a delegate that casts an object of source type to target type using expressions.
+        /// </summary>
+        /// <typeparam name="TSource">Source type.</typeparam>
+        /// <typeparam name="TTarget">Target type.</typeparam>
+        /// <returns>Returns the delegate that casts an object from one type to another.</returns>
+        public static TypeCastDelegate<TSource, TTarget> GenerateTypeCastDelegateExp<TSource, TTarget>()
+        {
+            Type tSource = typeof(TSource);
+            Type tTarget = typeof(TTarget);
+
+            ParameterExpression parameter = Expression.Parameter(tSource, string.Empty);
+            UnaryExpression conversion = Expression.Convert(parameter, tTarget);
+
+            return Expression.Lambda<TypeCastDelegate<TSource, TTarget>>(conversion, parameter).Compile();
+        }
 
         /// <summary>
         /// Generates a delegate that constructs an instance of type TSource using the default constructor.
@@ -1005,6 +1079,7 @@ namespace Expanse.Utilities
             return (FieldSetterDelegate<object, TValue>)setterMethod.CreateDelegate(typeof(FieldSetterDelegate<object, TValue>));
         }
 
+#if NET_4_5
         /// <summary>
         /// Creates a delegate that sets the value of a field using an expression-compiled delegate. Slower than non expression overload.
         /// </summary>
@@ -1025,13 +1100,14 @@ namespace Expanse.Utilities
             if (tValue != fieldInfo.FieldType)
                 throw new InvalidArgumentException("Type TValue must equal the fieldInfo field type");
 
-            var objectExpPara = Expression.Parameter(tObject);
-            var valueExpPara = Expression.Parameter(tValue);
+            var objectExpPara = Expression.Parameter(tObject, string.Empty);
+            var valueExpPara = Expression.Parameter(tValue, string.Empty);
 
             var setterExp = Expression.Assign(Expression.Field(Expression.Unbox(objectExpPara, tSource), fieldInfo), Expression.Convert(valueExpPara, tValue));
 
             return Expression.Lambda<FieldSetterDelegate<object, TValue>>(setterExp, objectExpPara, valueExpPara).Compile();
         }
+#endif
 
         /// <summary>
         /// Creates a delegate that gets the value of a property. Slower and less safe than generic overload.
@@ -1125,6 +1201,7 @@ namespace Expanse.Utilities
             return (PropertySetterDelegate<object, TValue>)setterMethod.CreateDelegate(typeof(PropertySetterDelegate<object, TValue>));
         }
 
+#if NET_4_5
         /// <summary>
         /// Creates a delegate that sets the value of a property. Slower than non expression overload.
         /// <para>Warning: Unboxes value types that are the source.</para>
@@ -1151,13 +1228,14 @@ namespace Expanse.Utilities
             if (tValue != propertyInfo.PropertyType)
                 throw new InvalidArgumentException("Type TValue must equal the propertyInfo property type");
 
-            var objectExpPara = Expression.Parameter(tObject);
-            var valueExpPara = Expression.Parameter(tValue);
+            var objectExpPara = Expression.Parameter(tObject, string.Empty);
+            var valueExpPara = Expression.Parameter(tValue, string.Empty);
 
             var setterExp = Expression.Assign(Expression.Property(Expression.Unbox(objectExpPara, tSource), propertyInfo), Expression.Convert(valueExpPara, tValue));
 
             return Expression.Lambda<PropertySetterDelegate<object, TValue>>(setterExp, objectExpPara, valueExpPara).Compile();
         }
+#endif
 
         #endregion
     }
