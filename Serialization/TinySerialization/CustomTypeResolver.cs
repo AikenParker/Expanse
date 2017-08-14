@@ -1,4 +1,6 @@
-﻿using System;
+﻿#if UNSAFE
+
+using System;
 
 namespace Expanse.Serialization.TinySerialization
 {
@@ -16,3 +18,4 @@ namespace Expanse.Serialization.TinySerialization
         public abstract void Serialize(object obj, byte* data, int offset);
     }
 }
+#endif

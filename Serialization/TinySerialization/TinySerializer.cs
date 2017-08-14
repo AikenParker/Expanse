@@ -1,4 +1,6 @@
-﻿using System;
+﻿#if UNSAFE
+
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Text;
@@ -6,7 +8,6 @@ using Expanse.Misc;
 using Expanse.Utilities;
 using UnityEngine;
 
-#if UNSAFE
 namespace Expanse.Serialization.TinySerialization
 {
     public unsafe sealed class TinySerializer : IByteSerializer
@@ -2895,143 +2896,538 @@ namespace Expanse.Serialization.TinySerialization
                         break;
                     case SerializationType.Object:
                         {
-                            dataSize += SerializationTypeSizes.SBYTE;
-                            EnsureBufferSize(dataSize + offset);
-
-                            sbyte headerValue = obj != null ? (sbyte)0 : (sbyte)-1;
-
-                            fixed (byte* byteBufferPtr = &buffer[offset])
+                            if (!simpleTypeInfo.isValueType)
                             {
-                                sbyte* bufferPtr = (sbyte*)byteBufferPtr;
-                                *bufferPtr = headerValue;
-                            }
+                                dataSize += SerializationTypeSizes.SBYTE;
+                                EnsureBufferSize(dataSize + offset);
 
-                            if (headerValue == -1)
-                                break;
+                                sbyte headerValue = obj != null ? (sbyte)0 : (sbyte)-1;
+
+                                fixed (byte* byteBufferPtr = &buffer[offset])
+                                {
+                                    sbyte* bufferPtr = (sbyte*)byteBufferPtr;
+                                    *bufferPtr = headerValue;
+                                }
+
+                                if (headerValue == -1)
+                                    break;
+                            }
 
                             AdvancedTypeInfo advancedTypeInfo = AdvancedTypeInfo<TSource>.info;
 
                             if (!advancedTypeInfo.emittedFieldGetters)
                             {
-                                advancedTypeInfo.EmitFieldGetters();
+                                advancedTypeInfo.EmitFieldGetters(settings.avoidCustomStructBoxing);
                             }
 
-                            object boxedObj = obj;
-
-                            for (int i = 0; i < advancedTypeInfo.fieldTypeInfos.Length; i++)
+                            if (settings.avoidCustomStructBoxing && simpleTypeInfo.isValueType)
                             {
-                                AdvancedTypeInfo.FieldTypeInfo fieldTypeInfo = advancedTypeInfo.fieldTypeInfos[i];
+                                TypedReference objTypedRef = __makeref(obj);
 
-                                int fieldDataSize = 0;
-
-                                switch (fieldTypeInfo.fieldSerializationType)
+                                for (int i = 0; i < advancedTypeInfo.fieldTypeInfos.Length; i++)
                                 {
-                                    case SerializationType.String:
-                                        break;
-                                    case SerializationType.Byte:
-                                        {
-                                            fieldDataSize = SerializationTypeSizes.BYTE;
-                                            EnsureBufferSize(fieldDataSize + offset);
+                                    AdvancedTypeInfo.FieldTypeInfo fieldTypeInfo = advancedTypeInfo.fieldTypeInfos[i];
 
-                                            var getterDelegate = (EmitUtil.FieldGetterDelegate<object, byte>)fieldTypeInfo.getter;
-                                            byte value = getterDelegate.Invoke(boxedObj);
+                                    int fieldDataSize = 0;
+                                    int fieldOffset = dataSize + offset;
 
-                                            fixed (byte* bufferPtr = &buffer[offset + dataSize])
-                                                *bufferPtr = value;
-                                        }
-                                        break;
-                                    case SerializationType.SByte:
-                                        {
-                                            fieldDataSize = SerializationTypeSizes.SBYTE;
-                                            EnsureBufferSize(fieldDataSize + offset);
-
-                                            var getterDelegate = (EmitUtil.FieldGetterDelegate<object, sbyte>)fieldTypeInfo.getter;
-                                            sbyte value = getterDelegate.Invoke(boxedObj);
-
-                                            fixed (byte* byteBufferPtr = &buffer[offset + dataSize])
+                                    switch (fieldTypeInfo.fieldSerializationType)
+                                    {
+                                        case SerializationType.String:
                                             {
-                                                sbyte* bufferPtr = (sbyte*)byteBufferPtr;
-                                                *bufferPtr = value;
+                                                var getterDelegate = (EmitUtil.FieldGetterDelegateByTypedRef<string>)fieldTypeInfo.getter;
+                                                string value = getterDelegate.Invoke(objTypedRef);
+
+                                                fieldDataSize = SerializeIntoBuffer(value, offset + dataSize) - dataSize;
                                             }
-                                        }
-                                        break;
-                                    case SerializationType.Bool:
-                                        break;
-                                    case SerializationType.Int16:
-                                        break;
-                                    case SerializationType.Int32:
-                                        {
-                                            fieldDataSize = SerializationTypeSizes.INT32;
-                                            EnsureBufferSize(fieldDataSize + offset);
-
-                                            var getterDelegate = (EmitUtil.FieldGetterDelegate<object, int>)fieldTypeInfo.getter;
-                                            int value = getterDelegate.Invoke(boxedObj);
-
-                                            fixed (byte* byteBufferPtr = &buffer[offset + dataSize])
+                                            break;
+                                        case SerializationType.Byte:
                                             {
-                                                int* bufferPtr = (int*)byteBufferPtr;
-                                                *bufferPtr = value;
+                                                var getterDelegate = (EmitUtil.FieldGetterDelegateByTypedRef<byte>)fieldTypeInfo.getter;
+                                                byte value = getterDelegate.Invoke(objTypedRef);
+
+                                                fieldDataSize = SerializeIntoBuffer(value, offset + dataSize) - dataSize;
                                             }
-                                        }
-                                        break;
-                                    case SerializationType.Int64:
-                                        break;
-                                    case SerializationType.UInt16:
-                                        break;
-                                    case SerializationType.UInt32:
-                                        break;
-                                    case SerializationType.UInt64:
-                                        break;
-                                    case SerializationType.Half:
-                                        break;
-                                    case SerializationType.Single:
-                                        break;
-                                    case SerializationType.Double:
-                                        break;
-                                    case SerializationType.Char:
-                                        break;
-                                    case SerializationType.Decimal:
-                                        break;
-                                    case SerializationType.DateTime:
-                                        break;
-                                    case SerializationType.DateTimeOffset:
-                                        break;
-                                    case SerializationType.TimeSpan:
-                                        break;
-                                    case SerializationType.Vector2:
-                                        break;
-                                    case SerializationType.Vector3:
-                                        break;
-                                    case SerializationType.Vector4:
-                                        break;
-                                    case SerializationType.Quaternion:
-                                        break;
-                                    case SerializationType.Rect:
-                                        break;
-                                    case SerializationType.Bounds:
-                                        break;
-                                    case SerializationType.IntVector2:
-                                        break;
-                                    case SerializationType.IntVector3:
-                                        break;
-                                    case SerializationType.IntVector4:
-                                        break;
-                                    case SerializationType.PrimitiveArray:
-                                    case SerializationType.PrimitiveList:
-                                    case SerializationType.ObjectArray:
-                                    case SerializationType.ObjectList:
-                                    case SerializationType.PrimitiveNullable:
-                                    case SerializationType.ObjectNullable:
-                                    case SerializationType.Object:
-                                        {
-                                            fieldDataSize = SerializeIntoBuffer(boxedObj, offset + dataSize);
-                                        }
-                                        break;
-                                    default:
-                                        throw new UnsupportedException("Unsupported serialization type: " + fieldTypeInfo.fieldSerializationType);
+                                            break;
+                                        case SerializationType.SByte:
+                                            {
+                                                var getterDelegate = (EmitUtil.FieldGetterDelegateByTypedRef<sbyte>)fieldTypeInfo.getter;
+                                                sbyte value = getterDelegate.Invoke(objTypedRef);
+
+                                                fieldDataSize = SerializeIntoBuffer(value, offset + dataSize) - dataSize;
+                                            }
+                                            break;
+                                        case SerializationType.Bool:
+                                            {
+                                                var getterDelegate = (EmitUtil.FieldGetterDelegateByTypedRef<bool>)fieldTypeInfo.getter;
+                                                bool value = getterDelegate.Invoke(objTypedRef);
+
+                                                fieldDataSize = SerializeIntoBuffer(value, offset + dataSize) - dataSize;
+                                            }
+                                            break;
+                                        case SerializationType.Int16:
+                                            {
+                                                var getterDelegate = (EmitUtil.FieldGetterDelegateByTypedRef<short>)fieldTypeInfo.getter;
+                                                short value = getterDelegate.Invoke(objTypedRef);
+
+                                                fieldDataSize = SerializeIntoBuffer(value, offset + dataSize) - dataSize;
+                                            }
+                                            break;
+                                        case SerializationType.Int32:
+                                            {
+                                                var getterDelegate = (EmitUtil.FieldGetterDelegateByTypedRef<int>)fieldTypeInfo.getter;
+                                                int value = getterDelegate.Invoke(objTypedRef);
+
+                                                //fieldDataSize = SerializeIntoBuffer(value, offset + dataSize) - dataSize;
+
+                                                fieldDataSize = SerializationTypeSizes.INT32;
+
+                                                EnsureBufferSize(fieldOffset + fieldDataSize);
+
+                                                fixed (byte* byteBufferPtr = &buffer[fieldOffset])
+                                                {
+                                                    int* bufferPtr = (int*)byteBufferPtr;
+                                                    *bufferPtr = value;
+                                                }
+                                            }
+                                            break;
+                                        case SerializationType.Int64:
+                                            {
+                                                var getterDelegate = (EmitUtil.FieldGetterDelegateByTypedRef<long>)fieldTypeInfo.getter;
+                                                long value = getterDelegate.Invoke(objTypedRef);
+
+                                                fieldDataSize = SerializeIntoBuffer(value, offset + dataSize) - dataSize;
+                                            }
+                                            break;
+                                        case SerializationType.UInt16:
+                                            {
+                                                var getterDelegate = (EmitUtil.FieldGetterDelegateByTypedRef<ushort>)fieldTypeInfo.getter;
+                                                ushort value = getterDelegate.Invoke(objTypedRef);
+
+                                                fieldDataSize = SerializeIntoBuffer(value, offset + dataSize) - dataSize;
+                                            }
+                                            break;
+                                        case SerializationType.UInt32:
+                                            {
+                                                var getterDelegate = (EmitUtil.FieldGetterDelegateByTypedRef<uint>)fieldTypeInfo.getter;
+                                                uint value = getterDelegate.Invoke(objTypedRef);
+
+                                                fieldDataSize = SerializeIntoBuffer(value, offset + dataSize) - dataSize;
+                                            }
+                                            break;
+                                        case SerializationType.UInt64:
+                                            {
+                                                var getterDelegate = (EmitUtil.FieldGetterDelegateByTypedRef<ulong>)fieldTypeInfo.getter;
+                                                ulong value = getterDelegate.Invoke(objTypedRef);
+
+                                                fieldDataSize = SerializeIntoBuffer(value, offset + dataSize) - dataSize;
+                                            }
+                                            break;
+                                        case SerializationType.Half:
+                                            {
+                                                var getterDelegate = (EmitUtil.FieldGetterDelegateByTypedRef<Half>)fieldTypeInfo.getter;
+                                                Half value = getterDelegate.Invoke(objTypedRef);
+
+                                                fieldDataSize = SerializeIntoBuffer(value, offset + dataSize) - dataSize;
+                                            }
+                                            break;
+                                        case SerializationType.Single:
+                                            {
+                                                var getterDelegate = (EmitUtil.FieldGetterDelegateByTypedRef<float>)fieldTypeInfo.getter;
+                                                float value = getterDelegate.Invoke(objTypedRef);
+
+                                                fieldDataSize = SerializeIntoBuffer(value, offset + dataSize) - dataSize;
+                                            }
+                                            break;
+                                        case SerializationType.Double:
+                                            {
+                                                var getterDelegate = (EmitUtil.FieldGetterDelegateByTypedRef<double>)fieldTypeInfo.getter;
+                                                double value = getterDelegate.Invoke(objTypedRef);
+
+                                                fieldDataSize = SerializeIntoBuffer(value, offset + dataSize) - dataSize;
+                                            }
+                                            break;
+                                        case SerializationType.Char:
+                                            {
+                                                var getterDelegate = (EmitUtil.FieldGetterDelegateByTypedRef<char>)fieldTypeInfo.getter;
+                                                char value = getterDelegate.Invoke(objTypedRef);
+
+                                                fieldDataSize = SerializeIntoBuffer(value, offset + dataSize) - dataSize;
+                                            }
+                                            break;
+                                        case SerializationType.Decimal:
+                                            {
+                                                var getterDelegate = (EmitUtil.FieldGetterDelegateByTypedRef<decimal>)fieldTypeInfo.getter;
+                                                decimal value = getterDelegate.Invoke(objTypedRef);
+
+                                                fieldDataSize = SerializeIntoBuffer(value, offset + dataSize) - dataSize;
+                                            }
+                                            break;
+                                        case SerializationType.DateTime:
+                                            {
+                                                var getterDelegate = (EmitUtil.FieldGetterDelegateByTypedRef<DateTime>)fieldTypeInfo.getter;
+                                                DateTime value = getterDelegate.Invoke(objTypedRef);
+
+                                                fieldDataSize = SerializeIntoBuffer(value, offset + dataSize) - dataSize;
+                                            }
+                                            break;
+                                        case SerializationType.DateTimeOffset:
+                                            {
+                                                var getterDelegate = (EmitUtil.FieldGetterDelegateByTypedRef<DateTimeOffset>)fieldTypeInfo.getter;
+                                                DateTimeOffset value = getterDelegate.Invoke(objTypedRef);
+
+                                                fieldDataSize = SerializeIntoBuffer(value, offset + dataSize) - dataSize;
+                                            }
+                                            break;
+                                        case SerializationType.TimeSpan:
+                                            {
+                                                var getterDelegate = (EmitUtil.FieldGetterDelegateByTypedRef<TimeSpan>)fieldTypeInfo.getter;
+                                                TimeSpan value = getterDelegate.Invoke(objTypedRef);
+
+                                                fieldDataSize = SerializeIntoBuffer(value, offset + dataSize) - dataSize;
+                                            }
+                                            break;
+                                        case SerializationType.Vector2:
+                                            {
+                                                var getterDelegate = (EmitUtil.FieldGetterDelegateByTypedRef<Vector2>)fieldTypeInfo.getter;
+                                                Vector2 value = getterDelegate.Invoke(objTypedRef);
+
+                                                fieldDataSize = SerializeIntoBuffer(value, offset + dataSize) - dataSize;
+                                            }
+                                            break;
+                                        case SerializationType.Vector3:
+                                            {
+                                                var getterDelegate = (EmitUtil.FieldGetterDelegateByTypedRef<Vector3>)fieldTypeInfo.getter;
+                                                Vector3 value = getterDelegate.Invoke(objTypedRef);
+
+                                                fieldDataSize = SerializeIntoBuffer(value, offset + dataSize) - dataSize;
+                                            }
+                                            break;
+                                        case SerializationType.Vector4:
+                                            {
+                                                var getterDelegate = (EmitUtil.FieldGetterDelegateByTypedRef<Vector4>)fieldTypeInfo.getter;
+                                                Vector4 value = getterDelegate.Invoke(objTypedRef);
+
+                                                fieldDataSize = SerializeIntoBuffer(value, offset + dataSize) - dataSize;
+                                            }
+                                            break;
+                                        case SerializationType.Quaternion:
+                                            {
+                                                var getterDelegate = (EmitUtil.FieldGetterDelegateByTypedRef<Quaternion>)fieldTypeInfo.getter;
+                                                Quaternion value = getterDelegate.Invoke(objTypedRef);
+
+                                                fieldDataSize = SerializeIntoBuffer(value, offset + dataSize) - dataSize;
+                                            }
+                                            break;
+                                        case SerializationType.Rect:
+                                            {
+                                                var getterDelegate = (EmitUtil.FieldGetterDelegateByTypedRef<Rect>)fieldTypeInfo.getter;
+                                                Rect value = getterDelegate.Invoke(objTypedRef);
+
+                                                fieldDataSize = SerializeIntoBuffer(value, offset + dataSize) - dataSize;
+                                            }
+                                            break;
+                                        case SerializationType.Bounds:
+                                            {
+                                                var getterDelegate = (EmitUtil.FieldGetterDelegateByTypedRef<Bounds>)fieldTypeInfo.getter;
+                                                Bounds value = getterDelegate.Invoke(objTypedRef);
+
+                                                fieldDataSize = SerializeIntoBuffer(value, offset + dataSize) - dataSize;
+                                            }
+                                            break;
+                                        case SerializationType.IntVector2:
+                                            {
+                                                var getterDelegate = (EmitUtil.FieldGetterDelegateByTypedRef<IntVector2>)fieldTypeInfo.getter;
+                                                IntVector2 value = getterDelegate.Invoke(objTypedRef);
+
+                                                fieldDataSize = SerializeIntoBuffer(value, offset + dataSize) - dataSize;
+                                            }
+                                            break;
+                                        case SerializationType.IntVector3:
+                                            {
+                                                var getterDelegate = (EmitUtil.FieldGetterDelegateByTypedRef<IntVector3>)fieldTypeInfo.getter;
+                                                IntVector3 value = getterDelegate.Invoke(objTypedRef);
+
+                                                fieldDataSize = SerializeIntoBuffer(value, offset + dataSize) - dataSize;
+                                            }
+                                            break;
+                                        case SerializationType.IntVector4:
+                                            {
+                                                var getterDelegate = (EmitUtil.FieldGetterDelegateByTypedRef<IntVector4>)fieldTypeInfo.getter;
+                                                IntVector4 value = getterDelegate.Invoke(objTypedRef);
+
+                                                fieldDataSize = SerializeIntoBuffer(value, offset + dataSize) - dataSize;
+                                            }
+                                            break;
+                                        case SerializationType.PrimitiveArray:
+                                        case SerializationType.PrimitiveList:
+                                        case SerializationType.ObjectArray:
+                                        case SerializationType.ObjectList:
+                                        case SerializationType.PrimitiveNullable:
+                                        case SerializationType.ObjectNullable:
+                                        case SerializationType.Object:
+                                            {
+                                                var getterDelegate = (EmitUtil.FieldGetterDelegate<object, object>)fieldTypeInfo.getter;
+                                                object value = getterDelegate.Invoke(obj);
+
+                                                fieldDataSize = SerializeIntoBuffer(value, offset + dataSize) - dataSize;
+                                            }
+                                            break;
+                                        default:
+                                            throw new UnsupportedException("Unsupported serialization type: " + fieldTypeInfo.fieldSerializationType);
+                                    }
+
+                                    dataSize += fieldDataSize;
                                 }
+                            }
+                            else
+                            {
+                                object boxedObj = obj;
 
-                                dataSize += fieldDataSize;
+                                for (int i = 0; i < advancedTypeInfo.fieldTypeInfos.Length; i++)
+                                {
+                                    AdvancedTypeInfo.FieldTypeInfo fieldTypeInfo = advancedTypeInfo.fieldTypeInfos[i];
+
+                                    int fieldDataSize = 0;
+
+                                    switch (fieldTypeInfo.fieldSerializationType)
+                                    {
+                                        case SerializationType.String:
+                                            {
+                                                var getterDelegate = (EmitUtil.FieldGetterDelegate<object, string>)fieldTypeInfo.getter;
+                                                string value = getterDelegate.Invoke(boxedObj);
+
+                                                fieldDataSize = SerializeIntoBuffer(value, offset + dataSize) - dataSize;
+                                            }
+                                            break;
+                                        case SerializationType.Byte:
+                                            {
+                                                var getterDelegate = (EmitUtil.FieldGetterDelegate<object, byte>)fieldTypeInfo.getter;
+                                                byte value = getterDelegate.Invoke(boxedObj);
+
+                                                fieldDataSize = SerializeIntoBuffer(value, offset + dataSize) - dataSize;
+                                            }
+                                            break;
+                                        case SerializationType.SByte:
+                                            {
+                                                var getterDelegate = (EmitUtil.FieldGetterDelegate<object, sbyte>)fieldTypeInfo.getter;
+                                                sbyte value = getterDelegate.Invoke(boxedObj);
+
+                                                fieldDataSize = SerializeIntoBuffer(value, offset + dataSize) - dataSize;
+                                            }
+                                            break;
+                                        case SerializationType.Bool:
+                                            {
+                                                var getterDelegate = (EmitUtil.FieldGetterDelegate<object, bool>)fieldTypeInfo.getter;
+                                                bool value = getterDelegate.Invoke(boxedObj);
+
+                                                fieldDataSize = SerializeIntoBuffer(value, offset + dataSize) - dataSize;
+                                            }
+                                            break;
+                                        case SerializationType.Int16:
+                                            {
+                                                var getterDelegate = (EmitUtil.FieldGetterDelegate<object, short>)fieldTypeInfo.getter;
+                                                short value = getterDelegate.Invoke(boxedObj);
+
+                                                fieldDataSize = SerializeIntoBuffer(value, offset + dataSize) - dataSize;
+                                            }
+                                            break;
+                                        case SerializationType.Int32:
+                                            {
+                                                var getterDelegate = (EmitUtil.FieldGetterDelegate<object, int>)fieldTypeInfo.getter;
+                                                int value = getterDelegate.Invoke(boxedObj);
+
+                                                fieldDataSize = SerializeIntoBuffer(value, offset + dataSize) - dataSize;
+                                            }
+                                            break;
+                                        case SerializationType.Int64:
+                                            {
+                                                var getterDelegate = (EmitUtil.FieldGetterDelegate<object, long>)fieldTypeInfo.getter;
+                                                long value = getterDelegate.Invoke(boxedObj);
+
+                                                fieldDataSize = SerializeIntoBuffer(value, offset + dataSize) - dataSize;
+                                            }
+                                            break;
+                                        case SerializationType.UInt16:
+                                            {
+                                                var getterDelegate = (EmitUtil.FieldGetterDelegate<object, ushort>)fieldTypeInfo.getter;
+                                                ushort value = getterDelegate.Invoke(boxedObj);
+
+                                                fieldDataSize = SerializeIntoBuffer(value, offset + dataSize) - dataSize;
+                                            }
+                                            break;
+                                        case SerializationType.UInt32:
+                                            {
+                                                var getterDelegate = (EmitUtil.FieldGetterDelegate<object, uint>)fieldTypeInfo.getter;
+                                                uint value = getterDelegate.Invoke(boxedObj);
+
+                                                fieldDataSize = SerializeIntoBuffer(value, offset + dataSize) - dataSize;
+                                            }
+                                            break;
+                                        case SerializationType.UInt64:
+                                            {
+                                                var getterDelegate = (EmitUtil.FieldGetterDelegate<object, ulong>)fieldTypeInfo.getter;
+                                                ulong value = getterDelegate.Invoke(boxedObj);
+
+                                                fieldDataSize = SerializeIntoBuffer(value, offset + dataSize) - dataSize;
+                                            }
+                                            break;
+                                        case SerializationType.Half:
+                                            {
+                                                var getterDelegate = (EmitUtil.FieldGetterDelegate<object, Half>)fieldTypeInfo.getter;
+                                                Half value = getterDelegate.Invoke(boxedObj);
+
+                                                fieldDataSize = SerializeIntoBuffer(value, offset + dataSize) - dataSize;
+                                            }
+                                            break;
+                                        case SerializationType.Single:
+                                            {
+                                                var getterDelegate = (EmitUtil.FieldGetterDelegate<object, float>)fieldTypeInfo.getter;
+                                                float value = getterDelegate.Invoke(boxedObj);
+
+                                                fieldDataSize = SerializeIntoBuffer(value, offset + dataSize) - dataSize;
+                                            }
+                                            break;
+                                        case SerializationType.Double:
+                                            {
+                                                var getterDelegate = (EmitUtil.FieldGetterDelegate<object, double>)fieldTypeInfo.getter;
+                                                double value = getterDelegate.Invoke(boxedObj);
+
+                                                fieldDataSize = SerializeIntoBuffer(value, offset + dataSize) - dataSize;
+                                            }
+                                            break;
+                                        case SerializationType.Char:
+                                            {
+                                                var getterDelegate = (EmitUtil.FieldGetterDelegate<object, char>)fieldTypeInfo.getter;
+                                                char value = getterDelegate.Invoke(boxedObj);
+
+                                                fieldDataSize = SerializeIntoBuffer(value, offset + dataSize) - dataSize;
+                                            }
+                                            break;
+                                        case SerializationType.Decimal:
+                                            {
+                                                var getterDelegate = (EmitUtil.FieldGetterDelegate<object, decimal>)fieldTypeInfo.getter;
+                                                decimal value = getterDelegate.Invoke(boxedObj);
+
+                                                fieldDataSize = SerializeIntoBuffer(value, offset + dataSize) - dataSize;
+                                            }
+                                            break;
+                                        case SerializationType.DateTime:
+                                            {
+                                                var getterDelegate = (EmitUtil.FieldGetterDelegate<object, DateTime>)fieldTypeInfo.getter;
+                                                DateTime value = getterDelegate.Invoke(boxedObj);
+
+                                                fieldDataSize = SerializeIntoBuffer(value, offset + dataSize) - dataSize;
+                                            }
+                                            break;
+                                        case SerializationType.DateTimeOffset:
+                                            {
+                                                var getterDelegate = (EmitUtil.FieldGetterDelegate<object, DateTimeOffset>)fieldTypeInfo.getter;
+                                                DateTimeOffset value = getterDelegate.Invoke(boxedObj);
+
+                                                fieldDataSize = SerializeIntoBuffer(value, offset + dataSize) - dataSize;
+                                            }
+                                            break;
+                                        case SerializationType.TimeSpan:
+                                            {
+                                                var getterDelegate = (EmitUtil.FieldGetterDelegate<object, TimeSpan>)fieldTypeInfo.getter;
+                                                TimeSpan value = getterDelegate.Invoke(boxedObj);
+
+                                                fieldDataSize = SerializeIntoBuffer(value, offset + dataSize) - dataSize;
+                                            }
+                                            break;
+                                        case SerializationType.Vector2:
+                                            {
+                                                var getterDelegate = (EmitUtil.FieldGetterDelegate<object, Vector2>)fieldTypeInfo.getter;
+                                                Vector2 value = getterDelegate.Invoke(boxedObj);
+
+                                                fieldDataSize = SerializeIntoBuffer(value, offset + dataSize) - dataSize;
+                                            }
+                                            break;
+                                        case SerializationType.Vector3:
+                                            {
+                                                var getterDelegate = (EmitUtil.FieldGetterDelegate<object, Vector3>)fieldTypeInfo.getter;
+                                                Vector3 value = getterDelegate.Invoke(boxedObj);
+
+                                                fieldDataSize = SerializeIntoBuffer(value, offset + dataSize) - dataSize;
+                                            }
+                                            break;
+                                        case SerializationType.Vector4:
+                                            {
+                                                var getterDelegate = (EmitUtil.FieldGetterDelegate<object, Vector4>)fieldTypeInfo.getter;
+                                                Vector4 value = getterDelegate.Invoke(boxedObj);
+
+                                                fieldDataSize = SerializeIntoBuffer(value, offset + dataSize) - dataSize;
+                                            }
+                                            break;
+                                        case SerializationType.Quaternion:
+                                            {
+                                                var getterDelegate = (EmitUtil.FieldGetterDelegate<object, Quaternion>)fieldTypeInfo.getter;
+                                                Quaternion value = getterDelegate.Invoke(boxedObj);
+
+                                                fieldDataSize = SerializeIntoBuffer(value, offset + dataSize) - dataSize;
+                                            }
+                                            break;
+                                        case SerializationType.Rect:
+                                            {
+                                                var getterDelegate = (EmitUtil.FieldGetterDelegate<object, Rect>)fieldTypeInfo.getter;
+                                                Rect value = getterDelegate.Invoke(boxedObj);
+
+                                                fieldDataSize = SerializeIntoBuffer(value, offset + dataSize) - dataSize;
+                                            }
+                                            break;
+                                        case SerializationType.Bounds:
+                                            {
+                                                var getterDelegate = (EmitUtil.FieldGetterDelegate<object, Bounds>)fieldTypeInfo.getter;
+                                                Bounds value = getterDelegate.Invoke(boxedObj);
+
+                                                fieldDataSize = SerializeIntoBuffer(value, offset + dataSize) - dataSize;
+                                            }
+                                            break;
+                                        case SerializationType.IntVector2:
+                                            {
+                                                var getterDelegate = (EmitUtil.FieldGetterDelegate<object, IntVector2>)fieldTypeInfo.getter;
+                                                IntVector2 value = getterDelegate.Invoke(boxedObj);
+
+                                                fieldDataSize = SerializeIntoBuffer(value, offset + dataSize) - dataSize;
+                                            }
+                                            break;
+                                        case SerializationType.IntVector3:
+                                            {
+                                                var getterDelegate = (EmitUtil.FieldGetterDelegate<object, IntVector3>)fieldTypeInfo.getter;
+                                                IntVector3 value = getterDelegate.Invoke(boxedObj);
+
+                                                fieldDataSize = SerializeIntoBuffer(value, offset + dataSize) - dataSize;
+                                            }
+                                            break;
+                                        case SerializationType.IntVector4:
+                                            {
+                                                var getterDelegate = (EmitUtil.FieldGetterDelegate<object, IntVector4>)fieldTypeInfo.getter;
+                                                IntVector4 value = getterDelegate.Invoke(boxedObj);
+
+                                                fieldDataSize = SerializeIntoBuffer(value, offset + dataSize) - dataSize;
+                                            }
+                                            break;
+                                        case SerializationType.PrimitiveArray:
+                                        case SerializationType.PrimitiveList:
+                                        case SerializationType.ObjectArray:
+                                        case SerializationType.ObjectList:
+                                        case SerializationType.PrimitiveNullable:
+                                        case SerializationType.ObjectNullable:
+                                        case SerializationType.Object:
+                                            {
+                                                var getterDelegate = (EmitUtil.FieldGetterDelegate<object, object>)fieldTypeInfo.getter;
+                                                object value = getterDelegate.Invoke(boxedObj);
+
+                                                fieldDataSize = SerializeIntoBuffer(value, offset + dataSize) - dataSize;
+                                            }
+                                            break;
+                                        default:
+                                            throw new UnsupportedException("Unsupported serialization type: " + fieldTypeInfo.fieldSerializationType);
+                                    }
+
+                                    dataSize += fieldDataSize;
+                                }
                             }
                         }
                         break;

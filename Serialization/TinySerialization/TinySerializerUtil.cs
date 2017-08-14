@@ -1,4 +1,6 @@
-﻿using System;
+﻿#if UNSAFE
+
+using System;
 using System.Runtime.CompilerServices;
 using Expanse.Utilities;
 
@@ -226,3 +228,4 @@ namespace Expanse.Serialization.TinySerialization
         }
     }
 }
+#endif

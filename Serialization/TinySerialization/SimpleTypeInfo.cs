@@ -1,4 +1,6 @@
-﻿using System;
+﻿#if UNSAFE
+
+using System;
 
 namespace Expanse.Serialization.TinySerialization
 {
@@ -172,3 +174,4 @@ namespace Expanse.Serialization.TinySerialization
         }
     }
 }
+#endif

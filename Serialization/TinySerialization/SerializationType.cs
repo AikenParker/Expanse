@@ -1,4 +1,6 @@
-﻿using System;
+﻿#if UNSAFE
+
+using System;
 using System.Collections.Generic;
 using Expanse.Misc;
 using UnityEngine;
@@ -206,3 +208,4 @@ namespace Expanse.Serialization.TinySerialization
         }
     }
 }
+#endif

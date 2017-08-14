@@ -1,9 +1,12 @@
-﻿namespace Expanse.Serialization.TinySerialization
+﻿#if UNSAFE
+
+namespace Expanse.Serialization.TinySerialization
 {
     public struct TinySerializerSettings
     {
         public bool supportCyclicReferences;
         public bool requireTypeSerializableAttribute;
+        public bool avoidCustomStructBoxing;
 
         public bool serializeFields;
         public bool allowPrivateFields;
@@ -32,6 +35,7 @@
 
                 defaultSettings.supportCyclicReferences = false;
                 defaultSettings.requireTypeSerializableAttribute = false;
+                defaultSettings.avoidCustomStructBoxing = true;
 
                 defaultSettings.serializeFields = true;
                 defaultSettings.allowPrivateFields = true;
@@ -57,3 +61,4 @@
         }
     }
 }
+#endif
