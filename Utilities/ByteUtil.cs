@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Text;
 using Expanse.Extensions;
 
 namespace Expanse.Utilities
@@ -11,7 +10,6 @@ namespace Expanse.Utilities
     {
         /// <summary>
         /// Converts a primitive value type into a byte array.
-        /// <para>Avoid in production code as it boxes the value type.</para>
         /// </summary>
         /// <typeparam name="T">Type of the value to get the bytes of.</typeparam>
         /// <param name="value">Value to get bytes of.</param>
@@ -19,41 +17,40 @@ namespace Expanse.Utilities
         public static byte[] GetBytes<T>(T value) where T : struct, IConvertible, IComparable, IComparable<T>
         {
             if (value is bool)
-                return BitConverter.GetBytes((bool)(object)value);
+                return BitConverter.GetBytes(EmitHelper<bool>.CastFrom(value, true));
 
             if (value is char)
-                return BitConverter.GetBytes((char)(object)value);
+                return BitConverter.GetBytes(EmitHelper<char>.CastFrom(value, true));
 
             if (value is double)
-                return BitConverter.GetBytes((double)(object)value);
+                return BitConverter.GetBytes(EmitHelper<double>.CastFrom(value, true));
 
             if (value is float)
-                return BitConverter.GetBytes((float)(object)value);
+                return BitConverter.GetBytes(EmitHelper<float>.CastFrom(value, true));
 
             if (value is int)
-                return BitConverter.GetBytes((int)(object)value);
+                return BitConverter.GetBytes(EmitHelper<int>.CastFrom(value, true));
 
             if (value is long)
-                return BitConverter.GetBytes((long)(object)value);
+                return BitConverter.GetBytes(EmitHelper<long>.CastFrom(value, true));
 
             if (value is short)
-                return BitConverter.GetBytes((short)(object)value);
+                return BitConverter.GetBytes(EmitHelper<short>.CastFrom(value, true));
 
             if (value is uint)
-                return BitConverter.GetBytes((uint)(object)value);
+                return BitConverter.GetBytes(EmitHelper<uint>.CastFrom(value, true));
 
             if (value is ulong)
-                return BitConverter.GetBytes((ulong)(object)value);
+                return BitConverter.GetBytes(EmitHelper<ulong>.CastFrom(value, true));
 
             if (value is ushort)
-                return BitConverter.GetBytes((ushort)(object)value);
+                return BitConverter.GetBytes(EmitHelper<ushort>.CastFrom(value, true));
 
             throw new UnsupportedException("Unable to convert type to bytes. " + typeof(T).ToString());
         }
 
         /// <summary>
         /// Converts a primitive value type into a byte array.
-        /// <para>Avoid in production code as it boxes the value type.</para>
         /// </summary>
         /// <typeparam name="T">Type of the value to get the bytes of.</typeparam>
         /// <param name="value">Value to get bytes of.</param>
