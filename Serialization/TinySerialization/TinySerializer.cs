@@ -145,6 +145,128 @@ namespace Expanse.Serialization.TinySerialization
             return offsetDataSize;
         }
 
+        public byte[] ExperimentalSerialize<TSource>(TSource obj)
+        {
+            Type tSource = typeof(TSource);
+            TinySerializerTypeInfo typeInfo = TinySerializerTypeInfo.GetTypeInfo(tSource);
+
+            int dataSize;
+
+            if (typeInfo.isPrimitiveType)
+            {
+                TypedReference objRef = __makeref(obj);
+                dataSize = SerializePrimitiveIntoBuffer(objRef, typeInfo, 0);
+            }
+            else
+            {
+                // WIP
+                dataSize = SerializeIntoBuffer(obj, 0);
+            }
+
+            fixed (byte* bufferPtr = buffer)
+            {
+                byte[] data = new byte[dataSize];
+
+                fixed (byte* dataPtr = data)
+                {
+                    for (int i = 0; i < dataSize; i++)
+                    {
+                        dataPtr[i] = bufferPtr[i];
+                    }
+                }
+
+                return data;
+            }
+        }
+
+        // TODO: Make this the primary serialization method
+        // Returns size
+        private int SerializePrimitiveIntoBuffer(TypedReference objRef, TinySerializerTypeInfo typeInfo, int offset)
+        {
+            int dataSize = 0;
+
+            switch (typeInfo.serializationType)
+            {
+                case SerializationType.Byte:
+                    break;
+                case SerializationType.SByte:
+                    break;
+                case SerializationType.Bool:
+                    break;
+                case SerializationType.Int16:
+                    break;
+                case SerializationType.Int32:
+                    {
+                        dataSize = SerializationTypeSizes.INT32;
+                        EnsureBufferSize(offset + dataSize);
+
+                        int value = __refvalue(objRef, int);
+
+                        fixed (byte* bufferPtr = &buffer[offset])
+                        {
+                            int* intBufferPtr = (int*)bufferPtr;
+                            *intBufferPtr = value;
+                        }
+                    }
+                    break;
+                case SerializationType.Int64:
+                    break;
+                case SerializationType.UInt16:
+                    break;
+                case SerializationType.UInt32:
+                    break;
+                case SerializationType.UInt64:
+                    break;
+                case SerializationType.Half:
+                    break;
+                case SerializationType.Single:
+                    break;
+                case SerializationType.Double:
+                    break;
+                case SerializationType.Char:
+                    break;
+                case SerializationType.Decimal:
+                    break;
+                case SerializationType.DateTime:
+                    break;
+                case SerializationType.DateTimeOffset:
+                    break;
+                case SerializationType.TimeSpan:
+                    break;
+                case SerializationType.Vector2:
+                    break;
+                case SerializationType.Vector3:
+                    break;
+                case SerializationType.Vector4:
+                    break;
+                case SerializationType.Quaternion:
+                    break;
+                case SerializationType.Rect:
+                    break;
+                case SerializationType.Bounds:
+                    break;
+                case SerializationType.IntVector2:
+                    break;
+                case SerializationType.IntVector3:
+                    break;
+                case SerializationType.IntVector4:
+                    break;
+                case SerializationType.String:
+                    break;
+                case SerializationType.PrimitiveArray:
+                    break;
+                case SerializationType.PrimitiveList:
+                    break;
+                case SerializationType.PrimitiveNullable:
+                    break;
+                default:
+                    throw new UnsupportedException("Unsupported typed ref serialization type: " + typeInfo.serializationType);
+            }
+
+            return dataSize;
+        }
+
+        // Returns new offset
         private int SerializeIntoBuffer<TSource>(TSource obj, int offset)
         {
             SimpleTypeInfo simpleTypeInfo = SimpleTypeInfo<TSource>.info;

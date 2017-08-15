@@ -176,35 +176,35 @@ namespace Expanse.Serialization.TinySerialization
 
         static SerializationTypeHashCodes()
         {
-            String = typeof(string).GetHashCode();
-            Byte = typeof(byte).GetHashCode();
-            SByte = typeof(sbyte).GetHashCode();
-            Bool = typeof(bool).GetHashCode();
-            Int16 = typeof(short).GetHashCode();
-            Int32 = typeof(int).GetHashCode();
-            Int64 = typeof(long).GetHashCode();
-            UInt16 = typeof(ushort).GetHashCode();
-            UInt32 = typeof(uint).GetHashCode();
-            UInt64 = typeof(ulong).GetHashCode();
-            Half = typeof(Half).GetHashCode();
-            Single = typeof(float).GetHashCode();
-            Double = typeof(double).GetHashCode();
-            Char = typeof(char).GetHashCode();
-            Decimal = typeof(decimal).GetHashCode();
-            DateTime = typeof(DateTime).GetHashCode();
-            DateTimeOffset = typeof(DateTimeOffset).GetHashCode();
-            TimeSpan = typeof(TimeSpan).GetHashCode();
-            Vector2 = typeof(Vector2).GetHashCode();
-            Vector3 = typeof(Vector3).GetHashCode();
-            Vector4 = typeof(Vector4).GetHashCode();
-            Quaternion = typeof(Quaternion).GetHashCode();
-            Rect = typeof(Rect).GetHashCode();
-            Bounds = typeof(Bounds).GetHashCode();
-            IntVector2 = typeof(IntVector2).GetHashCode();
-            IntVector3 = typeof(IntVector3).GetHashCode();
-            IntVector4 = typeof(IntVector4).GetHashCode();
-            UnboundList = typeof(List<>).GetHashCode();
-            UnboundNullable = typeof(Nullable<>).GetHashCode();
+            String = SerializationTypeValues.String.GetHashCode();
+            Byte = SerializationTypeValues.Byte.GetHashCode();
+            SByte = SerializationTypeValues.SByte.GetHashCode();
+            Bool = SerializationTypeValues.Bool.GetHashCode();
+            Int16 = SerializationTypeValues.Int16.GetHashCode();
+            Int32 = SerializationTypeValues.Int32.GetHashCode();
+            Int64 = SerializationTypeValues.Int64.GetHashCode();
+            UInt16 = SerializationTypeValues.UInt16.GetHashCode();
+            UInt32 = SerializationTypeValues.UInt32.GetHashCode();
+            UInt64 = SerializationTypeValues.UInt64.GetHashCode();
+            Half = SerializationTypeValues.Half.GetHashCode();
+            Single = SerializationTypeValues.Single.GetHashCode();
+            Double = SerializationTypeValues.Double.GetHashCode();
+            Char = SerializationTypeValues.Char.GetHashCode();
+            Decimal = SerializationTypeValues.Decimal.GetHashCode();
+            DateTime = SerializationTypeValues.DateTime.GetHashCode();
+            DateTimeOffset = SerializationTypeValues.DateTimeOffset.GetHashCode();
+            TimeSpan = SerializationTypeValues.TimeSpan.GetHashCode();
+            Vector2 = SerializationTypeValues.Vector2.GetHashCode();
+            Vector3 = SerializationTypeValues.Vector3.GetHashCode();
+            Vector4 = SerializationTypeValues.Vector4.GetHashCode();
+            Quaternion = SerializationTypeValues.Quaternion.GetHashCode();
+            Rect = SerializationTypeValues.Rect.GetHashCode();
+            Bounds = SerializationTypeValues.Bounds.GetHashCode();
+            IntVector2 = SerializationTypeValues.IntVector2.GetHashCode();
+            IntVector3 = SerializationTypeValues.IntVector3.GetHashCode();
+            IntVector4 = SerializationTypeValues.IntVector4.GetHashCode();
+            UnboundList = SerializationTypeValues.UnboundList.GetHashCode();
+            UnboundNullable = SerializationTypeValues.UnboundNullable.GetHashCode();
         }
     }
 }

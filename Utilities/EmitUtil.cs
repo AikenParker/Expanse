@@ -733,6 +733,41 @@ namespace Expanse.Utilities
         }
 
         /// <summary>
+        /// Creates a delegate that gets the value of a field. Slower and less safe than generic overload.
+        /// <para>Warning: Boxes/Unboxes value types.</para>
+        /// </summary>
+        /// <param name="fieldInfo">Field info to generate getter delegate from.</param>
+        /// <returns>Returns the delegate that invokes a generated field getter for the field.</returns>
+        public static FieldGetterDelegateByTypedRef<object> GenerateFieldGetterDelegateByTypedRef(FieldInfo fieldInfo)
+        {
+            if (fieldInfo == null)
+                throw new ArgumentNullException("field");
+
+            if (fieldInfo.IsStatic)
+                throw new InvalidArgumentException("fieldInfo is static use GenerateStaticFieldGetterDelegate() instead");
+
+            Type tSource = fieldInfo.DeclaringType;
+            Type tValue = fieldInfo.FieldType;
+
+            singleTypeArray[0] = tTypedRef;
+            string dynamicMethodName = useMeaningfulNames ? fieldInfo.ReflectedType.FullName + ".get_" + fieldInfo.Name : GENERATED_NAME;
+            DynamicMethod getterMethod = new DynamicMethod(dynamicMethodName, tObject, singleTypeArray, tSource);
+
+            ILGenerator gen = getterMethod.GetILGenerator();
+            gen.Emit(OpCodes.Ldarg_0);
+            gen.Emit(OpCodes.Refanyval, tSource);
+            gen.Emit(OpCodes.Ldobj, tSource);
+            gen.Emit(OpCodes.Ldfld, fieldInfo);
+            if (tValue.IsValueType)
+                gen.Emit(OpCodes.Box, tValue);
+            else if (tValue != tObject)
+                gen.Emit(OpCodes.Castclass, tValue);
+            gen.Emit(OpCodes.Ret);
+
+            return (FieldGetterDelegateByTypedRef<object>)getterMethod.CreateDelegate(typeof(FieldGetterDelegateByTypedRef<object>));
+        }
+
+        /// <summary>
         /// Creates a delegate that gets the value of a static field. Slower and less safe than generic overload.
         /// <para>Warning: Boxes/Unboxes value types.</para>
         /// </summary>
@@ -837,7 +872,7 @@ namespace Expanse.Utilities
 
         /// <summary>
         /// Creates a delegate that gets the value of a property. Slower and less safe than generic overload.
-        /// <para>Warning: Boxes/Unboxes value types.</para>
+        /// <para>Warning: Boxes value types.</para>
         /// </summary>
         /// <param name="propertyInfo">Property info to generate getter delegate from.</param>
         /// <returns>Returns the delegate that invokes a generated property getter for the property.</returns>
@@ -885,6 +920,49 @@ namespace Expanse.Utilities
             gen.Emit(OpCodes.Ret);
 
             return (PropertyGetterDelegate<object, object>)getterMethod.CreateDelegate(typeof(PropertyGetterDelegate<object, object>));
+        }
+
+        /// <summary>
+        /// Creates a delegate that gets the value of a property. Slower and less safe than generic overload.
+        /// <para>Warning: Boxes value types.</para>
+        /// </summary>
+        /// <param name="propertyInfo">Property info to generate getter delegate from.</param>
+        /// <returns>Returns the delegate that invokes a generated property getter for the property.</returns>
+        public static PropertyGetterDelegateByTypedRef<object> GeneratePropertySetterDelegateByTypedRef(PropertyInfo propertyInfo)
+        {
+            if (propertyInfo == null)
+                throw new ArgumentNullException("propertyInfo");
+
+            if (!propertyInfo.CanRead)
+                throw new InvalidArgumentException("Cannot read from propertyInfo");
+
+            MethodInfo getterMethodInfo = propertyInfo.GetGetMethod(true);
+
+            if (getterMethodInfo.IsStatic)
+                throw new InvalidArgumentException("propertyInfo is static use GenerateStaticPropertyGetterDelegate() instead");
+
+            Type tSource = propertyInfo.DeclaringType;
+            Type tValue = propertyInfo.PropertyType;
+
+            singleTypeArray[0] = tTypedRef;
+            string dynamicMethodName = useMeaningfulNames ? propertyInfo.ReflectedType.FullName + ".get_" + propertyInfo.Name : GENERATED_NAME;
+            DynamicMethod getterMethod = new DynamicMethod(dynamicMethodName, tObject, singleTypeArray, tSource);
+
+            ILGenerator gen = getterMethod.GetILGenerator();
+            gen.Emit(OpCodes.Ldarg_0);
+            gen.Emit(OpCodes.Refanyval, tSource);
+            gen.Emit(OpCodes.Ldobj, tSource);
+            if (getterMethodInfo.IsVirtual || getterMethodInfo.IsAbstract)
+                gen.Emit(OpCodes.Callvirt, getterMethodInfo);
+            else
+                gen.Emit(OpCodes.Call, getterMethodInfo);
+            if (tValue.IsValueType)
+                gen.Emit(OpCodes.Box, tValue);
+            else if (tValue != tObject)
+                gen.Emit(OpCodes.Castclass, tValue);
+            gen.Emit(OpCodes.Ret);
+
+            return (PropertyGetterDelegateByTypedRef<object>)getterMethod.CreateDelegate(typeof(PropertyGetterDelegateByTypedRef<object>));
         }
 
         /// <summary>
@@ -1087,7 +1165,7 @@ namespace Expanse.Utilities
             gen.Emit(OpCodes.Ldfld, fieldInfo);
             gen.Emit(OpCodes.Ret);
 
-            return (FieldGetterDelegateByTypedRef<TValue>)getterMethod.CreateDelegate(typeof(FieldGetterDelegateByTypedRef<TValue>)); ;
+            return (FieldGetterDelegateByTypedRef<TValue>)getterMethod.CreateDelegate(typeof(FieldGetterDelegateByTypedRef<TValue>));
         }
 
         /// <summary>

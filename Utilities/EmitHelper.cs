@@ -102,7 +102,7 @@ namespace Expanse.Utilities
 
             private static EmitUtil.TypeCastDelegate<TSource, TTarget> GetCaster()
             {
-                return EmitUtil.GenerateTypeCastDelegateExp<TSource, TTarget>();
+                return EmitUtil.GenerateTypeCastDelegate<TSource, TTarget>();
             }
         }
 #endif
