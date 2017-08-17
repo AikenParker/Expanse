@@ -3,6 +3,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Text;
 using Expanse.Misc;
 using Expanse.Utilities;
@@ -150,18 +151,7 @@ namespace Expanse.Serialization.TinySerialization
             Type tSource = typeof(TSource);
             TinySerializerTypeInfo typeInfo = TinySerializerTypeInfo.GetTypeInfo(tSource);
 
-            int dataSize;
-
-            if (typeInfo.isPrimitiveType)
-            {
-                TypedReference objRef = __makeref(obj);
-                dataSize = SerializePrimitiveIntoBuffer(objRef, typeInfo, 0);
-            }
-            else
-            {
-                // WIP
-                dataSize = SerializeIntoBuffer(obj, 0);
-            }
+            int dataSize = ExperimentalSerializeIntoBuffer(obj, typeInfo, 0);
 
             fixed (byte* bufferPtr = buffer)
             {
@@ -179,93 +169,1271 @@ namespace Expanse.Serialization.TinySerialization
             }
         }
 
-        // TODO: Make this the primary serialization method
         // Returns size
-        private int SerializePrimitiveIntoBuffer(TypedReference objRef, TinySerializerTypeInfo typeInfo, int offset)
+        private int ExperimentalSerializeIntoBuffer<TSource>(TSource obj, TinySerializerTypeInfo typeInfo, int offset)
         {
             int dataSize = 0;
 
             switch (typeInfo.serializationType)
             {
-                case SerializationType.Byte:
-                    break;
-                case SerializationType.SByte:
-                    break;
-                case SerializationType.Bool:
-                    break;
-                case SerializationType.Int16:
-                    break;
                 case SerializationType.Int32:
                     {
                         dataSize = SerializationTypeSizes.INT32;
                         EnsureBufferSize(offset + dataSize);
 
-                        int value = __refvalue(objRef, int);
+                        var value = EmitHelper<int>.CastFrom(obj, true);
 
-                        fixed (byte* bufferPtr = &buffer[offset])
+                        fixed (byte* byteBufferPtr = &buffer[offset])
                         {
-                            int* intBufferPtr = (int*)bufferPtr;
-                            *intBufferPtr = value;
+                            int* bufferPtr = (int*)byteBufferPtr;
+                            *bufferPtr = value;
                         }
                     }
                     break;
-                case SerializationType.Int64:
-                    break;
-                case SerializationType.UInt16:
-                    break;
-                case SerializationType.UInt32:
-                    break;
-                case SerializationType.UInt64:
-                    break;
-                case SerializationType.Half:
-                    break;
-                case SerializationType.Single:
-                    break;
-                case SerializationType.Double:
-                    break;
-                case SerializationType.Char:
-                    break;
-                case SerializationType.Decimal:
-                    break;
-                case SerializationType.DateTime:
-                    break;
-                case SerializationType.DateTimeOffset:
-                    break;
-                case SerializationType.TimeSpan:
-                    break;
-                case SerializationType.Vector2:
-                    break;
-                case SerializationType.Vector3:
-                    break;
-                case SerializationType.Vector4:
-                    break;
-                case SerializationType.Quaternion:
-                    break;
-                case SerializationType.Rect:
-                    break;
-                case SerializationType.Bounds:
-                    break;
-                case SerializationType.IntVector2:
-                    break;
-                case SerializationType.IntVector3:
-                    break;
-                case SerializationType.IntVector4:
-                    break;
-                case SerializationType.String:
-                    break;
                 case SerializationType.PrimitiveArray:
+                    {
+                        Array value = (Array)(object)obj;
+
+                        bool isNull = value == null;
+                        int arrLength = value?.Length ?? -1;
+                        dataSize = ExperimentalSerializeNullLengthPrefixIntoBuffer(isNull, arrLength, offset);
+                        if (isNull)
+                            break;
+
+                        // TODO: Object cyclic reference
+
+                        int arrOffset = dataSize + offset;
+                        TinySerializerTypeInfo elementTypeInfo = typeInfo.elementTypeInfo;
+                        int elementSize = elementTypeInfo.primitiveSize;
+                        dataSize += elementSize * arrLength;
+                        EnsureBufferSize(offset + dataSize);
+
+                        fixed (byte* byteBufferPtr = &buffer[arrOffset])
+                        {
+                            switch (elementTypeInfo.serializationType)
+                            {
+                                case SerializationType.Byte:
+                                    break;
+                                case SerializationType.SByte:
+                                    break;
+                                case SerializationType.Bool:
+                                    break;
+                                case SerializationType.Int16:
+                                    break;
+                                case SerializationType.Int32:
+                                    {
+                                        int[] arrValue = (int[])value;
+
+                                        fixed (int* valuePtr = arrValue)
+                                        {
+                                            int* bufferPtr = (int*)byteBufferPtr;
+                                            for (int i = 0; i < arrLength; i++)
+                                            {
+                                                bufferPtr[i] = valuePtr[i];
+                                            }
+                                        }
+                                    }
+                                    break;
+                                case SerializationType.Int64:
+                                    break;
+                                case SerializationType.UInt16:
+                                    break;
+                                case SerializationType.UInt32:
+                                    break;
+                                case SerializationType.UInt64:
+                                    break;
+                                case SerializationType.Half:
+                                    break;
+                                case SerializationType.Single:
+                                    break;
+                                case SerializationType.Double:
+                                    break;
+                                case SerializationType.Char:
+                                    break;
+                                case SerializationType.Decimal:
+                                    break;
+                                case SerializationType.DateTime:
+                                    break;
+                                case SerializationType.DateTimeOffset:
+                                    break;
+                                case SerializationType.TimeSpan:
+                                    break;
+                                case SerializationType.Vector2:
+                                    break;
+                                case SerializationType.Vector3:
+                                    break;
+                                case SerializationType.Vector4:
+                                    break;
+                                case SerializationType.Quaternion:
+                                    break;
+                                case SerializationType.Rect:
+                                    break;
+                                case SerializationType.Bounds:
+                                    break;
+                                case SerializationType.IntVector2:
+                                    break;
+                                case SerializationType.IntVector3:
+                                    break;
+                                case SerializationType.IntVector4:
+                                    break;
+                                default:
+                                    throw new InvalidOperationException("Serialiation type is not primitive: " + typeInfo.elementTypeInfo.serializationType);
+                            }
+                        }
+                    }
                     break;
                 case SerializationType.PrimitiveList:
+                    {
+                        IList value = (IList)(object)obj;
+
+                        bool isNull = value == null;
+                        int listLength = value?.Count ?? -1;
+                        dataSize = ExperimentalSerializeNullLengthPrefixIntoBuffer(isNull, listLength, offset);
+                        if (isNull)
+                            break;
+
+                        // TODO: Object cyclic reference
+
+                        int listOffset = offset + dataSize;
+                        TinySerializerTypeInfo elementTypeInfo = typeInfo.elementTypeInfo;
+                        int elementSize = elementTypeInfo.primitiveSize;
+                        dataSize += elementSize * listLength;
+                        EnsureBufferSize(offset + dataSize);
+
+                        fixed (byte* byteBufferPtr = &buffer[listOffset])
+                        {
+                            switch (elementTypeInfo.serializationType)
+                            {
+                                case SerializationType.Byte:
+                                    break;
+                                case SerializationType.SByte:
+                                    break;
+                                case SerializationType.Bool:
+                                    break;
+                                case SerializationType.Int16:
+                                    break;
+                                case SerializationType.Int32:
+                                    {
+                                        List<int> listValue = (List<int>)value;
+
+                                        int* bufferPtr = (int*)byteBufferPtr;
+                                        for (int i = 0; i < listLength; i++)
+                                        {
+                                            bufferPtr[i] = listValue[i];
+                                        }
+                                    }
+                                    break;
+                                case SerializationType.Int64:
+                                    break;
+                                case SerializationType.UInt16:
+                                    break;
+                                case SerializationType.UInt32:
+                                    break;
+                                case SerializationType.UInt64:
+                                    break;
+                                case SerializationType.Half:
+                                    break;
+                                case SerializationType.Single:
+                                    break;
+                                case SerializationType.Double:
+                                    break;
+                                case SerializationType.Char:
+                                    break;
+                                case SerializationType.Decimal:
+                                    break;
+                                case SerializationType.DateTime:
+                                    break;
+                                case SerializationType.DateTimeOffset:
+                                    break;
+                                case SerializationType.TimeSpan:
+                                    break;
+                                case SerializationType.Vector2:
+                                    break;
+                                case SerializationType.Vector3:
+                                    break;
+                                case SerializationType.Vector4:
+                                    break;
+                                case SerializationType.Quaternion:
+                                    break;
+                                case SerializationType.Rect:
+                                    break;
+                                case SerializationType.Bounds:
+                                    break;
+                                case SerializationType.IntVector2:
+                                    break;
+                                case SerializationType.IntVector3:
+                                    break;
+                                case SerializationType.IntVector4:
+                                    break;
+                                default:
+                                    throw new InvalidOperationException("Serialiation type is not primitive: " + typeInfo.elementTypeInfo.serializationType);
+                            }
+                        }
+                    }
                     break;
                 case SerializationType.PrimitiveNullable:
+                    {
+                        switch (typeInfo.elementTypeInfo.serializationType)
+                        {
+                            case SerializationType.Byte:
+                                break;
+                            case SerializationType.SByte:
+                                break;
+                            case SerializationType.Bool:
+                                break;
+                            case SerializationType.Int16:
+                                break;
+                            case SerializationType.Int32:
+                                {
+                                    var value = EmitHelper<int?>.CastFrom(obj, true);
+                                    bool isNull = value == null; // Faster than !value.HasValue;
+                                    dataSize = ExperimentalSerializeNullPrefixIntoBuffer(isNull, offset);
+                                    if (isNull)
+                                        break;
+
+                                    int valueOffset = offset + dataSize;
+                                    dataSize += SerializationTypeSizes.INT32;
+                                    EnsureBufferSize(offset + dataSize);
+
+                                    fixed (byte* byteBufferPtr = &buffer[valueOffset])
+                                    {
+                                        int* bufferPtr = (int*)byteBufferPtr;
+                                        *bufferPtr = value.Value;
+                                    }
+                                }
+                                break;
+                            case SerializationType.Int64:
+                                break;
+                            case SerializationType.UInt16:
+                                break;
+                            case SerializationType.UInt32:
+                                break;
+                            case SerializationType.UInt64:
+                                break;
+                            case SerializationType.Half:
+                                break;
+                            case SerializationType.Single:
+                                break;
+                            case SerializationType.Double:
+                                break;
+                            case SerializationType.Char:
+                                break;
+                            case SerializationType.Decimal:
+                                break;
+                            case SerializationType.DateTime:
+                                break;
+                            case SerializationType.DateTimeOffset:
+                                break;
+                            case SerializationType.TimeSpan:
+                                break;
+                            case SerializationType.Vector2:
+                                break;
+                            case SerializationType.Vector3:
+                                break;
+                            case SerializationType.Vector4:
+                                break;
+                            case SerializationType.Quaternion:
+                                break;
+                            case SerializationType.Rect:
+                                break;
+                            case SerializationType.Bounds:
+                                break;
+                            case SerializationType.IntVector2:
+                                break;
+                            case SerializationType.IntVector3:
+                                break;
+                            case SerializationType.IntVector4:
+                                break;
+                            default:
+                                throw new InvalidOperationException("Serialiation type is not primitive: " + typeInfo.elementTypeInfo.serializationType);
+                        }
+                    }
+                    break;
+                case SerializationType.ObjectNullable:
+                case SerializationType.ObjectList:
+                case SerializationType.ObjectArray:
+                case SerializationType.Object:
+                    {
+                        if (typeInfo.isValueType)
+                            dataSize = ExperimentalSerializeStructIntoBuffer(__makeref(obj), typeInfo, offset);
+                        else
+                            dataSize = ExperimentalSerializeObjectIntoBuffer(obj, typeInfo, offset);
+                    }
                     break;
                 default:
-                    throw new UnsupportedException("Unsupported typed ref serialization type: " + typeInfo.serializationType);
+                    throw new UnsupportedException("Unsupported serialization type: " + typeInfo.serializationType);
             }
 
             return dataSize;
         }
 
+        // Returns size
+        private int ExperimentalSerializeStructIntoBuffer(TypedReference objRef, TinySerializerTypeInfo typeInfo, int offset)
+        {
+            int dataSize = 0;
+
+            if (!typeInfo.inspectedFields)
+            {
+                typeInfo.InspectFields();
+            }
+
+            if (!typeInfo.emittedFieldGettersByTypedRef)
+            {
+                typeInfo.EmitFieldGettersByTypedRef();
+            }
+
+            for (int i = 0; i < typeInfo.fieldTypeInfos.Length; i++)
+            {
+                var fieldTypeInfo = typeInfo.fieldTypeInfos[i];
+                SerializationType fieldSerializationType = fieldTypeInfo.fieldTypeInfo.serializationType;
+
+                int fieldDataSize = 0;
+                int fieldOffset = offset + dataSize;
+
+                switch (fieldSerializationType)
+                {
+                    case SerializationType.Int32:
+                        {
+                            fieldDataSize = SerializationTypeSizes.INT32;
+                            EnsureBufferSize(fieldOffset + fieldDataSize);
+
+                            var getterDelegate = (EmitUtil.FieldGetterDelegateByTypedRef<int>)fieldTypeInfo.getterByTypedRef;
+                            var value = getterDelegate.Invoke(objRef);
+
+                            fixed (byte* byteBufferPtr = &buffer[fieldOffset])
+                            {
+                                int* bufferPtr = (int*)byteBufferPtr;
+                                *bufferPtr = value;
+                            }
+                        }
+                        break;
+                    case SerializationType.PrimitiveArray:
+                        {
+                            // TEMP: Until primitive arrays get their specific delegates
+                            var getterDelegate = (EmitUtil.FieldGetterDelegateByTypedRef<object>)fieldTypeInfo.getterByTypedRef;
+                            var value = getterDelegate.Invoke(objRef) as Array;
+
+                            bool isNull = value == null;
+                            int arrLength = value?.Length ?? -1;
+                            fieldDataSize = ExperimentalSerializeNullLengthPrefixIntoBuffer(isNull, arrLength, fieldOffset);
+                            if (isNull)
+                                break;
+
+                            // TODO: Object cyclic reference
+
+                            int arrOffset = fieldDataSize + fieldOffset;
+                            TinySerializerTypeInfo elementTypeInfo = fieldTypeInfo.fieldTypeInfo.elementTypeInfo;
+                            int elementSize = elementTypeInfo.primitiveSize;
+                            fieldDataSize += elementSize * arrLength;
+                            EnsureBufferSize(fieldOffset + fieldDataSize);
+
+                            fixed (byte* byteBufferPtr = &buffer[arrOffset])
+                            {
+                                switch (elementTypeInfo.serializationType)
+                                {
+                                    case SerializationType.Byte:
+                                        break;
+                                    case SerializationType.SByte:
+                                        break;
+                                    case SerializationType.Bool:
+                                        break;
+                                    case SerializationType.Int16:
+                                        break;
+                                    case SerializationType.Int32:
+                                        {
+                                            int[] arrValue = (int[])value;
+
+                                            fixed (int* valuePtr = arrValue)
+                                            {
+                                                int* bufferPtr = (int*)byteBufferPtr;
+                                                for (int j = 0; j < arrLength; j++)
+                                                {
+                                                    bufferPtr[j] = valuePtr[j];
+                                                }
+                                            }
+                                        }
+                                        break;
+                                    case SerializationType.Int64:
+                                        break;
+                                    case SerializationType.UInt16:
+                                        break;
+                                    case SerializationType.UInt32:
+                                        break;
+                                    case SerializationType.UInt64:
+                                        break;
+                                    case SerializationType.Half:
+                                        break;
+                                    case SerializationType.Single:
+                                        break;
+                                    case SerializationType.Double:
+                                        break;
+                                    case SerializationType.Char:
+                                        break;
+                                    case SerializationType.Decimal:
+                                        break;
+                                    case SerializationType.DateTime:
+                                        break;
+                                    case SerializationType.DateTimeOffset:
+                                        break;
+                                    case SerializationType.TimeSpan:
+                                        break;
+                                    case SerializationType.Vector2:
+                                        break;
+                                    case SerializationType.Vector3:
+                                        break;
+                                    case SerializationType.Vector4:
+                                        break;
+                                    case SerializationType.Quaternion:
+                                        break;
+                                    case SerializationType.Rect:
+                                        break;
+                                    case SerializationType.Bounds:
+                                        break;
+                                    case SerializationType.IntVector2:
+                                        break;
+                                    case SerializationType.IntVector3:
+                                        break;
+                                    case SerializationType.IntVector4:
+                                        break;
+                                    default:
+                                        throw new InvalidOperationException("Serialiation type is not primitive: " + typeInfo.elementTypeInfo.serializationType);
+                                }
+                            }
+                        }
+                        break;
+                    case SerializationType.PrimitiveList:
+                        {
+                            // TEMP: Until primitive lists get their specific delegates
+                            var getterDelegate = (EmitUtil.FieldGetterDelegateByTypedRef<object>)fieldTypeInfo.getterByTypedRef;
+                            var value = getterDelegate.Invoke(objRef) as IList;
+
+                            bool isNull = value == null;
+                            int listLength = value?.Count ?? -1;
+                            fieldDataSize = ExperimentalSerializeNullLengthPrefixIntoBuffer(isNull, listLength, fieldOffset);
+                            if (isNull)
+                                break;
+
+                            // TODO: Object cyclic reference
+
+                            int listOffset = fieldOffset + fieldDataSize;
+                            TinySerializerTypeInfo elementTypeInfo = fieldTypeInfo.fieldTypeInfo.elementTypeInfo;
+                            int elementSize = elementTypeInfo.primitiveSize;
+                            fieldDataSize += elementSize * listLength;
+                            EnsureBufferSize(fieldOffset + fieldDataSize);
+
+                            fixed (byte* byteBufferPtr = &buffer[listOffset])
+                            {
+                                switch (elementTypeInfo.serializationType)
+                                {
+                                    case SerializationType.Byte:
+                                        break;
+                                    case SerializationType.SByte:
+                                        break;
+                                    case SerializationType.Bool:
+                                        break;
+                                    case SerializationType.Int16:
+                                        break;
+                                    case SerializationType.Int32:
+                                        {
+                                            List<int> listValue = (List<int>)value;
+
+                                            int* bufferPtr = (int*)byteBufferPtr;
+                                            for (int j = 0; j < listLength; j++)
+                                            {
+                                                bufferPtr[j] = listValue[j];
+                                            }
+                                        }
+                                        break;
+                                    case SerializationType.Int64:
+                                        break;
+                                    case SerializationType.UInt16:
+                                        break;
+                                    case SerializationType.UInt32:
+                                        break;
+                                    case SerializationType.UInt64:
+                                        break;
+                                    case SerializationType.Half:
+                                        break;
+                                    case SerializationType.Single:
+                                        break;
+                                    case SerializationType.Double:
+                                        break;
+                                    case SerializationType.Char:
+                                        break;
+                                    case SerializationType.Decimal:
+                                        break;
+                                    case SerializationType.DateTime:
+                                        break;
+                                    case SerializationType.DateTimeOffset:
+                                        break;
+                                    case SerializationType.TimeSpan:
+                                        break;
+                                    case SerializationType.Vector2:
+                                        break;
+                                    case SerializationType.Vector3:
+                                        break;
+                                    case SerializationType.Vector4:
+                                        break;
+                                    case SerializationType.Quaternion:
+                                        break;
+                                    case SerializationType.Rect:
+                                        break;
+                                    case SerializationType.Bounds:
+                                        break;
+                                    case SerializationType.IntVector2:
+                                        break;
+                                    case SerializationType.IntVector3:
+                                        break;
+                                    case SerializationType.IntVector4:
+                                        break;
+                                    default:
+                                        throw new InvalidOperationException("Serialiation type is not primitive: " + typeInfo.elementTypeInfo.serializationType);
+                                }
+                            }
+                        }
+                        break;
+                    case SerializationType.PrimitiveNullable:
+                        {
+                            // TEMP: Until primitive nullables get their specific delegates
+                            var getterDelegate = (EmitUtil.FieldGetterDelegateByTypedRef<object>)fieldTypeInfo.getterByTypedRef;
+                            var value = getterDelegate.Invoke(objRef);
+
+                            bool isNull = value == null;
+
+                            fieldDataSize = ExperimentalSerializeNullPrefixIntoBuffer(isNull, fieldOffset);
+                            if (isNull)
+                                break;
+
+                            int valueOffset = fieldOffset + fieldDataSize;
+
+                            switch (fieldTypeInfo.fieldTypeInfo.elementTypeInfo.serializationType)
+                            {
+                                case SerializationType.Byte:
+                                    break;
+                                case SerializationType.SByte:
+                                    break;
+                                case SerializationType.Bool:
+                                    break;
+                                case SerializationType.Int16:
+                                    break;
+                                case SerializationType.Int32:
+                                    {
+                                        var trueValue = (int)value;
+
+                                        fieldDataSize += SerializationTypeSizes.INT32;
+                                        EnsureBufferSize(fieldOffset + fieldDataSize);
+
+                                        fixed (byte* byteBufferPtr = &buffer[valueOffset])
+                                        {
+                                            int* bufferPtr = (int*)byteBufferPtr;
+                                            *bufferPtr = trueValue;
+                                        }
+                                    }
+                                    break;
+                                case SerializationType.Int64:
+                                    break;
+                                case SerializationType.UInt16:
+                                    break;
+                                case SerializationType.UInt32:
+                                    break;
+                                case SerializationType.UInt64:
+                                    break;
+                                case SerializationType.Half:
+                                    break;
+                                case SerializationType.Single:
+                                    break;
+                                case SerializationType.Double:
+                                    break;
+                                case SerializationType.Char:
+                                    break;
+                                case SerializationType.Decimal:
+                                    break;
+                                case SerializationType.DateTime:
+                                    break;
+                                case SerializationType.DateTimeOffset:
+                                    break;
+                                case SerializationType.TimeSpan:
+                                    break;
+                                case SerializationType.Vector2:
+                                    break;
+                                case SerializationType.Vector3:
+                                    break;
+                                case SerializationType.Vector4:
+                                    break;
+                                case SerializationType.Quaternion:
+                                    break;
+                                case SerializationType.Rect:
+                                    break;
+                                case SerializationType.Bounds:
+                                    break;
+                                case SerializationType.IntVector2:
+                                    break;
+                                case SerializationType.IntVector3:
+                                    break;
+                                case SerializationType.IntVector4:
+                                    break;
+                                default:
+                                    throw new InvalidOperationException("Serialiation type is not primitive: " + typeInfo.elementTypeInfo.serializationType);
+                            }
+                        }
+                        break;
+                    case SerializationType.ObjectArray:
+                    case SerializationType.ObjectList:
+                    case SerializationType.ObjectNullable:
+                    case SerializationType.Object:
+                        {
+                            var getterDelegate = (EmitUtil.FieldGetterDelegateByTypedRef<object>)fieldTypeInfo.getterByTypedRef;
+                            var value = getterDelegate.Invoke(objRef);
+
+                            fieldDataSize = ExperimentalSerializeObjectIntoBuffer(value, fieldTypeInfo.fieldTypeInfo, fieldOffset);
+                        }
+                        break;
+                    default:
+                        throw new UnsupportedException("Unsupported field serialization type: " + fieldSerializationType);
+                }
+
+                dataSize += fieldDataSize;
+            }
+
+            return dataSize;
+        }
+
+        // Returns size
+        private int ExperimentalSerializeObjectIntoBuffer(object obj, TinySerializerTypeInfo typeInfo, int offset)
+        {
+            int dataSize = 0;
+
+            if (typeInfo.serializationType == SerializationType.Object)
+            {
+                if (!typeInfo.isValueType)
+                {
+                    bool isNull = obj == null;
+                    dataSize += ExperimentalSerializeNullPrefixIntoBuffer(isNull, offset);
+                    if (isNull)
+                        return dataSize;
+
+                    /* // TODO: objectRefPrefixValue if cyclic references is supported
+                    if (settings.supportCyclicReferences && !typeInfo.isValueType)
+                    {
+                        dataSize += SerializationTypeSizes.INT64;
+                        EnsureBufferSize(dataSize + offset);
+                    }
+                    */
+                }
+
+                if (!typeInfo.inspectedFields)
+                {
+                    typeInfo.InspectFields();
+                }
+
+                if (!typeInfo.emittedFieldGetters)
+                {
+                    typeInfo.EmitFieldGetters();
+                }
+
+                for (int i = 0; i < typeInfo.fieldTypeInfos.Length; i++)
+                {
+                    var fieldTypeInfo = typeInfo.fieldTypeInfos[i];
+                    SerializationType fieldSerializationType = fieldTypeInfo.fieldTypeInfo.serializationType;
+
+                    int fieldDataSize = 0;
+                    int fieldOffset = offset + dataSize;
+
+                    switch (fieldSerializationType)
+                    {
+                        case SerializationType.Int32:
+                            {
+                                fieldDataSize = SerializationTypeSizes.INT32;
+                                EnsureBufferSize(fieldOffset + fieldDataSize);
+
+                                var getterDelegate = (EmitUtil.FieldGetterDelegate<object, int>)fieldTypeInfo.getter;
+                                var value = getterDelegate.Invoke(obj);
+
+                                fixed (byte* byteBufferPtr = &buffer[fieldOffset])
+                                {
+                                    int* bufferPtr = (int*)byteBufferPtr;
+                                    *bufferPtr = value;
+                                }
+                            }
+                            break;
+                        case SerializationType.PrimitiveArray:
+                            {
+                                // TEMP: Until primitive arrays get their specific delegates
+                                var getterDelegate = (EmitUtil.FieldGetterDelegate<object, object>)fieldTypeInfo.getter;
+                                var value = getterDelegate.Invoke(obj) as Array;
+
+                                bool isNull = value == null;
+                                int arrLength = value?.Length ?? -1;
+                                fieldDataSize = ExperimentalSerializeNullLengthPrefixIntoBuffer(isNull, arrLength, fieldOffset);
+                                if (isNull)
+                                    break;
+
+                                // TODO: Object cyclic reference
+
+                                int arrOffset = fieldDataSize + fieldOffset;
+                                TinySerializerTypeInfo elementTypeInfo = fieldTypeInfo.fieldTypeInfo.elementTypeInfo;
+                                int elementSize = elementTypeInfo.primitiveSize;
+                                fieldDataSize += elementSize * arrLength;
+                                EnsureBufferSize(fieldOffset + fieldDataSize);
+
+                                fixed (byte* byteBufferPtr = &buffer[arrOffset])
+                                {
+                                    switch (elementTypeInfo.serializationType)
+                                    {
+                                        case SerializationType.Byte:
+                                            break;
+                                        case SerializationType.SByte:
+                                            break;
+                                        case SerializationType.Bool:
+                                            break;
+                                        case SerializationType.Int16:
+                                            break;
+                                        case SerializationType.Int32:
+                                            {
+                                                int[] arrValue = (int[])value;
+
+                                                fixed (int* valuePtr = arrValue)
+                                                {
+                                                    int* bufferPtr = (int*)byteBufferPtr;
+                                                    for (int j = 0; j < arrLength; j++)
+                                                    {
+                                                        bufferPtr[j] = valuePtr[j];
+                                                    }
+                                                }
+                                            }
+                                            break;
+                                        case SerializationType.Int64:
+                                            break;
+                                        case SerializationType.UInt16:
+                                            break;
+                                        case SerializationType.UInt32:
+                                            break;
+                                        case SerializationType.UInt64:
+                                            break;
+                                        case SerializationType.Half:
+                                            break;
+                                        case SerializationType.Single:
+                                            break;
+                                        case SerializationType.Double:
+                                            break;
+                                        case SerializationType.Char:
+                                            break;
+                                        case SerializationType.Decimal:
+                                            break;
+                                        case SerializationType.DateTime:
+                                            break;
+                                        case SerializationType.DateTimeOffset:
+                                            break;
+                                        case SerializationType.TimeSpan:
+                                            break;
+                                        case SerializationType.Vector2:
+                                            break;
+                                        case SerializationType.Vector3:
+                                            break;
+                                        case SerializationType.Vector4:
+                                            break;
+                                        case SerializationType.Quaternion:
+                                            break;
+                                        case SerializationType.Rect:
+                                            break;
+                                        case SerializationType.Bounds:
+                                            break;
+                                        case SerializationType.IntVector2:
+                                            break;
+                                        case SerializationType.IntVector3:
+                                            break;
+                                        case SerializationType.IntVector4:
+                                            break;
+                                        default:
+                                            throw new InvalidOperationException("Serialiation type is not primitive: " + typeInfo.elementTypeInfo.serializationType);
+                                    }
+                                }
+                            }
+                            break;
+                        case SerializationType.PrimitiveList:
+                            {
+                                // TEMP: Until primitive lists get their specific delegates
+                                var getterDelegate = (EmitUtil.FieldGetterDelegate<object, object>)fieldTypeInfo.getter;
+                                var value = getterDelegate.Invoke(obj) as IList;
+
+                                bool isNull = value == null;
+                                int listLength = value?.Count ?? -1;
+                                fieldDataSize = ExperimentalSerializeNullLengthPrefixIntoBuffer(isNull, listLength, fieldOffset);
+                                if (isNull)
+                                    break;
+
+                                // TODO: Object cyclic reference
+
+                                int listOffset = fieldOffset + fieldDataSize;
+                                TinySerializerTypeInfo elementTypeInfo = fieldTypeInfo.fieldTypeInfo.elementTypeInfo;
+                                int elementSize = elementTypeInfo.primitiveSize;
+                                fieldDataSize += elementSize * listLength;
+                                EnsureBufferSize(fieldOffset + fieldDataSize);
+
+                                fixed (byte* byteBufferPtr = &buffer[listOffset])
+                                {
+                                    switch (elementTypeInfo.serializationType)
+                                    {
+                                        case SerializationType.Byte:
+                                            break;
+                                        case SerializationType.SByte:
+                                            break;
+                                        case SerializationType.Bool:
+                                            break;
+                                        case SerializationType.Int16:
+                                            break;
+                                        case SerializationType.Int32:
+                                            {
+                                                List<int> listValue = (List<int>)value;
+
+                                                int* bufferPtr = (int*)byteBufferPtr;
+                                                for (int j = 0; j < listLength; j++)
+                                                {
+                                                    bufferPtr[j] = listValue[j];
+                                                }
+                                            }
+                                            break;
+                                        case SerializationType.Int64:
+                                            break;
+                                        case SerializationType.UInt16:
+                                            break;
+                                        case SerializationType.UInt32:
+                                            break;
+                                        case SerializationType.UInt64:
+                                            break;
+                                        case SerializationType.Half:
+                                            break;
+                                        case SerializationType.Single:
+                                            break;
+                                        case SerializationType.Double:
+                                            break;
+                                        case SerializationType.Char:
+                                            break;
+                                        case SerializationType.Decimal:
+                                            break;
+                                        case SerializationType.DateTime:
+                                            break;
+                                        case SerializationType.DateTimeOffset:
+                                            break;
+                                        case SerializationType.TimeSpan:
+                                            break;
+                                        case SerializationType.Vector2:
+                                            break;
+                                        case SerializationType.Vector3:
+                                            break;
+                                        case SerializationType.Vector4:
+                                            break;
+                                        case SerializationType.Quaternion:
+                                            break;
+                                        case SerializationType.Rect:
+                                            break;
+                                        case SerializationType.Bounds:
+                                            break;
+                                        case SerializationType.IntVector2:
+                                            break;
+                                        case SerializationType.IntVector3:
+                                            break;
+                                        case SerializationType.IntVector4:
+                                            break;
+                                        default:
+                                            throw new InvalidOperationException("Serialiation type is not primitive: " + typeInfo.elementTypeInfo.serializationType);
+                                    }
+                                }
+                            }
+                            break;
+                        case SerializationType.PrimitiveNullable:
+                            {
+                                // TEMP: Until primitive nullables get their specific delegates
+                                var getterDelegate = (EmitUtil.FieldGetterDelegate<object, object>)fieldTypeInfo.getter;
+                                var value = getterDelegate.Invoke(obj);
+
+                                bool isNull = value == null;
+
+                                fieldDataSize = ExperimentalSerializeNullPrefixIntoBuffer(isNull, fieldOffset);
+                                if (isNull)
+                                    break;
+
+                                int valueOffset = fieldOffset + fieldDataSize;
+
+                                switch (fieldTypeInfo.fieldTypeInfo.elementTypeInfo.serializationType)
+                                {
+                                    case SerializationType.Byte:
+                                        break;
+                                    case SerializationType.SByte:
+                                        break;
+                                    case SerializationType.Bool:
+                                        break;
+                                    case SerializationType.Int16:
+                                        break;
+                                    case SerializationType.Int32:
+                                        {
+                                            var trueValue = (int)value;
+
+                                            fieldDataSize += SerializationTypeSizes.INT32;
+                                            EnsureBufferSize(fieldOffset + fieldDataSize);
+
+                                            fixed (byte* byteBufferPtr = &buffer[valueOffset])
+                                            {
+                                                int* bufferPtr = (int*)byteBufferPtr;
+                                                *bufferPtr = trueValue;
+                                            }
+                                        }
+                                        break;
+                                    case SerializationType.Int64:
+                                        break;
+                                    case SerializationType.UInt16:
+                                        break;
+                                    case SerializationType.UInt32:
+                                        break;
+                                    case SerializationType.UInt64:
+                                        break;
+                                    case SerializationType.Half:
+                                        break;
+                                    case SerializationType.Single:
+                                        break;
+                                    case SerializationType.Double:
+                                        break;
+                                    case SerializationType.Char:
+                                        break;
+                                    case SerializationType.Decimal:
+                                        break;
+                                    case SerializationType.DateTime:
+                                        break;
+                                    case SerializationType.DateTimeOffset:
+                                        break;
+                                    case SerializationType.TimeSpan:
+                                        break;
+                                    case SerializationType.Vector2:
+                                        break;
+                                    case SerializationType.Vector3:
+                                        break;
+                                    case SerializationType.Vector4:
+                                        break;
+                                    case SerializationType.Quaternion:
+                                        break;
+                                    case SerializationType.Rect:
+                                        break;
+                                    case SerializationType.Bounds:
+                                        break;
+                                    case SerializationType.IntVector2:
+                                        break;
+                                    case SerializationType.IntVector3:
+                                        break;
+                                    case SerializationType.IntVector4:
+                                        break;
+                                    default:
+                                        throw new InvalidOperationException("Serialiation type is not primitive: " + fieldTypeInfo.fieldTypeInfo.elementTypeInfo.serializationType);
+                                }
+                            }
+                            break;
+                        case SerializationType.ObjectArray:
+                            {
+                                var getterDelegate = (EmitUtil.FieldGetterDelegate<object, object>)fieldTypeInfo.getter;
+                                var value = getterDelegate.Invoke(obj) as Array;
+
+                                bool isNull = value == null;
+                                int arrLength = value?.Length ?? -1;
+                                fieldDataSize = ExperimentalSerializeNullLengthPrefixIntoBuffer(isNull, arrLength, fieldOffset);
+                                if (isNull)
+                                    break;
+
+                                // TODO: Object cyclic reference
+
+                                int arrOffset = fieldOffset + fieldDataSize;
+
+                                for (int j = 0; j < arrLength; j++)
+                                {
+                                    object element = value.GetValue(j);
+                                    int elementDataSize = ExperimentalSerializeObjectIntoBuffer(element, fieldTypeInfo.fieldTypeInfo.elementTypeInfo, arrOffset);
+                                    fieldDataSize += elementDataSize;
+                                    arrOffset += elementDataSize;
+                                }
+                            }
+                            break;
+                        case SerializationType.ObjectList:
+                            {
+                                var getterDelegate = (EmitUtil.FieldGetterDelegate<object, object>)fieldTypeInfo.getter;
+                                var value = getterDelegate.Invoke(obj) as IList;
+
+                                bool isNull = value == null;
+                                int listLength = value?.Count ?? -1;
+                                fieldDataSize = ExperimentalSerializeNullLengthPrefixIntoBuffer(isNull, listLength, fieldOffset);
+                                if (isNull)
+                                    break;
+
+                                // TODO: Object cyclic reference
+
+                                int listOffset = fieldOffset + fieldDataSize;
+
+                                for (int j = 0; j < listLength; j++)
+                                {
+                                    object element = value[j];
+                                    int elementDataSize = ExperimentalSerializeObjectIntoBuffer(element, fieldTypeInfo.fieldTypeInfo.elementTypeInfo, listOffset);
+                                    fieldDataSize += elementDataSize;
+                                    listOffset += elementDataSize;
+                                }
+                            }
+                            break;
+                        case SerializationType.ObjectNullable:
+                            {
+                                var getterDelegate = (EmitUtil.FieldGetterDelegate<object, object>)fieldTypeInfo.getter;
+                                var value = getterDelegate.Invoke(obj);
+
+                                bool isNull = value == null;
+
+                                if (!isNull)
+                                {
+                                    fieldDataSize = ExperimentalSerializeObjectIntoBuffer(value, fieldTypeInfo.fieldTypeInfo.elementTypeInfo, fieldOffset);
+                                }
+                                else
+                                {
+                                    fieldDataSize = ExperimentalSerializeNullPrefixIntoBuffer(true, fieldOffset);
+                                }
+                            }
+                            break;
+                        case SerializationType.Object:
+                            {
+                                var getterDelegate = (EmitUtil.FieldGetterDelegate<object, object>)fieldTypeInfo.getter;
+                                var value = getterDelegate.Invoke(obj);
+
+                                fieldDataSize = ExperimentalSerializeObjectIntoBuffer(value, fieldTypeInfo.fieldTypeInfo, fieldOffset);
+                            }
+                            break;
+                        default:
+                            throw new UnsupportedException("Unsupported field serialization type: " + fieldSerializationType);
+                    }
+
+                    dataSize += fieldDataSize;
+                }
+            }
+            else
+            {
+                switch (typeInfo.serializationType)
+                {
+                    case SerializationType.PrimitiveArray:
+                        {
+                            throw new NotImplementedException();
+                        }
+                        break;
+                    case SerializationType.PrimitiveList:
+                        {
+                            throw new NotImplementedException();
+                        }
+                        break;
+                    case SerializationType.PrimitiveNullable:
+                        {
+                            var value = obj;
+
+                            bool isNull = value == null;
+                            dataSize = ExperimentalSerializeNullPrefixIntoBuffer(isNull, offset);
+                            if (isNull)
+                                break;
+
+                            int valueOffset = offset + dataSize;
+
+                            switch (typeInfo.elementTypeInfo.serializationType)
+                            {
+                                case SerializationType.Byte:
+                                    break;
+                                case SerializationType.SByte:
+                                    break;
+                                case SerializationType.Bool:
+                                    break;
+                                case SerializationType.Int16:
+                                    break;
+                                case SerializationType.Int32:
+                                    {
+                                        var trueValue = (int)value;
+
+                                        dataSize += SerializationTypeSizes.INT32;
+                                        EnsureBufferSize(offset + dataSize);
+
+                                        fixed (byte* byteBufferPtr = &buffer[valueOffset])
+                                        {
+                                            int* bufferPtr = (int*)byteBufferPtr;
+                                            *bufferPtr = trueValue;
+                                        }
+                                    }
+                                    break;
+                                case SerializationType.Int64:
+                                    break;
+                                case SerializationType.UInt16:
+                                    break;
+                                case SerializationType.UInt32:
+                                    break;
+                                case SerializationType.UInt64:
+                                    break;
+                                case SerializationType.Half:
+                                    break;
+                                case SerializationType.Single:
+                                    break;
+                                case SerializationType.Double:
+                                    break;
+                                case SerializationType.Char:
+                                    break;
+                                case SerializationType.Decimal:
+                                    break;
+                                case SerializationType.DateTime:
+                                    break;
+                                case SerializationType.DateTimeOffset:
+                                    break;
+                                case SerializationType.TimeSpan:
+                                    break;
+                                case SerializationType.Vector2:
+                                    break;
+                                case SerializationType.Vector3:
+                                    break;
+                                case SerializationType.Vector4:
+                                    break;
+                                case SerializationType.Quaternion:
+                                    break;
+                                case SerializationType.Rect:
+                                    break;
+                                case SerializationType.Bounds:
+                                    break;
+                                case SerializationType.IntVector2:
+                                    break;
+                                case SerializationType.IntVector3:
+                                    break;
+                                case SerializationType.IntVector4:
+                                    break;
+                                default:
+                                    throw new InvalidOperationException("Serialiation type is not primitive: " + typeInfo.elementTypeInfo.serializationType);
+                            }
+                        }
+                        break;
+                    case SerializationType.ObjectArray:
+                        {
+                            throw new NotImplementedException();
+                        }
+                        break;
+                    case SerializationType.ObjectList:
+                        {
+                            throw new NotImplementedException();
+                        }
+                        break;
+                    case SerializationType.ObjectNullable:
+                        {
+                            throw new NotImplementedException();
+                        }
+                        break;
+                    default:
+                        throw new UnexpectedException("Unexpected serialization type: " + typeInfo.serializationType);
+                }
+            }
+
+            return dataSize;
+        }
+
+        // Returns size
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private int ExperimentalSerializeNullPrefixIntoBuffer(bool isNull, int offset)
+        {
+            EnsureBufferSize(SerializationTypeSizes.SBYTE + offset);
+
+            sbyte nullPrefixValue = isNull ? TinySerializerConstants.NULL_VALUE : TinySerializerConstants.HAS_VALUE;
+
+            fixed (byte* byteBufferPtr = &buffer[offset])
+            {
+                sbyte* bufferPtr = (sbyte*)byteBufferPtr;
+                *bufferPtr = nullPrefixValue;
+            }
+
+            return SerializationTypeSizes.SBYTE;
+        }
+
+        // Returns size
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private int ExperimentalSerializeNullLengthPrefixIntoBuffer(bool isNull, int length, int offset)
+        {
+            int dataSize;
+
+            if (isNull)
+            {
+                dataSize = SerializationTypeSizes.SBYTE;
+                EnsureBufferSize(dataSize + offset);
+
+                fixed (byte* byteBufferPtr = &buffer[offset])
+                {
+                    sbyte* bufferPtr = (sbyte*)byteBufferPtr;
+                    *bufferPtr = TinySerializerConstants.NULL_VALUE;
+                }
+            }
+            else
+            {
+                if (length < sbyte.MaxValue)
+                {
+                    dataSize = SerializationTypeSizes.SBYTE;
+                    EnsureBufferSize(dataSize + offset);
+
+                    fixed (byte* byteBufferPtr = &buffer[offset])
+                    {
+                        sbyte* bufferPtr = (sbyte*)byteBufferPtr;
+                        *bufferPtr = (sbyte)length;
+                    }
+                }
+                else if (length < ushort.MaxValue)
+                {
+                    dataSize = SerializationTypeSizes.SBYTE + SerializationTypeSizes.UINT16;
+                    EnsureBufferSize(dataSize + offset);
+
+                    fixed (byte* byteBufferPtr = &buffer[offset])
+                    {
+                        sbyte* bufferPtr = (sbyte*)byteBufferPtr;
+                        *bufferPtr++ = TinySerializerConstants.USHORT_LENGTH;
+
+                        ushort* lengthBufferPtr = (ushort*)bufferPtr;
+                        *lengthBufferPtr = (ushort)length;
+                    }
+                }
+                else
+                {
+                    dataSize = SerializationTypeSizes.SBYTE + SerializationTypeSizes.UINT32;
+                    EnsureBufferSize(dataSize + offset);
+
+                    fixed (byte* byteBufferPtr = &buffer[offset])
+                    {
+                        sbyte* bufferPtr = (sbyte*)byteBufferPtr;
+                        *bufferPtr++ = TinySerializerConstants.USHORT_LENGTH;
+
+                        uint* lengthBufferPtr = (uint*)bufferPtr;
+                        *lengthBufferPtr = (uint)length;
+                    }
+                }
+            }
+
+            return dataSize;
+        }
+
+        /// <summary>
+        /// Ensures that the buffer is at least of a specific size.
+        /// </summary>
+        /// <param name="size">Ensured buffer size.</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void EnsureBufferSize(int size)
+        {
+            if (bufferSize < size)
+            {
+                // TODO: Check for int overflow
+                int newBufferSize = MathUtil.NextPowerOfTwo(size + 1);
+
+                byte[] newBuffer = new byte[newBufferSize];
+
+                fixed (byte* bufferPtr = buffer, newBufferPtr = newBuffer)
+                {
+                    for (int i = 0; i < bufferSize; i++)
+                    {
+                        newBufferPtr[i] = bufferPtr[i];
+                    }
+                }
+
+                bufferSize = newBufferSize;
+                buffer = newBuffer;
+            }
+        }
+
+        #region OLD_IMPL
+        // Obsolete this when Experimental is working
         // Returns new offset
         private int SerializeIntoBuffer<TSource>(TSource obj, int offset)
         {
@@ -313,6 +1481,7 @@ namespace Expanse.Serialization.TinySerialization
 
                 switch (simpleTypeInfo.serializationType)
                 {
+                    #region PRIMITIVE
                     case SerializationType.Byte:
                         {
                             dataSize = SerializationTypeSizes.BYTE;
@@ -711,6 +1880,7 @@ namespace Expanse.Serialization.TinySerialization
                             }
                         }
                         break;
+                    #endregion
                     case SerializationType.String:
                         {
                             string value = EmitHelper<string>.CastFrom(obj, false);
@@ -3573,32 +4743,13 @@ namespace Expanse.Serialization.TinySerialization
             }
         }
 
+        // Obsolete this when Experimental is working
+        // Returns new offset
         private int SerializeIntoBuffer(object boxedObj, int offset)
         {
-            // TODO: Copy the generic method but use linearly search list cache for simple and advanced type info
             throw new NotImplementedException();
         }
-
-        private void EnsureBufferSize(int size)
-        {
-            if (bufferSize < size)
-            {
-                int newBufferSize = MathUtil.NextPowerOfTwo(size);
-
-                byte[] newBuffer = new byte[newBufferSize];
-
-                fixed (byte* bufferPtr = buffer, newBufferPtr = newBuffer)
-                {
-                    for (int i = 0; i < bufferSize; i++)
-                    {
-                        newBufferPtr[i] = bufferPtr[i];
-                    }
-                }
-
-                bufferSize = newBufferSize;
-                buffer = newBuffer;
-            }
-        }
+        #endregion
     }
 }
 #endif

@@ -64,7 +64,7 @@ namespace Expanse.Serialization.TinySerialization
 
             if (typeInfoCacheCount == typeInfoCache.Length)
             {
-                int newTypeInfoCacheLength = MathUtil.NextPowerOfTwo(typeInfoCacheCount);
+                int newTypeInfoCacheLength = MathUtil.NextPowerOfTwo(typeInfoCacheCount + 1);
 
                 TinySerializerTypeInfo[] newTypeInfoCache = new TinySerializerTypeInfo[newTypeInfoCacheLength];
 
@@ -100,9 +100,13 @@ namespace Expanse.Serialization.TinySerialization
         public bool inspectedFields;
         public bool inspectedProperties;
         public bool emittedFieldGetters;
+        public bool emittedFieldGettersByTypedRef;
         public bool emittedFieldSetters;
         public bool emittedPropertyGetters;
         public bool emittedPropertySetters;
+
+        public FieldInfo[] fieldInfos; // TODO: Remove if unused
+        public PropertyInfo[] propertyInfos; // TODO: Remove if unused
         public FieldTypeInfo[] fieldTypeInfos;
         public PropertyTypeInfo[] propertyTypeInfos;
 
@@ -269,7 +273,7 @@ namespace Expanse.Serialization.TinySerialization
 
             inspectedFields = true;
 
-            FieldInfo[] fieldInfos = type.GetFields(BINDING_FLAGS);
+            fieldInfos = type.GetFields(BINDING_FLAGS);
             int fieldInfoCount = fieldInfos.Length;
 
             fieldTypeInfos = new FieldTypeInfo[fieldInfoCount];
@@ -289,7 +293,7 @@ namespace Expanse.Serialization.TinySerialization
 
             inspectedProperties = true;
 
-            PropertyInfo[] propertyInfos = type.GetProperties(BINDING_FLAGS);
+            propertyInfos = type.GetProperties(BINDING_FLAGS);
             int propertyInfoCount = propertyInfos.Length;
 
             propertyTypeInfos = new PropertyTypeInfo[propertyInfoCount];
@@ -318,85 +322,85 @@ namespace Expanse.Serialization.TinySerialization
                 switch (fieldSerializationType)
                 {
                     case SerializationType.String:
-                        fieldTypeInfo.getter = EmitUtil.GenerateFieldGetterDelegateByTypedRef<string>(fieldInfo);
+                        fieldTypeInfo.getter = EmitUtil.GenerateFieldGetterDelegate<string>(fieldInfo);
                         break;
                     case SerializationType.Byte:
-                        fieldTypeInfo.getter = EmitUtil.GenerateFieldGetterDelegateByTypedRef<byte>(fieldInfo);
+                        fieldTypeInfo.getter = EmitUtil.GenerateFieldGetterDelegate<byte>(fieldInfo);
                         break;
                     case SerializationType.SByte:
-                        fieldTypeInfo.getter = EmitUtil.GenerateFieldGetterDelegateByTypedRef<sbyte>(fieldInfo);
+                        fieldTypeInfo.getter = EmitUtil.GenerateFieldGetterDelegate<sbyte>(fieldInfo);
                         break;
                     case SerializationType.Bool:
-                        fieldTypeInfo.getter = EmitUtil.GenerateFieldGetterDelegateByTypedRef<bool>(fieldInfo);
+                        fieldTypeInfo.getter = EmitUtil.GenerateFieldGetterDelegate<bool>(fieldInfo);
                         break;
                     case SerializationType.Int16:
-                        fieldTypeInfo.getter = EmitUtil.GenerateFieldGetterDelegateByTypedRef<short>(fieldInfo);
+                        fieldTypeInfo.getter = EmitUtil.GenerateFieldGetterDelegate<short>(fieldInfo);
                         break;
                     case SerializationType.Int32:
-                        fieldTypeInfo.getter = EmitUtil.GenerateFieldGetterDelegateByTypedRef<int>(fieldInfo);
+                        fieldTypeInfo.getter = EmitUtil.GenerateFieldGetterDelegate<int>(fieldInfo);
                         break;
                     case SerializationType.Int64:
-                        fieldTypeInfo.getter = EmitUtil.GenerateFieldGetterDelegateByTypedRef<long>(fieldInfo);
+                        fieldTypeInfo.getter = EmitUtil.GenerateFieldGetterDelegate<long>(fieldInfo);
                         break;
                     case SerializationType.UInt16:
-                        fieldTypeInfo.getter = EmitUtil.GenerateFieldGetterDelegateByTypedRef<ushort>(fieldInfo);
+                        fieldTypeInfo.getter = EmitUtil.GenerateFieldGetterDelegate<ushort>(fieldInfo);
                         break;
                     case SerializationType.UInt32:
-                        fieldTypeInfo.getter = EmitUtil.GenerateFieldGetterDelegateByTypedRef<uint>(fieldInfo);
+                        fieldTypeInfo.getter = EmitUtil.GenerateFieldGetterDelegate<uint>(fieldInfo);
                         break;
                     case SerializationType.UInt64:
-                        fieldTypeInfo.getter = EmitUtil.GenerateFieldGetterDelegateByTypedRef<ulong>(fieldInfo);
+                        fieldTypeInfo.getter = EmitUtil.GenerateFieldGetterDelegate<ulong>(fieldInfo);
                         break;
                     case SerializationType.Half:
-                        fieldTypeInfo.getter = EmitUtil.GenerateFieldGetterDelegateByTypedRef<Half>(fieldInfo);
+                        fieldTypeInfo.getter = EmitUtil.GenerateFieldGetterDelegate<Half>(fieldInfo);
                         break;
                     case SerializationType.Single:
-                        fieldTypeInfo.getter = EmitUtil.GenerateFieldGetterDelegateByTypedRef<float>(fieldInfo);
+                        fieldTypeInfo.getter = EmitUtil.GenerateFieldGetterDelegate<float>(fieldInfo);
                         break;
                     case SerializationType.Double:
-                        fieldTypeInfo.getter = EmitUtil.GenerateFieldGetterDelegateByTypedRef<double>(fieldInfo);
+                        fieldTypeInfo.getter = EmitUtil.GenerateFieldGetterDelegate<double>(fieldInfo);
                         break;
                     case SerializationType.Char:
-                        fieldTypeInfo.getter = EmitUtil.GenerateFieldGetterDelegateByTypedRef<char>(fieldInfo);
+                        fieldTypeInfo.getter = EmitUtil.GenerateFieldGetterDelegate<char>(fieldInfo);
                         break;
                     case SerializationType.Decimal:
-                        fieldTypeInfo.getter = EmitUtil.GenerateFieldGetterDelegateByTypedRef<decimal>(fieldInfo);
+                        fieldTypeInfo.getter = EmitUtil.GenerateFieldGetterDelegate<decimal>(fieldInfo);
                         break;
                     case SerializationType.DateTime:
-                        fieldTypeInfo.getter = EmitUtil.GenerateFieldGetterDelegateByTypedRef<DateTime>(fieldInfo);
+                        fieldTypeInfo.getter = EmitUtil.GenerateFieldGetterDelegate<DateTime>(fieldInfo);
                         break;
                     case SerializationType.DateTimeOffset:
-                        fieldTypeInfo.getter = EmitUtil.GenerateFieldGetterDelegateByTypedRef<DateTimeOffset>(fieldInfo);
+                        fieldTypeInfo.getter = EmitUtil.GenerateFieldGetterDelegate<DateTimeOffset>(fieldInfo);
                         break;
                     case SerializationType.TimeSpan:
-                        fieldTypeInfo.getter = EmitUtil.GenerateFieldGetterDelegateByTypedRef<TimeSpan>(fieldInfo);
+                        fieldTypeInfo.getter = EmitUtil.GenerateFieldGetterDelegate<TimeSpan>(fieldInfo);
                         break;
                     case SerializationType.Vector2:
-                        fieldTypeInfo.getter = EmitUtil.GenerateFieldGetterDelegateByTypedRef<Vector2>(fieldInfo);
+                        fieldTypeInfo.getter = EmitUtil.GenerateFieldGetterDelegate<Vector2>(fieldInfo);
                         break;
                     case SerializationType.Vector3:
-                        fieldTypeInfo.getter = EmitUtil.GenerateFieldGetterDelegateByTypedRef<Vector3>(fieldInfo);
+                        fieldTypeInfo.getter = EmitUtil.GenerateFieldGetterDelegate<Vector3>(fieldInfo);
                         break;
                     case SerializationType.Vector4:
-                        fieldTypeInfo.getter = EmitUtil.GenerateFieldGetterDelegateByTypedRef<Vector4>(fieldInfo);
+                        fieldTypeInfo.getter = EmitUtil.GenerateFieldGetterDelegate<Vector4>(fieldInfo);
                         break;
                     case SerializationType.Quaternion:
-                        fieldTypeInfo.getter = EmitUtil.GenerateFieldGetterDelegateByTypedRef<Quaternion>(fieldInfo);
+                        fieldTypeInfo.getter = EmitUtil.GenerateFieldGetterDelegate<Quaternion>(fieldInfo);
                         break;
                     case SerializationType.Rect:
-                        fieldTypeInfo.getter = EmitUtil.GenerateFieldGetterDelegateByTypedRef<Rect>(fieldInfo);
+                        fieldTypeInfo.getter = EmitUtil.GenerateFieldGetterDelegate<Rect>(fieldInfo);
                         break;
                     case SerializationType.Bounds:
-                        fieldTypeInfo.getter = EmitUtil.GenerateFieldGetterDelegateByTypedRef<Bounds>(fieldInfo);
+                        fieldTypeInfo.getter = EmitUtil.GenerateFieldGetterDelegate<Bounds>(fieldInfo);
                         break;
                     case SerializationType.IntVector2:
-                        fieldTypeInfo.getter = EmitUtil.GenerateFieldGetterDelegateByTypedRef<IntVector2>(fieldInfo);
+                        fieldTypeInfo.getter = EmitUtil.GenerateFieldGetterDelegate<IntVector2>(fieldInfo);
                         break;
                     case SerializationType.IntVector3:
-                        fieldTypeInfo.getter = EmitUtil.GenerateFieldGetterDelegateByTypedRef<IntVector3>(fieldInfo);
+                        fieldTypeInfo.getter = EmitUtil.GenerateFieldGetterDelegate<IntVector3>(fieldInfo);
                         break;
                     case SerializationType.IntVector4:
-                        fieldTypeInfo.getter = EmitUtil.GenerateFieldGetterDelegateByTypedRef<IntVector4>(fieldInfo);
+                        fieldTypeInfo.getter = EmitUtil.GenerateFieldGetterDelegate<IntVector4>(fieldInfo);
                         break;
                     // TODO: Use generic delegates for primitive array, list and nullables
                     case SerializationType.PrimitiveArray:
@@ -406,7 +410,119 @@ namespace Expanse.Serialization.TinySerialization
                     case SerializationType.ObjectList:
                     case SerializationType.ObjectNullable:
                     case SerializationType.Object:
-                        fieldTypeInfo.getter = EmitUtil.GenerateFieldGetterDelegateByTypedRef(fieldInfo);
+                        fieldTypeInfo.getter = EmitUtil.GenerateFieldGetterDelegate(fieldInfo);
+                        break;
+                    default:
+                        throw new UnsupportedException("Unsupported serialization type: " + fieldSerializationType);
+                }
+            }
+        }
+
+        public void EmitFieldGettersByTypedRef()
+        {
+            if (emittedFieldGettersByTypedRef)
+                return;
+
+            emittedFieldGettersByTypedRef = true;
+
+            for (int i = 0; i < fieldTypeInfos.Length; i++)
+            {
+                FieldTypeInfo fieldTypeInfo = fieldTypeInfos[i];
+                SerializationType fieldSerializationType = fieldTypeInfo.fieldTypeInfo.serializationType;
+                FieldInfo fieldInfo = fieldTypeInfo.fieldInfo;
+
+                switch (fieldSerializationType)
+                {
+                    case SerializationType.String:
+                        fieldTypeInfo.getterByTypedRef = EmitUtil.GenerateFieldGetterDelegateByTypedRef<string>(fieldInfo);
+                        break;
+                    case SerializationType.Byte:
+                        fieldTypeInfo.getterByTypedRef = EmitUtil.GenerateFieldGetterDelegateByTypedRef<byte>(fieldInfo);
+                        break;
+                    case SerializationType.SByte:
+                        fieldTypeInfo.getterByTypedRef = EmitUtil.GenerateFieldGetterDelegateByTypedRef<sbyte>(fieldInfo);
+                        break;
+                    case SerializationType.Bool:
+                        fieldTypeInfo.getterByTypedRef = EmitUtil.GenerateFieldGetterDelegateByTypedRef<bool>(fieldInfo);
+                        break;
+                    case SerializationType.Int16:
+                        fieldTypeInfo.getterByTypedRef = EmitUtil.GenerateFieldGetterDelegateByTypedRef<short>(fieldInfo);
+                        break;
+                    case SerializationType.Int32:
+                        fieldTypeInfo.getterByTypedRef = EmitUtil.GenerateFieldGetterDelegateByTypedRef<int>(fieldInfo);
+                        break;
+                    case SerializationType.Int64:
+                        fieldTypeInfo.getterByTypedRef = EmitUtil.GenerateFieldGetterDelegateByTypedRef<long>(fieldInfo);
+                        break;
+                    case SerializationType.UInt16:
+                        fieldTypeInfo.getterByTypedRef = EmitUtil.GenerateFieldGetterDelegateByTypedRef<ushort>(fieldInfo);
+                        break;
+                    case SerializationType.UInt32:
+                        fieldTypeInfo.getterByTypedRef = EmitUtil.GenerateFieldGetterDelegateByTypedRef<uint>(fieldInfo);
+                        break;
+                    case SerializationType.UInt64:
+                        fieldTypeInfo.getterByTypedRef = EmitUtil.GenerateFieldGetterDelegateByTypedRef<ulong>(fieldInfo);
+                        break;
+                    case SerializationType.Half:
+                        fieldTypeInfo.getterByTypedRef = EmitUtil.GenerateFieldGetterDelegateByTypedRef<Half>(fieldInfo);
+                        break;
+                    case SerializationType.Single:
+                        fieldTypeInfo.getterByTypedRef = EmitUtil.GenerateFieldGetterDelegateByTypedRef<float>(fieldInfo);
+                        break;
+                    case SerializationType.Double:
+                        fieldTypeInfo.getterByTypedRef = EmitUtil.GenerateFieldGetterDelegateByTypedRef<double>(fieldInfo);
+                        break;
+                    case SerializationType.Char:
+                        fieldTypeInfo.getterByTypedRef = EmitUtil.GenerateFieldGetterDelegateByTypedRef<char>(fieldInfo);
+                        break;
+                    case SerializationType.Decimal:
+                        fieldTypeInfo.getterByTypedRef = EmitUtil.GenerateFieldGetterDelegateByTypedRef<decimal>(fieldInfo);
+                        break;
+                    case SerializationType.DateTime:
+                        fieldTypeInfo.getterByTypedRef = EmitUtil.GenerateFieldGetterDelegateByTypedRef<DateTime>(fieldInfo);
+                        break;
+                    case SerializationType.DateTimeOffset:
+                        fieldTypeInfo.getterByTypedRef = EmitUtil.GenerateFieldGetterDelegateByTypedRef<DateTimeOffset>(fieldInfo);
+                        break;
+                    case SerializationType.TimeSpan:
+                        fieldTypeInfo.getterByTypedRef = EmitUtil.GenerateFieldGetterDelegateByTypedRef<TimeSpan>(fieldInfo);
+                        break;
+                    case SerializationType.Vector2:
+                        fieldTypeInfo.getterByTypedRef = EmitUtil.GenerateFieldGetterDelegateByTypedRef<Vector2>(fieldInfo);
+                        break;
+                    case SerializationType.Vector3:
+                        fieldTypeInfo.getterByTypedRef = EmitUtil.GenerateFieldGetterDelegateByTypedRef<Vector3>(fieldInfo);
+                        break;
+                    case SerializationType.Vector4:
+                        fieldTypeInfo.getterByTypedRef = EmitUtil.GenerateFieldGetterDelegateByTypedRef<Vector4>(fieldInfo);
+                        break;
+                    case SerializationType.Quaternion:
+                        fieldTypeInfo.getterByTypedRef = EmitUtil.GenerateFieldGetterDelegateByTypedRef<Quaternion>(fieldInfo);
+                        break;
+                    case SerializationType.Rect:
+                        fieldTypeInfo.getterByTypedRef = EmitUtil.GenerateFieldGetterDelegateByTypedRef<Rect>(fieldInfo);
+                        break;
+                    case SerializationType.Bounds:
+                        fieldTypeInfo.getterByTypedRef = EmitUtil.GenerateFieldGetterDelegateByTypedRef<Bounds>(fieldInfo);
+                        break;
+                    case SerializationType.IntVector2:
+                        fieldTypeInfo.getterByTypedRef = EmitUtil.GenerateFieldGetterDelegateByTypedRef<IntVector2>(fieldInfo);
+                        break;
+                    case SerializationType.IntVector3:
+                        fieldTypeInfo.getterByTypedRef = EmitUtil.GenerateFieldGetterDelegateByTypedRef<IntVector3>(fieldInfo);
+                        break;
+                    case SerializationType.IntVector4:
+                        fieldTypeInfo.getterByTypedRef = EmitUtil.GenerateFieldGetterDelegateByTypedRef<IntVector4>(fieldInfo);
+                        break;
+                    // TODO: Use generic delegates for primitive array, list and nullables
+                    case SerializationType.PrimitiveArray:
+                    case SerializationType.PrimitiveList:
+                    case SerializationType.PrimitiveNullable:
+                    case SerializationType.ObjectArray:
+                    case SerializationType.ObjectList:
+                    case SerializationType.ObjectNullable:
+                    case SerializationType.Object:
+                        fieldTypeInfo.getterByTypedRef = EmitUtil.GenerateFieldGetterDelegateByTypedRef(fieldInfo);
                         break;
                     default:
                         throw new UnsupportedException("Unsupported serialization type: " + fieldSerializationType);
@@ -452,6 +568,8 @@ namespace Expanse.Serialization.TinySerialization
             public TinySerializerTypeInfo fieldTypeInfo;
             public Delegate getter;
             public Delegate setter;
+            public Delegate getterByTypedRef;
+            public Delegate setterByTypedRef;
 
             public FieldTypeInfo(FieldInfo fieldInfo)
             {
@@ -471,6 +589,8 @@ namespace Expanse.Serialization.TinySerialization
             public TinySerializerTypeInfo propertyTypeInfo;
             public Delegate getter;
             public Delegate setter;
+            public Delegate getterByTypedRef;
+            public Delegate setterByTypedRef;
 
             public PropertyTypeInfo(PropertyInfo propertyInfo)
             {

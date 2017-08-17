@@ -36,6 +36,7 @@ namespace Expanse.Utilities
         // Type array caches used when emitting methods
         private static readonly Type tObject = typeof(object);
         private static readonly Type tTypedRef = typeof(TypedReference);
+        private static readonly Type tBool = typeof(bool);
         private static readonly Type[] emptyTypeArray = new Type[0];
         private static readonly Type[] singleTypeArray = new Type[1];
         private static readonly Type[] doubleTypeArray = new Type[2];
@@ -147,6 +148,18 @@ namespace Expanse.Utilities
         /// <param name="source">Typed reference of the instance of the object to get the property from.</param>
         /// <returns>Returns the value of the instance property on the source object.</returns>
         public delegate TValue PropertyGetterDelegateByTypedRef<TValue>(TypedReference source);
+        /// <summary>
+        /// Delegate used to check if a typed reference is null.
+        /// </summary>
+        /// <param name="source">Typed reference of the instance to check null for.</param>
+        /// <returns>Returns true if typed reference contains a null value.</returns>
+        public delegate bool TypedReferenceNullCheckDelegate(TypedReference source);
+        /// <summary>
+        /// Delegate used to get the object instance of a typed reference.
+        /// </summary>
+        /// <param name="source">Typed reference to get the object of.</param>
+        /// <returns>Returns the object instance of a typed reference.</returns>
+        public delegate object TypedReferenceToObjectDelegate(TypedReference source);
 
         #region GENERIC
 
@@ -1090,6 +1103,97 @@ namespace Expanse.Utilities
             gen.Emit(OpCodes.Ret);
 
             return (StaticPropertySetterDelegate<object>)setterMethod.CreateDelegate(typeof(StaticPropertySetterDelegate<object>));
+        }
+
+        /// <summary>
+        /// Creates a delegate that returns true if the typed reference instance object is null.
+        /// </summary>
+        /// <param name="type">Reference type of the typed reference.</param>
+        /// <returns>Returns the delegate that returns true if the instance object of a typed reference is null.</returns>
+        public static TypedReferenceNullCheckDelegate GenerateTypedReferenceNullCheckDelegate(Type type)
+        {
+            singleTypeArray[0] = tTypedRef;
+            string dynamicMethodName = useMeaningfulNames ? $"{type.FullName}TypedRefNullCheck" : GENERATED_NAME;
+            DynamicMethod nullCheckMethod = new DynamicMethod(dynamicMethodName, tBool, singleTypeArray, type);
+
+            // TODO: Cache this reflection
+            MethodInfo getTypeFromHandleMethodInfo = typeof(Type).GetMethod("GetTypeFromHandle", BindingFlags.Static | BindingFlags.Public);
+            doubleTypeArray[0] = typeof(Type);
+            doubleTypeArray[1] = typeof(Type);
+            // TODO: Maybe compare handle value pointers directly
+            MethodInfo typeEqualityMethodInfo = typeof(Type).GetMethod("op_Equality", BindingFlags.Public | BindingFlags.Static, null, doubleTypeArray, null);
+
+            ILGenerator gen = nullCheckMethod.GetILGenerator();
+            gen.DeclareLocal(typeof(bool));
+            gen.DeclareLocal(typeof(int));
+
+            var isObjectLabel = gen.DefineLabel();
+            var notObjectLabel = gen.DefineLabel();
+            var endLabel = gen.DefineLabel();
+
+            gen.Emit(OpCodes.Ldarg_0);
+            gen.Emit(OpCodes.Refanytype);
+            gen.Emit(OpCodes.Call, getTypeFromHandleMethodInfo);
+            gen.Emit(OpCodes.Ldtoken, tObject);
+            gen.Emit(OpCodes.Call, getTypeFromHandleMethodInfo);
+            gen.Emit(OpCodes.Call, typeEqualityMethodInfo);
+            gen.Emit(OpCodes.Stloc_0);
+
+            gen.Emit(OpCodes.Ldloc_0);
+            gen.Emit(OpCodes.Brtrue_S, isObjectLabel);
+            gen.Emit(OpCodes.Ldloc_0);
+            gen.Emit(OpCodes.Brfalse_S, notObjectLabel);
+            gen.Emit(OpCodes.Br, endLabel);
+
+            gen.MarkLabel(isObjectLabel);
+            gen.Emit(OpCodes.Ldarg_0);
+            gen.Emit(OpCodes.Refanyval, tObject);
+            gen.Emit(OpCodes.Ldind_Ref);
+            gen.Emit(OpCodes.Ldnull);
+            gen.Emit(OpCodes.Ceq);
+            gen.Emit(OpCodes.Stloc_1);
+            gen.Emit(OpCodes.Br, endLabel);
+
+            gen.MarkLabel(notObjectLabel);
+            gen.Emit(OpCodes.Ldarg_0);
+            gen.Emit(OpCodes.Refanyval, type);
+            gen.Emit(OpCodes.Ldind_Ref);
+            gen.Emit(OpCodes.Ldnull);
+            gen.Emit(OpCodes.Ceq);
+            gen.Emit(OpCodes.Stloc_1);
+            gen.Emit(OpCodes.Br, endLabel);
+
+            gen.MarkLabel(endLabel);
+            gen.Emit(OpCodes.Ldloc_1);
+            gen.Emit(OpCodes.Ret);
+
+            return (TypedReferenceNullCheckDelegate)nullCheckMethod.CreateDelegate(typeof(TypedReferenceNullCheckDelegate));
+        }
+
+        /// <summary>
+        /// Creates a delegate that returns the object of a typed reference.
+        /// <para>Warning: Boxes value types.</para>
+        /// </summary>
+        /// <param name="type">Reference type of the typed reference.</param>
+        /// <returns>Returns a delegate that returns the object of a typed reference.</returns>
+        public static TypedReferenceToObjectDelegate GenerateTypedReferenceToObjectDelegate(Type type)
+        {
+            singleTypeArray[0] = tTypedRef;
+            string dynamicMethodName = useMeaningfulNames ? $"{type.FullName}TypedRefToObject" : GENERATED_NAME;
+            DynamicMethod toObjectMethod = new DynamicMethod(dynamicMethodName, tObject, singleTypeArray, type);
+
+            // TODO: Handle the case where TypedReference may be of type object (See: GenerateTypedReferenceNullCheckDelegate())
+            ILGenerator gen = toObjectMethod.GetILGenerator();
+            gen.Emit(OpCodes.Ldarg_0);
+            gen.Emit(OpCodes.Refanyval, type);
+            gen.Emit(OpCodes.Ldind_Ref);
+            if (type.IsValueType)
+                gen.Emit(OpCodes.Box, type);
+            else if (type != tObject)
+                gen.Emit(OpCodes.Castclass, type);
+            gen.Emit(OpCodes.Ret);
+
+            return (TypedReferenceToObjectDelegate)toObjectMethod.CreateDelegate(typeof(TypedReferenceToObjectDelegate));
         }
 
         #endregion
