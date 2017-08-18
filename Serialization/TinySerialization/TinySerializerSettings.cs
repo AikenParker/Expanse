@@ -21,7 +21,6 @@ namespace Expanse.Serialization.TinySerialization
         public bool checkPropertySerialzableAttribute;
         public bool checkPropertyNonSerializableAttribute;
 
-        public bool emitValueTypeCasters;
         public bool variablePrefixLengthSize;
         public bool compressBoolArray;
         public StringEncodeType defaultStringEncodeType;
@@ -50,7 +49,6 @@ namespace Expanse.Serialization.TinySerialization
                 defaultSettings.checkPropertySerialzableAttribute = false;
                 defaultSettings.checkPropertyNonSerializableAttribute = false;
 
-                defaultSettings.emitValueTypeCasters = true;
                 defaultSettings.variablePrefixLengthSize = true;
                 defaultSettings.compressBoolArray = true;
                 defaultSettings.defaultStringEncodeType = StringEncodeType.Byte;

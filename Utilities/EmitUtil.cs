@@ -236,6 +236,7 @@ namespace Expanse.Utilities
         public static DefaultConstructorDelegate<TSource> GenerateDefaultConstructorDelegate<TSource>()
             where TSource : new()
         {
+            // TODO: Be able construct all primitive types
             Type tSource = typeof(TSource);
             ConstructorInfo defaultConstructorInfo = tSource.GetConstructor(emptyTypeArray);
 

@@ -1,4 +1,11 @@
-﻿using System;
+﻿#region AOT_ONLY_DEFINE
+#define AOT_ONLY
+#if (UNITY_EDITOR || UNITY_STANDALONE || UNITY_ANDROID) && !ENABLE_IL2CPP
+#undef AOT_ONLY
+#endif
+#endregion
+
+using System;
 using Expanse.Extensions;
 
 namespace Expanse.Utilities
@@ -16,36 +23,67 @@ namespace Expanse.Utilities
         /// <returns>Returns a new byte array representing the value given.</returns>
         public static byte[] GetBytes<T>(T value) where T : struct, IConvertible, IComparable, IComparable<T>
         {
+#if !AOT_ONLY
             if (value is bool)
-                return BitConverter.GetBytes(EmitHelper<bool>.CastFrom(value, true));
+                return BitConverter.GetBytes(EmitHelper<bool>.CastFrom(value));
 
             if (value is char)
-                return BitConverter.GetBytes(EmitHelper<char>.CastFrom(value, true));
+                return BitConverter.GetBytes(EmitHelper<char>.CastFrom(value));
 
             if (value is double)
-                return BitConverter.GetBytes(EmitHelper<double>.CastFrom(value, true));
+                return BitConverter.GetBytes(EmitHelper<double>.CastFrom(value));
 
             if (value is float)
-                return BitConverter.GetBytes(EmitHelper<float>.CastFrom(value, true));
+                return BitConverter.GetBytes(EmitHelper<float>.CastFrom(value));
 
             if (value is int)
-                return BitConverter.GetBytes(EmitHelper<int>.CastFrom(value, true));
+                return BitConverter.GetBytes(EmitHelper<int>.CastFrom(value));
 
             if (value is long)
-                return BitConverter.GetBytes(EmitHelper<long>.CastFrom(value, true));
+                return BitConverter.GetBytes(EmitHelper<long>.CastFrom(value));
 
             if (value is short)
-                return BitConverter.GetBytes(EmitHelper<short>.CastFrom(value, true));
+                return BitConverter.GetBytes(EmitHelper<short>.CastFrom(value));
 
             if (value is uint)
-                return BitConverter.GetBytes(EmitHelper<uint>.CastFrom(value, true));
+                return BitConverter.GetBytes(EmitHelper<uint>.CastFrom(value));
 
             if (value is ulong)
-                return BitConverter.GetBytes(EmitHelper<ulong>.CastFrom(value, true));
+                return BitConverter.GetBytes(EmitHelper<ulong>.CastFrom(value));
 
             if (value is ushort)
-                return BitConverter.GetBytes(EmitHelper<ushort>.CastFrom(value, true));
+                return BitConverter.GetBytes(EmitHelper<ushort>.CastFrom(value));
+#else
+            if (value is bool)
+                return BitConverter.GetBytes((bool)(object)value);
 
+            if (value is char)
+                return BitConverter.GetBytes((char)(object)value);
+
+            if (value is double)
+                return BitConverter.GetBytes((double)(object)value);
+
+            if (value is float)
+                return BitConverter.GetBytes((float)(object)value);
+
+            if (value is int)
+                return BitConverter.GetBytes((int)(object)value);
+
+            if (value is long)
+                return BitConverter.GetBytes((long)(object)value);
+
+            if (value is short)
+                return BitConverter.GetBytes((short)(object)value);
+
+            if (value is uint)
+                return BitConverter.GetBytes((uint)(object)value);
+
+            if (value is ulong)
+                return BitConverter.GetBytes((ulong)(object)value);
+
+            if (value is ushort)
+                return BitConverter.GetBytes((ushort)(object)value);
+#endif
             throw new UnsupportedException("Unable to convert type to bytes. " + typeof(T).ToString());
         }
 

@@ -176,35 +176,35 @@ namespace Expanse.Serialization.TinySerialization
 
         static SerializationTypeHashCodes()
         {
-            String = SerializationTypeValues.String.GetHashCode();
-            Byte = SerializationTypeValues.Byte.GetHashCode();
-            SByte = SerializationTypeValues.SByte.GetHashCode();
-            Bool = SerializationTypeValues.Bool.GetHashCode();
-            Int16 = SerializationTypeValues.Int16.GetHashCode();
-            Int32 = SerializationTypeValues.Int32.GetHashCode();
-            Int64 = SerializationTypeValues.Int64.GetHashCode();
-            UInt16 = SerializationTypeValues.UInt16.GetHashCode();
-            UInt32 = SerializationTypeValues.UInt32.GetHashCode();
-            UInt64 = SerializationTypeValues.UInt64.GetHashCode();
-            Half = SerializationTypeValues.Half.GetHashCode();
-            Single = SerializationTypeValues.Single.GetHashCode();
-            Double = SerializationTypeValues.Double.GetHashCode();
-            Char = SerializationTypeValues.Char.GetHashCode();
-            Decimal = SerializationTypeValues.Decimal.GetHashCode();
-            DateTime = SerializationTypeValues.DateTime.GetHashCode();
-            DateTimeOffset = SerializationTypeValues.DateTimeOffset.GetHashCode();
-            TimeSpan = SerializationTypeValues.TimeSpan.GetHashCode();
-            Vector2 = SerializationTypeValues.Vector2.GetHashCode();
-            Vector3 = SerializationTypeValues.Vector3.GetHashCode();
-            Vector4 = SerializationTypeValues.Vector4.GetHashCode();
-            Quaternion = SerializationTypeValues.Quaternion.GetHashCode();
-            Rect = SerializationTypeValues.Rect.GetHashCode();
-            Bounds = SerializationTypeValues.Bounds.GetHashCode();
-            IntVector2 = SerializationTypeValues.IntVector2.GetHashCode();
-            IntVector3 = SerializationTypeValues.IntVector3.GetHashCode();
-            IntVector4 = SerializationTypeValues.IntVector4.GetHashCode();
-            UnboundList = SerializationTypeValues.UnboundList.GetHashCode();
-            UnboundNullable = SerializationTypeValues.UnboundNullable.GetHashCode();
+            String = SerializationTypeValues.String.TypeHandle.Value.ToInt32();
+            Byte = SerializationTypeValues.Byte.TypeHandle.Value.ToInt32();
+            SByte = SerializationTypeValues.SByte.TypeHandle.Value.ToInt32();
+            Bool = SerializationTypeValues.Bool.TypeHandle.Value.ToInt32();
+            Int16 = SerializationTypeValues.Int16.TypeHandle.Value.ToInt32();
+            Int32 = SerializationTypeValues.Int32.TypeHandle.Value.ToInt32();
+            Int64 = SerializationTypeValues.Int64.TypeHandle.Value.ToInt32();
+            UInt16 = SerializationTypeValues.UInt16.TypeHandle.Value.ToInt32();
+            UInt32 = SerializationTypeValues.UInt32.TypeHandle.Value.ToInt32();
+            UInt64 = SerializationTypeValues.UInt64.TypeHandle.Value.ToInt32();
+            Half = SerializationTypeValues.Half.TypeHandle.Value.ToInt32();
+            Single = SerializationTypeValues.Single.TypeHandle.Value.ToInt32();
+            Double = SerializationTypeValues.Double.TypeHandle.Value.ToInt32();
+            Char = SerializationTypeValues.Char.TypeHandle.Value.ToInt32();
+            Decimal = SerializationTypeValues.Decimal.TypeHandle.Value.ToInt32();
+            DateTime = SerializationTypeValues.DateTime.TypeHandle.Value.ToInt32();
+            DateTimeOffset = SerializationTypeValues.DateTimeOffset.TypeHandle.Value.ToInt32();
+            TimeSpan = SerializationTypeValues.TimeSpan.TypeHandle.Value.ToInt32();
+            Vector2 = SerializationTypeValues.Vector2.TypeHandle.Value.ToInt32();
+            Vector3 = SerializationTypeValues.Vector3.TypeHandle.Value.ToInt32();
+            Vector4 = SerializationTypeValues.Vector4.TypeHandle.Value.ToInt32();
+            Quaternion = SerializationTypeValues.Quaternion.TypeHandle.Value.ToInt32();
+            Rect = SerializationTypeValues.Rect.TypeHandle.Value.ToInt32();
+            Bounds = SerializationTypeValues.Bounds.TypeHandle.Value.ToInt32();
+            IntVector2 = SerializationTypeValues.IntVector2.TypeHandle.Value.ToInt32();
+            IntVector3 = SerializationTypeValues.IntVector3.TypeHandle.Value.ToInt32();
+            IntVector4 = SerializationTypeValues.IntVector4.TypeHandle.Value.ToInt32();
+            UnboundList = SerializationTypeValues.UnboundList.TypeHandle.Value.ToInt32();
+            UnboundNullable = SerializationTypeValues.UnboundNullable.TypeHandle.Value.ToInt32();
         }
     }
 }

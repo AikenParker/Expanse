@@ -20,13 +20,27 @@ namespace Expanse.Serialization.TinySerialization
         {
             typeInfoCacheCount = 0;
 
-            typeInfoCache = new TinySerializerTypeInfo[10];
+            typeInfoCache = new TinySerializerTypeInfo[30];
 
+            // lastTypeInfo must never be null
             lastTypeInfo = AddTypeInfo(SerializationTypeValues.Int32, SerializationTypeHashCodes.Int32);
-            AddTypeInfo(SerializationTypeValues.Single, SerializationTypeHashCodes.Single);
-            AddTypeInfo(SerializationTypeValues.Byte, SerializationTypeHashCodes.Byte);
+
+            // Not strictly required: simply for pre-caching
             AddTypeInfo(SerializationTypeValues.Bool, SerializationTypeHashCodes.Bool);
+            AddTypeInfo(SerializationTypeValues.Byte, SerializationTypeHashCodes.Byte);
+            AddTypeInfo(SerializationTypeValues.Char, SerializationTypeHashCodes.Char);
+            AddTypeInfo(SerializationTypeValues.Double, SerializationTypeHashCodes.Double);
+            AddTypeInfo(SerializationTypeValues.Int16, SerializationTypeHashCodes.Int16);
+            AddTypeInfo(SerializationTypeValues.Int64, SerializationTypeHashCodes.Int64);
+            AddTypeInfo(SerializationTypeValues.Quaternion, SerializationTypeHashCodes.Quaternion);
+            AddTypeInfo(SerializationTypeValues.SByte, SerializationTypeHashCodes.SByte);
+            AddTypeInfo(SerializationTypeValues.Single, SerializationTypeHashCodes.Single);
             AddTypeInfo(SerializationTypeValues.String, SerializationTypeHashCodes.String);
+            AddTypeInfo(SerializationTypeValues.UInt16, SerializationTypeHashCodes.UInt16);
+            AddTypeInfo(SerializationTypeValues.UInt32, SerializationTypeHashCodes.UInt32);
+            AddTypeInfo(SerializationTypeValues.UInt64, SerializationTypeHashCodes.UInt64);
+            AddTypeInfo(SerializationTypeValues.Vector2, SerializationTypeHashCodes.Vector2);
+            AddTypeInfo(SerializationTypeValues.Vector3, SerializationTypeHashCodes.Vector3);
         }
 
         private static TinySerializerTypeInfo AddTypeInfo(Type type, int typeHashCode)
@@ -99,14 +113,18 @@ namespace Expanse.Serialization.TinySerialization
 
         public bool inspectedFields;
         public bool inspectedProperties;
+        public bool emittedDefaultConstructor;
+        public bool emittedObjectDefaultConstructor;
         public bool emittedFieldGetters;
         public bool emittedFieldGettersByTypedRef;
         public bool emittedFieldSetters;
+        public bool emittedFieldSettersByTypedRef;
         public bool emittedPropertyGetters;
+        public bool emittedPropertyGettersByTypedRef;
         public bool emittedPropertySetters;
-
-        public FieldInfo[] fieldInfos; // TODO: Remove if unused
-        public PropertyInfo[] propertyInfos; // TODO: Remove if unused
+        public bool emittedPropertySettersByTypedRef;
+        public Delegate defaultConstructor;
+        public Delegate objectDefaultConstructor;
         public FieldTypeInfo[] fieldTypeInfos;
         public PropertyTypeInfo[] propertyTypeInfos;
 
@@ -163,7 +181,26 @@ namespace Expanse.Serialization.TinySerialization
 
             if (isValueType)
             {
-                if (typeHashCode == SerializationTypeHashCodes.Int32)
+                if (isEnum)
+                {
+                    if (underlyingTypeHashCode == SerializationTypeHashCodes.Int32)
+                        serializationType = SerializationType.Int32;
+                    else if (underlyingTypeHashCode == SerializationTypeHashCodes.Byte)
+                        serializationType = SerializationType.Byte;
+                    else if (underlyingTypeHashCode == SerializationTypeHashCodes.SByte)
+                        serializationType = SerializationType.SByte;
+                    else if (underlyingTypeHashCode == SerializationTypeHashCodes.Int16)
+                        serializationType = SerializationType.Int16;
+                    else if (underlyingTypeHashCode == SerializationTypeHashCodes.Int64)
+                        serializationType = SerializationType.Int64;
+                    else if (underlyingTypeHashCode == SerializationTypeHashCodes.UInt16)
+                        serializationType = SerializationType.UInt16;
+                    else if (underlyingTypeHashCode == SerializationTypeHashCodes.UInt32)
+                        serializationType = SerializationType.UInt32;
+                    else if (underlyingTypeHashCode == SerializationTypeHashCodes.UInt64)
+                        serializationType = SerializationType.UInt64;
+                }
+                else if (typeHashCode == SerializationTypeHashCodes.Int32)
                     serializationType = SerializationType.Int32;
                 else if (typeHashCode == SerializationTypeHashCodes.Byte)
                     serializationType = SerializationType.Byte;
@@ -273,7 +310,7 @@ namespace Expanse.Serialization.TinySerialization
 
             inspectedFields = true;
 
-            fieldInfos = type.GetFields(BINDING_FLAGS);
+            FieldInfo[] fieldInfos = type.GetFields(BINDING_FLAGS);
             int fieldInfoCount = fieldInfos.Length;
 
             fieldTypeInfos = new FieldTypeInfo[fieldInfoCount];
@@ -293,7 +330,7 @@ namespace Expanse.Serialization.TinySerialization
 
             inspectedProperties = true;
 
-            propertyInfos = type.GetProperties(BINDING_FLAGS);
+            PropertyInfo[] propertyInfos = type.GetProperties(BINDING_FLAGS);
             int propertyInfoCount = propertyInfos.Length;
 
             propertyTypeInfos = new PropertyTypeInfo[propertyInfoCount];
@@ -304,6 +341,26 @@ namespace Expanse.Serialization.TinySerialization
                 PropertyTypeInfo propertyTypeInfo = new PropertyTypeInfo(propertyInfo);
                 propertyTypeInfos[i] = propertyTypeInfo;
             }
+        }
+
+        public void EmitDefaultConstructor<TSource>() where TSource : new()
+        {
+            if (emittedDefaultConstructor)
+                return;
+
+            emittedDefaultConstructor = true;
+
+            defaultConstructor = EmitUtil.GenerateDefaultConstructorDelegate<TSource>();
+        }
+
+        public void EmitObjectDefaultConstructor()
+        {
+            if (emittedObjectDefaultConstructor)
+                return;
+
+            emittedObjectDefaultConstructor = true;
+
+            objectDefaultConstructor = EmitUtil.GenerateDefaultConstructorDelegate(type);
         }
 
         public void EmitFieldGetters()
@@ -535,9 +592,15 @@ namespace Expanse.Serialization.TinySerialization
             if (emittedFieldSetters)
                 return;
 
-            Debug.LogWarning("Not implemented EmitFieldSetters delegate assignment");
-
             emittedFieldSetters = true;
+        }
+
+        public void EmitFieldSettersByTypedRef()
+        {
+            if (emittedFieldSettersByTypedRef)
+                return;
+
+            emittedFieldSettersByTypedRef = true;
         }
 
         public void EmitPropertyGetters()
@@ -545,9 +608,15 @@ namespace Expanse.Serialization.TinySerialization
             if (emittedPropertyGetters)
                 return;
 
-            Debug.LogWarning("Not implemented EmitFieldSetters delegate assignment");
-
             emittedPropertyGetters = true;
+        }
+
+        public void EmitPropertyGettersByTypedRef()
+        {
+            if (emittedPropertyGettersByTypedRef)
+                return;
+
+            emittedPropertyGettersByTypedRef = true;
         }
 
         public void EmitPropertySetters()
@@ -555,9 +624,15 @@ namespace Expanse.Serialization.TinySerialization
             if (emittedPropertySetters)
                 return;
 
-            Debug.LogWarning("Not implemented EmitFieldSetters delegate assignment");
-
             emittedPropertySetters = true;
+        }
+
+        public void EmitPropertySettersByTypedRef()
+        {
+            if (emittedPropertySettersByTypedRef)
+                return;
+
+            emittedPropertySettersByTypedRef = true;
         }
 
         public sealed class FieldTypeInfo

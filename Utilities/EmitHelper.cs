@@ -5,9 +5,9 @@
 #endif
 #endregion
 
+#if !AOT_ONLY
+
 using System;
-using System.Linq.Expressions;
-using System.Runtime.Serialization;
 
 namespace Expanse.Utilities
 {
@@ -25,59 +25,29 @@ namespace Expanse.Utilities
         }
 
         /// <summary>
-        /// Creates a new instance of <see cref="TTarget"/> either using an emitted default constructor, non-emitted default constructor or by creating an uninitialized object.
+        /// Creates a new instance of <see cref="TTarget"/> using an emitted default constructor delegate.
         /// </summary>
         /// <typeparam name="TSource">Non-abstract type of <see cref="TTarget"/> to create an instance of.</typeparam>
-        /// <param name="emitConstructor">If true the constructor delegate is emitted and cached.</param>
-        /// <param name="createUninitialized">If true an unintialized object is created. <para>Note: This overrides <see cref="emitConstructor"/></para></param>
         /// <returns>Returns an new instance of <see cref="TSource"/></returns>
-        public static TSource CreateInstance<TSource>(bool emitConstructor = false, bool createUninitialized = false)
+        public static TSource CreateInstance<TSource>()
             where TSource : TTarget, new()
         {
-            if (createUninitialized)
-            {
-                return (TSource)FormatterServices.GetUninitializedObject(targetType);
-            }
-            else
-            {
-#if !AOT_ONLY
-                if (emitConstructor)
-                {
-                    return ConstructorCache<TSource>.constructor();
-                }
-                else
-#endif
-                {
-                    return new TSource();
-                }
-            }
+            return ConstructorCache<TSource>.constructor();
         }
 
         /// <summary>
         /// Casts <see cref="TSource"/> to <see cref="TTarget"/>.
-        /// This does not cause boxing for value types.
-        /// Useful in generic methods.
+        /// This does not cause boxing for value types making it useful in generic methods.
         /// </summary>
         /// <see cref="https://stackoverflow.com/questions/1189144/c-sharp-non-boxing-conversion-of-generic-enum-to-int"/>
         /// <typeparam name="TSource">Source type to cast from. Usually a generic type.</typeparam>
         /// <param name="source">Source object to cast.</param>
-        /// <param name="emitCaster">If true a casting delegate will be used and cached.</param>
         /// <returns>Returns a casted instance of type <see cref="TTarget"/>.</returns>
-        public static TTarget CastFrom<TSource>(TSource source, bool emitCaster = false)
+        public static TTarget CastFrom<TSource>(TSource source)
         {
-#if !AOT_ONLY
-            if (emitCaster)
-            {
-                return CastCache<TSource>.caster(source);
-            }
-            else
-#endif
-            {
-                return (TTarget)(object)source;
-            }
+            return CastCache<TSource>.caster(source);
         }
 
-#if !AOT_ONLY
         /// <summary>
         /// Responsible for caching and emitting a default constructor delegate for type <see cref="TSource"/>.
         /// </summary>
@@ -105,6 +75,6 @@ namespace Expanse.Utilities
                 return EmitUtil.GenerateTypeCastDelegate<TSource, TTarget>();
             }
         }
-#endif
     }
 }
+#endif
