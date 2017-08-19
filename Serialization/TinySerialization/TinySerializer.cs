@@ -574,6 +574,12 @@ namespace Expanse.Serialization.TinySerialization
                     }
                     break;
                 #endregion
+                case SerializationType.String:
+                    {
+                        var value = (string)(object)obj;
+                        dataSize = ExperimentalSerializeStringIntoBuffer(value, offset);
+                    }
+                    break;
                 case SerializationType.PrimitiveArray:
                     {
                         Array value = (Array)(object)obj;
@@ -994,7 +1000,7 @@ namespace Expanse.Serialization.TinySerialization
                                     }
                                     break;
                                 default:
-                                    throw new InvalidOperationException("Serialiation type is not primitive: " + typeInfo.elementTypeInfo.serializationType);
+                                    throw new InvalidOperationException("Serialiation type is not primitive: " + elementTypeInfo.serializationType);
                             }
                         }
                     }
@@ -1341,7 +1347,7 @@ namespace Expanse.Serialization.TinySerialization
                                     }
                                     break;
                                 default:
-                                    throw new InvalidOperationException("Serialiation type is not primitive: " + typeInfo.elementTypeInfo.serializationType);
+                                    throw new InvalidOperationException("Serialiation type is not primitive: " + elementTypeInfo.serializationType);
                             }
                         }
                     }
@@ -1351,17 +1357,84 @@ namespace Expanse.Serialization.TinySerialization
                         switch (typeInfo.elementTypeInfo.serializationType)
                         {
                             case SerializationType.Byte:
+                                {
+                                    var value = EmitHelper<byte?>.CastFrom(obj);
+                                    bool isNull = value == null;
+                                    dataSize = ExperimentalSerializeNullPrefixIntoBuffer(isNull, offset);
+                                    if (isNull)
+                                        break;
+
+                                    int valueOffset = offset + dataSize;
+                                    dataSize += SerializationTypeSizes.BYTE;
+                                    EnsureBufferSize(offset + dataSize);
+
+                                    fixed (byte* byteBufferPtr = &buffer[valueOffset])
+                                    {
+                                        *byteBufferPtr = value.Value;
+                                    }
+                                }
                                 break;
                             case SerializationType.SByte:
+                                {
+                                    var value = EmitHelper<sbyte?>.CastFrom(obj);
+                                    bool isNull = value == null;
+                                    dataSize = ExperimentalSerializeNullPrefixIntoBuffer(isNull, offset);
+                                    if (isNull)
+                                        break;
+
+                                    int valueOffset = offset + dataSize;
+                                    dataSize += SerializationTypeSizes.SBYTE;
+                                    EnsureBufferSize(offset + dataSize);
+
+                                    fixed (byte* byteBufferPtr = &buffer[valueOffset])
+                                    {
+                                        var bufferPtr = (sbyte*)byteBufferPtr;
+                                        *bufferPtr = value.Value;
+                                    }
+                                }
                                 break;
                             case SerializationType.Bool:
+                                {
+                                    var value = EmitHelper<bool?>.CastFrom(obj);
+                                    bool isNull = value == null;
+                                    dataSize = ExperimentalSerializeNullPrefixIntoBuffer(isNull, offset);
+                                    if (isNull)
+                                        break;
+
+                                    int valueOffset = offset + dataSize;
+                                    dataSize += SerializationTypeSizes.BOOL;
+                                    EnsureBufferSize(offset + dataSize);
+
+                                    fixed (byte* byteBufferPtr = &buffer[valueOffset])
+                                    {
+                                        var bufferPtr = (bool*)byteBufferPtr;
+                                        *bufferPtr = value.Value;
+                                    }
+                                }
                                 break;
                             case SerializationType.Int16:
+                                {
+                                    var value = EmitHelper<short?>.CastFrom(obj);
+                                    bool isNull = value == null;
+                                    dataSize = ExperimentalSerializeNullPrefixIntoBuffer(isNull, offset);
+                                    if (isNull)
+                                        break;
+
+                                    int valueOffset = offset + dataSize;
+                                    dataSize += SerializationTypeSizes.INT16;
+                                    EnsureBufferSize(offset + dataSize);
+
+                                    fixed (byte* byteBufferPtr = &buffer[valueOffset])
+                                    {
+                                        var bufferPtr = (short*)byteBufferPtr;
+                                        *bufferPtr = value.Value;
+                                    }
+                                }
                                 break;
                             case SerializationType.Int32:
                                 {
                                     var value = EmitHelper<int?>.CastFrom(obj);
-                                    bool isNull = value == null; // Faster than !value.HasValue;
+                                    bool isNull = value == null;
                                     dataSize = ExperimentalSerializeNullPrefixIntoBuffer(isNull, offset);
                                     if (isNull)
                                         break;
@@ -1378,46 +1451,437 @@ namespace Expanse.Serialization.TinySerialization
                                 }
                                 break;
                             case SerializationType.Int64:
+                                {
+                                    var value = EmitHelper<long?>.CastFrom(obj);
+                                    bool isNull = value == null;
+                                    dataSize = ExperimentalSerializeNullPrefixIntoBuffer(isNull, offset);
+                                    if (isNull)
+                                        break;
+
+                                    int valueOffset = offset + dataSize;
+                                    dataSize += SerializationTypeSizes.INT64;
+                                    EnsureBufferSize(offset + dataSize);
+
+                                    fixed (byte* byteBufferPtr = &buffer[valueOffset])
+                                    {
+                                        var bufferPtr = (long*)byteBufferPtr;
+                                        *bufferPtr = value.Value;
+                                    }
+                                }
                                 break;
                             case SerializationType.UInt16:
+                                {
+                                    var value = EmitHelper<ushort?>.CastFrom(obj);
+                                    bool isNull = value == null;
+                                    dataSize = ExperimentalSerializeNullPrefixIntoBuffer(isNull, offset);
+                                    if (isNull)
+                                        break;
+
+                                    int valueOffset = offset + dataSize;
+                                    dataSize += SerializationTypeSizes.UINT16;
+                                    EnsureBufferSize(offset + dataSize);
+
+                                    fixed (byte* byteBufferPtr = &buffer[valueOffset])
+                                    {
+                                        var bufferPtr = (ushort*)byteBufferPtr;
+                                        *bufferPtr = value.Value;
+                                    }
+                                }
                                 break;
                             case SerializationType.UInt32:
+                                {
+                                    var value = EmitHelper<uint?>.CastFrom(obj);
+                                    bool isNull = value == null;
+                                    dataSize = ExperimentalSerializeNullPrefixIntoBuffer(isNull, offset);
+                                    if (isNull)
+                                        break;
+
+                                    int valueOffset = offset + dataSize;
+                                    dataSize += SerializationTypeSizes.UINT32;
+                                    EnsureBufferSize(offset + dataSize);
+
+                                    fixed (byte* byteBufferPtr = &buffer[valueOffset])
+                                    {
+                                        var bufferPtr = (uint*)byteBufferPtr;
+                                        *bufferPtr = value.Value;
+                                    }
+                                }
                                 break;
                             case SerializationType.UInt64:
+                                {
+                                    var value = EmitHelper<ulong?>.CastFrom(obj);
+                                    bool isNull = value == null;
+                                    dataSize = ExperimentalSerializeNullPrefixIntoBuffer(isNull, offset);
+                                    if (isNull)
+                                        break;
+
+                                    int valueOffset = offset + dataSize;
+                                    dataSize += SerializationTypeSizes.UINT64;
+                                    EnsureBufferSize(offset + dataSize);
+
+                                    fixed (byte* byteBufferPtr = &buffer[valueOffset])
+                                    {
+                                        var bufferPtr = (ulong*)byteBufferPtr;
+                                        *bufferPtr = value.Value;
+                                    }
+                                }
                                 break;
                             case SerializationType.Half:
+                                {
+                                    var value = EmitHelper<Half?>.CastFrom(obj);
+                                    bool isNull = value == null;
+                                    dataSize = ExperimentalSerializeNullPrefixIntoBuffer(isNull, offset);
+                                    if (isNull)
+                                        break;
+
+                                    int valueOffset = offset + dataSize;
+                                    dataSize += SerializationTypeSizes.HALF;
+                                    EnsureBufferSize(offset + dataSize);
+
+                                    fixed (byte* byteBufferPtr = &buffer[valueOffset])
+                                    {
+                                        var bufferPtr = (ushort*)byteBufferPtr;
+                                        *bufferPtr = value.Value.value;
+                                    }
+                                }
                                 break;
                             case SerializationType.Single:
+                                {
+                                    var value = EmitHelper<float?>.CastFrom(obj);
+                                    bool isNull = value == null;
+                                    dataSize = ExperimentalSerializeNullPrefixIntoBuffer(isNull, offset);
+                                    if (isNull)
+                                        break;
+
+                                    int valueOffset = offset + dataSize;
+                                    dataSize += SerializationTypeSizes.SINGLE;
+                                    EnsureBufferSize(offset + dataSize);
+
+                                    fixed (byte* byteBufferPtr = &buffer[valueOffset])
+                                    {
+                                        var bufferPtr = (float*)byteBufferPtr;
+                                        *bufferPtr = value.Value;
+                                    }
+                                }
                                 break;
                             case SerializationType.Double:
+                                {
+                                    var value = EmitHelper<double?>.CastFrom(obj);
+                                    bool isNull = value == null;
+                                    dataSize = ExperimentalSerializeNullPrefixIntoBuffer(isNull, offset);
+                                    if (isNull)
+                                        break;
+
+                                    int valueOffset = offset + dataSize;
+                                    dataSize += SerializationTypeSizes.DOUBLE;
+                                    EnsureBufferSize(offset + dataSize);
+
+                                    fixed (byte* byteBufferPtr = &buffer[valueOffset])
+                                    {
+                                        var bufferPtr = (double*)byteBufferPtr;
+                                        *bufferPtr = value.Value;
+                                    }
+                                }
                                 break;
                             case SerializationType.Char:
+                                {
+                                    var value = EmitHelper<char?>.CastFrom(obj);
+                                    bool isNull = value == null;
+                                    dataSize = ExperimentalSerializeNullPrefixIntoBuffer(isNull, offset);
+                                    if (isNull)
+                                        break;
+
+                                    int valueOffset = offset + dataSize;
+                                    dataSize += SerializationTypeSizes.CHAR;
+                                    EnsureBufferSize(offset + dataSize);
+
+                                    fixed (byte* byteBufferPtr = &buffer[valueOffset])
+                                    {
+                                        var bufferPtr = (char*)byteBufferPtr;
+                                        *bufferPtr = value.Value;
+                                    }
+                                }
                                 break;
                             case SerializationType.Decimal:
+                                {
+                                    var value = EmitHelper<decimal?>.CastFrom(obj);
+                                    bool isNull = value == null;
+                                    dataSize = ExperimentalSerializeNullPrefixIntoBuffer(isNull, offset);
+                                    if (isNull)
+                                        break;
+
+                                    int valueOffset = offset + dataSize;
+                                    dataSize += SerializationTypeSizes.DECIMAL;
+                                    EnsureBufferSize(offset + dataSize);
+
+                                    fixed (byte* byteBufferPtr = &buffer[valueOffset])
+                                    {
+                                        var bufferPtr = (decimal*)byteBufferPtr;
+                                        *bufferPtr = value.Value;
+                                    }
+                                }
                                 break;
                             case SerializationType.DateTime:
+                                {
+                                    var value = EmitHelper<DateTime?>.CastFrom(obj);
+                                    bool isNull = value == null;
+                                    dataSize = ExperimentalSerializeNullPrefixIntoBuffer(isNull, offset);
+                                    if (isNull)
+                                        break;
+
+                                    int valueOffset = offset + dataSize;
+                                    dataSize += SerializationTypeSizes.DATE_TIME;
+                                    EnsureBufferSize(offset + dataSize);
+
+                                    fixed (byte* byteBufferPtr = &buffer[valueOffset])
+                                    {
+                                        var bufferPtr = (long*)byteBufferPtr;
+                                        *bufferPtr = value.Value.Ticks;
+                                    }
+                                }
                                 break;
                             case SerializationType.DateTimeOffset:
+                                {
+                                    var value = EmitHelper<DateTimeOffset?>.CastFrom(obj);
+                                    bool isNull = value == null;
+                                    dataSize = ExperimentalSerializeNullPrefixIntoBuffer(isNull, offset);
+                                    if (isNull)
+                                        break;
+
+                                    int valueOffset = offset + dataSize;
+                                    dataSize += SerializationTypeSizes.DATE_TIME_OFFSET;
+                                    EnsureBufferSize(offset + dataSize);
+
+                                    fixed (byte* byteBufferPtr = &buffer[valueOffset])
+                                    {
+                                        var bufferPtr = (long*)byteBufferPtr;
+                                        *bufferPtr = value.Value.Ticks;
+                                    }
+                                }
                                 break;
                             case SerializationType.TimeSpan:
+                                {
+                                    var value = EmitHelper<TimeSpan?>.CastFrom(obj);
+                                    bool isNull = value == null;
+                                    dataSize = ExperimentalSerializeNullPrefixIntoBuffer(isNull, offset);
+                                    if (isNull)
+                                        break;
+
+                                    int valueOffset = offset + dataSize;
+                                    dataSize += SerializationTypeSizes.TIME_SPAN;
+                                    EnsureBufferSize(offset + dataSize);
+
+                                    fixed (byte* byteBufferPtr = &buffer[valueOffset])
+                                    {
+                                        var bufferPtr = (long*)byteBufferPtr;
+                                        *bufferPtr = value.Value.Ticks;
+                                    }
+                                }
                                 break;
                             case SerializationType.Vector2:
+                                {
+                                    var value = EmitHelper<Vector2?>.CastFrom(obj);
+                                    bool isNull = value == null;
+                                    dataSize = ExperimentalSerializeNullPrefixIntoBuffer(isNull, offset);
+                                    if (isNull)
+                                        break;
+
+                                    int valueOffset = offset + dataSize;
+                                    dataSize += SerializationTypeSizes.VECTOR2;
+                                    EnsureBufferSize(offset + dataSize);
+
+                                    fixed (byte* byteBufferPtr = &buffer[valueOffset])
+                                    {
+                                        var bufferPtr = (float*)byteBufferPtr;
+                                        var elementValue = value.Value;
+                                        bufferPtr[0] = elementValue.x;
+                                        bufferPtr[1] = elementValue.y;
+                                    }
+                                }
                                 break;
                             case SerializationType.Vector3:
+                                {
+                                    var value = EmitHelper<Vector3?>.CastFrom(obj);
+                                    bool isNull = value == null;
+                                    dataSize = ExperimentalSerializeNullPrefixIntoBuffer(isNull, offset);
+                                    if (isNull)
+                                        break;
+
+                                    int valueOffset = offset + dataSize;
+                                    dataSize += SerializationTypeSizes.VECTOR3;
+                                    EnsureBufferSize(offset + dataSize);
+
+                                    fixed (byte* byteBufferPtr = &buffer[valueOffset])
+                                    {
+                                        var bufferPtr = (float*)byteBufferPtr;
+                                        var elementValue = value.Value;
+                                        bufferPtr[0] = elementValue.x;
+                                        bufferPtr[1] = elementValue.y;
+                                        bufferPtr[2] = elementValue.z;
+                                    }
+                                }
                                 break;
                             case SerializationType.Vector4:
+                                {
+                                    var value = EmitHelper<Vector4?>.CastFrom(obj);
+                                    bool isNull = value == null;
+                                    dataSize = ExperimentalSerializeNullPrefixIntoBuffer(isNull, offset);
+                                    if (isNull)
+                                        break;
+
+                                    int valueOffset = offset + dataSize;
+                                    dataSize += SerializationTypeSizes.VECTOR4;
+                                    EnsureBufferSize(offset + dataSize);
+
+                                    fixed (byte* byteBufferPtr = &buffer[valueOffset])
+                                    {
+                                        var bufferPtr = (float*)byteBufferPtr;
+                                        var elementValue = value.Value;
+                                        bufferPtr[0] = elementValue.x;
+                                        bufferPtr[1] = elementValue.y;
+                                        bufferPtr[2] = elementValue.z;
+                                        bufferPtr[3] = elementValue.w;
+                                    }
+                                }
                                 break;
                             case SerializationType.Quaternion:
+                                {
+                                    var value = EmitHelper<Quaternion?>.CastFrom(obj);
+                                    bool isNull = value == null;
+                                    dataSize = ExperimentalSerializeNullPrefixIntoBuffer(isNull, offset);
+                                    if (isNull)
+                                        break;
+
+                                    int valueOffset = offset + dataSize;
+                                    dataSize += SerializationTypeSizes.QUATERNION;
+                                    EnsureBufferSize(offset + dataSize);
+
+                                    fixed (byte* byteBufferPtr = &buffer[valueOffset])
+                                    {
+                                        var bufferPtr = (float*)byteBufferPtr;
+                                        var elementValue = value.Value;
+                                        bufferPtr[0] = elementValue.x;
+                                        bufferPtr[1] = elementValue.y;
+                                        bufferPtr[2] = elementValue.z;
+                                        bufferPtr[3] = elementValue.w;
+                                    }
+                                }
                                 break;
                             case SerializationType.Rect:
+                                {
+                                    var value = EmitHelper<Rect?>.CastFrom(obj);
+                                    bool isNull = value == null;
+                                    dataSize = ExperimentalSerializeNullPrefixIntoBuffer(isNull, offset);
+                                    if (isNull)
+                                        break;
+
+                                    int valueOffset = offset + dataSize;
+                                    dataSize += SerializationTypeSizes.RECT;
+                                    EnsureBufferSize(offset + dataSize);
+
+                                    fixed (byte* byteBufferPtr = &buffer[valueOffset])
+                                    {
+                                        var bufferPtr = (float*)byteBufferPtr;
+                                        var elementValue = value.Value;
+                                        bufferPtr[0] = elementValue.x;
+                                        bufferPtr[1] = elementValue.y;
+                                        bufferPtr[2] = elementValue.width;
+                                        bufferPtr[3] = elementValue.height;
+                                    }
+                                }
                                 break;
                             case SerializationType.Bounds:
+                                {
+                                    var value = EmitHelper<Bounds?>.CastFrom(obj);
+                                    bool isNull = value == null;
+                                    dataSize = ExperimentalSerializeNullPrefixIntoBuffer(isNull, offset);
+                                    if (isNull)
+                                        break;
+
+                                    int valueOffset = offset + dataSize;
+                                    dataSize += SerializationTypeSizes.BOUNDS;
+                                    EnsureBufferSize(offset + dataSize);
+
+                                    fixed (byte* byteBufferPtr = &buffer[valueOffset])
+                                    {
+                                        var bufferPtr = (float*)byteBufferPtr;
+                                        var elementValue = value.Value;
+                                        var center = elementValue.center;
+                                        var size = elementValue.size;
+                                        bufferPtr[0] = center.x;
+                                        bufferPtr[1] = center.y;
+                                        bufferPtr[2] = center.z;
+                                        bufferPtr[3] = size.x;
+                                        bufferPtr[4] = size.y;
+                                        bufferPtr[5] = size.z;
+                                    }
+                                }
                                 break;
                             case SerializationType.IntVector2:
+                                {
+                                    var value = EmitHelper<IntVector2?>.CastFrom(obj);
+                                    bool isNull = value == null;
+                                    dataSize = ExperimentalSerializeNullPrefixIntoBuffer(isNull, offset);
+                                    if (isNull)
+                                        break;
+
+                                    int valueOffset = offset + dataSize;
+                                    dataSize += SerializationTypeSizes.INT_VECTOR2;
+                                    EnsureBufferSize(offset + dataSize);
+
+                                    fixed (byte* byteBufferPtr = &buffer[valueOffset])
+                                    {
+                                        var bufferPtr = (int*)byteBufferPtr;
+                                        var elementValue = value.Value;
+                                        bufferPtr[0] = elementValue.x;
+                                        bufferPtr[1] = elementValue.y;
+                                    }
+                                }
                                 break;
                             case SerializationType.IntVector3:
+                                {
+                                    var value = EmitHelper<IntVector3?>.CastFrom(obj);
+                                    bool isNull = value == null;
+                                    dataSize = ExperimentalSerializeNullPrefixIntoBuffer(isNull, offset);
+                                    if (isNull)
+                                        break;
+
+                                    int valueOffset = offset + dataSize;
+                                    dataSize += SerializationTypeSizes.INT_VECTOR3;
+                                    EnsureBufferSize(offset + dataSize);
+
+                                    fixed (byte* byteBufferPtr = &buffer[valueOffset])
+                                    {
+                                        var bufferPtr = (int*)byteBufferPtr;
+                                        var elementValue = value.Value;
+                                        bufferPtr[0] = elementValue.x;
+                                        bufferPtr[1] = elementValue.y;
+                                        bufferPtr[2] = elementValue.z;
+                                    }
+                                }
                                 break;
                             case SerializationType.IntVector4:
+                                {
+                                    var value = EmitHelper<IntVector4?>.CastFrom(obj);
+                                    bool isNull = value == null;
+                                    dataSize = ExperimentalSerializeNullPrefixIntoBuffer(isNull, offset);
+                                    if (isNull)
+                                        break;
+
+                                    int valueOffset = offset + dataSize;
+                                    dataSize += SerializationTypeSizes.INT_VECTOR4;
+                                    EnsureBufferSize(offset + dataSize);
+
+                                    fixed (byte* byteBufferPtr = &buffer[valueOffset])
+                                    {
+                                        var bufferPtr = (int*)byteBufferPtr;
+                                        var elementValue = value.Value;
+                                        bufferPtr[0] = elementValue.x;
+                                        bufferPtr[1] = elementValue.y;
+                                        bufferPtr[2] = elementValue.z;
+                                        bufferPtr[3] = elementValue.w;
+                                    }
+                                }
                                 break;
                             default:
                                 throw new InvalidOperationException("Serialiation type is not primitive: " + typeInfo.elementTypeInfo.serializationType);
@@ -1501,6 +1965,66 @@ namespace Expanse.Serialization.TinySerialization
 
                 switch (fieldSerializationType)
                 {
+                    #region PRIMITIVE
+                    case SerializationType.Byte:
+                        {
+                            fieldDataSize = SerializationTypeSizes.BYTE;
+                            EnsureBufferSize(fieldOffset + fieldDataSize);
+
+                            var getterDelegate = (EmitUtil.FieldGetterDelegateByTypedRef<byte>)fieldTypeInfo.getterByTypedRef;
+                            var value = getterDelegate.Invoke(objRef);
+
+                            fixed (byte* byteBufferPtr = &buffer[fieldOffset])
+                            {
+                                *byteBufferPtr = value;
+                            }
+                        }
+                        break;
+                    case SerializationType.SByte:
+                        {
+                            fieldDataSize = SerializationTypeSizes.SBYTE;
+                            EnsureBufferSize(fieldOffset + fieldDataSize);
+
+                            var getterDelegate = (EmitUtil.FieldGetterDelegateByTypedRef<sbyte>)fieldTypeInfo.getterByTypedRef;
+                            var value = getterDelegate.Invoke(objRef);
+
+                            fixed (byte* byteBufferPtr = &buffer[fieldOffset])
+                            {
+                                var bufferPtr = (sbyte*)byteBufferPtr;
+                                *bufferPtr = value;
+                            }
+                        }
+                        break;
+                    case SerializationType.Bool:
+                        {
+                            fieldDataSize = SerializationTypeSizes.BOOL;
+                            EnsureBufferSize(fieldOffset + fieldDataSize);
+
+                            var getterDelegate = (EmitUtil.FieldGetterDelegateByTypedRef<bool>)fieldTypeInfo.getterByTypedRef;
+                            var value = getterDelegate.Invoke(objRef);
+
+                            fixed (byte* byteBufferPtr = &buffer[fieldOffset])
+                            {
+                                var bufferPtr = (bool*)byteBufferPtr;
+                                *bufferPtr = value;
+                            }
+                        }
+                        break;
+                    case SerializationType.Int16:
+                        {
+                            fieldDataSize = SerializationTypeSizes.INT16;
+                            EnsureBufferSize(fieldOffset + fieldDataSize);
+
+                            var getterDelegate = (EmitUtil.FieldGetterDelegateByTypedRef<short>)fieldTypeInfo.getterByTypedRef;
+                            var value = getterDelegate.Invoke(objRef);
+
+                            fixed (byte* byteBufferPtr = &buffer[fieldOffset])
+                            {
+                                var bufferPtr = (short*)byteBufferPtr;
+                                *bufferPtr = value;
+                            }
+                        }
+                        break;
                     case SerializationType.Int32:
                         {
                             fieldDataSize = SerializationTypeSizes.INT32;
@@ -1511,9 +2035,358 @@ namespace Expanse.Serialization.TinySerialization
 
                             fixed (byte* byteBufferPtr = &buffer[fieldOffset])
                             {
-                                int* bufferPtr = (int*)byteBufferPtr;
+                                var bufferPtr = (int*)byteBufferPtr;
                                 *bufferPtr = value;
                             }
+                        }
+                        break;
+                    case SerializationType.Int64:
+                        {
+                            fieldDataSize = SerializationTypeSizes.INT64;
+                            EnsureBufferSize(fieldOffset + fieldDataSize);
+
+                            var getterDelegate = (EmitUtil.FieldGetterDelegateByTypedRef<long>)fieldTypeInfo.getterByTypedRef;
+                            var value = getterDelegate.Invoke(objRef);
+
+                            fixed (byte* byteBufferPtr = &buffer[fieldOffset])
+                            {
+                                var bufferPtr = (long*)byteBufferPtr;
+                                *bufferPtr = value;
+                            }
+                        }
+                        break;
+                    case SerializationType.UInt16:
+                        {
+                            fieldDataSize = SerializationTypeSizes.UINT16;
+                            EnsureBufferSize(fieldOffset + fieldDataSize);
+
+                            var getterDelegate = (EmitUtil.FieldGetterDelegateByTypedRef<ushort>)fieldTypeInfo.getterByTypedRef;
+                            var value = getterDelegate.Invoke(objRef);
+
+                            fixed (byte* byteBufferPtr = &buffer[fieldOffset])
+                            {
+                                var bufferPtr = (ushort*)byteBufferPtr;
+                                *bufferPtr = value;
+                            }
+                        }
+                        break;
+                    case SerializationType.UInt32:
+                        {
+                            fieldDataSize = SerializationTypeSizes.UINT32;
+                            EnsureBufferSize(fieldOffset + fieldDataSize);
+
+                            var getterDelegate = (EmitUtil.FieldGetterDelegateByTypedRef<uint>)fieldTypeInfo.getterByTypedRef;
+                            var value = getterDelegate.Invoke(objRef);
+
+                            fixed (byte* byteBufferPtr = &buffer[fieldOffset])
+                            {
+                                var bufferPtr = (uint*)byteBufferPtr;
+                                *bufferPtr = value;
+                            }
+                        }
+                        break;
+                    case SerializationType.UInt64:
+                        {
+                            fieldDataSize = SerializationTypeSizes.UINT64;
+                            EnsureBufferSize(fieldOffset + fieldDataSize);
+
+                            var getterDelegate = (EmitUtil.FieldGetterDelegateByTypedRef<ulong>)fieldTypeInfo.getterByTypedRef;
+                            var value = getterDelegate.Invoke(objRef);
+
+                            fixed (byte* byteBufferPtr = &buffer[fieldOffset])
+                            {
+                                var bufferPtr = (ulong*)byteBufferPtr;
+                                *bufferPtr = value;
+                            }
+                        }
+                        break;
+                    case SerializationType.Half:
+                        {
+                            fieldDataSize = SerializationTypeSizes.HALF;
+                            EnsureBufferSize(fieldOffset + fieldDataSize);
+
+                            var getterDelegate = (EmitUtil.FieldGetterDelegateByTypedRef<Half>)fieldTypeInfo.getterByTypedRef;
+                            var value = getterDelegate.Invoke(objRef);
+
+                            fixed (byte* byteBufferPtr = &buffer[fieldOffset])
+                            {
+                                var bufferPtr = (long*)byteBufferPtr;
+                                *bufferPtr = value.value;
+                            }
+                        }
+                        break;
+                    case SerializationType.Single:
+                        {
+                            fieldDataSize = SerializationTypeSizes.SINGLE;
+                            EnsureBufferSize(fieldOffset + fieldDataSize);
+
+                            var getterDelegate = (EmitUtil.FieldGetterDelegateByTypedRef<float>)fieldTypeInfo.getterByTypedRef;
+                            var value = getterDelegate.Invoke(objRef);
+
+                            fixed (byte* byteBufferPtr = &buffer[fieldOffset])
+                            {
+                                var bufferPtr = (float*)byteBufferPtr;
+                                *bufferPtr = value;
+                            }
+                        }
+                        break;
+                    case SerializationType.Double:
+                        {
+                            fieldDataSize = SerializationTypeSizes.DOUBLE;
+                            EnsureBufferSize(fieldOffset + fieldDataSize);
+
+                            var getterDelegate = (EmitUtil.FieldGetterDelegateByTypedRef<double>)fieldTypeInfo.getterByTypedRef;
+                            var value = getterDelegate.Invoke(objRef);
+
+                            fixed (byte* byteBufferPtr = &buffer[fieldOffset])
+                            {
+                                var bufferPtr = (double*)byteBufferPtr;
+                                *bufferPtr = value;
+                            }
+                        }
+                        break;
+                    case SerializationType.Char:
+                        {
+                            fieldDataSize = SerializationTypeSizes.CHAR;
+                            EnsureBufferSize(fieldOffset + fieldDataSize);
+
+                            var getterDelegate = (EmitUtil.FieldGetterDelegateByTypedRef<char>)fieldTypeInfo.getterByTypedRef;
+                            var value = getterDelegate.Invoke(objRef);
+
+                            fixed (byte* byteBufferPtr = &buffer[fieldOffset])
+                            {
+                                var bufferPtr = (char*)byteBufferPtr;
+                                *bufferPtr = value;
+                            }
+                        }
+                        break;
+                    case SerializationType.Decimal:
+                        {
+                            fieldDataSize = SerializationTypeSizes.DECIMAL;
+                            EnsureBufferSize(fieldOffset + fieldDataSize);
+
+                            var getterDelegate = (EmitUtil.FieldGetterDelegateByTypedRef<decimal>)fieldTypeInfo.getterByTypedRef;
+                            var value = getterDelegate.Invoke(objRef);
+
+                            fixed (byte* byteBufferPtr = &buffer[fieldOffset])
+                            {
+                                var bufferPtr = (decimal*)byteBufferPtr;
+                                *bufferPtr = value;
+                            }
+                        }
+                        break;
+                    case SerializationType.DateTime:
+                        {
+                            fieldDataSize = SerializationTypeSizes.DATE_TIME;
+                            EnsureBufferSize(fieldOffset + fieldDataSize);
+
+                            var getterDelegate = (EmitUtil.FieldGetterDelegateByTypedRef<DateTime>)fieldTypeInfo.getterByTypedRef;
+                            var value = getterDelegate.Invoke(objRef);
+
+                            fixed (byte* byteBufferPtr = &buffer[fieldOffset])
+                            {
+                                var bufferPtr = (long*)byteBufferPtr;
+                                *bufferPtr = value.Ticks;
+                            }
+                        }
+                        break;
+                    case SerializationType.DateTimeOffset:
+                        {
+                            fieldDataSize = SerializationTypeSizes.DATE_TIME_OFFSET;
+                            EnsureBufferSize(fieldOffset + fieldDataSize);
+
+                            var getterDelegate = (EmitUtil.FieldGetterDelegateByTypedRef<DateTimeOffset>)fieldTypeInfo.getterByTypedRef;
+                            var value = getterDelegate.Invoke(objRef);
+
+                            fixed (byte* byteBufferPtr = &buffer[fieldOffset])
+                            {
+                                var bufferPtr = (long*)byteBufferPtr;
+                                *bufferPtr = value.Ticks;
+                            }
+                        }
+                        break;
+                    case SerializationType.TimeSpan:
+                        {
+                            fieldDataSize = SerializationTypeSizes.TIME_SPAN;
+                            EnsureBufferSize(fieldOffset + fieldDataSize);
+
+                            var getterDelegate = (EmitUtil.FieldGetterDelegateByTypedRef<TimeSpan>)fieldTypeInfo.getterByTypedRef;
+                            var value = getterDelegate.Invoke(objRef);
+
+                            fixed (byte* byteBufferPtr = &buffer[fieldOffset])
+                            {
+                                var bufferPtr = (long*)byteBufferPtr;
+                                *bufferPtr = value.Ticks;
+                            }
+                        }
+                        break;
+                    case SerializationType.Vector2:
+                        {
+                            fieldDataSize = SerializationTypeSizes.VECTOR2;
+                            EnsureBufferSize(fieldOffset + fieldDataSize);
+
+                            var getterDelegate = (EmitUtil.FieldGetterDelegateByTypedRef<Vector2>)fieldTypeInfo.getterByTypedRef;
+                            var value = getterDelegate.Invoke(objRef);
+
+                            fixed (byte* byteBufferPtr = &buffer[fieldOffset])
+                            {
+                                var bufferPtr = (float*)byteBufferPtr;
+                                bufferPtr[0] = value.x;
+                                bufferPtr[1] = value.y;
+                            }
+                        }
+                        break;
+                    case SerializationType.Vector3:
+                        {
+                            fieldDataSize = SerializationTypeSizes.VECTOR3;
+                            EnsureBufferSize(fieldOffset + fieldDataSize);
+
+                            var getterDelegate = (EmitUtil.FieldGetterDelegateByTypedRef<Vector3>)fieldTypeInfo.getterByTypedRef;
+                            var value = getterDelegate.Invoke(objRef);
+
+                            fixed (byte* byteBufferPtr = &buffer[fieldOffset])
+                            {
+                                var bufferPtr = (float*)byteBufferPtr;
+                                bufferPtr[0] = value.x;
+                                bufferPtr[1] = value.y;
+                                bufferPtr[2] = value.z;
+                            }
+                        }
+                        break;
+                    case SerializationType.Vector4:
+                        {
+                            fieldDataSize = SerializationTypeSizes.VECTOR4;
+                            EnsureBufferSize(fieldOffset + fieldDataSize);
+
+                            var getterDelegate = (EmitUtil.FieldGetterDelegateByTypedRef<Vector4>)fieldTypeInfo.getterByTypedRef;
+                            var value = getterDelegate.Invoke(objRef);
+
+                            fixed (byte* byteBufferPtr = &buffer[fieldOffset])
+                            {
+                                var bufferPtr = (float*)byteBufferPtr;
+                                bufferPtr[0] = value.x;
+                                bufferPtr[1] = value.y;
+                                bufferPtr[2] = value.z;
+                                bufferPtr[3] = value.w;
+                            }
+                        }
+                        break;
+                    case SerializationType.Quaternion:
+                        {
+                            fieldDataSize = SerializationTypeSizes.QUATERNION;
+                            EnsureBufferSize(fieldOffset + fieldDataSize);
+
+                            var getterDelegate = (EmitUtil.FieldGetterDelegateByTypedRef<Quaternion>)fieldTypeInfo.getterByTypedRef;
+                            var value = getterDelegate.Invoke(objRef);
+
+                            fixed (byte* byteBufferPtr = &buffer[fieldOffset])
+                            {
+                                var bufferPtr = (float*)byteBufferPtr;
+                                bufferPtr[0] = value.x;
+                                bufferPtr[1] = value.y;
+                                bufferPtr[2] = value.z;
+                                bufferPtr[3] = value.w;
+                            }
+                        }
+                        break;
+                    case SerializationType.Rect:
+                        {
+                            fieldDataSize = SerializationTypeSizes.RECT;
+                            EnsureBufferSize(fieldOffset + fieldDataSize);
+
+                            var getterDelegate = (EmitUtil.FieldGetterDelegateByTypedRef<Rect>)fieldTypeInfo.getterByTypedRef;
+                            var value = getterDelegate.Invoke(objRef);
+
+                            fixed (byte* byteBufferPtr = &buffer[fieldOffset])
+                            {
+                                var bufferPtr = (float*)byteBufferPtr;
+                                bufferPtr[0] = value.x;
+                                bufferPtr[1] = value.y;
+                                bufferPtr[2] = value.width;
+                                bufferPtr[3] = value.height;
+                            }
+                        }
+                        break;
+                    case SerializationType.Bounds:
+                        {
+                            fieldDataSize = SerializationTypeSizes.BOUNDS;
+                            EnsureBufferSize(fieldOffset + fieldDataSize);
+
+                            var getterDelegate = (EmitUtil.FieldGetterDelegateByTypedRef<Bounds>)fieldTypeInfo.getterByTypedRef;
+                            var value = getterDelegate.Invoke(objRef);
+
+                            fixed (byte* byteBufferPtr = &buffer[fieldOffset])
+                            {
+                                var bufferPtr = (float*)byteBufferPtr;
+                                var center = value.center;
+                                var size = value.size;
+                                bufferPtr[0] = center.x;
+                                bufferPtr[1] = center.y;
+                                bufferPtr[2] = center.z;
+                                bufferPtr[3] = size.x;
+                                bufferPtr[4] = size.y;
+                                bufferPtr[5] = size.z;
+                            }
+                        }
+                        break;
+                    case SerializationType.IntVector2:
+                        {
+                            fieldDataSize = SerializationTypeSizes.INT_VECTOR2;
+                            EnsureBufferSize(fieldOffset + fieldDataSize);
+
+                            var getterDelegate = (EmitUtil.FieldGetterDelegateByTypedRef<IntVector2>)fieldTypeInfo.getterByTypedRef;
+                            var value = getterDelegate.Invoke(objRef);
+
+                            fixed (byte* byteBufferPtr = &buffer[fieldOffset])
+                            {
+                                var bufferPtr = (int*)byteBufferPtr;
+                                bufferPtr[0] = value.x;
+                                bufferPtr[1] = value.y;
+                            }
+                        }
+                        break;
+                    case SerializationType.IntVector3:
+                        {
+                            fieldDataSize = SerializationTypeSizes.INT_VECTOR3;
+                            EnsureBufferSize(fieldOffset + fieldDataSize);
+
+                            var getterDelegate = (EmitUtil.FieldGetterDelegateByTypedRef<IntVector3>)fieldTypeInfo.getterByTypedRef;
+                            var value = getterDelegate.Invoke(objRef);
+
+                            fixed (byte* byteBufferPtr = &buffer[fieldOffset])
+                            {
+                                var bufferPtr = (int*)byteBufferPtr;
+                                bufferPtr[0] = value.x;
+                                bufferPtr[1] = value.y;
+                                bufferPtr[2] = value.z;
+                            }
+                        }
+                        break;
+                    case SerializationType.IntVector4:
+                        {
+                            fieldDataSize = SerializationTypeSizes.INT_VECTOR4;
+                            EnsureBufferSize(fieldOffset + fieldDataSize);
+
+                            var getterDelegate = (EmitUtil.FieldGetterDelegateByTypedRef<IntVector4>)fieldTypeInfo.getterByTypedRef;
+                            var value = getterDelegate.Invoke(objRef);
+
+                            fixed (byte* byteBufferPtr = &buffer[fieldOffset])
+                            {
+                                var bufferPtr = (int*)byteBufferPtr;
+                                bufferPtr[0] = value.x;
+                                bufferPtr[1] = value.y;
+                                bufferPtr[2] = value.z;
+                                bufferPtr[3] = value.w;
+                            }
+                        }
+                        break;
+                    #endregion
+                    case SerializationType.String:
+                        {
+                            var getterDelegate = (EmitUtil.FieldGetterDelegateByTypedRef<string>)fieldTypeInfo.getterByTypedRef;
+                            var value = getterDelegate.Invoke(objRef);
+
+                            fieldDataSize = ExperimentalSerializeStringIntoBuffer(value, fieldOffset);
                         }
                         break;
                     case SerializationType.PrimitiveArray:
@@ -1541,20 +2414,67 @@ namespace Expanse.Serialization.TinySerialization
                                 switch (elementTypeInfo.serializationType)
                                 {
                                     case SerializationType.Byte:
+                                        {
+                                            var arrValue = (byte[])value;
+
+                                            fixed (byte* valuePtr = arrValue)
+                                            {
+                                                for (int j = 0; j < arrLength; j++)
+                                                {
+                                                    byteBufferPtr[j] = valuePtr[j];
+                                                }
+                                            }
+                                        }
                                         break;
                                     case SerializationType.SByte:
+                                        {
+                                            var arrValue = (sbyte[])value;
+
+                                            fixed (sbyte* valuePtr = arrValue)
+                                            {
+                                                var bufferPtr = (sbyte*)byteBufferPtr;
+                                                for (int j = 0; j < arrLength; j++)
+                                                {
+                                                    bufferPtr[j] = valuePtr[j];
+                                                }
+                                            }
+                                        }
                                         break;
                                     case SerializationType.Bool:
+                                        {
+                                            var arrValue = (bool[])value;
+
+                                            fixed (bool* valuePtr = arrValue)
+                                            {
+                                                var bufferPtr = (bool*)byteBufferPtr;
+                                                for (int j = 0; j < arrLength; j++)
+                                                {
+                                                    bufferPtr[j] = valuePtr[j];
+                                                }
+                                            }
+                                        }
                                         break;
                                     case SerializationType.Int16:
+                                        {
+                                            var arrValue = (short[])value;
+
+                                            fixed (short* valuePtr = arrValue)
+                                            {
+                                                var bufferPtr = (short*)byteBufferPtr;
+                                                for (int j = 0; j < arrLength; j++)
+                                                {
+                                                    bufferPtr[j] = valuePtr[j];
+                                                }
+                                            }
+                                        }
                                         break;
                                     case SerializationType.Int32:
                                         {
-                                            int[] arrValue = (int[])value;
+                                            var arrValue = (int[])value;
 
                                             fixed (int* valuePtr = arrValue)
                                             {
-                                                int* bufferPtr = (int*)byteBufferPtr;
+                                                var bufferPtr = (int*)byteBufferPtr;
                                                 for (int j = 0; j < arrLength; j++)
                                                 {
                                                     bufferPtr[j] = valuePtr[j];
@@ -1563,46 +2483,332 @@ namespace Expanse.Serialization.TinySerialization
                                         }
                                         break;
                                     case SerializationType.Int64:
+                                        {
+                                            var arrValue = (long[])value;
+
+                                            fixed (long* valuePtr = arrValue)
+                                            {
+                                                var bufferPtr = (long*)byteBufferPtr;
+                                                for (int j = 0; j < arrLength; j++)
+                                                {
+                                                    bufferPtr[j] = valuePtr[j];
+                                                }
+                                            }
+                                        }
                                         break;
                                     case SerializationType.UInt16:
+                                        {
+                                            var arrValue = (ushort[])value;
+
+                                            fixed (ushort* valuePtr = arrValue)
+                                            {
+                                                var bufferPtr = (ushort*)byteBufferPtr;
+                                                for (int j = 0; j < arrLength; j++)
+                                                {
+                                                    bufferPtr[j] = valuePtr[j];
+                                                }
+                                            }
+                                        }
                                         break;
                                     case SerializationType.UInt32:
+                                        {
+                                            var arrValue = (uint[])value;
+
+                                            fixed (uint* valuePtr = arrValue)
+                                            {
+                                                var bufferPtr = (uint*)byteBufferPtr;
+                                                for (int j = 0; j < arrLength; j++)
+                                                {
+                                                    bufferPtr[j] = valuePtr[j];
+                                                }
+                                            }
+                                        }
                                         break;
                                     case SerializationType.UInt64:
+                                        {
+                                            var arrValue = (ulong[])value;
+
+                                            fixed (ulong* valuePtr = arrValue)
+                                            {
+                                                var bufferPtr = (ulong*)byteBufferPtr;
+                                                for (int j = 0; j < arrLength; j++)
+                                                {
+                                                    bufferPtr[j] = valuePtr[j];
+                                                }
+                                            }
+                                        }
                                         break;
                                     case SerializationType.Half:
+                                        {
+                                            var arrValue = (Half[])value;
+
+                                            fixed (Half* valuePtr = arrValue)
+                                            {
+                                                var bufferPtr = (ushort*)byteBufferPtr;
+                                                for (int j = 0; j < arrLength; j++)
+                                                {
+                                                    bufferPtr[j] = valuePtr[j].value;
+                                                }
+                                            }
+                                        }
                                         break;
                                     case SerializationType.Single:
+                                        {
+                                            var arrValue = (float[])value;
+
+                                            fixed (float* valuePtr = arrValue)
+                                            {
+                                                var bufferPtr = (float*)byteBufferPtr;
+                                                for (int j = 0; j < arrLength; j++)
+                                                {
+                                                    bufferPtr[j] = valuePtr[j];
+                                                }
+                                            }
+                                        }
                                         break;
                                     case SerializationType.Double:
+                                        {
+                                            var arrValue = (double[])value;
+
+                                            fixed (double* valuePtr = arrValue)
+                                            {
+                                                var bufferPtr = (double*)byteBufferPtr;
+                                                for (int j = 0; j < arrLength; j++)
+                                                {
+                                                    bufferPtr[j] = valuePtr[j];
+                                                }
+                                            }
+                                        }
                                         break;
                                     case SerializationType.Char:
+                                        {
+                                            var arrValue = (char[])value;
+
+                                            fixed (char* valuePtr = arrValue)
+                                            {
+                                                var bufferPtr = (char*)byteBufferPtr;
+                                                for (int j = 0; j < arrLength; j++)
+                                                {
+                                                    bufferPtr[j] = valuePtr[j];
+                                                }
+                                            }
+                                        }
                                         break;
                                     case SerializationType.Decimal:
+                                        {
+                                            var arrValue = (decimal[])value;
+
+                                            fixed (decimal* valuePtr = arrValue)
+                                            {
+                                                var bufferPtr = (decimal*)byteBufferPtr;
+                                                for (int j = 0; j < arrLength; j++)
+                                                {
+                                                    bufferPtr[j] = valuePtr[j];
+                                                }
+                                            }
+                                        }
                                         break;
                                     case SerializationType.DateTime:
+                                        {
+                                            var arrValue = (DateTime[])value;
+
+                                            fixed (DateTime* valuePtr = arrValue)
+                                            {
+                                                var bufferPtr = (long*)byteBufferPtr;
+                                                for (int j = 0; j < arrLength; j++)
+                                                {
+                                                    bufferPtr[j] = valuePtr[j].Ticks;
+                                                }
+                                            }
+                                        }
                                         break;
                                     case SerializationType.DateTimeOffset:
+                                        {
+                                            var arrValue = (DateTimeOffset[])value;
+
+                                            fixed (DateTimeOffset* valuePtr = arrValue)
+                                            {
+                                                var bufferPtr = (long*)byteBufferPtr;
+                                                for (int j = 0; j < arrLength; j++)
+                                                {
+                                                    bufferPtr[j] = valuePtr[j].Ticks;
+                                                }
+                                            }
+                                        }
                                         break;
                                     case SerializationType.TimeSpan:
+                                        {
+                                            var arrValue = (TimeSpan[])value;
+
+                                            fixed (TimeSpan* valuePtr = arrValue)
+                                            {
+                                                var bufferPtr = (long*)byteBufferPtr;
+                                                for (int j = 0; j < arrLength; j++)
+                                                {
+                                                    bufferPtr[j] = valuePtr[j].Ticks;
+                                                }
+                                            }
+                                        }
                                         break;
                                     case SerializationType.Vector2:
+                                        {
+                                            var arrValue = (Vector2[])value;
+
+                                            fixed (Vector2* valuePtr = arrValue)
+                                            {
+                                                var bufferPtr = (float*)byteBufferPtr;
+                                                for (int j = 0; j < arrLength; j++)
+                                                {
+                                                    var elementValue = valuePtr[j];
+                                                    bufferPtr[(j * 2) + 0] = elementValue.x;
+                                                    bufferPtr[(j * 2) + 1] = elementValue.y;
+                                                }
+                                            }
+                                        }
                                         break;
                                     case SerializationType.Vector3:
+                                        {
+                                            var arrValue = (Vector3[])value;
+
+                                            fixed (Vector3* valuePtr = arrValue)
+                                            {
+                                                var bufferPtr = (float*)byteBufferPtr;
+                                                for (int j = 0; j < arrLength; j++)
+                                                {
+                                                    var elementValue = valuePtr[j];
+                                                    bufferPtr[(j * 3) + 0] = elementValue.x;
+                                                    bufferPtr[(j * 3) + 1] = elementValue.y;
+                                                    bufferPtr[(j * 3) + 2] = elementValue.z;
+                                                }
+                                            }
+                                        }
                                         break;
                                     case SerializationType.Vector4:
+                                        {
+                                            var arrValue = (Vector4[])value;
+
+                                            fixed (Vector4* valuePtr = arrValue)
+                                            {
+                                                var bufferPtr = (float*)byteBufferPtr;
+                                                for (int j = 0; j < arrLength; j++)
+                                                {
+                                                    var elementValue = valuePtr[j];
+                                                    bufferPtr[(j * 4) + 0] = elementValue.x;
+                                                    bufferPtr[(j * 4) + 1] = elementValue.y;
+                                                    bufferPtr[(j * 4) + 2] = elementValue.z;
+                                                    bufferPtr[(j * 4) + 3] = elementValue.w;
+                                                }
+                                            }
+                                        }
                                         break;
                                     case SerializationType.Quaternion:
+                                        {
+                                            var arrValue = (Quaternion[])value;
+
+                                            fixed (Quaternion* valuePtr = arrValue)
+                                            {
+                                                var bufferPtr = (float*)byteBufferPtr;
+                                                for (int j = 0; j < arrLength; j++)
+                                                {
+                                                    var elementValue = valuePtr[j];
+                                                    bufferPtr[(j * 4) + 0] = elementValue.x;
+                                                    bufferPtr[(j * 4) + 1] = elementValue.y;
+                                                    bufferPtr[(j * 4) + 2] = elementValue.z;
+                                                    bufferPtr[(j * 4) + 3] = elementValue.w;
+                                                }
+                                            }
+                                        }
                                         break;
                                     case SerializationType.Rect:
+                                        {
+                                            var arrValue = (Rect[])value;
+
+                                            fixed (Rect* valuePtr = arrValue)
+                                            {
+                                                var bufferPtr = (float*)byteBufferPtr;
+                                                for (int j = 0; j < arrLength; j++)
+                                                {
+                                                    var elementValue = valuePtr[j];
+                                                    bufferPtr[(j * 4) + 0] = elementValue.x;
+                                                    bufferPtr[(j * 4) + 1] = elementValue.y;
+                                                    bufferPtr[(j * 4) + 2] = elementValue.width;
+                                                    bufferPtr[(j * 4) + 3] = elementValue.height;
+                                                }
+                                            }
+                                        }
                                         break;
                                     case SerializationType.Bounds:
+                                        {
+                                            var arrValue = (Bounds[])value;
+
+                                            fixed (Bounds* valuePtr = arrValue)
+                                            {
+                                                var bufferPtr = (float*)byteBufferPtr;
+                                                for (int j = 0; j < arrLength; j++)
+                                                {
+                                                    var elementValue = valuePtr[j];
+                                                    var center = elementValue.center;
+                                                    var size = elementValue.size;
+                                                    bufferPtr[(j * 6) + 0] = center.x;
+                                                    bufferPtr[(j * 6) + 1] = center.y;
+                                                    bufferPtr[(j * 6) + 2] = center.z;
+                                                    bufferPtr[(j * 6) + 3] = size.x;
+                                                    bufferPtr[(j * 6) + 4] = size.y;
+                                                    bufferPtr[(j * 6) + 5] = size.z;
+                                                }
+                                            }
+                                        }
                                         break;
                                     case SerializationType.IntVector2:
+                                        {
+                                            var arrValue = (IntVector2[])value;
+
+                                            fixed (IntVector2* valuePtr = arrValue)
+                                            {
+                                                var bufferPtr = (int*)byteBufferPtr;
+                                                for (int j = 0; j < arrLength; j++)
+                                                {
+                                                    var elementValue = valuePtr[j];
+                                                    bufferPtr[(j * 2) + 0] = elementValue.x;
+                                                    bufferPtr[(j * 2) + 1] = elementValue.y;
+                                                }
+                                            }
+                                        }
                                         break;
                                     case SerializationType.IntVector3:
+                                        {
+                                            var arrValue = (IntVector3[])value;
+
+                                            fixed (IntVector3* valuePtr = arrValue)
+                                            {
+                                                var bufferPtr = (int*)byteBufferPtr;
+                                                for (int j = 0; j < arrLength; j++)
+                                                {
+                                                    var elementValue = valuePtr[j];
+                                                    bufferPtr[(j * 3) + 0] = elementValue.x;
+                                                    bufferPtr[(j * 3) + 1] = elementValue.y;
+                                                    bufferPtr[(j * 3) + 2] = elementValue.z;
+                                                }
+                                            }
+                                        }
                                         break;
                                     case SerializationType.IntVector4:
+                                        {
+                                            var arrValue = (IntVector4[])value;
+
+                                            fixed (IntVector4* valuePtr = arrValue)
+                                            {
+                                                var bufferPtr = (int*)byteBufferPtr;
+                                                for (int j = 0; j < arrLength; j++)
+                                                {
+                                                    var elementValue = valuePtr[j];
+                                                    bufferPtr[(j * 4) + 0] = elementValue.x;
+                                                    bufferPtr[(j * 4) + 1] = elementValue.y;
+                                                    bufferPtr[(j * 4) + 2] = elementValue.z;
+                                                    bufferPtr[(j * 4) + 3] = elementValue.w;
+                                                }
+                                            }
+                                        }
                                         break;
                                     default:
                                         throw new InvalidOperationException("Serialiation type is not primitive: " + elementTypeInfo.serializationType);
@@ -1635,18 +2841,53 @@ namespace Expanse.Serialization.TinySerialization
                                 switch (elementTypeInfo.serializationType)
                                 {
                                     case SerializationType.Byte:
+                                        {
+                                            var listValue = (List<byte>)value;
+
+                                            for (int j = 0; j < listLength; j++)
+                                            {
+                                                byteBufferPtr[j] = listValue[j];
+                                            }
+                                        }
                                         break;
                                     case SerializationType.SByte:
+                                        {
+                                            var listValue = (List<sbyte>)value;
+
+                                            var bufferPtr = (sbyte*)byteBufferPtr;
+                                            for (int j = 0; j < listLength; j++)
+                                            {
+                                                bufferPtr[j] = listValue[j];
+                                            }
+                                        }
                                         break;
                                     case SerializationType.Bool:
+                                        {
+                                            var listValue = (List<bool>)value;
+
+                                            var bufferPtr = (bool*)byteBufferPtr;
+                                            for (int j = 0; j < listLength; j++)
+                                            {
+                                                bufferPtr[j] = listValue[j];
+                                            }
+                                        }
                                         break;
                                     case SerializationType.Int16:
+                                        {
+                                            var listValue = (List<short>)value;
+
+                                            var bufferPtr = (short*)byteBufferPtr;
+                                            for (int j = 0; j < listLength; j++)
+                                            {
+                                                bufferPtr[j] = listValue[j];
+                                            }
+                                        }
                                         break;
                                     case SerializationType.Int32:
                                         {
-                                            List<int> listValue = (List<int>)value;
+                                            var listValue = (List<int>)value;
 
-                                            int* bufferPtr = (int*)byteBufferPtr;
+                                            var bufferPtr = (int*)byteBufferPtr;
                                             for (int j = 0; j < listLength; j++)
                                             {
                                                 bufferPtr[j] = listValue[j];
@@ -1654,46 +2895,269 @@ namespace Expanse.Serialization.TinySerialization
                                         }
                                         break;
                                     case SerializationType.Int64:
+                                        {
+                                            var listValue = (List<long>)value;
+
+                                            var bufferPtr = (long*)byteBufferPtr;
+                                            for (int j = 0; j < listLength; j++)
+                                            {
+                                                bufferPtr[j] = listValue[j];
+                                            }
+                                        }
                                         break;
                                     case SerializationType.UInt16:
+                                        {
+                                            var listValue = (List<ushort>)value;
+
+                                            var bufferPtr = (ushort*)byteBufferPtr;
+                                            for (int j = 0; j < listLength; j++)
+                                            {
+                                                bufferPtr[j] = listValue[j];
+                                            }
+                                        }
                                         break;
                                     case SerializationType.UInt32:
+                                        {
+                                            var listValue = (List<uint>)value;
+
+                                            var bufferPtr = (uint*)byteBufferPtr;
+                                            for (int j = 0; j < listLength; j++)
+                                            {
+                                                bufferPtr[j] = listValue[j];
+                                            }
+                                        }
                                         break;
                                     case SerializationType.UInt64:
+                                        {
+                                            var listValue = (List<ulong>)value;
+
+                                            var bufferPtr = (ulong*)byteBufferPtr;
+                                            for (int j = 0; j < listLength; j++)
+                                            {
+                                                bufferPtr[j] = listValue[j];
+                                            }
+                                        }
                                         break;
                                     case SerializationType.Half:
+                                        {
+                                            var listValue = (List<Half>)value;
+
+                                            var bufferPtr = (ushort*)byteBufferPtr;
+                                            for (int j = 0; j < listLength; j++)
+                                            {
+                                                bufferPtr[j] = listValue[j].value;
+                                            }
+                                        }
                                         break;
                                     case SerializationType.Single:
+                                        {
+                                            var listValue = (List<float>)value;
+
+                                            var bufferPtr = (float*)byteBufferPtr;
+                                            for (int j = 0; j < listLength; j++)
+                                            {
+                                                bufferPtr[j] = listValue[j];
+                                            }
+                                        }
                                         break;
                                     case SerializationType.Double:
+                                        {
+                                            var listValue = (List<double>)value;
+
+                                            var bufferPtr = (double*)byteBufferPtr;
+                                            for (int j = 0; j < listLength; j++)
+                                            {
+                                                bufferPtr[j] = listValue[j];
+                                            }
+                                        }
                                         break;
                                     case SerializationType.Char:
+                                        {
+                                            var listValue = (List<char>)value;
+
+                                            var bufferPtr = (char*)byteBufferPtr;
+                                            for (int j = 0; j < listLength; j++)
+                                            {
+                                                bufferPtr[j] = listValue[j];
+                                            }
+                                        }
                                         break;
                                     case SerializationType.Decimal:
+                                        {
+                                            var listValue = (List<decimal>)value;
+
+                                            var bufferPtr = (decimal*)byteBufferPtr;
+                                            for (int j = 0; j < listLength; j++)
+                                            {
+                                                bufferPtr[j] = listValue[j];
+                                            }
+                                        }
                                         break;
                                     case SerializationType.DateTime:
+                                        {
+                                            var listValue = (List<DateTime>)value;
+
+                                            var bufferPtr = (long*)byteBufferPtr;
+                                            for (int j = 0; j < listLength; j++)
+                                            {
+                                                bufferPtr[j] = listValue[j].Ticks;
+                                            }
+                                        }
                                         break;
                                     case SerializationType.DateTimeOffset:
+                                        {
+                                            var listValue = (List<DateTimeOffset>)value;
+
+                                            var bufferPtr = (long*)byteBufferPtr;
+                                            for (int j = 0; j < listLength; j++)
+                                            {
+                                                bufferPtr[j] = listValue[j].Ticks;
+                                            }
+                                        }
                                         break;
                                     case SerializationType.TimeSpan:
+                                        {
+                                            var listValue = (List<TimeSpan>)value;
+
+                                            var bufferPtr = (long*)byteBufferPtr;
+                                            for (int j = 0; j < listLength; j++)
+                                            {
+                                                bufferPtr[j] = listValue[j].Ticks;
+                                            }
+                                        }
                                         break;
                                     case SerializationType.Vector2:
+                                        {
+                                            var listValue = (List<Vector2>)value;
+
+                                            var bufferPtr = (float*)byteBufferPtr;
+                                            for (int j = 0; j < listLength; j++)
+                                            {
+                                                var elementValue = listValue[j];
+                                                bufferPtr[(j * 2) + 0] = elementValue.x;
+                                                bufferPtr[(j * 2) + 1] = elementValue.y;
+                                            }
+                                        }
                                         break;
                                     case SerializationType.Vector3:
+                                        {
+                                            var listValue = (List<Vector3>)value;
+
+                                            var bufferPtr = (float*)byteBufferPtr;
+                                            for (int j = 0; j < listLength; j++)
+                                            {
+                                                var elementValue = listValue[j];
+                                                bufferPtr[(j * 3) + 0] = elementValue.x;
+                                                bufferPtr[(j * 3) + 1] = elementValue.y;
+                                                bufferPtr[(j * 3) + 2] = elementValue.z;
+                                            }
+                                        }
                                         break;
                                     case SerializationType.Vector4:
+                                        {
+                                            var listValue = (List<Vector4>)value;
+
+                                            var bufferPtr = (float*)byteBufferPtr;
+                                            for (int j = 0; j < listLength; j++)
+                                            {
+                                                var elementValue = listValue[j];
+                                                bufferPtr[(j * 4) + 0] = elementValue.x;
+                                                bufferPtr[(j * 4) + 1] = elementValue.y;
+                                                bufferPtr[(j * 4) + 2] = elementValue.z;
+                                                bufferPtr[(j * 4) + 3] = elementValue.w;
+                                            }
+                                        }
                                         break;
                                     case SerializationType.Quaternion:
+                                        {
+                                            var listValue = (List<Quaternion>)value;
+
+                                            var bufferPtr = (float*)byteBufferPtr;
+                                            for (int j = 0; j < listLength; j++)
+                                            {
+                                                var elementValue = listValue[j];
+                                                bufferPtr[(j * 4) + 0] = elementValue.x;
+                                                bufferPtr[(j * 4) + 1] = elementValue.y;
+                                                bufferPtr[(j * 4) + 2] = elementValue.z;
+                                                bufferPtr[(j * 4) + 3] = elementValue.w;
+                                            }
+                                        }
                                         break;
                                     case SerializationType.Rect:
+                                        {
+                                            var listValue = (List<Rect>)value;
+
+                                            var bufferPtr = (float*)byteBufferPtr;
+                                            for (int j = 0; j < listLength; j++)
+                                            {
+                                                var elementValue = listValue[j];
+                                                bufferPtr[(j * 4) + 0] = elementValue.x;
+                                                bufferPtr[(j * 4) + 1] = elementValue.y;
+                                                bufferPtr[(j * 4) + 2] = elementValue.width;
+                                                bufferPtr[(j * 4) + 3] = elementValue.height;
+                                            }
+                                        }
                                         break;
                                     case SerializationType.Bounds:
+                                        {
+                                            var listValue = (List<Bounds>)value;
+
+                                            var bufferPtr = (float*)byteBufferPtr;
+                                            for (int j = 0; j < listLength; j++)
+                                            {
+                                                var elementValue = listValue[j];
+                                                var center = elementValue.center;
+                                                var size = elementValue.size;
+                                                bufferPtr[(j * 6) + 0] = center.x;
+                                                bufferPtr[(j * 6) + 1] = center.y;
+                                                bufferPtr[(j * 6) + 2] = center.z;
+                                                bufferPtr[(j * 6) + 3] = size.x;
+                                                bufferPtr[(j * 6) + 4] = size.y;
+                                                bufferPtr[(j * 6) + 5] = size.z;
+                                            }
+                                        }
                                         break;
                                     case SerializationType.IntVector2:
+                                        {
+                                            var listValue = (List<IntVector2>)value;
+
+                                            var bufferPtr = (int*)byteBufferPtr;
+                                            for (int j = 0; j < listLength; j++)
+                                            {
+                                                var elementValue = listValue[j];
+                                                bufferPtr[(j * 2) + 0] = elementValue.x;
+                                                bufferPtr[(j * 2) + 1] = elementValue.y;
+                                            }
+                                        }
                                         break;
                                     case SerializationType.IntVector3:
+                                        {
+                                            var listValue = (List<IntVector3>)value;
+
+                                            var bufferPtr = (int*)byteBufferPtr;
+                                            for (int j = 0; j < listLength; j++)
+                                            {
+                                                var elementValue = listValue[j];
+                                                bufferPtr[(j * 3) + 0] = elementValue.x;
+                                                bufferPtr[(j * 3) + 1] = elementValue.y;
+                                                bufferPtr[(j * 3) + 2] = elementValue.z;
+                                            }
+                                        }
                                         break;
                                     case SerializationType.IntVector4:
+                                        {
+                                            var listValue = (List<IntVector4>)value;
+
+                                            var bufferPtr = (int*)byteBufferPtr;
+                                            for (int j = 0; j < listLength; j++)
+                                            {
+                                                var elementValue = listValue[j];
+                                                bufferPtr[(j * 4) + 0] = elementValue.x;
+                                                bufferPtr[(j * 4) + 1] = elementValue.y;
+                                                bufferPtr[(j * 4) + 2] = elementValue.z;
+                                                bufferPtr[(j * 4) + 3] = elementValue.w;
+                                            }
+                                        }
                                         break;
                                     default:
                                         throw new InvalidOperationException("Serialiation type is not primitive: " + elementTypeInfo.serializationType);
@@ -1719,12 +3183,59 @@ namespace Expanse.Serialization.TinySerialization
                             switch (elementTypeInfo.serializationType)
                             {
                                 case SerializationType.Byte:
+                                    {
+                                        var trueValue = (byte)value;
+
+                                        fieldDataSize += SerializationTypeSizes.BYTE;
+                                        EnsureBufferSize(fieldOffset + fieldDataSize);
+
+                                        fixed (byte* byteBufferPtr = &buffer[valueOffset])
+                                        {
+                                            *byteBufferPtr = trueValue;
+                                        }
+                                    }
                                     break;
                                 case SerializationType.SByte:
+                                    {
+                                        var trueValue = (sbyte)value;
+
+                                        fieldDataSize += SerializationTypeSizes.SBYTE;
+                                        EnsureBufferSize(fieldOffset + fieldDataSize);
+
+                                        fixed (byte* byteBufferPtr = &buffer[valueOffset])
+                                        {
+                                            var bufferPtr = (sbyte*)byteBufferPtr;
+                                            *bufferPtr = trueValue;
+                                        }
+                                    }
                                     break;
                                 case SerializationType.Bool:
+                                    {
+                                        var trueValue = (bool)value;
+
+                                        fieldDataSize += SerializationTypeSizes.BOOL;
+                                        EnsureBufferSize(fieldOffset + fieldDataSize);
+
+                                        fixed (byte* byteBufferPtr = &buffer[valueOffset])
+                                        {
+                                            var bufferPtr = (bool*)byteBufferPtr;
+                                            *bufferPtr = trueValue;
+                                        }
+                                    }
                                     break;
                                 case SerializationType.Int16:
+                                    {
+                                        var trueValue = (short)value;
+
+                                        fieldDataSize += SerializationTypeSizes.INT16;
+                                        EnsureBufferSize(fieldOffset + fieldDataSize);
+
+                                        fixed (byte* byteBufferPtr = &buffer[valueOffset])
+                                        {
+                                            var bufferPtr = (short*)byteBufferPtr;
+                                            *bufferPtr = trueValue;
+                                        }
+                                    }
                                     break;
                                 case SerializationType.Int32:
                                     {
@@ -1735,52 +3246,329 @@ namespace Expanse.Serialization.TinySerialization
 
                                         fixed (byte* byteBufferPtr = &buffer[valueOffset])
                                         {
-                                            int* bufferPtr = (int*)byteBufferPtr;
+                                            var bufferPtr = (int*)byteBufferPtr;
                                             *bufferPtr = trueValue;
                                         }
                                     }
                                     break;
                                 case SerializationType.Int64:
+                                    {
+                                        var trueValue = (long)value;
+
+                                        fieldDataSize += SerializationTypeSizes.INT64;
+                                        EnsureBufferSize(fieldOffset + fieldDataSize);
+
+                                        fixed (byte* byteBufferPtr = &buffer[valueOffset])
+                                        {
+                                            var bufferPtr = (long*)byteBufferPtr;
+                                            *bufferPtr = trueValue;
+                                        }
+                                    }
                                     break;
                                 case SerializationType.UInt16:
+                                    {
+                                        var trueValue = (ushort)value;
+
+                                        fieldDataSize += SerializationTypeSizes.UINT16;
+                                        EnsureBufferSize(fieldOffset + fieldDataSize);
+
+                                        fixed (byte* byteBufferPtr = &buffer[valueOffset])
+                                        {
+                                            var bufferPtr = (ushort*)byteBufferPtr;
+                                            *bufferPtr = trueValue;
+                                        }
+                                    }
                                     break;
                                 case SerializationType.UInt32:
+                                    {
+                                        var trueValue = (uint)value;
+
+                                        fieldDataSize += SerializationTypeSizes.UINT32;
+                                        EnsureBufferSize(fieldOffset + fieldDataSize);
+
+                                        fixed (byte* byteBufferPtr = &buffer[valueOffset])
+                                        {
+                                            var bufferPtr = (uint*)byteBufferPtr;
+                                            *bufferPtr = trueValue;
+                                        }
+                                    }
                                     break;
                                 case SerializationType.UInt64:
+                                    {
+                                        var trueValue = (ulong)value;
+
+                                        fieldDataSize += SerializationTypeSizes.UINT64;
+                                        EnsureBufferSize(fieldOffset + fieldDataSize);
+
+                                        fixed (byte* byteBufferPtr = &buffer[valueOffset])
+                                        {
+                                            var bufferPtr = (ulong*)byteBufferPtr;
+                                            *bufferPtr = trueValue;
+                                        }
+                                    }
                                     break;
                                 case SerializationType.Half:
+                                    {
+                                        var trueValue = (Half)value;
+
+                                        fieldDataSize += SerializationTypeSizes.HALF;
+                                        EnsureBufferSize(fieldOffset + fieldDataSize);
+
+                                        fixed (byte* byteBufferPtr = &buffer[valueOffset])
+                                        {
+                                            var bufferPtr = (ushort*)byteBufferPtr;
+                                            *bufferPtr = trueValue.value;
+                                        }
+                                    }
                                     break;
                                 case SerializationType.Single:
+                                    {
+                                        var trueValue = (float)value;
+
+                                        fieldDataSize += SerializationTypeSizes.SINGLE;
+                                        EnsureBufferSize(fieldOffset + fieldDataSize);
+
+                                        fixed (byte* byteBufferPtr = &buffer[valueOffset])
+                                        {
+                                            var bufferPtr = (float*)byteBufferPtr;
+                                            *bufferPtr = trueValue;
+                                        }
+                                    }
                                     break;
                                 case SerializationType.Double:
+                                    {
+                                        var trueValue = (double)value;
+
+                                        fieldDataSize += SerializationTypeSizes.DOUBLE;
+                                        EnsureBufferSize(fieldOffset + fieldDataSize);
+
+                                        fixed (byte* byteBufferPtr = &buffer[valueOffset])
+                                        {
+                                            var bufferPtr = (double*)byteBufferPtr;
+                                            *bufferPtr = trueValue;
+                                        }
+                                    }
                                     break;
                                 case SerializationType.Char:
+                                    {
+                                        var trueValue = (char)value;
+
+                                        fieldDataSize += SerializationTypeSizes.CHAR;
+                                        EnsureBufferSize(fieldOffset + fieldDataSize);
+
+                                        fixed (byte* byteBufferPtr = &buffer[valueOffset])
+                                        {
+                                            var bufferPtr = (char*)byteBufferPtr;
+                                            *bufferPtr = trueValue;
+                                        }
+                                    }
                                     break;
                                 case SerializationType.Decimal:
+                                    {
+                                        var trueValue = (decimal)value;
+
+                                        fieldDataSize += SerializationTypeSizes.DECIMAL;
+                                        EnsureBufferSize(fieldOffset + fieldDataSize);
+
+                                        fixed (byte* byteBufferPtr = &buffer[valueOffset])
+                                        {
+                                            var bufferPtr = (decimal*)byteBufferPtr;
+                                            *bufferPtr = trueValue;
+                                        }
+                                    }
                                     break;
                                 case SerializationType.DateTime:
+                                    {
+                                        var trueValue = (DateTime)value;
+
+                                        fieldDataSize += SerializationTypeSizes.DATE_TIME;
+                                        EnsureBufferSize(fieldOffset + fieldDataSize);
+
+                                        fixed (byte* byteBufferPtr = &buffer[valueOffset])
+                                        {
+                                            var bufferPtr = (long*)byteBufferPtr;
+                                            *bufferPtr = trueValue.Ticks;
+                                        }
+                                    }
                                     break;
                                 case SerializationType.DateTimeOffset:
+                                    {
+                                        var trueValue = (DateTimeOffset)value;
+
+                                        fieldDataSize += SerializationTypeSizes.DATE_TIME_OFFSET;
+                                        EnsureBufferSize(fieldOffset + fieldDataSize);
+
+                                        fixed (byte* byteBufferPtr = &buffer[valueOffset])
+                                        {
+                                            var bufferPtr = (long*)byteBufferPtr;
+                                            *bufferPtr = trueValue.Ticks;
+                                        }
+                                    }
                                     break;
                                 case SerializationType.TimeSpan:
+                                    {
+                                        var trueValue = (TimeSpan)value;
+
+                                        fieldDataSize += SerializationTypeSizes.TIME_SPAN;
+                                        EnsureBufferSize(fieldOffset + fieldDataSize);
+
+                                        fixed (byte* byteBufferPtr = &buffer[valueOffset])
+                                        {
+                                            var bufferPtr = (long*)byteBufferPtr;
+                                            *bufferPtr = trueValue.Ticks;
+                                        }
+                                    }
                                     break;
                                 case SerializationType.Vector2:
+                                    {
+                                        var trueValue = (Vector2)value;
+
+                                        fieldDataSize += SerializationTypeSizes.VECTOR2;
+                                        EnsureBufferSize(fieldOffset + fieldDataSize);
+
+                                        fixed (byte* byteBufferPtr = &buffer[valueOffset])
+                                        {
+                                            var bufferPtr = (float*)byteBufferPtr;
+                                            bufferPtr[0] = trueValue.x;
+                                            bufferPtr[1] = trueValue.y;
+                                        }
+                                    }
                                     break;
                                 case SerializationType.Vector3:
+                                    {
+                                        var trueValue = (Vector3)value;
+
+                                        fieldDataSize += SerializationTypeSizes.VECTOR3;
+                                        EnsureBufferSize(fieldOffset + fieldDataSize);
+
+                                        fixed (byte* byteBufferPtr = &buffer[valueOffset])
+                                        {
+                                            var bufferPtr = (float*)byteBufferPtr;
+                                            bufferPtr[0] = trueValue.x;
+                                            bufferPtr[1] = trueValue.y;
+                                            bufferPtr[2] = trueValue.z;
+                                        }
+                                    }
                                     break;
                                 case SerializationType.Vector4:
+                                    {
+                                        var trueValue = (Vector4)value;
+
+                                        fieldDataSize += SerializationTypeSizes.VECTOR4;
+                                        EnsureBufferSize(fieldOffset + fieldDataSize);
+
+                                        fixed (byte* byteBufferPtr = &buffer[valueOffset])
+                                        {
+                                            var bufferPtr = (float*)byteBufferPtr;
+                                            bufferPtr[0] = trueValue.x;
+                                            bufferPtr[1] = trueValue.y;
+                                            bufferPtr[2] = trueValue.z;
+                                            bufferPtr[3] = trueValue.w;
+                                        }
+                                    }
                                     break;
                                 case SerializationType.Quaternion:
+                                    {
+                                        var trueValue = (Quaternion)value;
+
+                                        fieldDataSize += SerializationTypeSizes.QUATERNION;
+                                        EnsureBufferSize(fieldOffset + fieldDataSize);
+
+                                        fixed (byte* byteBufferPtr = &buffer[valueOffset])
+                                        {
+                                            var bufferPtr = (float*)byteBufferPtr;
+                                            bufferPtr[0] = trueValue.x;
+                                            bufferPtr[1] = trueValue.y;
+                                            bufferPtr[2] = trueValue.z;
+                                            bufferPtr[3] = trueValue.w;
+                                        }
+                                    }
                                     break;
                                 case SerializationType.Rect:
+                                    {
+                                        var trueValue = (Rect)value;
+
+                                        fieldDataSize += SerializationTypeSizes.RECT;
+                                        EnsureBufferSize(fieldOffset + fieldDataSize);
+
+                                        fixed (byte* byteBufferPtr = &buffer[valueOffset])
+                                        {
+                                            var bufferPtr = (float*)byteBufferPtr;
+                                            bufferPtr[0] = trueValue.x;
+                                            bufferPtr[1] = trueValue.y;
+                                            bufferPtr[2] = trueValue.width;
+                                            bufferPtr[3] = trueValue.height;
+                                        }
+                                    }
                                     break;
                                 case SerializationType.Bounds:
+                                    {
+                                        var trueValue = (Bounds)value;
+
+                                        fieldDataSize += SerializationTypeSizes.BOUNDS;
+                                        EnsureBufferSize(fieldOffset + fieldDataSize);
+
+                                        fixed (byte* byteBufferPtr = &buffer[valueOffset])
+                                        {
+                                            var bufferPtr = (float*)byteBufferPtr;
+                                            var center = trueValue.center;
+                                            var size = trueValue.size;
+                                            bufferPtr[0] = center.x;
+                                            bufferPtr[1] = center.y;
+                                            bufferPtr[2] = center.z;
+                                            bufferPtr[3] = size.x;
+                                            bufferPtr[4] = size.y;
+                                            bufferPtr[5] = size.z;
+                                        }
+                                    }
                                     break;
                                 case SerializationType.IntVector2:
+                                    {
+                                        var trueValue = (IntVector2)value;
+
+                                        fieldDataSize += SerializationTypeSizes.INT_VECTOR2;
+                                        EnsureBufferSize(fieldOffset + fieldDataSize);
+
+                                        fixed (byte* byteBufferPtr = &buffer[valueOffset])
+                                        {
+                                            var bufferPtr = (int*)byteBufferPtr;
+                                            bufferPtr[0] = trueValue.x;
+                                            bufferPtr[1] = trueValue.y;
+                                        }
+                                    }
                                     break;
                                 case SerializationType.IntVector3:
+                                    {
+                                        var trueValue = (IntVector3)value;
+
+                                        fieldDataSize += SerializationTypeSizes.INT_VECTOR3;
+                                        EnsureBufferSize(fieldOffset + fieldDataSize);
+
+                                        fixed (byte* byteBufferPtr = &buffer[valueOffset])
+                                        {
+                                            var bufferPtr = (int*)byteBufferPtr;
+                                            bufferPtr[0] = trueValue.x;
+                                            bufferPtr[1] = trueValue.y;
+                                            bufferPtr[2] = trueValue.z;
+                                        }
+                                    }
                                     break;
                                 case SerializationType.IntVector4:
+                                    {
+                                        var trueValue = (IntVector4)value;
+
+                                        fieldDataSize += SerializationTypeSizes.INT_VECTOR4;
+                                        EnsureBufferSize(fieldOffset + fieldDataSize);
+
+                                        fixed (byte* byteBufferPtr = &buffer[valueOffset])
+                                        {
+                                            var bufferPtr = (int*)byteBufferPtr;
+                                            bufferPtr[0] = trueValue.x;
+                                            bufferPtr[1] = trueValue.y;
+                                            bufferPtr[2] = trueValue.z;
+                                            bufferPtr[3] = trueValue.w;
+                                        }
+                                    }
                                     break;
                                 default:
                                     throw new InvalidOperationException("Serialiation type is not primitive: " + elementTypeInfo.serializationType);
@@ -1853,14 +3641,10 @@ namespace Expanse.Serialization.TinySerialization
                 }
 
                 if (!typeInfo.inspectedFields)
-                {
                     typeInfo.InspectFields();
-                }
 
                 if (!typeInfo.emittedFieldGetters)
-                {
                     typeInfo.EmitFieldGetters();
-                }
 
                 for (int i = 0; i < typeInfo.fieldTypeInfos.Length; i++)
                 {
@@ -1872,6 +3656,66 @@ namespace Expanse.Serialization.TinySerialization
 
                     switch (fieldSerializationType)
                     {
+                        #region PRIMITIVE
+                        case SerializationType.Byte:
+                            {
+                                fieldDataSize = SerializationTypeSizes.BYTE;
+                                EnsureBufferSize(fieldOffset + fieldDataSize);
+
+                                var getterDelegate = (EmitUtil.FieldGetterDelegate<object, byte>)fieldTypeInfo.getter;
+                                var value = getterDelegate.Invoke(obj);
+
+                                fixed (byte* byteBufferPtr = &buffer[fieldOffset])
+                                {
+                                    *byteBufferPtr = value;
+                                }
+                            }
+                            break;
+                        case SerializationType.SByte:
+                            {
+                                fieldDataSize = SerializationTypeSizes.SBYTE;
+                                EnsureBufferSize(fieldOffset + fieldDataSize);
+
+                                var getterDelegate = (EmitUtil.FieldGetterDelegate<object, sbyte>)fieldTypeInfo.getter;
+                                var value = getterDelegate.Invoke(obj);
+
+                                fixed (byte* byteBufferPtr = &buffer[fieldOffset])
+                                {
+                                    var bufferPtr = (sbyte*)byteBufferPtr;
+                                    *bufferPtr = value;
+                                }
+                            }
+                            break;
+                        case SerializationType.Bool:
+                            {
+                                fieldDataSize = SerializationTypeSizes.BOOL;
+                                EnsureBufferSize(fieldOffset + fieldDataSize);
+
+                                var getterDelegate = (EmitUtil.FieldGetterDelegate<object, bool>)fieldTypeInfo.getter;
+                                var value = getterDelegate.Invoke(obj);
+
+                                fixed (byte* byteBufferPtr = &buffer[fieldOffset])
+                                {
+                                    var bufferPtr = (bool*)byteBufferPtr;
+                                    *bufferPtr = value;
+                                }
+                            }
+                            break;
+                        case SerializationType.Int16:
+                            {
+                                fieldDataSize = SerializationTypeSizes.INT16;
+                                EnsureBufferSize(fieldOffset + fieldDataSize);
+
+                                var getterDelegate = (EmitUtil.FieldGetterDelegate<object, short>)fieldTypeInfo.getter;
+                                var value = getterDelegate.Invoke(obj);
+
+                                fixed (byte* byteBufferPtr = &buffer[fieldOffset])
+                                {
+                                    var bufferPtr = (short*)byteBufferPtr;
+                                    *bufferPtr = value;
+                                }
+                            }
+                            break;
                         case SerializationType.Int32:
                             {
                                 fieldDataSize = SerializationTypeSizes.INT32;
@@ -1882,9 +3726,367 @@ namespace Expanse.Serialization.TinySerialization
 
                                 fixed (byte* byteBufferPtr = &buffer[fieldOffset])
                                 {
-                                    int* bufferPtr = (int*)byteBufferPtr;
+                                    var bufferPtr = (int*)byteBufferPtr;
                                     *bufferPtr = value;
                                 }
+                            }
+                            break;
+                        case SerializationType.Int64:
+                            {
+                                fieldDataSize = SerializationTypeSizes.INT64;
+                                EnsureBufferSize(fieldOffset + fieldDataSize);
+
+                                var getterDelegate = (EmitUtil.FieldGetterDelegate<object, long>)fieldTypeInfo.getter;
+                                var value = getterDelegate.Invoke(obj);
+
+                                fixed (byte* byteBufferPtr = &buffer[fieldOffset])
+                                {
+                                    var bufferPtr = (long*)byteBufferPtr;
+                                    *bufferPtr = value;
+                                }
+                            }
+                            break;
+                        case SerializationType.UInt16:
+                            {
+                                fieldDataSize = SerializationTypeSizes.UINT16;
+                                EnsureBufferSize(fieldOffset + fieldDataSize);
+
+                                var getterDelegate = (EmitUtil.FieldGetterDelegate<object, ushort>)fieldTypeInfo.getter;
+                                var value = getterDelegate.Invoke(obj);
+
+                                fixed (byte* byteBufferPtr = &buffer[fieldOffset])
+                                {
+                                    var bufferPtr = (ushort*)byteBufferPtr;
+                                    *bufferPtr = value;
+                                }
+                            }
+                            break;
+                        case SerializationType.UInt32:
+                            {
+                                fieldDataSize = SerializationTypeSizes.UINT32;
+                                EnsureBufferSize(fieldOffset + fieldDataSize);
+
+                                var getterDelegate = (EmitUtil.FieldGetterDelegate<object, uint>)fieldTypeInfo.getter;
+                                var value = getterDelegate.Invoke(obj);
+
+                                fixed (byte* byteBufferPtr = &buffer[fieldOffset])
+                                {
+                                    var bufferPtr = (uint*)byteBufferPtr;
+                                    *bufferPtr = value;
+                                }
+                            }
+                            break;
+                        case SerializationType.UInt64:
+                            {
+                                fieldDataSize = SerializationTypeSizes.UINT64;
+                                EnsureBufferSize(fieldOffset + fieldDataSize);
+
+                                var getterDelegate = (EmitUtil.FieldGetterDelegate<object, ulong>)fieldTypeInfo.getter;
+                                var value = getterDelegate.Invoke(obj);
+
+                                fixed (byte* byteBufferPtr = &buffer[fieldOffset])
+                                {
+                                    var bufferPtr = (ulong*)byteBufferPtr;
+                                    *bufferPtr = value;
+                                }
+                            }
+                            break;
+                        case SerializationType.Half:
+                            {
+                                fieldDataSize = SerializationTypeSizes.HALF;
+                                EnsureBufferSize(fieldOffset + fieldDataSize);
+
+                                var getterDelegate = (EmitUtil.FieldGetterDelegate<object, Half>)fieldTypeInfo.getter;
+                                var value = getterDelegate.Invoke(obj);
+
+                                fixed (byte* byteBufferPtr = &buffer[fieldOffset])
+                                {
+                                    var bufferPtr = (ushort*)byteBufferPtr;
+                                    *bufferPtr = value.value;
+                                }
+                            }
+                            break;
+                        case SerializationType.Single:
+                            {
+                                fieldDataSize = SerializationTypeSizes.SINGLE;
+                                EnsureBufferSize(fieldOffset + fieldDataSize);
+
+                                var getterDelegate = (EmitUtil.FieldGetterDelegate<object, float>)fieldTypeInfo.getter;
+                                var value = getterDelegate.Invoke(obj);
+
+                                fixed (byte* byteBufferPtr = &buffer[fieldOffset])
+                                {
+                                    var bufferPtr = (float*)byteBufferPtr;
+                                    *bufferPtr = value;
+                                }
+                            }
+                            break;
+                        case SerializationType.Double:
+                            {
+                                fieldDataSize = SerializationTypeSizes.DOUBLE;
+                                EnsureBufferSize(fieldOffset + fieldDataSize);
+
+                                var getterDelegate = (EmitUtil.FieldGetterDelegate<object, double>)fieldTypeInfo.getter;
+                                var value = getterDelegate.Invoke(obj);
+
+                                fixed (byte* byteBufferPtr = &buffer[fieldOffset])
+                                {
+                                    var bufferPtr = (double*)byteBufferPtr;
+                                    *bufferPtr = value;
+                                }
+                            }
+                            break;
+                        case SerializationType.Char:
+                            {
+                                fieldDataSize = SerializationTypeSizes.CHAR;
+                                EnsureBufferSize(fieldOffset + fieldDataSize);
+
+                                var getterDelegate = (EmitUtil.FieldGetterDelegate<object, char>)fieldTypeInfo.getter;
+                                var value = getterDelegate.Invoke(obj);
+
+                                fixed (byte* byteBufferPtr = &buffer[fieldOffset])
+                                {
+                                    var bufferPtr = (char*)byteBufferPtr;
+                                    *bufferPtr = value;
+                                }
+                            }
+                            break;
+                        case SerializationType.Decimal:
+                            {
+                                fieldDataSize = SerializationTypeSizes.DECIMAL;
+                                EnsureBufferSize(fieldOffset + fieldDataSize);
+
+                                var getterDelegate = (EmitUtil.FieldGetterDelegate<object, decimal>)fieldTypeInfo.getter;
+                                var value = getterDelegate.Invoke(obj);
+
+                                fixed (byte* byteBufferPtr = &buffer[fieldOffset])
+                                {
+                                    var bufferPtr = (decimal*)byteBufferPtr;
+                                    *bufferPtr = value;
+                                }
+                            }
+                            break;
+                        case SerializationType.DateTime:
+                            {
+                                fieldDataSize = SerializationTypeSizes.DATE_TIME;
+                                EnsureBufferSize(fieldOffset + fieldDataSize);
+
+                                var getterDelegate = (EmitUtil.FieldGetterDelegate<object, DateTime>)fieldTypeInfo.getter;
+                                var value = getterDelegate.Invoke(obj);
+
+                                fixed (byte* byteBufferPtr = &buffer[fieldOffset])
+                                {
+                                    var bufferPtr = (long*)byteBufferPtr;
+                                    *bufferPtr = value.Ticks;
+                                }
+                            }
+                            break;
+                        case SerializationType.DateTimeOffset:
+                            {
+                                fieldDataSize = SerializationTypeSizes.DATE_TIME_OFFSET;
+                                EnsureBufferSize(fieldOffset + fieldDataSize);
+
+                                var getterDelegate = (EmitUtil.FieldGetterDelegate<object, DateTimeOffset>)fieldTypeInfo.getter;
+                                var value = getterDelegate.Invoke(obj);
+
+                                fixed (byte* byteBufferPtr = &buffer[fieldOffset])
+                                {
+                                    var bufferPtr = (long*)byteBufferPtr;
+                                    *bufferPtr = value.Ticks;
+                                }
+                            }
+                            break;
+                        case SerializationType.TimeSpan:
+                            {
+                                fieldDataSize = SerializationTypeSizes.TIME_SPAN;
+                                EnsureBufferSize(fieldOffset + fieldDataSize);
+
+                                var getterDelegate = (EmitUtil.FieldGetterDelegate<object, TimeSpan>)fieldTypeInfo.getter;
+                                var value = getterDelegate.Invoke(obj);
+
+                                fixed (byte* byteBufferPtr = &buffer[fieldOffset])
+                                {
+                                    var bufferPtr = (long*)byteBufferPtr;
+                                    *bufferPtr = value.Ticks;
+                                }
+                            }
+                            break;
+                        case SerializationType.Vector2:
+                            {
+                                fieldDataSize = SerializationTypeSizes.VECTOR2;
+                                EnsureBufferSize(fieldOffset + fieldDataSize);
+
+                                var getterDelegate = (EmitUtil.FieldGetterDelegate<object, Vector2>)fieldTypeInfo.getter;
+                                var value = getterDelegate.Invoke(obj);
+
+                                fixed (byte* byteBufferPtr = &buffer[fieldOffset])
+                                {
+                                    var bufferPtr = (float*)byteBufferPtr;
+                                    var elementValue = value;
+                                    bufferPtr[0] = elementValue.x;
+                                    bufferPtr[1] = elementValue.y;
+                                }
+                            }
+                            break;
+                        case SerializationType.Vector3:
+                            {
+                                fieldDataSize = SerializationTypeSizes.VECTOR3;
+                                EnsureBufferSize(fieldOffset + fieldDataSize);
+
+                                var getterDelegate = (EmitUtil.FieldGetterDelegate<object, Vector3>)fieldTypeInfo.getter;
+                                var value = getterDelegate.Invoke(obj);
+
+                                fixed (byte* byteBufferPtr = &buffer[fieldOffset])
+                                {
+                                    var bufferPtr = (float*)byteBufferPtr;
+                                    var elementValue = value;
+                                    bufferPtr[0] = elementValue.x;
+                                    bufferPtr[1] = elementValue.y;
+                                    bufferPtr[2] = elementValue.z;
+                                }
+                            }
+                            break;
+                        case SerializationType.Vector4:
+                            {
+                                fieldDataSize = SerializationTypeSizes.VECTOR4;
+                                EnsureBufferSize(fieldOffset + fieldDataSize);
+
+                                var getterDelegate = (EmitUtil.FieldGetterDelegate<object, Vector4>)fieldTypeInfo.getter;
+                                var value = getterDelegate.Invoke(obj);
+
+                                fixed (byte* byteBufferPtr = &buffer[fieldOffset])
+                                {
+                                    var bufferPtr = (float*)byteBufferPtr;
+                                    var elementValue = value;
+                                    bufferPtr[0] = elementValue.x;
+                                    bufferPtr[1] = elementValue.y;
+                                    bufferPtr[2] = elementValue.z;
+                                    bufferPtr[3] = elementValue.w;
+                                }
+                            }
+                            break;
+                        case SerializationType.Quaternion:
+                            {
+                                fieldDataSize = SerializationTypeSizes.QUATERNION;
+                                EnsureBufferSize(fieldOffset + fieldDataSize);
+
+                                var getterDelegate = (EmitUtil.FieldGetterDelegate<object, Quaternion>)fieldTypeInfo.getter;
+                                var value = getterDelegate.Invoke(obj);
+
+                                fixed (byte* byteBufferPtr = &buffer[fieldOffset])
+                                {
+                                    var bufferPtr = (float*)byteBufferPtr;
+                                    var elementValue = value;
+                                    bufferPtr[0] = elementValue.x;
+                                    bufferPtr[1] = elementValue.y;
+                                    bufferPtr[2] = elementValue.z;
+                                    bufferPtr[3] = elementValue.w;
+                                }
+                            }
+                            break;
+                        case SerializationType.Rect:
+                            {
+                                fieldDataSize = SerializationTypeSizes.RECT;
+                                EnsureBufferSize(fieldOffset + fieldDataSize);
+
+                                var getterDelegate = (EmitUtil.FieldGetterDelegate<object, Rect>)fieldTypeInfo.getter;
+                                var value = getterDelegate.Invoke(obj);
+
+                                fixed (byte* byteBufferPtr = &buffer[fieldOffset])
+                                {
+                                    var bufferPtr = (float*)byteBufferPtr;
+                                    var elementValue = value;
+                                    bufferPtr[0] = elementValue.x;
+                                    bufferPtr[1] = elementValue.y;
+                                    bufferPtr[2] = elementValue.width;
+                                    bufferPtr[3] = elementValue.height;
+                                }
+                            }
+                            break;
+                        case SerializationType.Bounds:
+                            {
+                                fieldDataSize = SerializationTypeSizes.BOUNDS;
+                                EnsureBufferSize(fieldOffset + fieldDataSize);
+
+                                var getterDelegate = (EmitUtil.FieldGetterDelegate<object, Bounds>)fieldTypeInfo.getter;
+                                var value = getterDelegate.Invoke(obj);
+
+                                fixed (byte* byteBufferPtr = &buffer[fieldOffset])
+                                {
+                                    var bufferPtr = (float*)byteBufferPtr;
+                                    var elementValue = value;
+                                    var center = elementValue.center;
+                                    var size = elementValue.size;
+                                    bufferPtr[0] = center.x;
+                                    bufferPtr[1] = center.y;
+                                    bufferPtr[2] = center.z;
+                                    bufferPtr[3] = size.x;
+                                    bufferPtr[4] = size.y;
+                                    bufferPtr[5] = size.z;
+                                }
+                            }
+                            break;
+                        case SerializationType.IntVector2:
+                            {
+                                fieldDataSize = SerializationTypeSizes.INT_VECTOR2;
+                                EnsureBufferSize(fieldOffset + fieldDataSize);
+
+                                var getterDelegate = (EmitUtil.FieldGetterDelegate<object, IntVector2>)fieldTypeInfo.getter;
+                                var value = getterDelegate.Invoke(obj);
+
+                                fixed (byte* byteBufferPtr = &buffer[fieldOffset])
+                                {
+                                    var bufferPtr = (int*)byteBufferPtr;
+                                    var elementValue = value;
+                                    bufferPtr[0] = elementValue.x;
+                                    bufferPtr[1] = elementValue.y;
+                                }
+                            }
+                            break;
+                        case SerializationType.IntVector3:
+                            {
+                                fieldDataSize = SerializationTypeSizes.INT_VECTOR3;
+                                EnsureBufferSize(fieldOffset + fieldDataSize);
+
+                                var getterDelegate = (EmitUtil.FieldGetterDelegate<object, IntVector3>)fieldTypeInfo.getter;
+                                var value = getterDelegate.Invoke(obj);
+
+                                fixed (byte* byteBufferPtr = &buffer[fieldOffset])
+                                {
+                                    var bufferPtr = (int*)byteBufferPtr;
+                                    var elementValue = value;
+                                    bufferPtr[0] = elementValue.x;
+                                    bufferPtr[1] = elementValue.y;
+                                    bufferPtr[2] = elementValue.z;
+                                }
+                            }
+                            break;
+                        case SerializationType.IntVector4:
+                            {
+                                fieldDataSize = SerializationTypeSizes.INT_VECTOR4;
+                                EnsureBufferSize(fieldOffset + fieldDataSize);
+
+                                var getterDelegate = (EmitUtil.FieldGetterDelegate<object, IntVector4>)fieldTypeInfo.getter;
+                                var value = getterDelegate.Invoke(obj);
+
+                                fixed (byte* byteBufferPtr = &buffer[fieldOffset])
+                                {
+                                    var bufferPtr = (int*)byteBufferPtr;
+                                    var elementValue = value;
+                                    bufferPtr[0] = elementValue.x;
+                                    bufferPtr[1] = elementValue.y;
+                                    bufferPtr[2] = elementValue.z;
+                                    bufferPtr[3] = elementValue.w;
+                                }
+                            }
+                            break;
+                        #endregion
+                        case SerializationType.String:
+                            {
+                                var getterDelegate = (EmitUtil.FieldGetterDelegate<object, string>)fieldTypeInfo.getter;
+                                var value = getterDelegate(obj);
+
+                                fieldDataSize = ExperimentalSerializeStringIntoBuffer(value, fieldOffset);
                             }
                             break;
                         case SerializationType.PrimitiveArray:
@@ -1912,20 +4114,67 @@ namespace Expanse.Serialization.TinySerialization
                                     switch (elementTypeInfo.serializationType)
                                     {
                                         case SerializationType.Byte:
+                                            {
+                                                var arrValue = (byte[])value;
+
+                                                fixed (byte* valuePtr = arrValue)
+                                                {
+                                                    for (int j = 0; j < arrLength; j++)
+                                                    {
+                                                        byteBufferPtr[j] = valuePtr[j];
+                                                    }
+                                                }
+                                            }
                                             break;
                                         case SerializationType.SByte:
+                                            {
+                                                var arrValue = (sbyte[])value;
+
+                                                fixed (sbyte* valuePtr = arrValue)
+                                                {
+                                                    var bufferPtr = (sbyte*)byteBufferPtr;
+                                                    for (int j = 0; j < arrLength; j++)
+                                                    {
+                                                        bufferPtr[j] = valuePtr[j];
+                                                    }
+                                                }
+                                            }
                                             break;
                                         case SerializationType.Bool:
+                                            {
+                                                var arrValue = (bool[])value;
+
+                                                fixed (bool* valuePtr = arrValue)
+                                                {
+                                                    var bufferPtr = (bool*)byteBufferPtr;
+                                                    for (int j = 0; j < arrLength; j++)
+                                                    {
+                                                        bufferPtr[j] = valuePtr[j];
+                                                    }
+                                                }
+                                            }
                                             break;
                                         case SerializationType.Int16:
+                                            {
+                                                var arrValue = (short[])value;
+
+                                                fixed (short* valuePtr = arrValue)
+                                                {
+                                                    var bufferPtr = (short*)byteBufferPtr;
+                                                    for (int j = 0; j < arrLength; j++)
+                                                    {
+                                                        bufferPtr[j] = valuePtr[j];
+                                                    }
+                                                }
+                                            }
                                             break;
                                         case SerializationType.Int32:
                                             {
-                                                int[] arrValue = (int[])value;
+                                                var arrValue = (int[])value;
 
                                                 fixed (int* valuePtr = arrValue)
                                                 {
-                                                    int* bufferPtr = (int*)byteBufferPtr;
+                                                    var bufferPtr = (int*)byteBufferPtr;
                                                     for (int j = 0; j < arrLength; j++)
                                                     {
                                                         bufferPtr[j] = valuePtr[j];
@@ -1934,46 +4183,332 @@ namespace Expanse.Serialization.TinySerialization
                                             }
                                             break;
                                         case SerializationType.Int64:
+                                            {
+                                                var arrValue = (long[])value;
+
+                                                fixed (long* valuePtr = arrValue)
+                                                {
+                                                    var bufferPtr = (long*)byteBufferPtr;
+                                                    for (int j = 0; j < arrLength; j++)
+                                                    {
+                                                        bufferPtr[j] = valuePtr[j];
+                                                    }
+                                                }
+                                            }
                                             break;
                                         case SerializationType.UInt16:
+                                            {
+                                                var arrValue = (ushort[])value;
+
+                                                fixed (ushort* valuePtr = arrValue)
+                                                {
+                                                    var bufferPtr = (ushort*)byteBufferPtr;
+                                                    for (int j = 0; j < arrLength; j++)
+                                                    {
+                                                        bufferPtr[j] = valuePtr[j];
+                                                    }
+                                                }
+                                            }
                                             break;
                                         case SerializationType.UInt32:
+                                            {
+                                                var arrValue = (uint[])value;
+
+                                                fixed (uint* valuePtr = arrValue)
+                                                {
+                                                    var bufferPtr = (uint*)byteBufferPtr;
+                                                    for (int j = 0; j < arrLength; j++)
+                                                    {
+                                                        bufferPtr[j] = valuePtr[j];
+                                                    }
+                                                }
+                                            }
                                             break;
                                         case SerializationType.UInt64:
+                                            {
+                                                var arrValue = (ulong[])value;
+
+                                                fixed (ulong* valuePtr = arrValue)
+                                                {
+                                                    var bufferPtr = (ulong*)byteBufferPtr;
+                                                    for (int j = 0; j < arrLength; j++)
+                                                    {
+                                                        bufferPtr[j] = valuePtr[j];
+                                                    }
+                                                }
+                                            }
                                             break;
                                         case SerializationType.Half:
+                                            {
+                                                var arrValue = (Half[])value;
+
+                                                fixed (Half* valuePtr = arrValue)
+                                                {
+                                                    var bufferPtr = (ushort*)byteBufferPtr;
+                                                    for (int j = 0; j < arrLength; j++)
+                                                    {
+                                                        bufferPtr[j] = valuePtr[j].value;
+                                                    }
+                                                }
+                                            }
                                             break;
                                         case SerializationType.Single:
+                                            {
+                                                var arrValue = (float[])value;
+
+                                                fixed (float* valuePtr = arrValue)
+                                                {
+                                                    var bufferPtr = (float*)byteBufferPtr;
+                                                    for (int j = 0; j < arrLength; j++)
+                                                    {
+                                                        bufferPtr[j] = valuePtr[j];
+                                                    }
+                                                }
+                                            }
                                             break;
                                         case SerializationType.Double:
+                                            {
+                                                var arrValue = (double[])value;
+
+                                                fixed (double* valuePtr = arrValue)
+                                                {
+                                                    var bufferPtr = (double*)byteBufferPtr;
+                                                    for (int j = 0; j < arrLength; j++)
+                                                    {
+                                                        bufferPtr[j] = valuePtr[j];
+                                                    }
+                                                }
+                                            }
                                             break;
                                         case SerializationType.Char:
+                                            {
+                                                var arrValue = (char[])value;
+
+                                                fixed (char* valuePtr = arrValue)
+                                                {
+                                                    var bufferPtr = (char*)byteBufferPtr;
+                                                    for (int j = 0; j < arrLength; j++)
+                                                    {
+                                                        bufferPtr[j] = valuePtr[j];
+                                                    }
+                                                }
+                                            }
                                             break;
                                         case SerializationType.Decimal:
+                                            {
+                                                var arrValue = (decimal[])value;
+
+                                                fixed (decimal* valuePtr = arrValue)
+                                                {
+                                                    var bufferPtr = (decimal*)byteBufferPtr;
+                                                    for (int j = 0; j < arrLength; j++)
+                                                    {
+                                                        bufferPtr[j] = valuePtr[j];
+                                                    }
+                                                }
+                                            }
                                             break;
                                         case SerializationType.DateTime:
+                                            {
+                                                var arrValue = (DateTime[])value;
+
+                                                fixed (DateTime* valuePtr = arrValue)
+                                                {
+                                                    var bufferPtr = (long*)byteBufferPtr;
+                                                    for (int j = 0; j < arrLength; j++)
+                                                    {
+                                                        bufferPtr[j] = valuePtr[j].Ticks;
+                                                    }
+                                                }
+                                            }
                                             break;
                                         case SerializationType.DateTimeOffset:
+                                            {
+                                                var arrValue = (DateTimeOffset[])value;
+
+                                                fixed (DateTimeOffset* valuePtr = arrValue)
+                                                {
+                                                    var bufferPtr = (long*)byteBufferPtr;
+                                                    for (int j = 0; j < arrLength; j++)
+                                                    {
+                                                        bufferPtr[j] = valuePtr[j].Ticks;
+                                                    }
+                                                }
+                                            }
                                             break;
                                         case SerializationType.TimeSpan:
+                                            {
+                                                var arrValue = (TimeSpan[])value;
+
+                                                fixed (TimeSpan* valuePtr = arrValue)
+                                                {
+                                                    var bufferPtr = (long*)byteBufferPtr;
+                                                    for (int j = 0; j < arrLength; j++)
+                                                    {
+                                                        bufferPtr[j] = valuePtr[j].Ticks;
+                                                    }
+                                                }
+                                            }
                                             break;
                                         case SerializationType.Vector2:
+                                            {
+                                                var arrValue = (Vector2[])value;
+
+                                                fixed (Vector2* valuePtr = arrValue)
+                                                {
+                                                    var bufferPtr = (float*)byteBufferPtr;
+                                                    for (int j = 0; j < arrLength; j++)
+                                                    {
+                                                        var elementValue = valuePtr[j];
+                                                        bufferPtr[(j * 2) + 0] = elementValue.x;
+                                                        bufferPtr[(j * 2) + 1] = elementValue.y;
+                                                    }
+                                                }
+                                            }
                                             break;
                                         case SerializationType.Vector3:
+                                            {
+                                                var arrValue = (Vector3[])value;
+
+                                                fixed (Vector3* valuePtr = arrValue)
+                                                {
+                                                    var bufferPtr = (float*)byteBufferPtr;
+                                                    for (int j = 0; j < arrLength; j++)
+                                                    {
+                                                        var elementValue = valuePtr[j];
+                                                        bufferPtr[(j * 3) + 0] = elementValue.x;
+                                                        bufferPtr[(j * 3) + 1] = elementValue.y;
+                                                        bufferPtr[(j * 3) + 2] = elementValue.z;
+                                                    }
+                                                }
+                                            }
                                             break;
                                         case SerializationType.Vector4:
+                                            {
+                                                var arrValue = (Vector4[])value;
+
+                                                fixed (Vector4* valuePtr = arrValue)
+                                                {
+                                                    var bufferPtr = (float*)byteBufferPtr;
+                                                    for (int j = 0; j < arrLength; j++)
+                                                    {
+                                                        var elementValue = valuePtr[j];
+                                                        bufferPtr[(j * 4) + 0] = elementValue.x;
+                                                        bufferPtr[(j * 4) + 1] = elementValue.y;
+                                                        bufferPtr[(j * 4) + 2] = elementValue.z;
+                                                        bufferPtr[(j * 4) + 3] = elementValue.w;
+                                                    }
+                                                }
+                                            }
                                             break;
                                         case SerializationType.Quaternion:
+                                            {
+                                                var arrValue = (Quaternion[])value;
+
+                                                fixed (Quaternion* valuePtr = arrValue)
+                                                {
+                                                    var bufferPtr = (float*)byteBufferPtr;
+                                                    for (int j = 0; j < arrLength; j++)
+                                                    {
+                                                        var elementValue = valuePtr[j];
+                                                        bufferPtr[(j * 4) + 0] = elementValue.x;
+                                                        bufferPtr[(j * 4) + 1] = elementValue.y;
+                                                        bufferPtr[(j * 4) + 2] = elementValue.z;
+                                                        bufferPtr[(j * 4) + 3] = elementValue.w;
+                                                    }
+                                                }
+                                            }
                                             break;
                                         case SerializationType.Rect:
+                                            {
+                                                var arrValue = (Rect[])value;
+
+                                                fixed (Rect* valuePtr = arrValue)
+                                                {
+                                                    var bufferPtr = (float*)byteBufferPtr;
+                                                    for (int j = 0; j < arrLength; j++)
+                                                    {
+                                                        var elementValue = valuePtr[j];
+                                                        bufferPtr[(j * 4) + 0] = elementValue.x;
+                                                        bufferPtr[(j * 4) + 1] = elementValue.y;
+                                                        bufferPtr[(j * 4) + 2] = elementValue.width;
+                                                        bufferPtr[(j * 4) + 3] = elementValue.height;
+                                                    }
+                                                }
+                                            }
                                             break;
                                         case SerializationType.Bounds:
+                                            {
+                                                var arrValue = (Bounds[])value;
+
+                                                fixed (Bounds* valuePtr = arrValue)
+                                                {
+                                                    var bufferPtr = (float*)byteBufferPtr;
+                                                    for (int j = 0; j < arrLength; j++)
+                                                    {
+                                                        var elementValue = valuePtr[j];
+                                                        var center = elementValue.center;
+                                                        var size = elementValue.size;
+                                                        bufferPtr[(j * 6) + 0] = center.x;
+                                                        bufferPtr[(j * 6) + 1] = center.y;
+                                                        bufferPtr[(j * 6) + 2] = center.z;
+                                                        bufferPtr[(j * 6) + 3] = size.x;
+                                                        bufferPtr[(j * 6) + 4] = size.y;
+                                                        bufferPtr[(j * 6) + 5] = size.z;
+                                                    }
+                                                }
+                                            }
                                             break;
                                         case SerializationType.IntVector2:
+                                            {
+                                                var arrValue = (IntVector2[])value;
+
+                                                fixed (IntVector2* valuePtr = arrValue)
+                                                {
+                                                    var bufferPtr = (int*)byteBufferPtr;
+                                                    for (int j = 0; j < arrLength; j++)
+                                                    {
+                                                        var elementValue = valuePtr[j];
+                                                        bufferPtr[(j * 2) + 0] = elementValue.x;
+                                                        bufferPtr[(j * 2) + 1] = elementValue.y;
+                                                    }
+                                                }
+                                            }
                                             break;
                                         case SerializationType.IntVector3:
+                                            {
+                                                var arrValue = (IntVector3[])value;
+
+                                                fixed (IntVector3* valuePtr = arrValue)
+                                                {
+                                                    var bufferPtr = (int*)byteBufferPtr;
+                                                    for (int j = 0; j < arrLength; j++)
+                                                    {
+                                                        var elementValue = valuePtr[j];
+                                                        bufferPtr[(j * 3) + 0] = elementValue.x;
+                                                        bufferPtr[(j * 3) + 1] = elementValue.y;
+                                                        bufferPtr[(j * 3) + 2] = elementValue.z;
+                                                    }
+                                                }
+                                            }
                                             break;
                                         case SerializationType.IntVector4:
+                                            {
+                                                var arrValue = (IntVector4[])value;
+
+                                                fixed (IntVector4* valuePtr = arrValue)
+                                                {
+                                                    var bufferPtr = (int*)byteBufferPtr;
+                                                    for (int j = 0; j < arrLength; j++)
+                                                    {
+                                                        var elementValue = valuePtr[j];
+                                                        bufferPtr[(j * 4) + 0] = elementValue.x;
+                                                        bufferPtr[(j * 4) + 1] = elementValue.y;
+                                                        bufferPtr[(j * 4) + 2] = elementValue.z;
+                                                        bufferPtr[(j * 4) + 3] = elementValue.w;
+                                                    }
+                                                }
+                                            }
                                             break;
                                         default:
                                             throw new InvalidOperationException("Serialiation type is not primitive: " + elementTypeInfo.serializationType);
@@ -2006,18 +4541,53 @@ namespace Expanse.Serialization.TinySerialization
                                     switch (elementTypeInfo.serializationType)
                                     {
                                         case SerializationType.Byte:
+                                            {
+                                                var listValue = (List<byte>)value;
+
+                                                for (int j = 0; j < listLength; j++)
+                                                {
+                                                    byteBufferPtr[j] = listValue[j];
+                                                }
+                                            }
                                             break;
                                         case SerializationType.SByte:
+                                            {
+                                                var listValue = (List<sbyte>)value;
+
+                                                var bufferPtr = (sbyte*)byteBufferPtr;
+                                                for (int j = 0; j < listLength; j++)
+                                                {
+                                                    bufferPtr[j] = listValue[j];
+                                                }
+                                            }
                                             break;
                                         case SerializationType.Bool:
+                                            {
+                                                var listValue = (List<bool>)value;
+
+                                                var bufferPtr = (bool*)byteBufferPtr;
+                                                for (int j = 0; j < listLength; j++)
+                                                {
+                                                    bufferPtr[j] = listValue[j];
+                                                }
+                                            }
                                             break;
                                         case SerializationType.Int16:
+                                            {
+                                                var listValue = (List<short>)value;
+
+                                                var bufferPtr = (short*)byteBufferPtr;
+                                                for (int j = 0; j < listLength; j++)
+                                                {
+                                                    bufferPtr[j] = listValue[j];
+                                                }
+                                            }
                                             break;
                                         case SerializationType.Int32:
                                             {
-                                                List<int> listValue = (List<int>)value;
+                                                var listValue = (List<int>)value;
 
-                                                int* bufferPtr = (int*)byteBufferPtr;
+                                                var bufferPtr = (int*)byteBufferPtr;
                                                 for (int j = 0; j < listLength; j++)
                                                 {
                                                     bufferPtr[j] = listValue[j];
@@ -2025,46 +4595,269 @@ namespace Expanse.Serialization.TinySerialization
                                             }
                                             break;
                                         case SerializationType.Int64:
+                                            {
+                                                var listValue = (List<long>)value;
+
+                                                var bufferPtr = (long*)byteBufferPtr;
+                                                for (int j = 0; j < listLength; j++)
+                                                {
+                                                    bufferPtr[j] = listValue[j];
+                                                }
+                                            }
                                             break;
                                         case SerializationType.UInt16:
+                                            {
+                                                var listValue = (List<ushort>)value;
+
+                                                var bufferPtr = (ushort*)byteBufferPtr;
+                                                for (int j = 0; j < listLength; j++)
+                                                {
+                                                    bufferPtr[j] = listValue[j];
+                                                }
+                                            }
                                             break;
                                         case SerializationType.UInt32:
+                                            {
+                                                var listValue = (List<uint>)value;
+
+                                                var bufferPtr = (uint*)byteBufferPtr;
+                                                for (int j = 0; j < listLength; j++)
+                                                {
+                                                    bufferPtr[j] = listValue[j];
+                                                }
+                                            }
                                             break;
                                         case SerializationType.UInt64:
+                                            {
+                                                var listValue = (List<ulong>)value;
+
+                                                var bufferPtr = (ulong*)byteBufferPtr;
+                                                for (int j = 0; j < listLength; j++)
+                                                {
+                                                    bufferPtr[j] = listValue[j];
+                                                }
+                                            }
                                             break;
                                         case SerializationType.Half:
+                                            {
+                                                var listValue = (List<Half>)value;
+
+                                                var bufferPtr = (ushort*)byteBufferPtr;
+                                                for (int j = 0; j < listLength; j++)
+                                                {
+                                                    bufferPtr[j] = listValue[j].value;
+                                                }
+                                            }
                                             break;
                                         case SerializationType.Single:
+                                            {
+                                                var listValue = (List<float>)value;
+
+                                                var bufferPtr = (float*)byteBufferPtr;
+                                                for (int j = 0; j < listLength; j++)
+                                                {
+                                                    bufferPtr[j] = listValue[j];
+                                                }
+                                            }
                                             break;
                                         case SerializationType.Double:
+                                            {
+                                                var listValue = (List<double>)value;
+
+                                                var bufferPtr = (double*)byteBufferPtr;
+                                                for (int j = 0; j < listLength; j++)
+                                                {
+                                                    bufferPtr[j] = listValue[j];
+                                                }
+                                            }
                                             break;
                                         case SerializationType.Char:
+                                            {
+                                                var listValue = (List<char>)value;
+
+                                                var bufferPtr = (char*)byteBufferPtr;
+                                                for (int j = 0; j < listLength; j++)
+                                                {
+                                                    bufferPtr[j] = listValue[j];
+                                                }
+                                            }
                                             break;
                                         case SerializationType.Decimal:
+                                            {
+                                                var listValue = (List<decimal>)value;
+
+                                                var bufferPtr = (decimal*)byteBufferPtr;
+                                                for (int j = 0; j < listLength; j++)
+                                                {
+                                                    bufferPtr[j] = listValue[j];
+                                                }
+                                            }
                                             break;
                                         case SerializationType.DateTime:
+                                            {
+                                                var listValue = (List<DateTime>)value;
+
+                                                var bufferPtr = (long*)byteBufferPtr;
+                                                for (int j = 0; j < listLength; j++)
+                                                {
+                                                    bufferPtr[j] = listValue[j].Ticks;
+                                                }
+                                            }
                                             break;
                                         case SerializationType.DateTimeOffset:
+                                            {
+                                                var listValue = (List<DateTimeOffset>)value;
+
+                                                var bufferPtr = (long*)byteBufferPtr;
+                                                for (int j = 0; j < listLength; j++)
+                                                {
+                                                    bufferPtr[j] = listValue[j].Ticks;
+                                                }
+                                            }
                                             break;
                                         case SerializationType.TimeSpan:
+                                            {
+                                                var listValue = (List<TimeSpan>)value;
+
+                                                var bufferPtr = (long*)byteBufferPtr;
+                                                for (int j = 0; j < listLength; j++)
+                                                {
+                                                    bufferPtr[j] = listValue[j].Ticks;
+                                                }
+                                            }
                                             break;
                                         case SerializationType.Vector2:
+                                            {
+                                                var listValue = (List<Vector2>)value;
+
+                                                var bufferPtr = (float*)byteBufferPtr;
+                                                for (int j = 0; j < listLength; j++)
+                                                {
+                                                    var elementValue = listValue[j];
+                                                    bufferPtr[(j * 2) + 0] = elementValue.x;
+                                                    bufferPtr[(j * 2) + 1] = elementValue.y;
+                                                }
+                                            }
                                             break;
                                         case SerializationType.Vector3:
+                                            {
+                                                var listValue = (List<Vector3>)value;
+
+                                                var bufferPtr = (float*)byteBufferPtr;
+                                                for (int j = 0; j < listLength; j++)
+                                                {
+                                                    var elementValue = listValue[j];
+                                                    bufferPtr[(j * 3) + 0] = elementValue.x;
+                                                    bufferPtr[(j * 3) + 1] = elementValue.y;
+                                                    bufferPtr[(j * 3) + 2] = elementValue.z;
+                                                }
+                                            }
                                             break;
                                         case SerializationType.Vector4:
+                                            {
+                                                var listValue = (List<Vector4>)value;
+
+                                                var bufferPtr = (float*)byteBufferPtr;
+                                                for (int j = 0; j < listLength; j++)
+                                                {
+                                                    var elementValue = listValue[j];
+                                                    bufferPtr[(j * 4) + 0] = elementValue.x;
+                                                    bufferPtr[(j * 4) + 1] = elementValue.y;
+                                                    bufferPtr[(j * 4) + 2] = elementValue.z;
+                                                    bufferPtr[(j * 4) + 3] = elementValue.w;
+                                                }
+                                            }
                                             break;
                                         case SerializationType.Quaternion:
+                                            {
+                                                var listValue = (List<Quaternion>)value;
+
+                                                var bufferPtr = (float*)byteBufferPtr;
+                                                for (int j = 0; j < listLength; j++)
+                                                {
+                                                    var elementValue = listValue[j];
+                                                    bufferPtr[(j * 4) + 0] = elementValue.x;
+                                                    bufferPtr[(j * 4) + 1] = elementValue.y;
+                                                    bufferPtr[(j * 4) + 2] = elementValue.z;
+                                                    bufferPtr[(j * 4) + 3] = elementValue.w;
+                                                }
+                                            }
                                             break;
                                         case SerializationType.Rect:
+                                            {
+                                                var listValue = (List<Rect>)value;
+
+                                                var bufferPtr = (float*)byteBufferPtr;
+                                                for (int j = 0; j < listLength; j++)
+                                                {
+                                                    var elementValue = listValue[j];
+                                                    bufferPtr[(j * 4) + 0] = elementValue.x;
+                                                    bufferPtr[(j * 4) + 1] = elementValue.y;
+                                                    bufferPtr[(j * 4) + 2] = elementValue.width;
+                                                    bufferPtr[(j * 4) + 3] = elementValue.height;
+                                                }
+                                            }
                                             break;
                                         case SerializationType.Bounds:
+                                            {
+                                                var listValue = (List<Bounds>)value;
+
+                                                var bufferPtr = (float*)byteBufferPtr;
+                                                for (int j = 0; j < listLength; j++)
+                                                {
+                                                    var elementValue = listValue[j];
+                                                    var center = elementValue.center;
+                                                    var size = elementValue.size;
+                                                    bufferPtr[(j * 6) + 0] = center.x;
+                                                    bufferPtr[(j * 6) + 1] = center.y;
+                                                    bufferPtr[(j * 6) + 2] = center.z;
+                                                    bufferPtr[(j * 6) + 3] = size.x;
+                                                    bufferPtr[(j * 6) + 4] = size.y;
+                                                    bufferPtr[(j * 6) + 5] = size.z;
+                                                }
+                                            }
                                             break;
                                         case SerializationType.IntVector2:
+                                            {
+                                                var listValue = (List<IntVector2>)value;
+
+                                                var bufferPtr = (int*)byteBufferPtr;
+                                                for (int j = 0; j < listLength; j++)
+                                                {
+                                                    var elementValue = listValue[j];
+                                                    bufferPtr[(j * 2) + 0] = elementValue.x;
+                                                    bufferPtr[(j * 2) + 1] = elementValue.y;
+                                                }
+                                            }
                                             break;
                                         case SerializationType.IntVector3:
+                                            {
+                                                var listValue = (List<IntVector3>)value;
+
+                                                var bufferPtr = (int*)byteBufferPtr;
+                                                for (int j = 0; j < listLength; j++)
+                                                {
+                                                    var elementValue = listValue[j];
+                                                    bufferPtr[(j * 3) + 0] = elementValue.x;
+                                                    bufferPtr[(j * 3) + 1] = elementValue.y;
+                                                    bufferPtr[(j * 3) + 2] = elementValue.z;
+                                                }
+                                            }
                                             break;
                                         case SerializationType.IntVector4:
+                                            {
+                                                var listValue = (List<IntVector4>)value;
+
+                                                var bufferPtr = (int*)byteBufferPtr;
+                                                for (int j = 0; j < listLength; j++)
+                                                {
+                                                    var elementValue = listValue[j];
+                                                    bufferPtr[(j * 4) + 0] = elementValue.x;
+                                                    bufferPtr[(j * 4) + 1] = elementValue.y;
+                                                    bufferPtr[(j * 4) + 2] = elementValue.z;
+                                                    bufferPtr[(j * 4) + 3] = elementValue.w;
+                                                }
+                                            }
                                             break;
                                         default:
                                             throw new InvalidOperationException("Serialiation type is not primitive: " + elementTypeInfo.serializationType);
@@ -2090,12 +4883,59 @@ namespace Expanse.Serialization.TinySerialization
                                 switch (elementTypeInfo.serializationType)
                                 {
                                     case SerializationType.Byte:
+                                        {
+                                            var trueValue = (byte)value;
+
+                                            fieldDataSize += SerializationTypeSizes.BYTE;
+                                            EnsureBufferSize(fieldOffset + fieldDataSize);
+
+                                            fixed (byte* byteBufferPtr = &buffer[valueOffset])
+                                            {
+                                                *byteBufferPtr = trueValue;
+                                            }
+                                        }
                                         break;
                                     case SerializationType.SByte:
+                                        {
+                                            var trueValue = (sbyte)value;
+
+                                            fieldDataSize += SerializationTypeSizes.SBYTE;
+                                            EnsureBufferSize(fieldOffset + fieldDataSize);
+
+                                            fixed (byte* byteBufferPtr = &buffer[valueOffset])
+                                            {
+                                                var bufferPtr = (sbyte*)byteBufferPtr;
+                                                *bufferPtr = trueValue;
+                                            }
+                                        }
                                         break;
                                     case SerializationType.Bool:
+                                        {
+                                            var trueValue = (bool)value;
+
+                                            fieldDataSize += SerializationTypeSizes.BOOL;
+                                            EnsureBufferSize(fieldOffset + fieldDataSize);
+
+                                            fixed (byte* byteBufferPtr = &buffer[valueOffset])
+                                            {
+                                                var bufferPtr = (bool*)byteBufferPtr;
+                                                *bufferPtr = trueValue;
+                                            }
+                                        }
                                         break;
                                     case SerializationType.Int16:
+                                        {
+                                            var trueValue = (short)value;
+
+                                            fieldDataSize += SerializationTypeSizes.INT16;
+                                            EnsureBufferSize(fieldOffset + fieldDataSize);
+
+                                            fixed (byte* byteBufferPtr = &buffer[valueOffset])
+                                            {
+                                                var bufferPtr = (short*)byteBufferPtr;
+                                                *bufferPtr = trueValue;
+                                            }
+                                        }
                                         break;
                                     case SerializationType.Int32:
                                         {
@@ -2106,52 +4946,329 @@ namespace Expanse.Serialization.TinySerialization
 
                                             fixed (byte* byteBufferPtr = &buffer[valueOffset])
                                             {
-                                                int* bufferPtr = (int*)byteBufferPtr;
+                                                var bufferPtr = (int*)byteBufferPtr;
                                                 *bufferPtr = trueValue;
                                             }
                                         }
                                         break;
                                     case SerializationType.Int64:
+                                        {
+                                            var trueValue = (long)value;
+
+                                            fieldDataSize += SerializationTypeSizes.INT64;
+                                            EnsureBufferSize(fieldOffset + fieldDataSize);
+
+                                            fixed (byte* byteBufferPtr = &buffer[valueOffset])
+                                            {
+                                                var bufferPtr = (long*)byteBufferPtr;
+                                                *bufferPtr = trueValue;
+                                            }
+                                        }
                                         break;
                                     case SerializationType.UInt16:
+                                        {
+                                            var trueValue = (ushort)value;
+
+                                            fieldDataSize += SerializationTypeSizes.UINT16;
+                                            EnsureBufferSize(fieldOffset + fieldDataSize);
+
+                                            fixed (byte* byteBufferPtr = &buffer[valueOffset])
+                                            {
+                                                var bufferPtr = (ushort*)byteBufferPtr;
+                                                *bufferPtr = trueValue;
+                                            }
+                                        }
                                         break;
                                     case SerializationType.UInt32:
+                                        {
+                                            var trueValue = (uint)value;
+
+                                            fieldDataSize += SerializationTypeSizes.UINT32;
+                                            EnsureBufferSize(fieldOffset + fieldDataSize);
+
+                                            fixed (byte* byteBufferPtr = &buffer[valueOffset])
+                                            {
+                                                var bufferPtr = (uint*)byteBufferPtr;
+                                                *bufferPtr = trueValue;
+                                            }
+                                        }
                                         break;
                                     case SerializationType.UInt64:
+                                        {
+                                            var trueValue = (ulong)value;
+
+                                            fieldDataSize += SerializationTypeSizes.UINT64;
+                                            EnsureBufferSize(fieldOffset + fieldDataSize);
+
+                                            fixed (byte* byteBufferPtr = &buffer[valueOffset])
+                                            {
+                                                var bufferPtr = (ulong*)byteBufferPtr;
+                                                *bufferPtr = trueValue;
+                                            }
+                                        }
                                         break;
                                     case SerializationType.Half:
+                                        {
+                                            var trueValue = (Half)value;
+
+                                            fieldDataSize += SerializationTypeSizes.HALF;
+                                            EnsureBufferSize(fieldOffset + fieldDataSize);
+
+                                            fixed (byte* byteBufferPtr = &buffer[valueOffset])
+                                            {
+                                                var bufferPtr = (ushort*)byteBufferPtr;
+                                                *bufferPtr = trueValue.value;
+                                            }
+                                        }
                                         break;
                                     case SerializationType.Single:
+                                        {
+                                            var trueValue = (float)value;
+
+                                            fieldDataSize += SerializationTypeSizes.SINGLE;
+                                            EnsureBufferSize(fieldOffset + fieldDataSize);
+
+                                            fixed (byte* byteBufferPtr = &buffer[valueOffset])
+                                            {
+                                                var bufferPtr = (float*)byteBufferPtr;
+                                                *bufferPtr = trueValue;
+                                            }
+                                        }
                                         break;
                                     case SerializationType.Double:
+                                        {
+                                            var trueValue = (double)value;
+
+                                            fieldDataSize += SerializationTypeSizes.DOUBLE;
+                                            EnsureBufferSize(fieldOffset + fieldDataSize);
+
+                                            fixed (byte* byteBufferPtr = &buffer[valueOffset])
+                                            {
+                                                var bufferPtr = (double*)byteBufferPtr;
+                                                *bufferPtr = trueValue;
+                                            }
+                                        }
                                         break;
                                     case SerializationType.Char:
+                                        {
+                                            var trueValue = (char)value;
+
+                                            fieldDataSize += SerializationTypeSizes.CHAR;
+                                            EnsureBufferSize(fieldOffset + fieldDataSize);
+
+                                            fixed (byte* byteBufferPtr = &buffer[valueOffset])
+                                            {
+                                                var bufferPtr = (char*)byteBufferPtr;
+                                                *bufferPtr = trueValue;
+                                            }
+                                        }
                                         break;
                                     case SerializationType.Decimal:
+                                        {
+                                            var trueValue = (decimal)value;
+
+                                            fieldDataSize += SerializationTypeSizes.DECIMAL;
+                                            EnsureBufferSize(fieldOffset + fieldDataSize);
+
+                                            fixed (byte* byteBufferPtr = &buffer[valueOffset])
+                                            {
+                                                var bufferPtr = (decimal*)byteBufferPtr;
+                                                *bufferPtr = trueValue;
+                                            }
+                                        }
                                         break;
                                     case SerializationType.DateTime:
+                                        {
+                                            var trueValue = (DateTime)value;
+
+                                            fieldDataSize += SerializationTypeSizes.DATE_TIME;
+                                            EnsureBufferSize(fieldOffset + fieldDataSize);
+
+                                            fixed (byte* byteBufferPtr = &buffer[valueOffset])
+                                            {
+                                                var bufferPtr = (long*)byteBufferPtr;
+                                                *bufferPtr = trueValue.Ticks;
+                                            }
+                                        }
                                         break;
                                     case SerializationType.DateTimeOffset:
+                                        {
+                                            var trueValue = (DateTimeOffset)value;
+
+                                            fieldDataSize += SerializationTypeSizes.DATE_TIME_OFFSET;
+                                            EnsureBufferSize(fieldOffset + fieldDataSize);
+
+                                            fixed (byte* byteBufferPtr = &buffer[valueOffset])
+                                            {
+                                                var bufferPtr = (long*)byteBufferPtr;
+                                                *bufferPtr = trueValue.Ticks;
+                                            }
+                                        }
                                         break;
                                     case SerializationType.TimeSpan:
+                                        {
+                                            var trueValue = (TimeSpan)value;
+
+                                            fieldDataSize += SerializationTypeSizes.TIME_SPAN;
+                                            EnsureBufferSize(fieldOffset + fieldDataSize);
+
+                                            fixed (byte* byteBufferPtr = &buffer[valueOffset])
+                                            {
+                                                var bufferPtr = (long*)byteBufferPtr;
+                                                *bufferPtr = trueValue.Ticks;
+                                            }
+                                        }
                                         break;
                                     case SerializationType.Vector2:
+                                        {
+                                            var trueValue = (Vector2)value;
+
+                                            fieldDataSize += SerializationTypeSizes.VECTOR2;
+                                            EnsureBufferSize(fieldOffset + fieldDataSize);
+
+                                            fixed (byte* byteBufferPtr = &buffer[valueOffset])
+                                            {
+                                                var bufferPtr = (float*)byteBufferPtr;
+                                                bufferPtr[0] = trueValue.x;
+                                                bufferPtr[1] = trueValue.y;
+                                            }
+                                        }
                                         break;
                                     case SerializationType.Vector3:
+                                        {
+                                            var trueValue = (Vector3)value;
+
+                                            fieldDataSize += SerializationTypeSizes.VECTOR3;
+                                            EnsureBufferSize(fieldOffset + fieldDataSize);
+
+                                            fixed (byte* byteBufferPtr = &buffer[valueOffset])
+                                            {
+                                                var bufferPtr = (float*)byteBufferPtr;
+                                                bufferPtr[0] = trueValue.x;
+                                                bufferPtr[1] = trueValue.y;
+                                                bufferPtr[2] = trueValue.z;
+                                            }
+                                        }
                                         break;
                                     case SerializationType.Vector4:
+                                        {
+                                            var trueValue = (Vector4)value;
+
+                                            fieldDataSize += SerializationTypeSizes.VECTOR4;
+                                            EnsureBufferSize(fieldOffset + fieldDataSize);
+
+                                            fixed (byte* byteBufferPtr = &buffer[valueOffset])
+                                            {
+                                                var bufferPtr = (float*)byteBufferPtr;
+                                                bufferPtr[0] = trueValue.x;
+                                                bufferPtr[1] = trueValue.y;
+                                                bufferPtr[2] = trueValue.z;
+                                                bufferPtr[3] = trueValue.w;
+                                            }
+                                        }
                                         break;
                                     case SerializationType.Quaternion:
+                                        {
+                                            var trueValue = (Quaternion)value;
+
+                                            fieldDataSize += SerializationTypeSizes.QUATERNION;
+                                            EnsureBufferSize(fieldOffset + fieldDataSize);
+
+                                            fixed (byte* byteBufferPtr = &buffer[valueOffset])
+                                            {
+                                                var bufferPtr = (float*)byteBufferPtr;
+                                                bufferPtr[0] = trueValue.x;
+                                                bufferPtr[1] = trueValue.y;
+                                                bufferPtr[2] = trueValue.z;
+                                                bufferPtr[3] = trueValue.w;
+                                            }
+                                        }
                                         break;
                                     case SerializationType.Rect:
+                                        {
+                                            var trueValue = (Rect)value;
+
+                                            fieldDataSize += SerializationTypeSizes.RECT;
+                                            EnsureBufferSize(fieldOffset + fieldDataSize);
+
+                                            fixed (byte* byteBufferPtr = &buffer[valueOffset])
+                                            {
+                                                var bufferPtr = (float*)byteBufferPtr;
+                                                bufferPtr[0] = trueValue.x;
+                                                bufferPtr[1] = trueValue.y;
+                                                bufferPtr[2] = trueValue.width;
+                                                bufferPtr[3] = trueValue.height;
+                                            }
+                                        }
                                         break;
                                     case SerializationType.Bounds:
+                                        {
+                                            var trueValue = (Bounds)value;
+
+                                            fieldDataSize += SerializationTypeSizes.BOUNDS;
+                                            EnsureBufferSize(fieldOffset + fieldDataSize);
+
+                                            fixed (byte* byteBufferPtr = &buffer[valueOffset])
+                                            {
+                                                var bufferPtr = (float*)byteBufferPtr;
+                                                var center = trueValue.center;
+                                                var size = trueValue.size;
+                                                bufferPtr[0] = center.x;
+                                                bufferPtr[1] = center.y;
+                                                bufferPtr[2] = center.z;
+                                                bufferPtr[3] = size.x;
+                                                bufferPtr[4] = size.y;
+                                                bufferPtr[5] = size.z;
+                                            }
+                                        }
                                         break;
                                     case SerializationType.IntVector2:
+                                        {
+                                            var trueValue = (IntVector2)value;
+
+                                            fieldDataSize += SerializationTypeSizes.INT_VECTOR2;
+                                            EnsureBufferSize(fieldOffset + fieldDataSize);
+
+                                            fixed (byte* byteBufferPtr = &buffer[valueOffset])
+                                            {
+                                                var bufferPtr = (int*)byteBufferPtr;
+                                                bufferPtr[0] = trueValue.x;
+                                                bufferPtr[1] = trueValue.y;
+                                            }
+                                        }
                                         break;
                                     case SerializationType.IntVector3:
+                                        {
+                                            var trueValue = (IntVector3)value;
+
+                                            fieldDataSize += SerializationTypeSizes.INT_VECTOR3;
+                                            EnsureBufferSize(fieldOffset + fieldDataSize);
+
+                                            fixed (byte* byteBufferPtr = &buffer[valueOffset])
+                                            {
+                                                var bufferPtr = (int*)byteBufferPtr;
+                                                bufferPtr[0] = trueValue.x;
+                                                bufferPtr[1] = trueValue.y;
+                                                bufferPtr[2] = trueValue.z;
+                                            }
+                                        }
                                         break;
                                     case SerializationType.IntVector4:
+                                        {
+                                            var trueValue = (IntVector4)value;
+
+                                            fieldDataSize += SerializationTypeSizes.INT_VECTOR4;
+                                            EnsureBufferSize(fieldOffset + fieldDataSize);
+
+                                            fixed (byte* byteBufferPtr = &buffer[valueOffset])
+                                            {
+                                                var bufferPtr = (int*)byteBufferPtr;
+                                                bufferPtr[0] = trueValue.x;
+                                                bufferPtr[1] = trueValue.y;
+                                                bufferPtr[2] = trueValue.z;
+                                                bufferPtr[3] = trueValue.w;
+                                            }
+                                        }
                                         break;
                                     default:
                                         throw new InvalidOperationException("Serialiation type is not primitive: " + elementTypeInfo.serializationType);
@@ -2241,6 +5358,12 @@ namespace Expanse.Serialization.TinySerialization
                 // Handles nested container types
                 switch (typeInfo.serializationType)
                 {
+                    case SerializationType.String:
+                        {
+                            var value = obj as string;
+                            dataSize = ExperimentalSerializeStringIntoBuffer(value, offset);
+                        }
+                        break;
                     case SerializationType.PrimitiveArray:
                         {
                             var value = obj as Array;
@@ -2263,20 +5386,67 @@ namespace Expanse.Serialization.TinySerialization
                                 switch (elementTypeInfo.serializationType)
                                 {
                                     case SerializationType.Byte:
+                                        {
+                                            var arrValue = (byte[])value;
+
+                                            fixed (byte* valuePtr = arrValue)
+                                            {
+                                                for (int j = 0; j < arrLength; j++)
+                                                {
+                                                    byteBufferPtr[j] = valuePtr[j];
+                                                }
+                                            }
+                                        }
                                         break;
                                     case SerializationType.SByte:
+                                        {
+                                            var arrValue = (sbyte[])value;
+
+                                            fixed (sbyte* valuePtr = arrValue)
+                                            {
+                                                var bufferPtr = (sbyte*)byteBufferPtr;
+                                                for (int j = 0; j < arrLength; j++)
+                                                {
+                                                    bufferPtr[j] = valuePtr[j];
+                                                }
+                                            }
+                                        }
                                         break;
                                     case SerializationType.Bool:
+                                        {
+                                            var arrValue = (bool[])value;
+
+                                            fixed (bool* valuePtr = arrValue)
+                                            {
+                                                var bufferPtr = (bool*)byteBufferPtr;
+                                                for (int j = 0; j < arrLength; j++)
+                                                {
+                                                    bufferPtr[j] = valuePtr[j];
+                                                }
+                                            }
+                                        }
                                         break;
                                     case SerializationType.Int16:
+                                        {
+                                            var arrValue = (short[])value;
+
+                                            fixed (short* valuePtr = arrValue)
+                                            {
+                                                var bufferPtr = (short*)byteBufferPtr;
+                                                for (int j = 0; j < arrLength; j++)
+                                                {
+                                                    bufferPtr[j] = valuePtr[j];
+                                                }
+                                            }
+                                        }
                                         break;
                                     case SerializationType.Int32:
                                         {
-                                            int[] arrValue = (int[])value;
+                                            var arrValue = (int[])value;
 
                                             fixed (int* valuePtr = arrValue)
                                             {
-                                                int* bufferPtr = (int*)byteBufferPtr;
+                                                var bufferPtr = (int*)byteBufferPtr;
                                                 for (int j = 0; j < arrLength; j++)
                                                 {
                                                     bufferPtr[j] = valuePtr[j];
@@ -2285,46 +5455,332 @@ namespace Expanse.Serialization.TinySerialization
                                         }
                                         break;
                                     case SerializationType.Int64:
+                                        {
+                                            var arrValue = (long[])value;
+
+                                            fixed (long* valuePtr = arrValue)
+                                            {
+                                                var bufferPtr = (long*)byteBufferPtr;
+                                                for (int j = 0; j < arrLength; j++)
+                                                {
+                                                    bufferPtr[j] = valuePtr[j];
+                                                }
+                                            }
+                                        }
                                         break;
                                     case SerializationType.UInt16:
+                                        {
+                                            var arrValue = (ushort[])value;
+
+                                            fixed (ushort* valuePtr = arrValue)
+                                            {
+                                                var bufferPtr = (ushort*)byteBufferPtr;
+                                                for (int j = 0; j < arrLength; j++)
+                                                {
+                                                    bufferPtr[j] = valuePtr[j];
+                                                }
+                                            }
+                                        }
                                         break;
                                     case SerializationType.UInt32:
+                                        {
+                                            var arrValue = (uint[])value;
+
+                                            fixed (uint* valuePtr = arrValue)
+                                            {
+                                                var bufferPtr = (uint*)byteBufferPtr;
+                                                for (int j = 0; j < arrLength; j++)
+                                                {
+                                                    bufferPtr[j] = valuePtr[j];
+                                                }
+                                            }
+                                        }
                                         break;
                                     case SerializationType.UInt64:
+                                        {
+                                            var arrValue = (ulong[])value;
+
+                                            fixed (ulong* valuePtr = arrValue)
+                                            {
+                                                var bufferPtr = (ulong*)byteBufferPtr;
+                                                for (int j = 0; j < arrLength; j++)
+                                                {
+                                                    bufferPtr[j] = valuePtr[j];
+                                                }
+                                            }
+                                        }
                                         break;
                                     case SerializationType.Half:
+                                        {
+                                            var arrValue = (Half[])value;
+
+                                            fixed (Half* valuePtr = arrValue)
+                                            {
+                                                var bufferPtr = (ushort*)byteBufferPtr;
+                                                for (int j = 0; j < arrLength; j++)
+                                                {
+                                                    bufferPtr[j] = valuePtr[j].value;
+                                                }
+                                            }
+                                        }
                                         break;
                                     case SerializationType.Single:
+                                        {
+                                            var arrValue = (float[])value;
+
+                                            fixed (float* valuePtr = arrValue)
+                                            {
+                                                var bufferPtr = (float*)byteBufferPtr;
+                                                for (int j = 0; j < arrLength; j++)
+                                                {
+                                                    bufferPtr[j] = valuePtr[j];
+                                                }
+                                            }
+                                        }
                                         break;
                                     case SerializationType.Double:
+                                        {
+                                            var arrValue = (double[])value;
+
+                                            fixed (double* valuePtr = arrValue)
+                                            {
+                                                var bufferPtr = (double*)byteBufferPtr;
+                                                for (int j = 0; j < arrLength; j++)
+                                                {
+                                                    bufferPtr[j] = valuePtr[j];
+                                                }
+                                            }
+                                        }
                                         break;
                                     case SerializationType.Char:
+                                        {
+                                            var arrValue = (char[])value;
+
+                                            fixed (char* valuePtr = arrValue)
+                                            {
+                                                var bufferPtr = (char*)byteBufferPtr;
+                                                for (int j = 0; j < arrLength; j++)
+                                                {
+                                                    bufferPtr[j] = valuePtr[j];
+                                                }
+                                            }
+                                        }
                                         break;
                                     case SerializationType.Decimal:
+                                        {
+                                            var arrValue = (decimal[])value;
+
+                                            fixed (decimal* valuePtr = arrValue)
+                                            {
+                                                var bufferPtr = (decimal*)byteBufferPtr;
+                                                for (int j = 0; j < arrLength; j++)
+                                                {
+                                                    bufferPtr[j] = valuePtr[j];
+                                                }
+                                            }
+                                        }
                                         break;
                                     case SerializationType.DateTime:
+                                        {
+                                            var arrValue = (DateTime[])value;
+
+                                            fixed (DateTime* valuePtr = arrValue)
+                                            {
+                                                var bufferPtr = (long*)byteBufferPtr;
+                                                for (int j = 0; j < arrLength; j++)
+                                                {
+                                                    bufferPtr[j] = valuePtr[j].Ticks;
+                                                }
+                                            }
+                                        }
                                         break;
                                     case SerializationType.DateTimeOffset:
+                                        {
+                                            var arrValue = (DateTimeOffset[])value;
+
+                                            fixed (DateTimeOffset* valuePtr = arrValue)
+                                            {
+                                                var bufferPtr = (long*)byteBufferPtr;
+                                                for (int j = 0; j < arrLength; j++)
+                                                {
+                                                    bufferPtr[j] = valuePtr[j].Ticks;
+                                                }
+                                            }
+                                        }
                                         break;
                                     case SerializationType.TimeSpan:
+                                        {
+                                            var arrValue = (TimeSpan[])value;
+
+                                            fixed (TimeSpan* valuePtr = arrValue)
+                                            {
+                                                var bufferPtr = (long*)byteBufferPtr;
+                                                for (int j = 0; j < arrLength; j++)
+                                                {
+                                                    bufferPtr[j] = valuePtr[j].Ticks;
+                                                }
+                                            }
+                                        }
                                         break;
                                     case SerializationType.Vector2:
+                                        {
+                                            var arrValue = (Vector2[])value;
+
+                                            fixed (Vector2* valuePtr = arrValue)
+                                            {
+                                                var bufferPtr = (float*)byteBufferPtr;
+                                                for (int j = 0; j < arrLength; j++)
+                                                {
+                                                    var elementValue = valuePtr[j];
+                                                    bufferPtr[(j * 2) + 0] = elementValue.x;
+                                                    bufferPtr[(j * 2) + 1] = elementValue.y;
+                                                }
+                                            }
+                                        }
                                         break;
                                     case SerializationType.Vector3:
+                                        {
+                                            var arrValue = (Vector3[])value;
+
+                                            fixed (Vector3* valuePtr = arrValue)
+                                            {
+                                                var bufferPtr = (float*)byteBufferPtr;
+                                                for (int j = 0; j < arrLength; j++)
+                                                {
+                                                    var elementValue = valuePtr[j];
+                                                    bufferPtr[(j * 3) + 0] = elementValue.x;
+                                                    bufferPtr[(j * 3) + 1] = elementValue.y;
+                                                    bufferPtr[(j * 3) + 2] = elementValue.z;
+                                                }
+                                            }
+                                        }
                                         break;
                                     case SerializationType.Vector4:
+                                        {
+                                            var arrValue = (Vector4[])value;
+
+                                            fixed (Vector4* valuePtr = arrValue)
+                                            {
+                                                var bufferPtr = (float*)byteBufferPtr;
+                                                for (int j = 0; j < arrLength; j++)
+                                                {
+                                                    var elementValue = valuePtr[j];
+                                                    bufferPtr[(j * 4) + 0] = elementValue.x;
+                                                    bufferPtr[(j * 4) + 1] = elementValue.y;
+                                                    bufferPtr[(j * 4) + 2] = elementValue.z;
+                                                    bufferPtr[(j * 4) + 3] = elementValue.w;
+                                                }
+                                            }
+                                        }
                                         break;
                                     case SerializationType.Quaternion:
+                                        {
+                                            var arrValue = (Quaternion[])value;
+
+                                            fixed (Quaternion* valuePtr = arrValue)
+                                            {
+                                                var bufferPtr = (float*)byteBufferPtr;
+                                                for (int j = 0; j < arrLength; j++)
+                                                {
+                                                    var elementValue = valuePtr[j];
+                                                    bufferPtr[(j * 4) + 0] = elementValue.x;
+                                                    bufferPtr[(j * 4) + 1] = elementValue.y;
+                                                    bufferPtr[(j * 4) + 2] = elementValue.z;
+                                                    bufferPtr[(j * 4) + 3] = elementValue.w;
+                                                }
+                                            }
+                                        }
                                         break;
                                     case SerializationType.Rect:
+                                        {
+                                            var arrValue = (Rect[])value;
+
+                                            fixed (Rect* valuePtr = arrValue)
+                                            {
+                                                var bufferPtr = (float*)byteBufferPtr;
+                                                for (int j = 0; j < arrLength; j++)
+                                                {
+                                                    var elementValue = valuePtr[j];
+                                                    bufferPtr[(j * 4) + 0] = elementValue.x;
+                                                    bufferPtr[(j * 4) + 1] = elementValue.y;
+                                                    bufferPtr[(j * 4) + 2] = elementValue.width;
+                                                    bufferPtr[(j * 4) + 3] = elementValue.height;
+                                                }
+                                            }
+                                        }
                                         break;
                                     case SerializationType.Bounds:
+                                        {
+                                            var arrValue = (Bounds[])value;
+
+                                            fixed (Bounds* valuePtr = arrValue)
+                                            {
+                                                var bufferPtr = (float*)byteBufferPtr;
+                                                for (int j = 0; j < arrLength; j++)
+                                                {
+                                                    var elementValue = valuePtr[j];
+                                                    var center = elementValue.center;
+                                                    var size = elementValue.size;
+                                                    bufferPtr[(j * 6) + 0] = center.x;
+                                                    bufferPtr[(j * 6) + 1] = center.y;
+                                                    bufferPtr[(j * 6) + 2] = center.z;
+                                                    bufferPtr[(j * 6) + 3] = size.x;
+                                                    bufferPtr[(j * 6) + 4] = size.y;
+                                                    bufferPtr[(j * 6) + 5] = size.z;
+                                                }
+                                            }
+                                        }
                                         break;
                                     case SerializationType.IntVector2:
+                                        {
+                                            var arrValue = (IntVector2[])value;
+
+                                            fixed (IntVector2* valuePtr = arrValue)
+                                            {
+                                                var bufferPtr = (int*)byteBufferPtr;
+                                                for (int j = 0; j < arrLength; j++)
+                                                {
+                                                    var elementValue = valuePtr[j];
+                                                    bufferPtr[(j * 2) + 0] = elementValue.x;
+                                                    bufferPtr[(j * 2) + 1] = elementValue.y;
+                                                }
+                                            }
+                                        }
                                         break;
                                     case SerializationType.IntVector3:
+                                        {
+                                            var arrValue = (IntVector3[])value;
+
+                                            fixed (IntVector3* valuePtr = arrValue)
+                                            {
+                                                var bufferPtr = (int*)byteBufferPtr;
+                                                for (int j = 0; j < arrLength; j++)
+                                                {
+                                                    var elementValue = valuePtr[j];
+                                                    bufferPtr[(j * 3) + 0] = elementValue.x;
+                                                    bufferPtr[(j * 3) + 1] = elementValue.y;
+                                                    bufferPtr[(j * 3) + 2] = elementValue.z;
+                                                }
+                                            }
+                                        }
                                         break;
                                     case SerializationType.IntVector4:
+                                        {
+                                            var arrValue = (IntVector4[])value;
+
+                                            fixed (IntVector4* valuePtr = arrValue)
+                                            {
+                                                var bufferPtr = (int*)byteBufferPtr;
+                                                for (int j = 0; j < arrLength; j++)
+                                                {
+                                                    var elementValue = valuePtr[j];
+                                                    bufferPtr[(j * 4) + 0] = elementValue.x;
+                                                    bufferPtr[(j * 4) + 1] = elementValue.y;
+                                                    bufferPtr[(j * 4) + 2] = elementValue.z;
+                                                    bufferPtr[(j * 4) + 3] = elementValue.w;
+                                                }
+                                            }
+                                        }
                                         break;
                                     default:
                                         throw new InvalidOperationException("Serialiation type is not primitive: " + elementTypeInfo.serializationType);
@@ -2354,18 +5810,53 @@ namespace Expanse.Serialization.TinySerialization
                                 switch (elementTypeInfo.serializationType)
                                 {
                                     case SerializationType.Byte:
+                                        {
+                                            var listValue = (List<byte>)value;
+
+                                            for (int j = 0; j < listLength; j++)
+                                            {
+                                                byteBufferPtr[j] = listValue[j];
+                                            }
+                                        }
                                         break;
                                     case SerializationType.SByte:
+                                        {
+                                            var listValue = (List<sbyte>)value;
+
+                                            var bufferPtr = (sbyte*)byteBufferPtr;
+                                            for (int j = 0; j < listLength; j++)
+                                            {
+                                                bufferPtr[j] = listValue[j];
+                                            }
+                                        }
                                         break;
                                     case SerializationType.Bool:
+                                        {
+                                            var listValue = (List<bool>)value;
+
+                                            var bufferPtr = (bool*)byteBufferPtr;
+                                            for (int j = 0; j < listLength; j++)
+                                            {
+                                                bufferPtr[j] = listValue[j];
+                                            }
+                                        }
                                         break;
                                     case SerializationType.Int16:
+                                        {
+                                            var listValue = (List<short>)value;
+
+                                            var bufferPtr = (short*)byteBufferPtr;
+                                            for (int j = 0; j < listLength; j++)
+                                            {
+                                                bufferPtr[j] = listValue[j];
+                                            }
+                                        }
                                         break;
                                     case SerializationType.Int32:
                                         {
-                                            List<int> listValue = (List<int>)value;
+                                            var listValue = (List<int>)value;
 
-                                            int* bufferPtr = (int*)byteBufferPtr;
+                                            var bufferPtr = (int*)byteBufferPtr;
                                             for (int j = 0; j < listLength; j++)
                                             {
                                                 bufferPtr[j] = listValue[j];
@@ -2373,49 +5864,272 @@ namespace Expanse.Serialization.TinySerialization
                                         }
                                         break;
                                     case SerializationType.Int64:
+                                        {
+                                            var listValue = (List<long>)value;
+
+                                            var bufferPtr = (long*)byteBufferPtr;
+                                            for (int j = 0; j < listLength; j++)
+                                            {
+                                                bufferPtr[j] = listValue[j];
+                                            }
+                                        }
                                         break;
                                     case SerializationType.UInt16:
+                                        {
+                                            var listValue = (List<ushort>)value;
+
+                                            var bufferPtr = (ushort*)byteBufferPtr;
+                                            for (int j = 0; j < listLength; j++)
+                                            {
+                                                bufferPtr[j] = listValue[j];
+                                            }
+                                        }
                                         break;
                                     case SerializationType.UInt32:
+                                        {
+                                            var listValue = (List<uint>)value;
+
+                                            var bufferPtr = (uint*)byteBufferPtr;
+                                            for (int j = 0; j < listLength; j++)
+                                            {
+                                                bufferPtr[j] = listValue[j];
+                                            }
+                                        }
                                         break;
                                     case SerializationType.UInt64:
+                                        {
+                                            var listValue = (List<ulong>)value;
+
+                                            var bufferPtr = (ulong*)byteBufferPtr;
+                                            for (int j = 0; j < listLength; j++)
+                                            {
+                                                bufferPtr[j] = listValue[j];
+                                            }
+                                        }
                                         break;
                                     case SerializationType.Half:
+                                        {
+                                            var listValue = (List<Half>)value;
+
+                                            var bufferPtr = (ushort*)byteBufferPtr;
+                                            for (int j = 0; j < listLength; j++)
+                                            {
+                                                bufferPtr[j] = listValue[j].value;
+                                            }
+                                        }
                                         break;
                                     case SerializationType.Single:
+                                        {
+                                            var listValue = (List<float>)value;
+
+                                            var bufferPtr = (float*)byteBufferPtr;
+                                            for (int j = 0; j < listLength; j++)
+                                            {
+                                                bufferPtr[j] = listValue[j];
+                                            }
+                                        }
                                         break;
                                     case SerializationType.Double:
+                                        {
+                                            var listValue = (List<double>)value;
+
+                                            var bufferPtr = (double*)byteBufferPtr;
+                                            for (int j = 0; j < listLength; j++)
+                                            {
+                                                bufferPtr[j] = listValue[j];
+                                            }
+                                        }
                                         break;
                                     case SerializationType.Char:
+                                        {
+                                            var listValue = (List<char>)value;
+
+                                            var bufferPtr = (char*)byteBufferPtr;
+                                            for (int j = 0; j < listLength; j++)
+                                            {
+                                                bufferPtr[j] = listValue[j];
+                                            }
+                                        }
                                         break;
                                     case SerializationType.Decimal:
+                                        {
+                                            var listValue = (List<decimal>)value;
+
+                                            var bufferPtr = (decimal*)byteBufferPtr;
+                                            for (int j = 0; j < listLength; j++)
+                                            {
+                                                bufferPtr[j] = listValue[j];
+                                            }
+                                        }
                                         break;
                                     case SerializationType.DateTime:
+                                        {
+                                            var listValue = (List<DateTime>)value;
+
+                                            var bufferPtr = (long*)byteBufferPtr;
+                                            for (int j = 0; j < listLength; j++)
+                                            {
+                                                bufferPtr[j] = listValue[j].Ticks;
+                                            }
+                                        }
                                         break;
                                     case SerializationType.DateTimeOffset:
+                                        {
+                                            var listValue = (List<DateTimeOffset>)value;
+
+                                            var bufferPtr = (long*)byteBufferPtr;
+                                            for (int j = 0; j < listLength; j++)
+                                            {
+                                                bufferPtr[j] = listValue[j].Ticks;
+                                            }
+                                        }
                                         break;
                                     case SerializationType.TimeSpan:
+                                        {
+                                            var listValue = (List<TimeSpan>)value;
+
+                                            var bufferPtr = (long*)byteBufferPtr;
+                                            for (int j = 0; j < listLength; j++)
+                                            {
+                                                bufferPtr[j] = listValue[j].Ticks;
+                                            }
+                                        }
                                         break;
                                     case SerializationType.Vector2:
+                                        {
+                                            var listValue = (List<Vector2>)value;
+
+                                            var bufferPtr = (float*)byteBufferPtr;
+                                            for (int j = 0; j < listLength; j++)
+                                            {
+                                                var elementValue = listValue[j];
+                                                bufferPtr[(j * 2) + 0] = elementValue.x;
+                                                bufferPtr[(j * 2) + 1] = elementValue.y;
+                                            }
+                                        }
                                         break;
                                     case SerializationType.Vector3:
+                                        {
+                                            var listValue = (List<Vector3>)value;
+
+                                            var bufferPtr = (float*)byteBufferPtr;
+                                            for (int j = 0; j < listLength; j++)
+                                            {
+                                                var elementValue = listValue[j];
+                                                bufferPtr[(j * 3) + 0] = elementValue.x;
+                                                bufferPtr[(j * 3) + 1] = elementValue.y;
+                                                bufferPtr[(j * 3) + 2] = elementValue.z;
+                                            }
+                                        }
                                         break;
                                     case SerializationType.Vector4:
+                                        {
+                                            var listValue = (List<Vector4>)value;
+
+                                            var bufferPtr = (float*)byteBufferPtr;
+                                            for (int j = 0; j < listLength; j++)
+                                            {
+                                                var elementValue = listValue[j];
+                                                bufferPtr[(j * 4) + 0] = elementValue.x;
+                                                bufferPtr[(j * 4) + 1] = elementValue.y;
+                                                bufferPtr[(j * 4) + 2] = elementValue.z;
+                                                bufferPtr[(j * 4) + 3] = elementValue.w;
+                                            }
+                                        }
                                         break;
                                     case SerializationType.Quaternion:
+                                        {
+                                            var listValue = (List<Quaternion>)value;
+
+                                            var bufferPtr = (float*)byteBufferPtr;
+                                            for (int j = 0; j < listLength; j++)
+                                            {
+                                                var elementValue = listValue[j];
+                                                bufferPtr[(j * 4) + 0] = elementValue.x;
+                                                bufferPtr[(j * 4) + 1] = elementValue.y;
+                                                bufferPtr[(j * 4) + 2] = elementValue.z;
+                                                bufferPtr[(j * 4) + 3] = elementValue.w;
+                                            }
+                                        }
                                         break;
                                     case SerializationType.Rect:
+                                        {
+                                            var listValue = (List<Rect>)value;
+
+                                            var bufferPtr = (float*)byteBufferPtr;
+                                            for (int j = 0; j < listLength; j++)
+                                            {
+                                                var elementValue = listValue[j];
+                                                bufferPtr[(j * 4) + 0] = elementValue.x;
+                                                bufferPtr[(j * 4) + 1] = elementValue.y;
+                                                bufferPtr[(j * 4) + 2] = elementValue.width;
+                                                bufferPtr[(j * 4) + 3] = elementValue.height;
+                                            }
+                                        }
                                         break;
                                     case SerializationType.Bounds:
+                                        {
+                                            var listValue = (List<Bounds>)value;
+
+                                            var bufferPtr = (float*)byteBufferPtr;
+                                            for (int j = 0; j < listLength; j++)
+                                            {
+                                                var elementValue = listValue[j];
+                                                var center = elementValue.center;
+                                                var size = elementValue.size;
+                                                bufferPtr[(j * 6) + 0] = center.x;
+                                                bufferPtr[(j * 6) + 1] = center.y;
+                                                bufferPtr[(j * 6) + 2] = center.z;
+                                                bufferPtr[(j * 6) + 3] = size.x;
+                                                bufferPtr[(j * 6) + 4] = size.y;
+                                                bufferPtr[(j * 6) + 5] = size.z;
+                                            }
+                                        }
                                         break;
                                     case SerializationType.IntVector2:
+                                        {
+                                            var listValue = (List<IntVector2>)value;
+
+                                            var bufferPtr = (int*)byteBufferPtr;
+                                            for (int j = 0; j < listLength; j++)
+                                            {
+                                                var elementValue = listValue[j];
+                                                bufferPtr[(j * 2) + 0] = elementValue.x;
+                                                bufferPtr[(j * 2) + 1] = elementValue.y;
+                                            }
+                                        }
                                         break;
                                     case SerializationType.IntVector3:
+                                        {
+                                            var listValue = (List<IntVector3>)value;
+
+                                            var bufferPtr = (int*)byteBufferPtr;
+                                            for (int j = 0; j < listLength; j++)
+                                            {
+                                                var elementValue = listValue[j];
+                                                bufferPtr[(j * 3) + 0] = elementValue.x;
+                                                bufferPtr[(j * 3) + 1] = elementValue.y;
+                                                bufferPtr[(j * 3) + 2] = elementValue.z;
+                                            }
+                                        }
                                         break;
                                     case SerializationType.IntVector4:
+                                        {
+                                            var listValue = (List<IntVector4>)value;
+
+                                            var bufferPtr = (int*)byteBufferPtr;
+                                            for (int j = 0; j < listLength; j++)
+                                            {
+                                                var elementValue = listValue[j];
+                                                bufferPtr[(j * 4) + 0] = elementValue.x;
+                                                bufferPtr[(j * 4) + 1] = elementValue.y;
+                                                bufferPtr[(j * 4) + 2] = elementValue.z;
+                                                bufferPtr[(j * 4) + 3] = elementValue.w;
+                                            }
+                                        }
                                         break;
                                     default:
-                                        throw new InvalidOperationException("Serialiation type is not primitive: " + typeInfo.elementTypeInfo.serializationType);
+                                        throw new InvalidOperationException("Serialiation type is not primitive: " + elementTypeInfo.serializationType);
                                 }
                             }
                         }
@@ -2428,75 +6142,400 @@ namespace Expanse.Serialization.TinySerialization
                                 break;
 
                             int valueOffset = offset + dataSize;
+                            TinySerializerTypeInfo elementTypeInfo = typeInfo.elementTypeInfo;
 
-                            switch (typeInfo.elementTypeInfo.serializationType)
+                            switch (elementTypeInfo.serializationType)
                             {
                                 case SerializationType.Byte:
+                                    {
+                                        var trueValue = (byte)obj;
+
+                                        dataSize += SerializationTypeSizes.BYTE;
+                                        EnsureBufferSize(offset + dataSize);
+
+                                        fixed (byte* byteBufferPtr = &buffer[valueOffset])
+                                        {
+                                            *byteBufferPtr = trueValue;
+                                        }
+                                    }
                                     break;
                                 case SerializationType.SByte:
+                                    {
+                                        var trueValue = (sbyte)obj;
+
+                                        dataSize += SerializationTypeSizes.SBYTE;
+                                        EnsureBufferSize(offset + dataSize);
+
+                                        fixed (byte* byteBufferPtr = &buffer[valueOffset])
+                                        {
+                                            var bufferPtr = (sbyte*)byteBufferPtr;
+                                            *bufferPtr = trueValue;
+                                        }
+                                    }
                                     break;
                                 case SerializationType.Bool:
+                                    {
+                                        var trueValue = (bool)obj;
+
+                                        dataSize += SerializationTypeSizes.BOOL;
+                                        EnsureBufferSize(offset + dataSize);
+
+                                        fixed (byte* byteBufferPtr = &buffer[valueOffset])
+                                        {
+                                            var bufferPtr = (bool*)byteBufferPtr;
+                                            *bufferPtr = trueValue;
+                                        }
+                                    }
                                     break;
                                 case SerializationType.Int16:
+                                    {
+                                        var trueValue = (ushort)obj;
+
+                                        dataSize += SerializationTypeSizes.UINT16;
+                                        EnsureBufferSize(offset + dataSize);
+
+                                        fixed (byte* byteBufferPtr = &buffer[valueOffset])
+                                        {
+                                            var bufferPtr = (ushort*)byteBufferPtr;
+                                            *bufferPtr = trueValue;
+                                        }
+                                    }
                                     break;
                                 case SerializationType.Int32:
                                     {
-                                        var value = (int)obj;
+                                        var trueValue = (int)obj;
 
                                         dataSize += SerializationTypeSizes.INT32;
                                         EnsureBufferSize(offset + dataSize);
 
                                         fixed (byte* byteBufferPtr = &buffer[valueOffset])
                                         {
-                                            int* bufferPtr = (int*)byteBufferPtr;
-                                            *bufferPtr = value;
+                                            var bufferPtr = (int*)byteBufferPtr;
+                                            *bufferPtr = trueValue;
                                         }
                                     }
                                     break;
                                 case SerializationType.Int64:
+                                    {
+                                        var trueValue = (long)obj;
+
+                                        dataSize += SerializationTypeSizes.INT64;
+                                        EnsureBufferSize(offset + dataSize);
+
+                                        fixed (byte* byteBufferPtr = &buffer[valueOffset])
+                                        {
+                                            var bufferPtr = (long*)byteBufferPtr;
+                                            *bufferPtr = trueValue;
+                                        }
+                                    }
                                     break;
                                 case SerializationType.UInt16:
+                                    {
+                                        var trueValue = (ushort)obj;
+
+                                        dataSize += SerializationTypeSizes.UINT16;
+                                        EnsureBufferSize(offset + dataSize);
+
+                                        fixed (byte* byteBufferPtr = &buffer[valueOffset])
+                                        {
+                                            var bufferPtr = (ushort*)byteBufferPtr;
+                                            *bufferPtr = trueValue;
+                                        }
+                                    }
                                     break;
                                 case SerializationType.UInt32:
+                                    {
+                                        var trueValue = (uint)obj;
+
+                                        dataSize += SerializationTypeSizes.UINT32;
+                                        EnsureBufferSize(offset + dataSize);
+
+                                        fixed (byte* byteBufferPtr = &buffer[valueOffset])
+                                        {
+                                            var bufferPtr = (uint*)byteBufferPtr;
+                                            *bufferPtr = trueValue;
+                                        }
+                                    }
                                     break;
                                 case SerializationType.UInt64:
+                                    {
+                                        var trueValue = (ulong)obj;
+
+                                        dataSize += SerializationTypeSizes.UINT64;
+                                        EnsureBufferSize(offset + dataSize);
+
+                                        fixed (byte* byteBufferPtr = &buffer[valueOffset])
+                                        {
+                                            var bufferPtr = (ulong*)byteBufferPtr;
+                                            *bufferPtr = trueValue;
+                                        }
+                                    }
                                     break;
                                 case SerializationType.Half:
+                                    {
+                                        var trueValue = (Half)obj;
+
+                                        dataSize += SerializationTypeSizes.HALF;
+                                        EnsureBufferSize(offset + dataSize);
+
+                                        fixed (byte* byteBufferPtr = &buffer[valueOffset])
+                                        {
+                                            var bufferPtr = (ushort*)byteBufferPtr;
+                                            *bufferPtr = trueValue.value;
+                                        }
+                                    }
                                     break;
                                 case SerializationType.Single:
+                                    {
+                                        var trueValue = (float)obj;
+
+                                        dataSize += SerializationTypeSizes.SINGLE;
+                                        EnsureBufferSize(offset + dataSize);
+
+                                        fixed (byte* byteBufferPtr = &buffer[valueOffset])
+                                        {
+                                            var bufferPtr = (float*)byteBufferPtr;
+                                            *bufferPtr = trueValue;
+                                        }
+                                    }
                                     break;
                                 case SerializationType.Double:
+                                    {
+                                        var trueValue = (double)obj;
+
+                                        dataSize += SerializationTypeSizes.DOUBLE;
+                                        EnsureBufferSize(offset + dataSize);
+
+                                        fixed (byte* byteBufferPtr = &buffer[valueOffset])
+                                        {
+                                            var bufferPtr = (double*)byteBufferPtr;
+                                            *bufferPtr = trueValue;
+                                        }
+                                    }
                                     break;
                                 case SerializationType.Char:
+                                    {
+                                        var trueValue = (char)obj;
+
+                                        dataSize += SerializationTypeSizes.CHAR;
+                                        EnsureBufferSize(offset + dataSize);
+
+                                        fixed (byte* byteBufferPtr = &buffer[valueOffset])
+                                        {
+                                            var bufferPtr = (char*)byteBufferPtr;
+                                            *bufferPtr = trueValue;
+                                        }
+                                    }
                                     break;
                                 case SerializationType.Decimal:
+                                    {
+                                        var trueValue = (decimal)obj;
+
+                                        dataSize += SerializationTypeSizes.DECIMAL;
+                                        EnsureBufferSize(offset + dataSize);
+
+                                        fixed (byte* byteBufferPtr = &buffer[valueOffset])
+                                        {
+                                            var bufferPtr = (decimal*)byteBufferPtr;
+                                            *bufferPtr = trueValue;
+                                        }
+                                    }
                                     break;
                                 case SerializationType.DateTime:
+                                    {
+                                        var trueValue = (DateTime)obj;
+
+                                        dataSize += SerializationTypeSizes.DATE_TIME;
+                                        EnsureBufferSize(offset + dataSize);
+
+                                        fixed (byte* byteBufferPtr = &buffer[valueOffset])
+                                        {
+                                            var bufferPtr = (long*)byteBufferPtr;
+                                            *bufferPtr = trueValue.Ticks;
+                                        }
+                                    }
                                     break;
                                 case SerializationType.DateTimeOffset:
+                                    {
+                                        var trueValue = (DateTimeOffset)obj;
+
+                                        dataSize += SerializationTypeSizes.DATE_TIME_OFFSET;
+                                        EnsureBufferSize(offset + dataSize);
+
+                                        fixed (byte* byteBufferPtr = &buffer[valueOffset])
+                                        {
+                                            var bufferPtr = (long*)byteBufferPtr;
+                                            *bufferPtr = trueValue.Ticks;
+                                        }
+                                    }
                                     break;
                                 case SerializationType.TimeSpan:
+                                    {
+                                        var trueValue = (TimeSpan)obj;
+
+                                        dataSize += SerializationTypeSizes.TIME_SPAN;
+                                        EnsureBufferSize(offset + dataSize);
+
+                                        fixed (byte* byteBufferPtr = &buffer[valueOffset])
+                                        {
+                                            var bufferPtr = (long*)byteBufferPtr;
+                                            *bufferPtr = trueValue.Ticks;
+                                        }
+                                    }
                                     break;
                                 case SerializationType.Vector2:
+                                    {
+                                        var trueValue = (Vector2)obj;
+
+                                        dataSize += SerializationTypeSizes.VECTOR2;
+                                        EnsureBufferSize(offset + dataSize);
+
+                                        fixed (byte* byteBufferPtr = &buffer[valueOffset])
+                                        {
+                                            var bufferPtr = (float*)byteBufferPtr;
+                                            bufferPtr[0] = trueValue.x;
+                                            bufferPtr[1] = trueValue.y;
+                                        }
+                                    }
                                     break;
                                 case SerializationType.Vector3:
+                                    {
+                                        var trueValue = (Vector3)obj;
+
+                                        dataSize += SerializationTypeSizes.VECTOR3;
+                                        EnsureBufferSize(offset + dataSize);
+
+                                        fixed (byte* byteBufferPtr = &buffer[valueOffset])
+                                        {
+                                            var bufferPtr = (float*)byteBufferPtr;
+                                            bufferPtr[0] = trueValue.x;
+                                            bufferPtr[1] = trueValue.y;
+                                            bufferPtr[2] = trueValue.z;
+                                        }
+                                    }
                                     break;
                                 case SerializationType.Vector4:
+                                    {
+                                        var trueValue = (Vector4)obj;
+
+                                        dataSize += SerializationTypeSizes.VECTOR4;
+                                        EnsureBufferSize(offset + dataSize);
+
+                                        fixed (byte* byteBufferPtr = &buffer[valueOffset])
+                                        {
+                                            var bufferPtr = (float*)byteBufferPtr;
+                                            bufferPtr[0] = trueValue.x;
+                                            bufferPtr[1] = trueValue.y;
+                                            bufferPtr[2] = trueValue.z;
+                                            bufferPtr[3] = trueValue.w;
+                                        }
+                                    }
                                     break;
                                 case SerializationType.Quaternion:
+                                    {
+                                        var trueValue = (Quaternion)obj;
+
+                                        dataSize += SerializationTypeSizes.QUATERNION;
+                                        EnsureBufferSize(offset + dataSize);
+
+                                        fixed (byte* byteBufferPtr = &buffer[valueOffset])
+                                        {
+                                            var bufferPtr = (float*)byteBufferPtr;
+                                            bufferPtr[0] = trueValue.x;
+                                            bufferPtr[1] = trueValue.y;
+                                            bufferPtr[2] = trueValue.z;
+                                            bufferPtr[3] = trueValue.w;
+                                        }
+                                    }
                                     break;
                                 case SerializationType.Rect:
+                                    {
+                                        var trueValue = (Rect)obj;
+
+                                        dataSize += SerializationTypeSizes.RECT;
+                                        EnsureBufferSize(offset + dataSize);
+
+                                        fixed (byte* byteBufferPtr = &buffer[valueOffset])
+                                        {
+                                            var bufferPtr = (float*)byteBufferPtr;
+                                            bufferPtr[0] = trueValue.x;
+                                            bufferPtr[1] = trueValue.y;
+                                            bufferPtr[2] = trueValue.width;
+                                            bufferPtr[3] = trueValue.height;
+                                        }
+                                    }
                                     break;
                                 case SerializationType.Bounds:
+                                    {
+                                        var trueValue = (Bounds)obj;
+
+                                        dataSize += SerializationTypeSizes.BOUNDS;
+                                        EnsureBufferSize(offset + dataSize);
+
+                                        fixed (byte* byteBufferPtr = &buffer[valueOffset])
+                                        {
+                                            var bufferPtr = (float*)byteBufferPtr;
+                                            var center = trueValue.center;
+                                            var size = trueValue.size;
+                                            bufferPtr[0] = center.x;
+                                            bufferPtr[1] = center.y;
+                                            bufferPtr[2] = center.z;
+                                            bufferPtr[3] = size.x;
+                                            bufferPtr[4] = size.y;
+                                            bufferPtr[5] = size.z;
+                                        }
+                                    }
                                     break;
                                 case SerializationType.IntVector2:
+                                    {
+                                        var trueValue = (IntVector2)obj;
+
+                                        dataSize += SerializationTypeSizes.INT_VECTOR2;
+                                        EnsureBufferSize(offset + dataSize);
+
+                                        fixed (byte* byteBufferPtr = &buffer[valueOffset])
+                                        {
+                                            var bufferPtr = (int*)byteBufferPtr;
+                                            bufferPtr[0] = trueValue.x;
+                                            bufferPtr[1] = trueValue.y;
+                                        }
+                                    }
                                     break;
                                 case SerializationType.IntVector3:
+                                    {
+                                        var trueValue = (IntVector3)obj;
+
+                                        dataSize += SerializationTypeSizes.INT_VECTOR3;
+                                        EnsureBufferSize(offset + dataSize);
+
+                                        fixed (byte* byteBufferPtr = &buffer[valueOffset])
+                                        {
+                                            var bufferPtr = (int*)byteBufferPtr;
+                                            bufferPtr[0] = trueValue.x;
+                                            bufferPtr[1] = trueValue.y;
+                                            bufferPtr[2] = trueValue.z;
+                                        }
+                                    }
                                     break;
                                 case SerializationType.IntVector4:
+                                    {
+                                        var trueValue = (IntVector4)obj;
+
+                                        dataSize += SerializationTypeSizes.INT_VECTOR4;
+                                        EnsureBufferSize(offset + dataSize);
+
+                                        fixed (byte* byteBufferPtr = &buffer[valueOffset])
+                                        {
+                                            var bufferPtr = (int*)byteBufferPtr;
+                                            bufferPtr[0] = trueValue.x;
+                                            bufferPtr[1] = trueValue.y;
+                                            bufferPtr[2] = trueValue.z;
+                                            bufferPtr[3] = trueValue.w;
+                                        }
+                                    }
                                     break;
                                 default:
-                                    throw new InvalidOperationException("Serialiation type is not primitive: " + typeInfo.elementTypeInfo.serializationType);
+                                    throw new InvalidOperationException("Serialiation type is not primitive: " + elementTypeInfo.serializationType);
                             }
                         }
                         break;
@@ -2559,6 +6598,96 @@ namespace Expanse.Serialization.TinySerialization
                     default:
                         throw new UnexpectedException("Unexpected serialization type: " + typeInfo.serializationType);
                 }
+            }
+
+            return dataSize;
+        }
+
+        // Returns size
+        private int ExperimentalSerializeStringIntoBuffer(string value, int offset)
+        {
+            bool isNull = value == null;
+            int strLength = value?.Length ?? -1;
+            int dataSize = ExperimentalSerializeNullLengthPrefixIntoBuffer(isNull, strLength, offset);
+            if (isNull)
+                return dataSize;
+
+            int strOffset = offset + dataSize;
+
+            Encoding systemEncoding = null;
+
+            switch (settings.defaultStringEncodeType)
+            {
+                case StringEncodeType.Char:
+                    {
+                        dataSize += strLength * SerializationTypeSizes.CHAR;
+                        EnsureBufferSize(offset + dataSize);
+
+                        fixed (byte* byteBufferPtr = &buffer[strOffset])
+                        fixed (char* valuePtr = value)
+                        {
+                            var bufferPtr = (char*)byteBufferPtr;
+
+                            for (int i = 0; i < strLength; i++)
+                            {
+                                bufferPtr[i] = value[i];
+                            }
+                        }
+                    }
+                    break;
+                case StringEncodeType.Byte:
+                    {
+                        dataSize += strLength * SerializationTypeSizes.BYTE;
+                        EnsureBufferSize(offset + dataSize);
+
+                        fixed (byte* byteBufferPtr = &buffer[strOffset])
+                        fixed (char* valuePtr = value)
+                        {
+                            for (int i = 0; i < strLength; i++)
+                            {
+                                byteBufferPtr[i] = unchecked((byte)value[i]);
+                            }
+                        }
+                    }
+                    break;
+                case StringEncodeType.Default:
+                    systemEncoding = Encoding.Default;
+                    goto SystemEncoding;
+                case StringEncodeType.ASCII:
+                    systemEncoding = Encoding.ASCII;
+                    goto SystemEncoding;
+                case StringEncodeType.Unicode:
+                    systemEncoding = Encoding.Unicode;
+                    goto SystemEncoding;
+                case StringEncodeType.UTF7:
+                    systemEncoding = Encoding.UTF7;
+                    goto SystemEncoding;
+                case StringEncodeType.UTF8:
+                    systemEncoding = Encoding.UTF8;
+                    goto SystemEncoding;
+                case StringEncodeType.UTF32:
+                    systemEncoding = Encoding.UTF32;
+                    goto SystemEncoding;
+                case StringEncodeType.BigEndianUnicode:
+                    systemEncoding = Encoding.BigEndianUnicode;
+                    goto SystemEncoding;
+                SystemEncoding:
+                    {
+                        fixed (char* valuePtr = value)
+                        {
+                            int byteCount = systemEncoding.GetByteCount(valuePtr, strLength);
+                            dataSize += byteCount;
+                            EnsureBufferSize(offset + dataSize);
+
+                            fixed (byte* byteBufferPtr = &buffer[strOffset])
+                            {
+                                systemEncoding.GetBytes(valuePtr, strLength, byteBufferPtr, byteCount);
+                            }
+                        }
+                    }
+                    break;
+                default:
+                    throw new UnsupportedException("Unsupported string encode type: " + settings.defaultStringEncodeType);
             }
 
             return dataSize;
