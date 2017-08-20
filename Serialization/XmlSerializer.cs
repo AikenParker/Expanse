@@ -13,9 +13,9 @@ namespace Expanse.Serialization
         private StringBuilder serializationStringBuilder;
 
         /// <param name="type">Known type to serialize/deserialize.</param>
-        public XmlSerializer(Type type)
+        public XmlSerializer(Type type, params Type[] extraTypes)
         {
-            serializer = new System.Xml.Serialization.XmlSerializer(type);
+            serializer = new System.Xml.Serialization.XmlSerializer(type, extraTypes);
             serializationStringBuilder = new StringBuilder();
         }
 

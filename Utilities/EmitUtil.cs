@@ -7,6 +7,7 @@
 
 #if !AOT_ONLY
 using System;
+using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Reflection.Emit;
@@ -36,7 +37,8 @@ namespace Expanse.Utilities
         // Type array caches used when emitting methods
         private static readonly Type tObject = typeof(object);
         private static readonly Type tTypedRef = typeof(TypedReference);
-        private static readonly Type tBool = typeof(bool);
+        private static readonly Type tArray = typeof(Array);
+        private static readonly Type tInt = typeof(int);
         private static readonly Type[] emptyTypeArray = new Type[0];
         private static readonly Type[] singleTypeArray = new Type[1];
         private static readonly Type[] doubleTypeArray = new Type[2];
@@ -148,27 +150,17 @@ namespace Expanse.Utilities
         /// <param name="source">Typed reference of the instance of the object to get the property from.</param>
         /// <returns>Returns the value of the instance property on the source object.</returns>
         public delegate TValue PropertyGetterDelegateByTypedRef<TValue>(TypedReference source);
-        /// <summary>
-        /// Delegate used to check if a typed reference is null.
-        /// </summary>
-        /// <param name="source">Typed reference of the instance to check null for.</param>
-        /// <returns>Returns true if typed reference contains a null value.</returns>
-        public delegate bool TypedReferenceNullCheckDelegate(TypedReference source);
-        /// <summary>
-        /// Delegate used to get the object instance of a typed reference.
-        /// </summary>
-        /// <param name="source">Typed reference to get the object of.</param>
-        /// <returns>Returns the object instance of a typed reference.</returns>
-        public delegate object TypedReferenceToObjectDelegate(TypedReference source);
+
+        public delegate TValue ArrayValueGetterDelegate<TValue>(Array source, int index);
 
         #region GENERIC
 
-        /// <summary>
-        /// Generates a delegate that casts an object of source type to target type.
-        /// </summary>
-        /// <typeparam name="TSource">Source type.</typeparam>
-        /// <typeparam name="TTarget">Target type.</typeparam>
-        /// <returns>Returns the delegate that casts an object from one type to another.</returns>
+            /// <summary>
+            /// Generates a delegate that casts an object of source type to target type.
+            /// </summary>
+            /// <typeparam name="TSource">Source type.</typeparam>
+            /// <typeparam name="TTarget">Target type.</typeparam>
+            /// <returns>Returns the delegate that casts an object from one type to another.</returns>
         public static TypeCastDelegate<TSource, TTarget> GenerateTypeCastDelegate<TSource, TTarget>()
         {
             Type tSource = typeof(TSource);
@@ -679,6 +671,52 @@ namespace Expanse.Utilities
             return (PropertySetterDelegateByRef<TSource, TValue>)setterMethod.CreateDelegate(typeof(PropertySetterDelegateByRef<TSource, TValue>));
         }
 
+        public static ArrayValueGetterDelegate<TValue> GenerateArrayValueGetterDelegate<TValue>()
+        {
+            Type tValue = typeof(TValue);
+            Type tValueArray = tValue.MakeArrayType();
+
+            doubleTypeArray[0] = tArray;
+            doubleTypeArray[1] = tInt;
+            string dynamicMethodName = useMeaningfulNames ? tValue.FullName + ".GetArrayIndex" : GENERATED_NAME;
+            DynamicMethod getterMethod = new DynamicMethod(dynamicMethodName, tValue, doubleTypeArray, tValue);
+
+            ILGenerator gen = getterMethod.GetILGenerator();
+            gen.Emit(OpCodes.Ldarg_0);
+            gen.Emit(OpCodes.Castclass, tValueArray);
+            gen.Emit(OpCodes.Ldarg_1);
+            if (tValue.IsValueType)
+            {
+                if (tValue == typeof(sbyte))
+                    gen.Emit(OpCodes.Ldelem_I1);
+                else if (tValue == typeof(short))
+                    gen.Emit(OpCodes.Ldelem_I2);
+                else if (tValue == typeof(int))
+                    gen.Emit(OpCodes.Ldelem_I4);
+                else if (tValue == typeof(long))
+                    gen.Emit(OpCodes.Ldelem_I8);
+                else if (tValue == typeof(byte))
+                    gen.Emit(OpCodes.Ldelem_U1);
+                else if (tValue == typeof(ushort))
+                    gen.Emit(OpCodes.Ldelem_U2);
+                else if (tValue == typeof(uint))
+                    gen.Emit(OpCodes.Ldelem_U4);
+                else if (tValue == typeof(ulong))
+                    gen.Emit(OpCodes.Ldelem_I8);
+                else if (tValue == typeof(float))
+                    gen.Emit(OpCodes.Ldelem_R4);
+                else if (tValue == typeof(double))
+                    gen.Emit(OpCodes.Ldelem_R8);
+                else
+                    gen.Emit(OpCodes.Ldelem);
+            }
+            else
+                gen.Emit(OpCodes.Ldelem_Ref);
+            gen.Emit(OpCodes.Ret);
+
+            return (ArrayValueGetterDelegate<TValue>)getterMethod.CreateDelegate(typeof(ArrayValueGetterDelegate<TValue>));
+        }
+
         #endregion
 
         #region NON_GENERIC
@@ -1106,95 +1144,53 @@ namespace Expanse.Utilities
             return (StaticPropertySetterDelegate<object>)setterMethod.CreateDelegate(typeof(StaticPropertySetterDelegate<object>));
         }
 
-        /// <summary>
-        /// Creates a delegate that returns true if the typed reference instance object is null.
-        /// </summary>
-        /// <param name="type">Reference type of the typed reference.</param>
-        /// <returns>Returns the delegate that returns true if the instance object of a typed reference is null.</returns>
-        public static TypedReferenceNullCheckDelegate GenerateTypedReferenceNullCheckDelegate(Type type)
+        public static ArrayValueGetterDelegate<object> GenerateArrayValueGetterDelegate(Type tValue)
         {
-            singleTypeArray[0] = tTypedRef;
-            string dynamicMethodName = useMeaningfulNames ? $"{type.FullName}TypedRefNullCheck" : GENERATED_NAME;
-            DynamicMethod nullCheckMethod = new DynamicMethod(dynamicMethodName, tBool, singleTypeArray, type);
+            Type tValueArray = tValue.MakeArrayType();
 
-            // TODO: Cache this reflection
-            MethodInfo getTypeFromHandleMethodInfo = typeof(Type).GetMethod("GetTypeFromHandle", BindingFlags.Static | BindingFlags.Public);
-            doubleTypeArray[0] = typeof(Type);
-            doubleTypeArray[1] = typeof(Type);
-            // TODO: Maybe compare handle value pointers directly
-            MethodInfo typeEqualityMethodInfo = typeof(Type).GetMethod("op_Equality", BindingFlags.Public | BindingFlags.Static, null, doubleTypeArray, null);
+            doubleTypeArray[0] = tArray;
+            doubleTypeArray[1] = tInt;
+            string dynamicMethodName = useMeaningfulNames ? tValue.FullName + ".GetArrayIndex" : GENERATED_NAME;
+            DynamicMethod getterMethod = new DynamicMethod(dynamicMethodName, tObject, doubleTypeArray, tValue);
 
-            ILGenerator gen = nullCheckMethod.GetILGenerator();
-            gen.DeclareLocal(typeof(bool));
-            gen.DeclareLocal(typeof(int));
-
-            var isObjectLabel = gen.DefineLabel();
-            var notObjectLabel = gen.DefineLabel();
-            var endLabel = gen.DefineLabel();
-
+            ILGenerator gen = getterMethod.GetILGenerator();
             gen.Emit(OpCodes.Ldarg_0);
-            gen.Emit(OpCodes.Refanytype);
-            gen.Emit(OpCodes.Call, getTypeFromHandleMethodInfo);
-            gen.Emit(OpCodes.Ldtoken, tObject);
-            gen.Emit(OpCodes.Call, getTypeFromHandleMethodInfo);
-            gen.Emit(OpCodes.Call, typeEqualityMethodInfo);
-            gen.Emit(OpCodes.Stloc_0);
-
-            gen.Emit(OpCodes.Ldloc_0);
-            gen.Emit(OpCodes.Brtrue_S, isObjectLabel);
-            gen.Emit(OpCodes.Ldloc_0);
-            gen.Emit(OpCodes.Brfalse_S, notObjectLabel);
-            gen.Emit(OpCodes.Br, endLabel);
-
-            gen.MarkLabel(isObjectLabel);
-            gen.Emit(OpCodes.Ldarg_0);
-            gen.Emit(OpCodes.Refanyval, tObject);
-            gen.Emit(OpCodes.Ldind_Ref);
-            gen.Emit(OpCodes.Ldnull);
-            gen.Emit(OpCodes.Ceq);
-            gen.Emit(OpCodes.Stloc_1);
-            gen.Emit(OpCodes.Br, endLabel);
-
-            gen.MarkLabel(notObjectLabel);
-            gen.Emit(OpCodes.Ldarg_0);
-            gen.Emit(OpCodes.Refanyval, type);
-            gen.Emit(OpCodes.Ldind_Ref);
-            gen.Emit(OpCodes.Ldnull);
-            gen.Emit(OpCodes.Ceq);
-            gen.Emit(OpCodes.Stloc_1);
-            gen.Emit(OpCodes.Br, endLabel);
-
-            gen.MarkLabel(endLabel);
-            gen.Emit(OpCodes.Ldloc_1);
+            gen.Emit(OpCodes.Castclass, tValueArray);
+            gen.Emit(OpCodes.Ldarg_1);
+            if (tValue.IsValueType)
+            {
+                if (tValue == typeof(sbyte))
+                    gen.Emit(OpCodes.Ldelem_I1);
+                else if (tValue == typeof(short))
+                    gen.Emit(OpCodes.Ldelem_I2);
+                else if (tValue == typeof(int))
+                    gen.Emit(OpCodes.Ldelem_I4);
+                else if (tValue == typeof(long))
+                    gen.Emit(OpCodes.Ldelem_I8);
+                else if (tValue == typeof(byte))
+                    gen.Emit(OpCodes.Ldelem_U1);
+                else if (tValue == typeof(ushort))
+                    gen.Emit(OpCodes.Ldelem_U2);
+                else if (tValue == typeof(uint))
+                    gen.Emit(OpCodes.Ldelem_U4);
+                else if (tValue == typeof(ulong))
+                    gen.Emit(OpCodes.Ldelem_I8);
+                else if (tValue == typeof(float))
+                    gen.Emit(OpCodes.Ldelem_R4);
+                else if (tValue == typeof(double))
+                    gen.Emit(OpCodes.Ldelem_R8);
+                else
+                    gen.Emit(OpCodes.Ldelem);
+            }
+            else
+                gen.Emit(OpCodes.Ldelem_Ref);
+            if (tValue.IsValueType)
+                gen.Emit(OpCodes.Box, tValue);
+            else if (tValue != tObject)
+                gen.Emit(OpCodes.Castclass, tObject);
             gen.Emit(OpCodes.Ret);
 
-            return (TypedReferenceNullCheckDelegate)nullCheckMethod.CreateDelegate(typeof(TypedReferenceNullCheckDelegate));
-        }
-
-        /// <summary>
-        /// Creates a delegate that returns the object of a typed reference.
-        /// <para>Warning: Boxes value types.</para>
-        /// </summary>
-        /// <param name="type">Reference type of the typed reference.</param>
-        /// <returns>Returns a delegate that returns the object of a typed reference.</returns>
-        public static TypedReferenceToObjectDelegate GenerateTypedReferenceToObjectDelegate(Type type)
-        {
-            singleTypeArray[0] = tTypedRef;
-            string dynamicMethodName = useMeaningfulNames ? $"{type.FullName}TypedRefToObject" : GENERATED_NAME;
-            DynamicMethod toObjectMethod = new DynamicMethod(dynamicMethodName, tObject, singleTypeArray, type);
-
-            // TODO: Handle the case where TypedReference may be of type object (See: GenerateTypedReferenceNullCheckDelegate())
-            ILGenerator gen = toObjectMethod.GetILGenerator();
-            gen.Emit(OpCodes.Ldarg_0);
-            gen.Emit(OpCodes.Refanyval, type);
-            gen.Emit(OpCodes.Ldind_Ref);
-            if (type.IsValueType)
-                gen.Emit(OpCodes.Box, type);
-            else if (type != tObject)
-                gen.Emit(OpCodes.Castclass, type);
-            gen.Emit(OpCodes.Ret);
-
-            return (TypedReferenceToObjectDelegate)toObjectMethod.CreateDelegate(typeof(TypedReferenceToObjectDelegate));
+            return (ArrayValueGetterDelegate<object>)getterMethod.CreateDelegate(typeof(ArrayValueGetterDelegate<object>));
         }
 
         #endregion

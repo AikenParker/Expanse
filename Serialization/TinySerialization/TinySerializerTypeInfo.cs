@@ -103,6 +103,7 @@ namespace Expanse.Serialization.TinySerialization
         public int primitiveSize;
         public bool isArray;
         public int arrayRank;
+        public ArrayAccessInfo arrayAccessInfo;
         public bool isGenericType;
         public Type genericTypeDefinition;
         public int genericTypeDefinitionHashCode;
@@ -299,6 +300,13 @@ namespace Expanse.Serialization.TinySerialization
                 if (isPrimitiveType)
                 {
                     primitiveSize = TinySerializerUtil.GetPrimitiveTypeSize(serializationType);
+                }
+            }
+            else
+            {
+                if (serializationType == SerializationType.ObjectArray)
+                {
+                    arrayAccessInfo = ArrayAccessInfo.GetArrayAccessInfo(elementType, elementTypeHashCode);
                 }
             }
         }
@@ -674,6 +682,78 @@ namespace Expanse.Serialization.TinySerialization
                 propertyType = propertyInfo.PropertyType;
                 propertyTypeHashCode = propertyType.TypeHandle.Value.ToInt32();
                 propertyTypeInfo = GetTypeInfo(propertyType, propertyTypeHashCode);
+            }
+        }
+
+        public class ArrayAccessInfo
+        {
+            private static int arrayAccessInfoCount;
+            private static ArrayAccessInfo[] arrayAccessInfoCache;
+
+            static ArrayAccessInfo()
+            {
+                arrayAccessInfoCache = new ArrayAccessInfo[10];
+            }
+
+            public static ArrayAccessInfo GetArrayAccessInfo(Type type, int typeHashCode)
+            {
+                for (int i = 0; i < arrayAccessInfoCount; i++)
+                {
+                    ArrayAccessInfo arrayAccessInfo = arrayAccessInfoCache[i];
+
+                    if (arrayAccessInfo.typeHashCode == typeHashCode)
+                    {
+                        return arrayAccessInfo;
+                    }
+                }
+
+                ArrayAccessInfo newArrayAccessInfo = new ArrayAccessInfo(type, typeHashCode);
+
+                if (arrayAccessInfoCount == arrayAccessInfoCache.Length)
+                {
+                    int newArrayAccessInfoCacheLength = MathUtil.NextPowerOfTwo(arrayAccessInfoCount + 1);
+
+                    ArrayAccessInfo[] newArrayAccessInfoCache = new ArrayAccessInfo[newArrayAccessInfoCacheLength];
+
+                    Array.Copy(arrayAccessInfoCache, newArrayAccessInfoCache, arrayAccessInfoCount);
+                    arrayAccessInfoCache = newArrayAccessInfoCache;
+                }
+
+                arrayAccessInfoCache[arrayAccessInfoCount] = newArrayAccessInfo;
+                arrayAccessInfoCount++;
+                return newArrayAccessInfo;
+            }
+
+            public Type type;
+            public int typeHashCode;
+
+            public bool emittedGetterDelegate;
+            public bool emittedSetterDelegate;
+            public Delegate getter;
+            public Delegate setter;
+
+            public ArrayAccessInfo(Type type, int typeHashCode)
+            {
+                this.type = type;
+                this.typeHashCode = typeHashCode;
+            }
+
+            public void EmitGetterDelegate()
+            {
+                if (emittedGetterDelegate)
+                    return;
+
+                emittedGetterDelegate = true;
+
+                getter = EmitUtil.GenerateArrayValueGetterDelegate(type);
+            }
+
+            public void EmitSetterDelegate()
+            {
+                if (emittedSetterDelegate)
+                    return;
+
+                emittedSetterDelegate = true;
             }
         }
     }
