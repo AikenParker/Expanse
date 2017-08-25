@@ -7,6 +7,7 @@
 
 #if !AOT_ONLY
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -38,10 +39,15 @@ namespace Expanse.Utilities
         private static readonly Type tObject = typeof(object);
         private static readonly Type tTypedRef = typeof(TypedReference);
         private static readonly Type tArray = typeof(Array);
+        private static readonly Type tList = typeof(List<>);
+        private static readonly Type tIList = typeof(IList);
         private static readonly Type tInt = typeof(int);
         private static readonly Type[] emptyTypeArray = new Type[0];
         private static readonly Type[] singleTypeArray = new Type[1];
         private static readonly Type[] doubleTypeArray = new Type[2];
+        private static readonly Type[] tripleTypeArray = new Type[3];
+
+        #region DELEGATES
 
         /// <summary>
         /// Delegate used to cast an object of one type to another.
@@ -150,17 +156,59 @@ namespace Expanse.Utilities
         /// <param name="source">Typed reference of the instance of the object to get the property from.</param>
         /// <returns>Returns the value of the instance property on the source object.</returns>
         public delegate TValue PropertyGetterDelegateByTypedRef<TValue>(TypedReference source);
+        /// <summary>
+        /// Delegate used to get the value of an element in an array.
+        /// </summary>
+        /// <typeparam name="TElement">Type of the array element.</typeparam>
+        /// <param name="source">Source array instance.</param>
+        /// <param name="index">Element index in array.</param>
+        /// <returns>Returns the value of an element in an array of specified index.</returns>
+        public delegate TElement ArrayValueGetterDelegate<TElement>(Array source, int index);
+        /// <summary>
+        /// Delegate used to set the value fo an element in an array.
+        /// </summary>
+        /// <typeparam name="TElement">Type of the array element.</typeparam>
+        /// <param name="source">Source array instance.</param>
+        /// <param name="value">Value to set in the array.</param>
+        /// <param name="index">Element index in the array.</param>
+        public delegate void ArrayValueSetterDelegate<TElement>(Array source, int index, TElement value);
+        /// <summary>
+        /// Delegate used to create a new array of element type with specified length.
+        /// </summary>
+        /// <typeparam name="TElement">Type of array element.</typeparam>
+        /// <param name="length">Length to set the new array to.</param>
+        /// <returns>Returns a new array of element type with specified length.</returns>
+        public delegate TElement[] CreateNewArrayDelegate<TElement>(int length);
+        /// <summary>
+        /// Delegate used to create a new list of element type with specified capacity.
+        /// </summary>
+        /// <typeparam name="TElement">Type of list element.</typeparam>
+        /// <param name="capacity">Capacity to set the new list to.</param>
+        /// <returns>Returns a new list of element type with specified capacity.</returns>
+        public delegate List<TElement> CreateNewListDelegate<TElement>(int capacity);
+        /// <summary>
+        /// Delegate used to create a new array of element type with specified length.
+        /// </summary>
+        /// <param name="length">Length to set the new array to.</param>
+        /// <returns>Returns a new array of element type with specified length.</returns>
+        public delegate Array CreateNewArrayDelegate(int length);
+        /// <summary>
+        /// Delegate used to create a new list of element type with specified capacity.
+        /// </summary>
+        /// <param name="capacity">Capacity to set the new lsit to.</param>
+        /// <returns>Returns a new list of element type with specified capacity.</returns>
+        public delegate IList CreateNewListDelegate(int capacity);
 
-        public delegate TValue ArrayValueGetterDelegate<TValue>(Array source, int index);
+        #endregion
 
         #region GENERIC
 
-            /// <summary>
-            /// Generates a delegate that casts an object of source type to target type.
-            /// </summary>
-            /// <typeparam name="TSource">Source type.</typeparam>
-            /// <typeparam name="TTarget">Target type.</typeparam>
-            /// <returns>Returns the delegate that casts an object from one type to another.</returns>
+        /// <summary>
+        /// Generates a delegate that casts an object of source type to target type.
+        /// </summary>
+        /// <typeparam name="TSource">Source type.</typeparam>
+        /// <typeparam name="TTarget">Target type.</typeparam>
+        /// <returns>Returns the delegate that casts an object from one type to another.</returns>
         public static TypeCastDelegate<TSource, TTarget> GenerateTypeCastDelegate<TSource, TTarget>()
         {
             Type tSource = typeof(TSource);
@@ -224,16 +272,21 @@ namespace Expanse.Utilities
         /// Generates a delegate that constructs an instance of type TSource using the default constructor.
         /// </summary>
         /// <typeparam name="TSource">Declaring type that the constructor belongs to.</typeparam>
+        /// <param name="defaultConstructorInfo">Optional: Cached default constructor info.</param>
         /// <returns>Returns the delegate that invokes the default constructor of a type.</returns>
-        public static DefaultConstructorDelegate<TSource> GenerateDefaultConstructorDelegate<TSource>()
+        public static DefaultConstructorDelegate<TSource> GenerateDefaultConstructorDelegate<TSource>(ConstructorInfo defaultConstructorInfo = null)
             where TSource : new()
         {
             // TODO: Be able construct all primitive types
             Type tSource = typeof(TSource);
-            ConstructorInfo defaultConstructorInfo = tSource.GetConstructor(emptyTypeArray);
 
             if (defaultConstructorInfo == null)
-                throw new InvalidTypeException("TSource must have a default constructor");
+            {
+                defaultConstructorInfo = tSource.GetConstructor(emptyTypeArray);
+
+                if (defaultConstructorInfo == null)
+                    throw new InvalidTypeException("TSource must have a default constructor");
+            }
 
             string dynamicMethodName = useMeaningfulNames ? tSource.FullName + ".ctor" : GENERATED_NAME;
             DynamicMethod constructorMethod = new DynamicMethod(dynamicMethodName, tSource, emptyTypeArray, tSource);
@@ -671,50 +724,109 @@ namespace Expanse.Utilities
             return (PropertySetterDelegateByRef<TSource, TValue>)setterMethod.CreateDelegate(typeof(PropertySetterDelegateByRef<TSource, TValue>));
         }
 
-        public static ArrayValueGetterDelegate<TValue> GenerateArrayValueGetterDelegate<TValue>()
+        /// <summary>
+        /// Creates a delegate that gets the value of an element in an array.
+        /// </summary>
+        /// <typeparam name="TElement">Type of the array element.</typeparam>
+        /// <returns>Returns the delegate that gets the value of an element in an array.</returns>
+        public static ArrayValueGetterDelegate<TElement> GenerateArrayValueGetterDelegate<TElement>()
         {
-            Type tValue = typeof(TValue);
-            Type tValueArray = tValue.MakeArrayType();
+            Type tElement = typeof(TElement);
+            Type tElementArray = tElement.MakeArrayType();
 
             doubleTypeArray[0] = tArray;
             doubleTypeArray[1] = tInt;
-            string dynamicMethodName = useMeaningfulNames ? tValue.FullName + ".GetArrayIndex" : GENERATED_NAME;
-            DynamicMethod getterMethod = new DynamicMethod(dynamicMethodName, tValue, doubleTypeArray, tValue);
+            string dynamicMethodName = useMeaningfulNames ? tElement.FullName + ".GetArrayIndex" : GENERATED_NAME;
+            DynamicMethod getterMethod = new DynamicMethod(dynamicMethodName, tElement, doubleTypeArray, tElement.GetBaseElementType());
 
             ILGenerator gen = getterMethod.GetILGenerator();
             gen.Emit(OpCodes.Ldarg_0);
-            gen.Emit(OpCodes.Castclass, tValueArray);
+            gen.Emit(OpCodes.Castclass, tElementArray);
             gen.Emit(OpCodes.Ldarg_1);
-            if (tValue.IsValueType)
-            {
-                if (tValue == typeof(sbyte))
-                    gen.Emit(OpCodes.Ldelem_I1);
-                else if (tValue == typeof(short))
-                    gen.Emit(OpCodes.Ldelem_I2);
-                else if (tValue == typeof(int))
-                    gen.Emit(OpCodes.Ldelem_I4);
-                else if (tValue == typeof(long))
-                    gen.Emit(OpCodes.Ldelem_I8);
-                else if (tValue == typeof(byte))
-                    gen.Emit(OpCodes.Ldelem_U1);
-                else if (tValue == typeof(ushort))
-                    gen.Emit(OpCodes.Ldelem_U2);
-                else if (tValue == typeof(uint))
-                    gen.Emit(OpCodes.Ldelem_U4);
-                else if (tValue == typeof(ulong))
-                    gen.Emit(OpCodes.Ldelem_I8);
-                else if (tValue == typeof(float))
-                    gen.Emit(OpCodes.Ldelem_R4);
-                else if (tValue == typeof(double))
-                    gen.Emit(OpCodes.Ldelem_R8);
-                else
-                    gen.Emit(OpCodes.Ldelem);
-            }
-            else
-                gen.Emit(OpCodes.Ldelem_Ref);
+            gen.Emit(OpCodes.Ldelem, tElement);
             gen.Emit(OpCodes.Ret);
 
-            return (ArrayValueGetterDelegate<TValue>)getterMethod.CreateDelegate(typeof(ArrayValueGetterDelegate<TValue>));
+            return (ArrayValueGetterDelegate<TElement>)getterMethod.CreateDelegate(typeof(ArrayValueGetterDelegate<TElement>));
+        }
+
+        /// <summary>
+        /// Creates a delegate that sets the value of an element in an array.
+        /// </summary>
+        /// <typeparam name="TElement">Type of the array element.</typeparam>
+        /// <returns>Returns the delegate that sets the value of an element in an array.</returns>
+        public static ArrayValueSetterDelegate<TElement> GenerateArrayValueSetterDelegate<TElement>()
+        {
+            Type tElement = typeof(TElement);
+            Type tElementArray = tElement.MakeArrayType();
+
+            tripleTypeArray[0] = tArray;
+            tripleTypeArray[1] = tInt;
+            tripleTypeArray[2] = tElement;
+            string dynamicMethodName = useMeaningfulNames ? tElement.FullName + ".SetArrayIndex" : GENERATED_NAME;
+            DynamicMethod setterMethod = new DynamicMethod(dynamicMethodName, null, tripleTypeArray, tElement.GetBaseElementType());
+
+            ILGenerator gen = setterMethod.GetILGenerator();
+            gen.Emit(OpCodes.Ldarg_0);
+            gen.Emit(OpCodes.Castclass, tElementArray);
+            gen.Emit(OpCodes.Ldarg_1);
+            gen.Emit(OpCodes.Ldarg_2);
+            gen.Emit(OpCodes.Stelem, tElement);
+            gen.Emit(OpCodes.Ret);
+
+            return (ArrayValueSetterDelegate<TElement>)setterMethod.CreateDelegate(typeof(ArrayValueSetterDelegate<TElement>));
+        }
+
+        /// <summary>
+        /// Creates a delegate that creates a new array of specified length of element type.
+        /// </summary>
+        /// <typeparam name="TElement">Type of the array element.</typeparam>
+        /// <returns>Returns a delegate that creates a new array of specfied length of element type.</returns>
+        public static CreateNewArrayDelegate<TElement> GenerateCreateNewArrayDelegate<TElement>()
+        {
+            Type tElement = typeof(TElement);
+            Type tElementArray = tElement.MakeArrayType();
+
+            singleTypeArray[0] = tInt;
+            string dynamicMethodName = useMeaningfulNames ? tElement.FullName + ".CreateArray" : GENERATED_NAME;
+            DynamicMethod constructorMethod = new DynamicMethod(dynamicMethodName, tElementArray, singleTypeArray, tElement.GetBaseElementType());
+
+            ILGenerator gen = constructorMethod.GetILGenerator();
+            gen.Emit(OpCodes.Ldarg_0);
+            gen.Emit(OpCodes.Newarr, tElement);
+            gen.Emit(OpCodes.Castclass, tElementArray);
+            gen.Emit(OpCodes.Ret);
+
+            return (CreateNewArrayDelegate<TElement>)constructorMethod.CreateDelegate(typeof(CreateNewArrayDelegate<TElement>));
+        }
+
+        /// <summary>
+        /// Creates a delegate that creates a new list of specified length of element type. Slower and less safe than generic overload.
+        /// </summary>
+        /// <typeparam name="TElement">Type of the list element.</typeparam>
+        /// <param name="constructorInfo">Optional: cached list constructor info that only takes an int param.</param>
+        /// <returns>Returns a delegate that creates a new list of specified length of element type.</returns>
+        public static CreateNewListDelegate<TElement> GenerateCreateNewListDelegate<TElement>(ConstructorInfo constructorInfo = null)
+        {
+            Type tElement = typeof(TElement);
+            Type tGenericList = tList.MakeGenericType(tElement);
+
+            singleTypeArray[0] = tInt;
+
+            if (constructorInfo == null)
+            {
+                constructorInfo = tGenericList.GetConstructor(singleTypeArray);
+            }
+
+            string dynamicMethodName = useMeaningfulNames ? tElement.FullName + ".CreateList" : GENERATED_NAME;
+            DynamicMethod constructorMethod = new DynamicMethod(dynamicMethodName, tGenericList, singleTypeArray, tElement.GetBaseElementType());
+
+            ILGenerator gen = constructorMethod.GetILGenerator();
+            gen.Emit(OpCodes.Ldarg_0);
+            gen.Emit(OpCodes.Newobj, constructorInfo);
+            gen.Emit(OpCodes.Castclass, tGenericList);
+            gen.Emit(OpCodes.Ret);
+
+            return (CreateNewListDelegate<TElement>)constructorMethod.CreateDelegate(typeof(CreateNewListDelegate<TElement>));
         }
 
         #endregion
@@ -725,13 +837,17 @@ namespace Expanse.Utilities
         /// Generates a delegate that constructs an instance of type tSource using the default constructor. Slower and less safe than generic overload.
         /// </summary>
         /// <param name="tSource">The type to generate the default constructor invoker from.</param>
+        /// <param name="defaultConstructorInfo">Optional: Cached default constructor info.</param>
         /// <returns>Returns the delegate that invokes the default constructor for a given type.</returns>
-        public static DefaultConstructorDelegate<object> GenerateDefaultConstructorDelegate(Type tSource)
+        public static DefaultConstructorDelegate<object> GenerateDefaultConstructorDelegate(Type tSource, ConstructorInfo defaultConstructorInfo = null)
         {
-            ConstructorInfo defaultConstructorInfo = tSource.GetConstructor(emptyTypeArray);
-
             if (defaultConstructorInfo == null)
-                throw new InvalidTypeException("tSource must have a default constructor");
+            {
+                defaultConstructorInfo = tSource.GetConstructor(emptyTypeArray);
+
+                if (defaultConstructorInfo == null)
+                    throw new InvalidTypeException("tSource must have a default constructor");
+            }
 
             string dynamicMethodName = useMeaningfulNames ? tSource.FullName + ".ctor" : GENERATED_NAME;
             DynamicMethod constructorMethod = new DynamicMethod(dynamicMethodName, tSource, emptyTypeArray, tSource);
@@ -1144,53 +1260,111 @@ namespace Expanse.Utilities
             return (StaticPropertySetterDelegate<object>)setterMethod.CreateDelegate(typeof(StaticPropertySetterDelegate<object>));
         }
 
-        public static ArrayValueGetterDelegate<object> GenerateArrayValueGetterDelegate(Type tValue)
+        /// <summary>
+        /// Creates a delegate that gets the value of an element in an array. Slower and less safe than generic overload.
+        /// </summary>
+        /// <param name="elementType">Type of the array element.</param>
+        /// <returns>Returns the delegate that gets the value of an element in an array.</returns>
+        public static ArrayValueGetterDelegate<object> GenerateArrayValueGetterDelegate(Type elementType)
         {
-            Type tValueArray = tValue.MakeArrayType();
+            Type tElementArray = elementType.MakeArrayType();
 
             doubleTypeArray[0] = tArray;
             doubleTypeArray[1] = tInt;
-            string dynamicMethodName = useMeaningfulNames ? tValue.FullName + ".GetArrayIndex" : GENERATED_NAME;
-            DynamicMethod getterMethod = new DynamicMethod(dynamicMethodName, tObject, doubleTypeArray, tValue);
+            string dynamicMethodName = useMeaningfulNames ? elementType.FullName + ".GetArrayIndex" : GENERATED_NAME;
+            DynamicMethod getterMethod = new DynamicMethod(dynamicMethodName, tObject, doubleTypeArray, elementType.GetBaseElementType());
 
             ILGenerator gen = getterMethod.GetILGenerator();
             gen.Emit(OpCodes.Ldarg_0);
-            gen.Emit(OpCodes.Castclass, tValueArray);
+            gen.Emit(OpCodes.Castclass, tElementArray);
             gen.Emit(OpCodes.Ldarg_1);
-            if (tValue.IsValueType)
-            {
-                if (tValue == typeof(sbyte))
-                    gen.Emit(OpCodes.Ldelem_I1);
-                else if (tValue == typeof(short))
-                    gen.Emit(OpCodes.Ldelem_I2);
-                else if (tValue == typeof(int))
-                    gen.Emit(OpCodes.Ldelem_I4);
-                else if (tValue == typeof(long))
-                    gen.Emit(OpCodes.Ldelem_I8);
-                else if (tValue == typeof(byte))
-                    gen.Emit(OpCodes.Ldelem_U1);
-                else if (tValue == typeof(ushort))
-                    gen.Emit(OpCodes.Ldelem_U2);
-                else if (tValue == typeof(uint))
-                    gen.Emit(OpCodes.Ldelem_U4);
-                else if (tValue == typeof(ulong))
-                    gen.Emit(OpCodes.Ldelem_I8);
-                else if (tValue == typeof(float))
-                    gen.Emit(OpCodes.Ldelem_R4);
-                else if (tValue == typeof(double))
-                    gen.Emit(OpCodes.Ldelem_R8);
-                else
-                    gen.Emit(OpCodes.Ldelem);
-            }
-            else
-                gen.Emit(OpCodes.Ldelem_Ref);
-            if (tValue.IsValueType)
-                gen.Emit(OpCodes.Box, tValue);
-            else if (tValue != tObject)
+            gen.Emit(OpCodes.Ldelem, elementType);
+            if (elementType.IsValueType)
+                gen.Emit(OpCodes.Box, elementType);
+            else if (elementType != tObject)
                 gen.Emit(OpCodes.Castclass, tObject);
             gen.Emit(OpCodes.Ret);
 
             return (ArrayValueGetterDelegate<object>)getterMethod.CreateDelegate(typeof(ArrayValueGetterDelegate<object>));
+        }
+
+        /// <summary>
+        /// Creates a delegate that sets the value of an element in an array. Slower and less safe than generic overload.
+        /// </summary>
+        /// <param name="elementType">Type of the array element.</param>
+        /// <returns>Returns the delegate that sets the value of an element in an array.</returns>
+        public static ArrayValueSetterDelegate<object> GenerateArrayValueSetterDelegate(Type elementType)
+        {
+            Type tValueArray = elementType.MakeArrayType();
+
+            tripleTypeArray[0] = tArray;
+            tripleTypeArray[1] = tInt;
+            tripleTypeArray[2] = tObject;
+
+            string dynamicMethodName = useMeaningfulNames ? elementType.FullName + ".SetArrayIndex" : GENERATED_NAME;
+            DynamicMethod setterMethod = new DynamicMethod(dynamicMethodName, null, tripleTypeArray, elementType.GetBaseElementType());
+
+            ILGenerator gen = setterMethod.GetILGenerator();
+            gen.Emit(OpCodes.Ldarg_0);
+            gen.Emit(OpCodes.Castclass, tValueArray);
+            gen.Emit(OpCodes.Ldarg_1);
+            gen.Emit(OpCodes.Ldarg_2);
+            if (elementType.IsValueType)
+                gen.Emit(OpCodes.Unbox, elementType);
+            else if (elementType != tObject)
+                gen.Emit(OpCodes.Castclass, elementType);
+            gen.Emit(OpCodes.Stelem, elementType);
+            gen.Emit(OpCodes.Ret);
+
+            return (ArrayValueSetterDelegate<object>)setterMethod.CreateDelegate(typeof(ArrayValueSetterDelegate<object>));
+        }
+
+        /// <summary>
+        /// Creates a delegate that creates a new array of specified length of element type. Slower and less safe than generic overload.
+        /// </summary>
+        /// <param name="elementType">Type of the array element.</param>
+        /// <returns>Returns a delegate that creates a new array of specfied length of element type.</returns>
+        public static CreateNewArrayDelegate GenerateCreateNewArrayDelegate(Type elementType)
+        {
+            singleTypeArray[0] = tInt;
+            string dynamicMethodName = useMeaningfulNames ? elementType.FullName + ".CreateArray" : GENERATED_NAME;
+            DynamicMethod constructorMethod = new DynamicMethod(dynamicMethodName, tArray, singleTypeArray, elementType.GetBaseElementType());
+
+            ILGenerator gen = constructorMethod.GetILGenerator();
+            gen.Emit(OpCodes.Ldarg_0);
+            gen.Emit(OpCodes.Newarr, elementType);
+            gen.Emit(OpCodes.Castclass, tArray);
+            gen.Emit(OpCodes.Ret);
+
+            return (CreateNewArrayDelegate)constructorMethod.CreateDelegate(typeof(CreateNewArrayDelegate));
+        }
+
+        /// <summary>
+        /// Creates a delegate that creates a new list of specified length of element type. Slower and less safe than generic overload.
+        /// </summary>
+        /// <param name="elementType">Type of the list element.</param>
+        /// <param name="constructorInfo">Optional: cached list constructor info that only takes an int param.</param>
+        /// <returns>Returns a delegate that creates a new list of specified length of element type.</returns>
+        public static CreateNewListDelegate GenerateCreateNewListDelegate(Type elementType, ConstructorInfo constructorInfo = null)
+        {
+            singleTypeArray[0] = tInt;
+
+            if (constructorInfo == null)
+            {
+                Type tGenericList = tList.MakeGenericType(elementType);
+                constructorInfo = tGenericList.GetConstructor(singleTypeArray);
+            }
+
+            string dynamicMethodName = useMeaningfulNames ? elementType.FullName + ".CreateList" : GENERATED_NAME;
+            DynamicMethod constructorMethod = new DynamicMethod(dynamicMethodName, tIList, singleTypeArray, elementType.GetBaseElementType());
+
+            ILGenerator gen = constructorMethod.GetILGenerator();
+            gen.Emit(OpCodes.Ldarg_0);
+            gen.Emit(OpCodes.Newobj, constructorInfo);
+            gen.Emit(OpCodes.Castclass, tIList);
+            gen.Emit(OpCodes.Ret);
+
+            return (CreateNewListDelegate)constructorMethod.CreateDelegate(typeof(CreateNewListDelegate));
         }
 
         #endregion
@@ -1216,7 +1390,10 @@ namespace Expanse.Utilities
             Type tValue = typeof(TValue);
 
             if (tValue != fieldInfo.FieldType)
-                throw new InvalidArgumentException("Type TValue must equal the fieldInfo field type");
+            {
+                if (!(fieldInfo.FieldType.IsEnum && Enum.GetUnderlyingType(fieldInfo.FieldType) == tValue))
+                    throw new InvalidArgumentException("Type TValue must equal the fieldInfo field type");
+            }
 
             singleTypeArray[0] = tObject;
             string dynamicMethodName = useMeaningfulNames ? fieldInfo.ReflectedType.FullName + ".get_" + fieldInfo.Name : GENERATED_NAME;
@@ -1308,7 +1485,7 @@ namespace Expanse.Utilities
             return (FieldSetterDelegate<object, TValue>)setterMethod.CreateDelegate(typeof(FieldSetterDelegate<object, TValue>));
         }
 
-#if NET_4_5
+#if NET_4_6
         /// <summary>
         /// Creates a delegate that sets the value of a field using an expression-compiled delegate. Slower than non expression overload.
         /// </summary>
@@ -1473,7 +1650,7 @@ namespace Expanse.Utilities
             return (PropertySetterDelegate<object, TValue>)setterMethod.CreateDelegate(typeof(PropertySetterDelegate<object, TValue>));
         }
 
-#if NET_4_5
+#if NET_4_6
         /// <summary>
         /// Creates a delegate that sets the value of a property. Slower than non expression overload.
         /// <para>Warning: Unboxes value types that are the source.</para>
@@ -1508,7 +1685,6 @@ namespace Expanse.Utilities
             return Expression.Lambda<PropertySetterDelegate<object, TValue>>(setterExp, objectExpPara, valueExpPara).Compile();
         }
 #endif
-
         #endregion
     }
 }

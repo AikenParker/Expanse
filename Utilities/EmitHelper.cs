@@ -17,13 +17,6 @@ namespace Expanse.Utilities
     /// <typeparam name="TTarget">Target type.</typeparam>
     public static class EmitHelper<TTarget>
     {
-        private static Type targetType;
-
-        static EmitHelper()
-        {
-            targetType = typeof(TTarget);
-        }
-
         /// <summary>
         /// Creates a new instance of <see cref="TTarget"/> using an emitted default constructor delegate.
         /// </summary>

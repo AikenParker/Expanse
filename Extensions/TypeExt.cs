@@ -46,5 +46,17 @@ namespace Expanse.Extensions
         {
             return other.IsAssignableFrom(type);
         }
+
+        /// <summary>
+        /// Gets the base element type of a type.
+        /// </summary>
+        /// <param name="type">Type to check.</param>
+        /// <returns>Returns the base element type of a type.</returns>
+        public static Type GetBaseElementType(this Type type)
+        {
+            while (type.HasElementType)
+                type = type.GetElementType();
+            return type;
+        }
     }
 }

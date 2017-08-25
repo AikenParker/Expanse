@@ -85,7 +85,7 @@ namespace Expanse.Serialization
         /// <typeparam name="TTarget">Type of the target object.</typeparam>
         /// <param name="data">Serialized object data.</param>
         /// <returns>Returns a deserialized instance object.</returns>
-        public TTarget Deserialize<TTarget>(byte[] data) where TTarget : new()
+        public TTarget Deserialize<TTarget>(byte[] data)
         {
             using (var ms = new MemoryStream(data, false))
             {
@@ -100,7 +100,7 @@ namespace Expanse.Serialization
         /// <param name="data">Serialized object data.</param>
         /// <param name="offset">Offset at which the target data is.</param>
         /// <returns>Returns a deserialized instance object.</returns>
-        public TTarget Deserialize<TTarget>(byte[] data, int offset) where TTarget : new()
+        public TTarget Deserialize<TTarget>(byte[] data, int offset)
         {
             using (var ms = new MemoryStream(data, offset, data.Length - offset, false))
             {

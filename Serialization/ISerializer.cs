@@ -19,7 +19,7 @@
         /// <typeparam name="TTarget">Type of the target object.</typeparam>
         /// <param name="data">Serialized object data.</param>
         /// <returns>Returns a deserialized instance object.</returns>
-        TTarget Deserialize<TTarget>(TData data) where TTarget : new();
+        TTarget Deserialize<TTarget>(TData data);
     }
 
     /// <summary>
@@ -58,6 +58,6 @@
         /// <param name="data">Serialized object data.</param>
         /// <param name="offset">Offset at which the target data is.</param>
         /// <returns>Returns a deserialized instance object.</returns>
-        TTarget Deserialize<TTarget>(byte[] data, int offset) where TTarget : new();
+        TTarget Deserialize<TTarget>(byte[] data, int offset);
     }
 }

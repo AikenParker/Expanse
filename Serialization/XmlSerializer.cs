@@ -41,7 +41,7 @@ namespace Expanse.Serialization
         /// <typeparam name="TTarget">Type of the target object.</typeparam>
         /// <param name="data">Serialized object data.</param>
         /// <returns>Returns a deserialized instance object.</returns>
-        public TTarget Deserialize<TTarget>(string data) where TTarget : new()
+        public TTarget Deserialize<TTarget>(string data)
         {
             using (var sr = new StringReader(data))
             {

@@ -9,12 +9,12 @@ namespace Expanse.Serialization
     /// </summary>
     public class ZeroFormatterSerializer : IByteSerializer
     {
-        public TTarget Deserialize<TTarget>(byte[] data) where TTarget : new()
+        public TTarget Deserialize<TTarget>(byte[] data)
         {
             return ZeroFormatter.ZeroFormatterSerializer.Deserialize<TTarget>(data);
         }
 
-        public TTarget Deserialize<TTarget>(byte[] data, int offset) where TTarget : new()
+        public TTarget Deserialize<TTarget>(byte[] data, int offset)
         {
             throw new NotImplementedException();
         }

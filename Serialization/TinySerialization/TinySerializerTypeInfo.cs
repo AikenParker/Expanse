@@ -113,21 +113,16 @@ namespace Expanse.Serialization.TinySerialization
         public TinySerializerTypeInfo elementTypeInfo;
 
         public bool inspectedFields;
-        public bool inspectedProperties;
         public bool emittedDefaultConstructor;
-        public bool emittedObjectDefaultConstructor;
+        public bool emittedArrayConstructor;
+        public bool emittedListConstructor;
         public bool emittedFieldGetters;
         public bool emittedFieldGettersByTypedRef;
         public bool emittedFieldSetters;
-        public bool emittedFieldSettersByTypedRef;
-        public bool emittedPropertyGetters;
-        public bool emittedPropertyGettersByTypedRef;
-        public bool emittedPropertySetters;
-        public bool emittedPropertySettersByTypedRef;
         public Delegate defaultConstructor;
-        public Delegate objectDefaultConstructor;
+        public Delegate arrayConstructor;
+        public Delegate listConstructor;
         public FieldTypeInfo[] fieldTypeInfos;
-        public PropertyTypeInfo[] propertyTypeInfos;
 
         public TinySerializerTypeInfo()
         {
@@ -331,44 +326,34 @@ namespace Expanse.Serialization.TinySerialization
             }
         }
 
-        public void InspectProperties()
-        {
-            if (inspectedProperties)
-                return;
-
-            inspectedProperties = true;
-
-            PropertyInfo[] propertyInfos = type.GetProperties(BINDING_FLAGS);
-            int propertyInfoCount = propertyInfos.Length;
-
-            propertyTypeInfos = new PropertyTypeInfo[propertyInfoCount];
-
-            for (int i = 0; i < propertyInfoCount; i++)
-            {
-                PropertyInfo propertyInfo = propertyInfos[i];
-                PropertyTypeInfo propertyTypeInfo = new PropertyTypeInfo(propertyInfo);
-                propertyTypeInfos[i] = propertyTypeInfo;
-            }
-        }
-
-        public void EmitDefaultConstructor<TSource>() where TSource : new()
+        public void EmitDefaultConstructor()
         {
             if (emittedDefaultConstructor)
                 return;
 
             emittedDefaultConstructor = true;
 
-            defaultConstructor = EmitUtil.GenerateDefaultConstructorDelegate<TSource>();
+            defaultConstructor = EmitUtil.GenerateDefaultConstructorDelegate(type);
         }
 
-        public void EmitObjectDefaultConstructor()
+        public void EmitArrayConstructor()
         {
-            if (emittedObjectDefaultConstructor)
+            if (emittedArrayConstructor)
                 return;
 
-            emittedObjectDefaultConstructor = true;
+            emittedArrayConstructor = true;
 
-            objectDefaultConstructor = EmitUtil.GenerateDefaultConstructorDelegate(type);
+            arrayConstructor = EmitUtil.GenerateCreateNewArrayDelegate(type);
+        }
+
+        public void EmitListConstructor()
+        {
+            if (emittedListConstructor)
+                return;
+
+            emittedListConstructor = true;
+
+            listConstructor = EmitUtil.GenerateCreateNewListDelegate(type);
         }
 
         public void EmitFieldGetters()
@@ -600,47 +585,111 @@ namespace Expanse.Serialization.TinySerialization
             if (emittedFieldSetters)
                 return;
 
+            for (int i = 0; i < fieldTypeInfos.Length; i++)
+            {
+                FieldTypeInfo fieldTypeInfo = fieldTypeInfos[i];
+                SerializationType fieldSerializationType = fieldTypeInfo.fieldTypeInfo.serializationType;
+                FieldInfo fieldInfo = fieldTypeInfo.fieldInfo;
+
+                switch (fieldSerializationType)
+                {
+                    case SerializationType.String:
+                        fieldTypeInfo.setter = EmitUtil.GenerateFieldSetterDelegate<string>(fieldInfo);
+                        break;
+                    case SerializationType.Byte:
+                        fieldTypeInfo.setter = EmitUtil.GenerateFieldSetterDelegate<byte>(fieldInfo);
+                        break;
+                    case SerializationType.SByte:
+                        fieldTypeInfo.setter = EmitUtil.GenerateFieldSetterDelegate<sbyte>(fieldInfo);
+                        break;
+                    case SerializationType.Bool:
+                        fieldTypeInfo.setter = EmitUtil.GenerateFieldSetterDelegate<bool>(fieldInfo);
+                        break;
+                    case SerializationType.Int16:
+                        fieldTypeInfo.setter = EmitUtil.GenerateFieldSetterDelegate<short>(fieldInfo);
+                        break;
+                    case SerializationType.Int32:
+                        fieldTypeInfo.setter = EmitUtil.GenerateFieldSetterDelegate<int>(fieldInfo);
+                        break;
+                    case SerializationType.Int64:
+                        fieldTypeInfo.setter = EmitUtil.GenerateFieldSetterDelegate<long>(fieldInfo);
+                        break;
+                    case SerializationType.UInt16:
+                        fieldTypeInfo.setter = EmitUtil.GenerateFieldSetterDelegate<ushort>(fieldInfo);
+                        break;
+                    case SerializationType.UInt32:
+                        fieldTypeInfo.setter = EmitUtil.GenerateFieldSetterDelegate<uint>(fieldInfo);
+                        break;
+                    case SerializationType.UInt64:
+                        fieldTypeInfo.setter = EmitUtil.GenerateFieldSetterDelegate<ulong>(fieldInfo);
+                        break;
+                    case SerializationType.Half:
+                        fieldTypeInfo.setter = EmitUtil.GenerateFieldSetterDelegate<Half>(fieldInfo);
+                        break;
+                    case SerializationType.Single:
+                        fieldTypeInfo.setter = EmitUtil.GenerateFieldSetterDelegate<float>(fieldInfo);
+                        break;
+                    case SerializationType.Double:
+                        fieldTypeInfo.setter = EmitUtil.GenerateFieldSetterDelegate<double>(fieldInfo);
+                        break;
+                    case SerializationType.Char:
+                        fieldTypeInfo.setter = EmitUtil.GenerateFieldSetterDelegate<char>(fieldInfo);
+                        break;
+                    case SerializationType.Decimal:
+                        fieldTypeInfo.setter = EmitUtil.GenerateFieldSetterDelegate<decimal>(fieldInfo);
+                        break;
+                    case SerializationType.DateTime:
+                        fieldTypeInfo.setter = EmitUtil.GenerateFieldSetterDelegate<DateTime>(fieldInfo);
+                        break;
+                    case SerializationType.DateTimeOffset:
+                        fieldTypeInfo.setter = EmitUtil.GenerateFieldSetterDelegate<DateTimeOffset>(fieldInfo);
+                        break;
+                    case SerializationType.TimeSpan:
+                        fieldTypeInfo.setter = EmitUtil.GenerateFieldSetterDelegate<TimeSpan>(fieldInfo);
+                        break;
+                    case SerializationType.Vector2:
+                        fieldTypeInfo.setter = EmitUtil.GenerateFieldSetterDelegate<Vector2>(fieldInfo);
+                        break;
+                    case SerializationType.Vector3:
+                        fieldTypeInfo.setter = EmitUtil.GenerateFieldSetterDelegate<Vector3>(fieldInfo);
+                        break;
+                    case SerializationType.Vector4:
+                        fieldTypeInfo.setter = EmitUtil.GenerateFieldSetterDelegate<Vector4>(fieldInfo);
+                        break;
+                    case SerializationType.Quaternion:
+                        fieldTypeInfo.setter = EmitUtil.GenerateFieldSetterDelegate<Quaternion>(fieldInfo);
+                        break;
+                    case SerializationType.Rect:
+                        fieldTypeInfo.setter = EmitUtil.GenerateFieldSetterDelegate<Rect>(fieldInfo);
+                        break;
+                    case SerializationType.Bounds:
+                        fieldTypeInfo.setter = EmitUtil.GenerateFieldSetterDelegate<Bounds>(fieldInfo);
+                        break;
+                    case SerializationType.IntVector2:
+                        fieldTypeInfo.setter = EmitUtil.GenerateFieldSetterDelegate<IntVector2>(fieldInfo);
+                        break;
+                    case SerializationType.IntVector3:
+                        fieldTypeInfo.setter = EmitUtil.GenerateFieldSetterDelegate<IntVector3>(fieldInfo);
+                        break;
+                    case SerializationType.IntVector4:
+                        fieldTypeInfo.setter = EmitUtil.GenerateFieldSetterDelegate<IntVector4>(fieldInfo);
+                        break;
+                    // TODO: Use generic delegates for primitive array, list and nullables
+                    case SerializationType.PrimitiveArray:
+                    case SerializationType.PrimitiveList:
+                    case SerializationType.PrimitiveNullable:
+                    case SerializationType.ObjectArray:
+                    case SerializationType.ObjectList:
+                    case SerializationType.ObjectNullable:
+                    case SerializationType.Object:
+                        fieldTypeInfo.setter = EmitUtil.GenerateFieldSetterDelegate(fieldInfo);
+                        break;
+                    default:
+                        throw new UnsupportedException("Unsupported serialization type: " + fieldSerializationType);
+                }
+            }
+
             emittedFieldSetters = true;
-        }
-
-        public void EmitFieldSettersByTypedRef()
-        {
-            if (emittedFieldSettersByTypedRef)
-                return;
-
-            emittedFieldSettersByTypedRef = true;
-        }
-
-        public void EmitPropertyGetters()
-        {
-            if (emittedPropertyGetters)
-                return;
-
-            emittedPropertyGetters = true;
-        }
-
-        public void EmitPropertyGettersByTypedRef()
-        {
-            if (emittedPropertyGettersByTypedRef)
-                return;
-
-            emittedPropertyGettersByTypedRef = true;
-        }
-
-        public void EmitPropertySetters()
-        {
-            if (emittedPropertySetters)
-                return;
-
-            emittedPropertySetters = true;
-        }
-
-        public void EmitPropertySettersByTypedRef()
-        {
-            if (emittedPropertySettersByTypedRef)
-                return;
-
-            emittedPropertySettersByTypedRef = true;
         }
 
         public sealed class FieldTypeInfo
@@ -649,10 +698,17 @@ namespace Expanse.Serialization.TinySerialization
             public Type fieldType;
             public int fieldTypeHashCode;
             public TinySerializerTypeInfo fieldTypeInfo;
+            public bool isPrivate;
+            public object[] customAttributes;
+            public bool hasObsoleteAttribute;
+            public bool hasSerializeAttribute;
+            public bool hasNonSerializeAttribute;
+            public bool hasStringEncodeTypeOverrideAttribute;
+            public StringEncodeType stringEncodeTypeOverride;
+
             public Delegate getter;
             public Delegate setter;
             public Delegate getterByTypedRef;
-            public Delegate setterByTypedRef;
 
             public FieldTypeInfo(FieldInfo fieldInfo)
             {
@@ -661,31 +717,33 @@ namespace Expanse.Serialization.TinySerialization
                 fieldType = fieldInfo.FieldType;
                 fieldTypeHashCode = fieldType.TypeHandle.Value.ToInt32();
                 fieldTypeInfo = GetTypeInfo(fieldType, fieldTypeHashCode);
+                isPrivate = fieldInfo.IsPrivate;
+                customAttributes = fieldInfo.GetCustomAttributes(false);
+
+                for (int i = 0; i < customAttributes.Length; i++)
+                {
+                    object customAttribute = customAttributes[i];
+
+                    if (customAttribute is ObsoleteAttribute)
+                        hasObsoleteAttribute = true;
+                    else if (customAttribute is SerializeField)
+                        hasSerializeAttribute = true;
+                    else if (customAttribute is NonSerializedAttribute)
+                        hasNonSerializeAttribute = true;
+                    else
+                    {
+                        StringEncodeTypeOverrideAttribute stringEncodeTypeOverrideAttribute = customAttribute as StringEncodeTypeOverrideAttribute;
+                        if (stringEncodeTypeOverrideAttribute != null)
+                        {
+                            hasStringEncodeTypeOverrideAttribute = true;
+                            stringEncodeTypeOverride = stringEncodeTypeOverrideAttribute.stringEncodeType;
+                        }
+                    }
+                }
             }
         }
 
-        public sealed class PropertyTypeInfo
-        {
-            public PropertyInfo propertyInfo;
-            public Type propertyType;
-            public int propertyTypeHashCode;
-            public TinySerializerTypeInfo propertyTypeInfo;
-            public Delegate getter;
-            public Delegate setter;
-            public Delegate getterByTypedRef;
-            public Delegate setterByTypedRef;
-
-            public PropertyTypeInfo(PropertyInfo propertyInfo)
-            {
-                this.propertyInfo = propertyInfo;
-
-                propertyType = propertyInfo.PropertyType;
-                propertyTypeHashCode = propertyType.TypeHandle.Value.ToInt32();
-                propertyTypeInfo = GetTypeInfo(propertyType, propertyTypeHashCode);
-            }
-        }
-
-        public class ArrayAccessInfo
+        public sealed class ArrayAccessInfo
         {
             private static int arrayAccessInfoCount;
             private static ArrayAccessInfo[] arrayAccessInfoCache;
@@ -754,6 +812,8 @@ namespace Expanse.Serialization.TinySerialization
                     return;
 
                 emittedSetterDelegate = true;
+
+                setter = EmitUtil.GenerateArrayValueSetterDelegate(type);
             }
         }
     }
