@@ -12,6 +12,7 @@ namespace Expanse.Utilities
         /// Structure containing two values of type <typeparamref name="T"/>.
         /// </summary>
         /// <typeparam name="T">Type of structure to contain.</typeparam>
+        [StructLayout(LayoutKind.Sequential, Pack = 1)]
         public struct DoubleStruct<T> where T : struct
         {
             /// <summary>
@@ -70,30 +71,6 @@ namespace Expanse.Utilities
                 case TypeCode.Decimal:
                     return sizeof(decimal);
                 default:
-                    /*
-                    T[] tArray = new T[2];
-                    GCHandle tArrayPinned = GCHandle.Alloc(tArray, GCHandleType.Pinned);
-                    try
-                    {
-                        TypedReference tRef0 = __makeref(tArray[0]);
-                        TypedReference tRef1 = __makeref(tArray[1]);
-
-                        IntPtr ptrToT0 = *((IntPtr*)&tRef0);
-                        IntPtr ptrToT1 = *((IntPtr*)&tRef1);
-
-                        var bytePtr0 = (byte*)ptrToT0;
-                        var bytePtr1 = (byte*)ptrToT1;
-
-                        return (int)(bytePtr1 - bytePtr0);
-                    }
-                    finally
-                    {
-                        tArrayPinned.Free();
-                    }
-                    */
-
-                    // No allocation alternative
-
                     var doubleStruct = DoubleStruct<T>.Value;
 
                     var tRef0 = __makeref(doubleStruct.First);
@@ -102,11 +79,10 @@ namespace Expanse.Utilities
                     IntPtr ptrToT0 = *((IntPtr*)&tRef0);
                     IntPtr ptrToT1 = *((IntPtr*)&tRef1);
 
-                    var bytePtr0 = (byte*)ptrToT0;
-                    var bytePtr1 = (byte*)ptrToT1;
+                    var bytePtr0 = (byte*)&ptrToT0;
+                    var bytePtr1 = (byte*)&ptrToT1;
 
                     return (int)(bytePtr1 - bytePtr0);
-
             }
         }
 

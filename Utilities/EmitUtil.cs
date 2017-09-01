@@ -37,6 +37,7 @@ namespace Expanse.Utilities
 
         // Type array caches used when emitting methods
         private static readonly Type tObject = typeof(object);
+        private static readonly Type tType = typeof(Type);
         private static readonly Type tTypedRef = typeof(TypedReference);
         private static readonly Type tArray = typeof(Array);
         private static readonly Type tList = typeof(List<>);
@@ -198,6 +199,11 @@ namespace Expanse.Utilities
         /// <param name="capacity">Capacity to set the new lsit to.</param>
         /// <returns>Returns a new list of element type with specified capacity.</returns>
         public delegate IList CreateNewListDelegate(int capacity);
+        /// <summary>
+        /// Delegate used to get the size of a blittable type.
+        /// </summary>
+        /// <returns>Returns the size of a blittable type.</returns>
+        public delegate int SizeOfTypeDelegate();
 
         #endregion
 
@@ -244,6 +250,10 @@ namespace Expanse.Utilities
                         gen.Emit(OpCodes.Conv_U4);
                     else if (tTarget == typeof(ulong))
                         gen.Emit(OpCodes.Conv_U8);
+                    else if (tTarget == typeof(float))
+                        gen.Emit(OpCodes.Conv_R4);
+                    else if (tTarget == typeof(double))
+                        gen.Emit(OpCodes.Conv_R8);
                 }
             }
             gen.Emit(OpCodes.Ret);
@@ -277,25 +287,43 @@ namespace Expanse.Utilities
         public static DefaultConstructorDelegate<TSource> GenerateDefaultConstructorDelegate<TSource>(ConstructorInfo defaultConstructorInfo = null)
             where TSource : new()
         {
-            // TODO: Be able construct all primitive types
             Type tSource = typeof(TSource);
 
             if (defaultConstructorInfo == null)
             {
                 defaultConstructorInfo = tSource.GetConstructor(emptyTypeArray);
 
-                if (defaultConstructorInfo == null)
-                    throw new InvalidTypeException("TSource must have a default constructor");
+                if (tSource.IsValueType)
+                {
+                    string dynamicMethodName = useMeaningfulNames ? tSource.FullName + ".init" : GENERATED_NAME;
+                    DynamicMethod constructorMethod = new DynamicMethod(dynamicMethodName, tSource, emptyTypeArray, tSource);
+                    ILGenerator gen = constructorMethod.GetILGenerator();
+                    gen.DeclareLocal(tSource);
+
+                    gen.Emit(OpCodes.Ldloca_S, 0x0);
+                    gen.Emit(OpCodes.Initobj, tSource);
+                    gen.Emit(OpCodes.Ldloc_0);
+                    gen.Emit(OpCodes.Ret);
+
+                    return (DefaultConstructorDelegate<TSource>)constructorMethod.CreateDelegate(typeof(DefaultConstructorDelegate<TSource>));
+                }
+                else
+                {
+                    if (defaultConstructorInfo == null)
+                        throw new InvalidTypeException("TSource must have a default constructor");
+                }
             }
 
-            string dynamicMethodName = useMeaningfulNames ? tSource.FullName + ".ctor" : GENERATED_NAME;
-            DynamicMethod constructorMethod = new DynamicMethod(dynamicMethodName, tSource, emptyTypeArray, tSource);
-            ILGenerator gen = constructorMethod.GetILGenerator();
+            {
+                string dynamicMethodName = useMeaningfulNames ? tSource.FullName + ".ctor" : GENERATED_NAME;
+                DynamicMethod constructorMethod = new DynamicMethod(dynamicMethodName, tSource, emptyTypeArray, tSource);
+                ILGenerator gen = constructorMethod.GetILGenerator();
 
-            gen.Emit(OpCodes.Newobj, defaultConstructorInfo);
-            gen.Emit(OpCodes.Ret);
+                gen.Emit(OpCodes.Newobj, defaultConstructorInfo);
+                gen.Emit(OpCodes.Ret);
 
-            return (DefaultConstructorDelegate<TSource>)constructorMethod.CreateDelegate(typeof(DefaultConstructorDelegate<TSource>));
+                return (DefaultConstructorDelegate<TSource>)constructorMethod.CreateDelegate(typeof(DefaultConstructorDelegate<TSource>));
+            }
         }
 
         /// <summary>
@@ -829,6 +857,25 @@ namespace Expanse.Utilities
             return (CreateNewListDelegate<TElement>)constructorMethod.CreateDelegate(typeof(CreateNewListDelegate<TElement>));
         }
 
+        /// <summary>
+        /// Creates a delegate that gets the size of a blittable type.
+        /// </summary>
+        /// <typeparam name="TSource">Blittable type to get the size of.</typeparam>
+        /// <returns>Returns a delegate that gets the size of a blittable type.</returns>
+        public static SizeOfTypeDelegate GenerateSizeOfDelegate<TSource>() where TSource : struct
+        {
+            Type tSource = typeof(TSource);
+
+            string dynamicMethodName = useMeaningfulNames ? tSource.FullName + ".SizeOf" : GENERATED_NAME;
+            DynamicMethod sizeOfMethod = new DynamicMethod(dynamicMethodName, tInt, emptyTypeArray, tSource);
+
+            ILGenerator gen = sizeOfMethod.GetILGenerator();
+            gen.Emit(OpCodes.Sizeof, tSource);
+            gen.Emit(OpCodes.Ret);
+
+            return (SizeOfTypeDelegate)sizeOfMethod.CreateDelegate(typeof(SizeOfTypeDelegate));
+        }
+
         #endregion
 
         #region NON_GENERIC
@@ -845,22 +892,45 @@ namespace Expanse.Utilities
             {
                 defaultConstructorInfo = tSource.GetConstructor(emptyTypeArray);
 
-                if (defaultConstructorInfo == null)
-                    throw new InvalidTypeException("tSource must have a default constructor");
+                if (tSource.IsValueType)
+                {
+                    // No-specified constructor struct
+
+                    string dynamicMethodName = useMeaningfulNames ? tSource.FullName + ".init" : GENERATED_NAME;
+                    DynamicMethod constructorMethod = new DynamicMethod(dynamicMethodName, tObject, emptyTypeArray, tSource);
+                    ILGenerator gen = constructorMethod.GetILGenerator();
+                    gen.DeclareLocal(tSource);
+
+                    gen.Emit(OpCodes.Ldloca_S, 0x0);
+                    gen.Emit(OpCodes.Initobj, tSource);
+                    gen.Emit(OpCodes.Ldloc_0);
+                    gen.Emit(OpCodes.Box, tSource);
+                    gen.Emit(OpCodes.Ret);
+
+                    return (DefaultConstructorDelegate<object>)constructorMethod.CreateDelegate(typeof(DefaultConstructorDelegate<object>));
+                }
+                else
+                {
+                    if (defaultConstructorInfo == null)
+                        throw new InvalidTypeException("tSource must have a default constructor");
+                }
             }
 
-            string dynamicMethodName = useMeaningfulNames ? tSource.FullName + ".ctor" : GENERATED_NAME;
-            DynamicMethod constructorMethod = new DynamicMethod(dynamicMethodName, tSource, emptyTypeArray, tSource);
-            ILGenerator gen = constructorMethod.GetILGenerator();
+            // Specified constructor
+            {
+                string dynamicMethodName = useMeaningfulNames ? tSource.FullName + ".ctor" : GENERATED_NAME;
+                DynamicMethod constructorMethod = new DynamicMethod(dynamicMethodName, tObject, emptyTypeArray, tSource);
+                ILGenerator gen = constructorMethod.GetILGenerator();
 
-            gen.Emit(OpCodes.Newobj, defaultConstructorInfo);
-            if (tSource.IsValueType)
-                gen.Emit(OpCodes.Box, tSource);
-            else if (tSource != tObject)
-                gen.Emit(OpCodes.Castclass, tSource);
-            gen.Emit(OpCodes.Ret);
+                gen.Emit(OpCodes.Newobj, defaultConstructorInfo);
+                if (tSource.IsValueType)
+                    gen.Emit(OpCodes.Box, tSource);
+                else if (tSource != tObject)
+                    gen.Emit(OpCodes.Castclass, tSource);
+                gen.Emit(OpCodes.Ret);
 
-            return (DefaultConstructorDelegate<object>)constructorMethod.CreateDelegate(typeof(DefaultConstructorDelegate<object>));
+                return (DefaultConstructorDelegate<object>)constructorMethod.CreateDelegate(typeof(DefaultConstructorDelegate<object>));
+            }
         }
 
         /// <summary>
@@ -1365,6 +1435,23 @@ namespace Expanse.Utilities
             gen.Emit(OpCodes.Ret);
 
             return (CreateNewListDelegate)constructorMethod.CreateDelegate(typeof(CreateNewListDelegate));
+        }
+
+        /// <summary>
+        /// Creates a delegate that gets the size of a blittable type.
+        /// </summary>
+        /// <param name="type">Blittable type to get the size of.</param>
+        /// <returns>Returns a delegate that gets the size of a blittable type.</returns>
+        public static SizeOfTypeDelegate GenerateSizeOfDelegate(Type type)
+        {
+            string dynamicMethodName = useMeaningfulNames ? type.FullName + ".SizeOf" : GENERATED_NAME;
+            DynamicMethod sizeOfMethod = new DynamicMethod(dynamicMethodName, tInt, emptyTypeArray, type);
+
+            ILGenerator gen = sizeOfMethod.GetILGenerator();
+            gen.Emit(OpCodes.Sizeof, type);
+            gen.Emit(OpCodes.Ret);
+
+            return (SizeOfTypeDelegate)sizeOfMethod.CreateDelegate(typeof(SizeOfTypeDelegate));
         }
 
         #endregion

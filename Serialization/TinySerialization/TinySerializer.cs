@@ -42,7 +42,7 @@ namespace Expanse.Serialization.TinySerialization
         public void AddCustomTypeResolver(CustomTypeResolver customTypeResolver)
         {
             if (customTypeResolver == null)
-                throw new ArgumentNullException(nameof(customTypeResolver));
+                throw new ArgumentNullException("customTypeResolver");
 
             if (customTypeResolvers == null)
             {
@@ -87,7 +87,9 @@ namespace Expanse.Serialization.TinySerialization
         /// </summary>
         /// <param name="fieldTypeInfo">Field Type Info to check.</param>
         /// <returns>Returns true if the field type info should be serialized.</returns>
+#if NET_4_6
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
         private bool ShouldSerializeField(TinySerializerTypeInfo.FieldTypeInfo fieldTypeInfo)
         {
             if (settings.serializeAllFields)
@@ -2374,7 +2376,11 @@ namespace Expanse.Serialization.TinySerialization
         private int SerializeStringIntoBuffer(string value, int offset)
         {
             bool isNull = value == null;
+#if NET_4_6
             int strLength = value?.Length ?? -1;
+#else
+            int strLength = value != null ? value.Length : -1;
+#endif
             int dataSize = SerializeNullLengthPrefixIntoBuffer(isNull, strLength, offset);
             if (isNull)
                 return dataSize;
@@ -2474,7 +2480,11 @@ namespace Expanse.Serialization.TinySerialization
         private int SerializeObjectArrayIntoBuffer(Array value, int offset, TinySerializerTypeInfo typeInfo)
         {
             bool isNull = value == null;
+#if NET_4_6
             int arrLength = value?.Length ?? -1;
+#else
+            int arrLength = value != null ? value.Length : -1;
+#endif
             int dataSize = SerializeNullLengthPrefixIntoBuffer(isNull, arrLength, offset);
             if (isNull)
                 return dataSize;
@@ -2510,7 +2520,11 @@ namespace Expanse.Serialization.TinySerialization
         private int SerializeObjectListIntoBuffer(IList value, int offset, TinySerializerTypeInfo typeInfo)
         {
             bool isNull = value == null;
+#if NET_4_6
             int listLength = value?.Count ?? -1;
+#else
+            int listLength = value != null ? value.Count : -1;
+#endif
             int dataSize = SerializeNullLengthPrefixIntoBuffer(isNull, listLength, offset);
             if (isNull)
                 return dataSize;
@@ -2541,7 +2555,11 @@ namespace Expanse.Serialization.TinySerialization
         private int SerializePrimitiveArrayIntoBuffer(Array value, int offset, TinySerializerTypeInfo typeInfo)
         {
             bool isNull = value == null;
+#if NET_4_6
             int arrLength = value?.Length ?? -1;
+#else
+            int arrLength = value != null ? value.Length : -1;
+#endif
             int dataSize = SerializeNullLengthPrefixIntoBuffer(isNull, arrLength, offset);
             if (isNull)
                 return dataSize;
@@ -2973,7 +2991,11 @@ namespace Expanse.Serialization.TinySerialization
         private int SerializePrimitiveListIntoBuffer(IList value, int offset, TinySerializerTypeInfo typeInfo)
         {
             bool isNull = value == null;
+#if NET_4_6
             int listLength = value?.Count ?? -1;
+#else
+            int listLength = value != null ? value.Count : -1;
+#endif
             int dataSize = SerializeNullLengthPrefixIntoBuffer(isNull, listLength, offset);
             if (isNull)
                 return dataSize;
@@ -3737,7 +3759,9 @@ namespace Expanse.Serialization.TinySerialization
         /// <param name="isNull">If the value to be serialized is null.</param>
         /// <param name="offset">Offset in the buffer to serialize the value.</param>
         /// <returns>Returns the size of the prefix.</returns>
+#if NET_4_6
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
         private int SerializeNullPrefixIntoBuffer(bool isNull, int offset)
         {
             EnsureBufferSize(SerializationTypeSizes.SBYTE + offset);
@@ -3760,7 +3784,9 @@ namespace Expanse.Serialization.TinySerialization
         /// <param name="length">Length of the value to be serialized if not null.</param>
         /// <param name="offset">Offset in the buffer to serialize the value.</param>
         /// <returns>Returns the size of the prefix.</returns>
+#if NET_4_6
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
         private int SerializeNullLengthPrefixIntoBuffer(bool isNull, int length, int offset)
         {
             int dataSize;
@@ -3826,7 +3852,9 @@ namespace Expanse.Serialization.TinySerialization
         /// Ensures that the buffer is at least of a specific size.
         /// </summary>
         /// <param name="size">Ensured buffer size.</param>
+#if NET_4_6
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
         private void EnsureBufferSize(int size)
         {
             if (bufferSize < size)
@@ -5083,7 +5111,21 @@ namespace Expanse.Serialization.TinySerialization
 
                         var dataPtr = &data[strOffset];
 
+#if NET_4_6
                         value = systemEncoding.GetString(dataPtr, byteCount);
+#else
+                        byte[] tmpData = new byte[byteCount];
+
+                        fixed (byte* tmpDataPtr = tmpData)
+                        {
+                            for (int i = 0; i < byteCount; i++)
+                            {
+                                tmpDataPtr[i] = dataPtr[i];
+                            }
+                        }
+
+                        value = systemEncoding.GetString(tmpData);
+#endif
                     }
                     break;
                 default:
@@ -6261,7 +6303,9 @@ namespace Expanse.Serialization.TinySerialization
         /// <param name="data">Serialization data to deserialize the object from.</param>
         /// <param name="offset">Offset in the serialization data.</param>
         /// <returns>Returns the serialization size of the null prefix.</returns>
+#if NET_4_6
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
         private int DeserializeNullPrefixFromData(out bool isNull, byte* data, int offset)
         {
             var dataPtr = (sbyte*)&data[offset];
@@ -6280,7 +6324,9 @@ namespace Expanse.Serialization.TinySerialization
         /// <param name="data">Serialization data to deserialize the object from.</param>
         /// <param name="offset">Offset in the serialization data.</param>
         /// <returns>Returns the serialization size of the null-length prefix.</returns>
+#if NET_4_6
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
         private int DeserializeNullLengthPrefixFromData(out bool isNull, out int length, byte* data, int offset)
         {
             int dataSize = SerializationTypeSizes.SBYTE;

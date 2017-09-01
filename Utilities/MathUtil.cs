@@ -88,7 +88,7 @@ namespace Expanse.Utilities
         }
 
         /// <summary>
-        /// Calculates the standard deviation from a list of floats.
+        /// Calculates the standard deviation of a list of floats.
         /// </summary>
         /// <param name="values">List of float values.</param>
         /// <returns>Returns the standard deviation of a list of float values.</returns>
