@@ -7,29 +7,31 @@ namespace Expanse
 {
     /// <summary>
     /// Manages the finding, prefabrication and auto-creation of other singleton instances.
-    /// Note: You can manually override this process by setting the instance of the object in the static constructor of your Singleton.
     /// </summary>
     public class SingletonManager : Singleton<SingletonManager>
     {
-        static SingletonManager()
+        private static SingletonManager singletonManager;
+
+        public static SingletonManager GetSingletonManager()
         {
-            // Creates a hidden instance of a SingletonManager if there is not one already
+            if (singletonManager == null)
+            {
+                singletonManager = FindObjectOfType<SingletonManager>();
+            }
 
-            SingletonManager instance = FindObjectOfType<SingletonManager>();
-
-            if (instance == null)
+            if (singletonManager == null)
             {
                 GameObject singletonGameObject = new GameObject(typeof(SingletonManager).Name);
                 singletonGameObject.hideFlags = HideFlags.HideInHierarchy;
-                instance = singletonGameObject.AddComponent<SingletonManager>();
+                singletonManager = singletonGameObject.AddComponent<SingletonManager>();
+                Instance = singletonManager;
             }
 
-            SingletonManager.Instance = instance;
+            return singletonManager;
         }
 
-        public List<Singleton> singletonPrefabs = new List<Singleton>();
-
         public bool autoCreate = true;
+        public List<Singleton> singletonPrefabs = new List<Singleton>();
 
         public T GetSingletonInstance<T>() where T : Singleton<T>
         {

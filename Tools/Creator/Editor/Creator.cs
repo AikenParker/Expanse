@@ -15,7 +15,7 @@ namespace Expanse.Tools
     /// <summary>
     /// Creator editor utility tool window. Able to create a ScriptableObject of any type using any constructor.
     /// </summary>
-    public class Creator : ExpanseWindow
+    public class Creator : LegacyExpanseWindow
     {
         private const BindingFlags CONSTRUCTOR_BINDING_FLAGS = BindingFlags.Public | BindingFlags.Instance;
 

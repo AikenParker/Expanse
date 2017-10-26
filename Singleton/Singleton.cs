@@ -14,7 +14,6 @@ namespace Expanse
     public abstract class Singleton<T> : Singleton where T : Singleton<T>
     {
         private static T instance;
-        private readonly static object @lock = new object();
 
         /// <summary>
         /// The instance of type T that is currently the singleton.
@@ -29,17 +28,13 @@ namespace Expanse
                     return null;
                 }
 
-                lock (@lock)
+                if (!instance)
                 {
-                    if (!instance)
-                    {
-                        SingletonManager singletonManager = SingletonManager.Instance;
-
-                        instance = singletonManager.GetSingletonInstance<T>();
-                    }
+                    SingletonManager singletonManager = SingletonManager.GetSingletonManager();
+                    instance = singletonManager.GetSingletonInstance<T>();
                 }
 
-                return instance ? (T)instance : null;
+                return instance;
             }
             protected set { instance = value; }
         }

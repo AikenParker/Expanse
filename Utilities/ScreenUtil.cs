@@ -8,6 +8,12 @@ namespace Expanse.Utilities
     /// </summary>
     public static class ScreenUtil
     {
+        public const float INCHES_TO_CM = 2.54f;
+
+        public static readonly Vector2 ScreenSize = new Vector2(Screen.width, Screen.height);
+        public static readonly float ScreenRatio = (float)Screen.width / Screen.height;
+        public static readonly Vector2 PhysicalScreenSize = ScreenSize / Screen.dpi * INCHES_TO_CM;
+
         /// <summary>
         /// Returns the half extents size of the screen in world coordinates.
         /// </summary>
@@ -75,6 +81,36 @@ namespace Expanse.Utilities
         public static Vector2 GetAnchorFromWorldPosition(Camera camera, Vector3 worldPosition)
         {
             throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Calculates and sets the vertical FOV / orthographic size of a camera to match a horizontal FOV at specified pixels per unit.
+        /// </summary>
+        /// <param name="camera">Target camera component.</param>
+        /// <param name="horizontalFOV">Horizontal field of view for the camera.</param>
+        /// <param name="pixelToUnits">Pixels per unit.</param>
+        public static void CalculateCameraFieldOfView(Camera camera, float horizontalFOV, float pixelToUnits)
+        {
+            if (camera.orthographic)
+            {
+                camera.orthographicSize = horizontalFOV / camera.aspect / pixelToUnits;
+            }
+            else
+            {
+                float vereticalFOV = 2f * Mathf.Atan(Mathf.Tan(horizontalFOV * Mathf.Deg2Rad * 0.5f) / camera.aspect);
+
+                camera.fieldOfView = vereticalFOV * Mathf.Rad2Deg;
+            }
+        }
+
+        /// <summary>
+        /// Calculates the physical length in centimeters from pixel length.
+        /// </summary>
+        /// <param name="pixelLength">Length in pixels.</param>
+        /// <returns>Returns length in centimenters.</returns>
+        public static float CalculatePhysicalLength(float pixelLength)
+        {
+            return pixelLength / Screen.dpi * INCHES_TO_CM;
         }
     }
 }
