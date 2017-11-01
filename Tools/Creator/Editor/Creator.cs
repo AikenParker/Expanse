@@ -283,12 +283,12 @@ namespace Expanse.Tools
 
         private void ShowEmptyConstructorPopup()
         {
-            Utilities.EditorUtil.SetGuiEnabled(false);
+            Utilities.EditorUtil.SetGUIEnabled(false);
 
             EditorGUILayout.Popup("Constructor", 0, new string[] { "-" });
             constructorParams = null;
 
-            Utilities.EditorUtil.RevertGuiEnabled();
+            Utilities.EditorUtil.RevertGUIEnabled();
         }
 
         private string GetParameterSignatureDisplay(ConstructorInfo constructorInfo)

@@ -10,81 +10,92 @@ namespace Expanse.Utilities
     /// </summary>
     public static class EditorUtil
     {
-        private static bool prevGuiEnabled;
-        private static Color prevGuiColor;
-        private static Color prevGuiContentColor;
-        private static Color prevGuiBackgroundColor;
+        private static bool prevGUIEnabled;
+        private static Color prevGUIColor;
+        private static Color prevGUIContentColor;
+        private static Color prevGUIBackgroundColor;
+
+        /// <summary>
+        /// Sets the enabled state of the GUI if its current state is enabled.
+        /// </summary>
+        /// <param name="enabled">State value to set the GUI in.</param>
+        public static void ApplyGUIEnabled(bool enabled)
+        {
+            prevGUIEnabled = GUI.enabled;
+            if (prevGUIEnabled)
+                GUI.enabled = enabled;
+        }
 
         /// <summary>
         /// Set the enabled state of the GUI.
         /// </summary>
         /// <param name="enabled">State value to set the GUI in.</param>
-        public static void SetGuiEnabled(bool enabled)
+        public static void SetGUIEnabled(bool enabled)
         {
-            prevGuiEnabled = GUI.enabled;
+            prevGUIEnabled = GUI.enabled;
             GUI.enabled = enabled;
         }
 
         /// <summary>
         /// Revert back to the previous state of GUI.
         /// </summary>
-        public static void RevertGuiEnabled()
+        public static void RevertGUIEnabled()
         {
-            GUI.enabled = prevGuiEnabled;
+            GUI.enabled = prevGUIEnabled;
         }
 
         /// <summary>
         /// Set the color of the GUI.
         /// </summary>
         /// <param name="color">Color value to set the GUI in.</param>
-        public static void SetGuiColor(Color color)
+        public static void SetGUIColor(Color color)
         {
-            prevGuiColor = GUI.color;
+            prevGUIColor = GUI.color;
             GUI.color = color;
         }
 
         /// <summary>
         /// Revert back to the previous color of the GUI.
         /// </summary>
-        public static void RevertGuiColor()
+        public static void RevertGUIColor()
         {
-            GUI.color = prevGuiColor;
+            GUI.color = prevGUIColor;
         }
 
         /// <summary>
         /// Set the content color of the GUI.
         /// </summary>
         /// <param name="color">Color value to set the GUIContent in.</param>
-        public static void SetGuiContentColor(Color color)
+        public static void SetGUIContentColor(Color color)
         {
-            prevGuiContentColor = GUI.contentColor;
+            prevGUIContentColor = GUI.contentColor;
             GUI.contentColor = color;
         }
 
         /// <summary>
         /// Revert back to the previous content color of the GUI.
         /// </summary>
-        public static void RevertGuiContentColor()
+        public static void RevertGUIContentColor()
         {
-            GUI.contentColor = prevGuiContentColor;
+            GUI.contentColor = prevGUIContentColor;
         }
 
         /// <summary>
         /// Set the background color of the GUI.
         /// </summary>
         /// <param name="color">Color value to the GUIBackground in.</param>
-        public static void SetGuiBackgroundColor(Color color)
+        public static void SetGUIBackgroundColor(Color color)
         {
-            prevGuiBackgroundColor = GUI.backgroundColor;
+            prevGUIBackgroundColor = GUI.backgroundColor;
             GUI.backgroundColor = color;
         }
 
         /// <summary>
         /// Revert back to the previous background color of the GUI.
         /// </summary>
-        public static void RevertGuiBackgroundColor()
+        public static void RevertGUIBackgroundColor()
         {
-            GUI.backgroundColor = prevGuiBackgroundColor;
+            GUI.backgroundColor = prevGUIBackgroundColor;
         }
 
         /// <summary>
@@ -118,11 +129,11 @@ namespace Expanse.Utilities
         /// <param name="target">Target object instance.</param>
         public static void DrawInspectorScriptField<T>(T target) where T : MonoBehaviour
         {
-            SetGuiEnabled(false);
+            SetGUIEnabled(false);
 
             EditorGUILayout.ObjectField("Script", MonoScript.FromMonoBehaviour(target), typeof(MonoScript), false);
 
-            RevertGuiEnabled();
+            RevertGUIEnabled();
         }
 
         /// <summary>
@@ -132,11 +143,11 @@ namespace Expanse.Utilities
         /// <param name="target">Target object instance.</param>
         public static void DrawInspectorEditorScriptField<T>(T target) where T : Editor
         {
-            SetGuiEnabled(false);
+            SetGUIEnabled(false);
 
             EditorGUILayout.ObjectField("Editor Script", MonoScript.FromScriptableObject(target), typeof(MonoScript), false);
 
-            RevertGuiEnabled();
+            RevertGUIEnabled();
         }
     }
 }

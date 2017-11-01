@@ -9,6 +9,34 @@ namespace Expanse.Extensions
     public static class ArrayLinq
     {
         /// <summary>
+        /// Returns the first element in a list that meets a condition.
+        /// </summary>
+        /// <typeparam name="T">List element type.</typeparam>
+        /// <param name="list">Source list.</param>
+        /// <param name="predicate">Condition to meet.</param>
+        /// <returns>Returns the first element in a list that meets a condition.</returns>
+        public static T Find<T>(this IList<T> list, Func<T, bool> predicate)
+        {
+            if (list == null)
+                throw new ArgumentNullException("list");
+
+            if (predicate == null)
+                throw new ArgumentNullException("predicate");
+
+            int listCount = list.Count;
+
+            for (int i = 0; i < listCount; i++)
+            {
+                T item = list[i];
+
+                if (predicate(item))
+                    return item;
+            }
+
+            return default(T);
+        }
+
+        /// <summary>
         /// Returns a new array where items are casted from one type to another.
         /// <para>Faster than Cast().ToArray().</para>
         /// </summary>
@@ -21,7 +49,7 @@ namespace Expanse.Extensions
             where TOutput : class
         {
             if (list == null)
-                throw new ArgumentNullException("source");
+                throw new ArgumentNullException("list");
 
             int count = list.Count;
 
@@ -46,7 +74,7 @@ namespace Expanse.Extensions
         public static TOutput[] SelectToArray<TInput, TOutput>(this IList<TInput> list, Func<TInput, TOutput> selector)
         {
             if (list == null)
-                throw new ArgumentNullException("source");
+                throw new ArgumentNullException("list");
 
             if (selector == null)
                 throw new ArgumentNullException("selector");
@@ -77,7 +105,7 @@ namespace Expanse.Extensions
         public static TOutput[] SelectManyToArray<TInput, TOutput>(this IList<TInput> list, Func<TInput, IList<TOutput>> selector)
         {
             if (list == null)
-                throw new ArgumentNullException("source");
+                throw new ArgumentNullException("list");
 
             if (selector == null)
                 throw new ArgumentNullException("selector");
@@ -122,7 +150,7 @@ namespace Expanse.Extensions
         public unsafe static T[] UnsafeWhereToArray<T>(this IList<T> list, Func<T, bool> predicate)
         {
             if (list == null)
-                throw new ArgumentNullException("source");
+                throw new ArgumentNullException("list");
 
             if (predicate == null)
                 throw new ArgumentNullException("predicate");
@@ -165,7 +193,7 @@ namespace Expanse.Extensions
         public unsafe static int[] UnsafeWhereToArray(this IList<int> list, Func<int, bool> predicate)
         {
             if (list == null)
-                throw new ArgumentNullException("source");
+                throw new ArgumentNullException("list");
 
             if (predicate == null)
                 throw new ArgumentNullException("predicate");
@@ -206,7 +234,7 @@ namespace Expanse.Extensions
         public unsafe static float[] UnsafeWhereToArray(this IList<float> list, Func<float, bool> predicate)
         {
             if (list == null)
-                throw new ArgumentNullException("source");
+                throw new ArgumentNullException("list");
 
             if (predicate == null)
                 throw new ArgumentNullException("predicate");
@@ -249,7 +277,7 @@ namespace Expanse.Extensions
             where TOutput : class
         {
             if (list == null)
-                throw new ArgumentNullException("source");
+                throw new ArgumentNullException("list");
 
             int totalCount = list.Count;
             int count = 0;
